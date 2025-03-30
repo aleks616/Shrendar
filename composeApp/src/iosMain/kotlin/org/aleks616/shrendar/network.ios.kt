@@ -13,6 +13,6 @@ actual class NetworkClient actual constructor() {
         }
     }
 
-    actual suspend fun fetchRanks():List<Ranks>=
+    actual suspend fun fetchRanks():List<Ranks> =
         client.get("http://localhost:8081/api/ranks").body()
 }
