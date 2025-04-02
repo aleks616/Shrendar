@@ -57,12 +57,13 @@ kotlin{
         val desktopMain by getting
 
         androidMain.dependencies{
+            implementation("io.ktor:ktor-client-okhttp:2.3.12")
+            implementation("com.squareup.okhttp3:okhttp:4.12.0")
             implementation("io.ktor:ktor-client-android:2.3.12")
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies{
-
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
@@ -100,6 +101,12 @@ kotlin{
 }
 
 android{
+    configurations.all {
+        exclude(group="org.jetbrains.kotlin-wrappers",module="kotlin-js")
+        /**uncomment this to make android work/comment out to make wasmjs work**/
+        //exclude(group="org.jetbrains.kotlinx",module="kotlinx-browser")
+    }
+    apply(plugin="com.android.application")
     namespace="org.aleks616.shrendar"
     compileSdk=libs.versions.android.compileSdk.get().toInt()
 
@@ -111,6 +118,12 @@ android{
         versionName="1.0"
     }
     packaging{
+        resources.excludes += setOf(
+            "META-INF/versions/9/module-info.class",
+            "**/kotlinx-browser*",
+            "**/kotlin-js*"
+        )
+        resources.excludes+="**/kotlinx-browser*.module"
         resources{
             excludes+="/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -127,8 +140,9 @@ android{
 }
 
 dependencies{
-   /* implementation("io.ktor:ktor-client-core:2.3.3")
-    implementation("io.ktor:ktor-client-cio:2.3.3")*/
+   implementation(libs.androidx.adaptive.android)
+    /* implementation("io.ktor:ktor-client-core:2.3.3")
+       implementation("io.ktor:ktor-client-cio:2.3.3")*/
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.compose.foundation:foundation:1.5.0")
     runtimeOnly("org.jetbrains.compose.ui:ui-tooling:1.5.0")

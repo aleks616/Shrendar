@@ -8,6 +8,9 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Shrendar",
     ) {
-        App()
+        AppTheme {
+            App()
+        }
+
     }
 }
