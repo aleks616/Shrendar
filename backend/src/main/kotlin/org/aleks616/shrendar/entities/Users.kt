@@ -27,7 +27,7 @@ open class Users {
     @Column(name="created_at",nullable=false)
     open var createdAt:Instant?=null
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="rank_id")
     open var ranks:Ranks?=null
 

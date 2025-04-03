@@ -10,7 +10,7 @@ open class Contributions {
     @Column(name="contribution_id",nullable=false)
     open var id:Int?=null
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
     open var users:Users?=null
 

@@ -11,7 +11,7 @@ open class Albums {
     @Column(name="album_id",nullable=false)
     open var id:Int?=null
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
     open var bands:Bands?=null
 

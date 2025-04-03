@@ -57,6 +57,10 @@ kotlin{
         val desktopMain by getting
 
         androidMain.dependencies{
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
             implementation("io.ktor:ktor-client-okhttp:2.3.12")
             implementation("com.squareup.okhttp3:okhttp:4.12.0")
             implementation("io.ktor:ktor-client-android:2.3.12")
@@ -65,7 +69,6 @@ kotlin{
         }
         commonMain.dependencies{
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 /*            implementation("io.ktor:ktor-client-core:2.3.3") {
                 exclude(group="org.jetbrains.kotlin",module="kotlin-stdlib")

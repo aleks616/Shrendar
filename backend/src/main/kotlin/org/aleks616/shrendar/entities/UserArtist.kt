@@ -10,11 +10,11 @@ open class UserArtist {
     @Column(name="id",nullable=false)
     open var id:Int?=null
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
     open var users:Users?=null
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="artist_id")
     open var artist:Artists?=null
 }

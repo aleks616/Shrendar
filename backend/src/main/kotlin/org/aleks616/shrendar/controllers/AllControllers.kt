@@ -2,9 +2,7 @@ package org.aleks616.shrendar.controllers
 
 import org.aleks616.shrendar.repositories.*
 import org.aleks616.shrendar.services.*
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
@@ -22,6 +20,16 @@ class AllControllers(
     private val userGenreRepository:UserGenreRepository,
     private val userRepository:UserService,
 ){
+    data class RegisterRequest(
+        val login:String,
+        val displayName:String,
+        val email:String,
+        val password:String
+    )
+    @PostMapping("/register")
+    fun registerData(@RequestBody request:RegisterRequest){
+        userRepository.createUser(request)
+    }
 
     @GetMapping("/albums")
     fun getAlbum()=albumRepository.getAll()
@@ -57,5 +65,5 @@ class AllControllers(
     fun getUserGenre()=userGenreRepository.findAll()
 
     @GetMapping("/users")
-    fun getUsers()=userRepository.getAll()
+    fun getUsers()=userRepository.getUsersDto()
 }
