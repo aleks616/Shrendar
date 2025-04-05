@@ -49,4 +49,6 @@ expect class NetworkClient() {
     suspend fun fetchRanks():List<Ranks>
     suspend fun fetchUsers():List<UsersDto>
     suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)
+    suspend fun doesLoginExist(login:String):Boolean
+    suspend fun doesEmailExist(email:String):Boolean
 }

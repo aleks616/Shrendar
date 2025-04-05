@@ -15,8 +15,14 @@ class UserService(
     private val repository:UserRepository,
     private val rankRepository:RankRepository
 ){
-    //todo: created at to int
     fun getUsers():List<Users> =repository.findAll()
+
+    fun doesLoginExist(login:String):Boolean{
+        return getUsers().any{it.login.equals(login,ignoreCase=true)}
+    }
+    fun doesAccountWithEmailExist(email:String):Boolean{
+        return getUsers().any{it.email.equals(email,ignoreCase=true)}
+    }
 
     fun getUsersDto():List<UsersDto>{
         return getUsers().map{u ->

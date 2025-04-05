@@ -23,6 +23,8 @@ object StringLocale{
     const val ERROR_LOGIN_EMPTY="loginEmpty"
     const val ERROR_EMAIL_INCORRECT="emailEmpty"
     const val PASSWORD_SAFE_MESSAGE="passwordSafetyGuide"
+    const val ERROR_LOGIN_ALREADY_EXISTS="loginAlreadyExists"
+    const val ERROR_EMAIL_ALREADY_EXISTS="emailAlreadyExists"
 
 
 
@@ -79,7 +81,7 @@ object StringLocale{
             "en" to "Confirm password",
             "pl" to "Potwierdź hasło",
         ),
-        //endregion
+
         ERROR_PASSWORD_NOT_MATCH to mapOf(
             "en" to "Passwords don't match",
             "pl" to "Hasła się różnią",
@@ -99,6 +101,15 @@ object StringLocale{
         ERROR_EMAIL_INCORRECT to mapOf(
             "en" to "E-mail address isn't valid.",
             "pl" to "Adres e-mail jest niepoprawny.",
+        ),
+        //endregion
+        ERROR_LOGIN_ALREADY_EXISTS to mapOf(
+            "en" to "Account with that login already exists. Choose a different one or log in instead.",
+            "pl" to "Ta nazwa użytkownika jest zajęta, wybierz inną lub zaloguj się."
+        ),
+        ERROR_EMAIL_ALREADY_EXISTS to mapOf(
+            "en" to "Account with that e-mail already exists. Log in instead.",
+            "pl" to "Konto z podanym adresem e-mail już istnieje, wprowadź inny lub zaloguj się."
         ),
 
 

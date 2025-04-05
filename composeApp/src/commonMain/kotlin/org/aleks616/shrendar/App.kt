@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -26,10 +25,11 @@ import shrendar.composeapp.generated.resources.Res
 import shrendar.composeapp.generated.resources.compose_multiplatform
 
 
-
 val networkClient=NetworkClient()
 suspend fun fetchRanks():List<Ranks> =networkClient.fetchRanks()
 suspend fun fetchUsers():List<UsersDto> =networkClient.fetchUsers()
+suspend fun doesLoginExist(login:String):Boolean=networkClient.doesLoginExist(login)
+suspend fun doesAccountWIthEmailExist(email:String):Boolean=networkClient.doesEmailExist(email)
 
 suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)=networkClient.sendRegister(login,displayName,email,password)
 
@@ -198,6 +198,15 @@ fun LoginScreen(language:String="en"){
 
     LaunchedEffect(errorText){}
 
+    var loginExists:Boolean? by mutableStateOf(null)
+    LaunchedEffect(enteredLogin){
+        loginExists=doesLoginExist(enteredLogin)
+    }
+
+    var accountWithEmailExists:Boolean? by mutableStateOf(null)
+    LaunchedEffect(enteredEmail){
+        accountWithEmailExists=doesAccountWIthEmailExist(enteredEmail)
+    }
 
     AppTheme{
        Box(modifier=Modifier.fillMaxSize()){
@@ -221,17 +230,20 @@ fun LoginScreen(language:String="en"){
                 Text(color=MaterialTheme.colors.onError,text=errorText)
                 if(showPasswordSafetyMessage){CenteredText(color=MaterialTheme.colors.onError,text=getTranslation(language,sc.PASSWORD_SAFE_MESSAGE))}
 
+                Text(loginExists.toString())
+
                 Button(
                     onClick={
                         errorText=if(enteredLogin.isEmpty()) getTranslation(language,sc.ERROR_LOGIN_EMPTY)
                         else if(!isEmailValid(enteredEmail)) getTranslation(language,sc.ERROR_EMAIL_INCORRECT)
                         else if(enteredPassword!=enteredConfirmPassword) getTranslation(language,sc.ERROR_PASSWORD_NOT_MATCH)
                         else if(!isPasswordSafe(enteredPassword)) getTranslation(language,sc.ERROR_PASSWORD_NOT_SAFE)
+                        else if(loginExists!=false) "Account with that login already exists. Choose a different one or log in instead."
+                        else if(accountWithEmailExists!=false) "Account with that e-mail already exists. Log in instead."
                         else ""
-
                         showPasswordSafetyMessage=!isPasswordSafe(enteredPassword)
 
-                        //backend todo: send password as char sequence and rest of data
+
                         if(errorText.isEmpty()){
                             val passwordCharArray=enteredPassword.toCharArray()
                             CoroutineScope(Dispatchers.Default).launch{
@@ -250,7 +262,6 @@ fun LoginScreen(language:String="en"){
 
 
 fun isPasswordSafe(password:String):Boolean{
-    return true
     if(!(8..32).contains(password.length)) return false
 
     var upper=false
@@ -270,8 +281,6 @@ fun isPasswordSafe(password:String):Boolean{
 }
 
 fun isEmailValid(email:String):Boolean{
-    return true
-
     if (email.isBlank()) return false
     val regex="^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:IPv6:[a-f0-9:]+|(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]))])$"
 

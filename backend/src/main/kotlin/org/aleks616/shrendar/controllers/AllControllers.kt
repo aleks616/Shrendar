@@ -31,6 +31,13 @@ class AllControllers(
         userRepository.createUser(request)
     }
 
+    @GetMapping("/loginCheck")
+    fun doesLoginExist(@RequestParam login:String):Boolean=userRepository.doesLoginExist(login)
+
+    @GetMapping("/emailCheck")
+    fun doesEmailExist(@RequestParam email:String):Boolean=userRepository.doesAccountWithEmailExist(email)
+
+
     @GetMapping("/albums")
     fun getAlbum()=albumRepository.getAll()
 
@@ -66,4 +73,6 @@ class AllControllers(
 
     @GetMapping("/users")
     fun getUsers()=userRepository.getUsersDto()
+
+
 }

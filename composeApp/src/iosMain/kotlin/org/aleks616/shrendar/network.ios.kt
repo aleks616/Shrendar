@@ -39,4 +39,8 @@ actual class NetworkClient actual constructor() {
             }
         }
     }
+
+    actual suspend fun doesLoginExist(login:String):Boolean=client.get("http://localhost:8081/api/loginCheck?login=$login").body()
+
+    actual suspend fun doesEmailExist(email:String):Boolean=client.get("http://localhost:8081/api/emailCheck?email=$email").body()
 }
