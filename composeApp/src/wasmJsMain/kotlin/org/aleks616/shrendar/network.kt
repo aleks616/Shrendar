@@ -3,19 +3,13 @@
 package org.aleks616.shrendar
 
 import kotlinx.browser.window
-import kotlinx.serialization.json.Json
 import kotlinx.coroutines.await
-import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
-import org.w3c.fetch.Headers
-import org.w3c.fetch.RequestInit
+import kotlinx.serialization.json.Json
 import org.w3c.fetch.Response
-import org.w3c.files.Blob
-import org.w3c.files.BlobPropertyBag
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -34,6 +28,18 @@ actual class NetworkClient actual constructor() {
 
     actual suspend fun fetchUsers():List<UsersDto> {
         val response=window.fetch("http://localhost:8081/api/users").await<Response>()
+        val text=response.text().await<Response>()
+        return json.decodeFromString(text.toString())
+    }
+
+    actual suspend fun doesLoginExist(login:String):Boolean{
+        val response=window.fetch("http://localhost:8081/api/loginCheck?login=$login").await<Response>()
+        val text=response.text().await<Response>()
+        return json.decodeFromString(text.toString())
+    }
+
+    actual suspend fun doesEmailExist(email:String):Boolean{
+        val response=window.fetch("http://localhost:8081/api/emailCheck?email=$email").await<Response>()
         val text=response.text().await<Response>()
         return json.decodeFromString(text.toString())
     }

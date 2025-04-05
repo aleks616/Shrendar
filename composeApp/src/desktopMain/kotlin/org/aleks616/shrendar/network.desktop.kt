@@ -47,4 +47,14 @@ actual class NetworkClient actual constructor() {
         }
     }
 
+    actual suspend fun doesLoginExist(login:String):Boolean{
+        val response=client.get("http://127.0.0.1:8081/api/loginCheck?login=$login")
+        return Json.decodeFromString(response.body())
+    }
+
+    actual suspend fun doesEmailExist(email:String):Boolean{
+        val response=client.get("http://127.0.0.1:8081/api/emailCheck?email=$email")
+        return Json.decodeFromString(response.body())
+    }
+
 }
