@@ -1,8 +1,6 @@
 package org.aleks616.shrendar.dto
 
 import java.io.Serializable
-import java.time.Instant
-import java.time.LocalDate
 
 /**
  * DTO for {@link org.aleks616.shrendar.entities.Users}

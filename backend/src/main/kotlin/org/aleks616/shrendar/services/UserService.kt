@@ -6,8 +6,6 @@ import org.aleks616.shrendar.dto.UsersDto
 import org.aleks616.shrendar.entities.Users
 import org.aleks616.shrendar.repositories.RankRepository
 import org.aleks616.shrendar.repositories.UserRepository
-import org.mindrot.jbcrypt.BCrypt
-import org.springframework.data.jpa.repository.Query
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant

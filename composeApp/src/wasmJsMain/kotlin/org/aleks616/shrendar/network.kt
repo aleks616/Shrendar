@@ -7,7 +7,6 @@ import kotlinx.coroutines.await
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.w3c.fetch.RequestInit
 import org.w3c.fetch.Response
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
