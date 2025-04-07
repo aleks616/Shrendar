@@ -19,9 +19,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.security:spring-security-crypto:6.3.0")
+    implementation("org.mindrot:jbcrypt:0.4")
+
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.security:spring-security-crypto:6.4.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("com.mysql:mysql-connector-j:8.0.33")
+    runtimeOnly("com.mysql:mysql-connector-j:9.1.0")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

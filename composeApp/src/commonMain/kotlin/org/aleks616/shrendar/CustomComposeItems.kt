@@ -106,7 +106,7 @@ fun FixedTextField(
     onValueChange:(String) -> Unit,
     placeholderText:String,
     modifier:Modifier=Modifier,
-    visualTransformation:VisualTransformation=VisualTransformation.None,
+    visualTransformation:VisualTransformation=remember{VisualTransformation.None},
     keyboardOptions:KeyboardOptions=KeyboardOptions.Default,
     fontSize:TextUnit=18.sp,
     leadingIcon:@Composable (()->Unit)?=null,
@@ -149,29 +149,44 @@ fun FixedTextField(
             )
         }
     )
-
-
-   /* TextField(
-        value=value, onValueChange=onValueChange,
-        colors=TextFieldDefaults.textFieldColors(
-            cursorColor=colorSecondary()
-        ),
-        modifier=modifier.padding(start=15.dp,end=10.dp),
-        textStyle=TextStyle(fontSize=fontSize),
-        placeholder={
-            Text(text=placeholderText,fontSize=fontSize,textAlign=TextAlign.Center)
-        },
-        visualTransformation=visualTransformation,
-        keyboardOptions=keyboardOptions,
-        maxLines=maxLines
-    )*/
-
 }
 
 
 
 
+/**
+ * @param value value for [FixedTextField]
+ * @param onValueChange for [FixedTextField], put {value=it}
+ * @param language - language code e.g. "en" "pl", "en" on default
+ * @param fieldTitle - big text displayed above the textField
+ * @param fieldPlaceholderText - placeholder for the textField
+ * @param fieldDescription - optional, smaller, text bellow fieldTitle
+ * @see FixedTextField
+ * @see TextField
+ * @see CenteredText
+ * **/
+@Composable
+fun TextFieldPlus(
+    value:String,
+    onValueChange:(String)->Unit,
+    language:String="en",
+    fieldTitle:String,
+    fieldPlaceholderText:String,
+    fieldDescription:String="",
+){
+    CenteredText(text=Utils.getTranslation(language,fieldTitle),fontSize=24.sp,
+        modifier=if(fieldDescription!="") {Modifier.padding(horizontal=6.dp,vertical=0.dp)} else {Modifier.padding(horizontal=6.dp,vertical=4.dp)})
+    if(fieldDescription!=""){
+        CenteredText(text=Utils.getTranslation(language,fieldDescription),fontSize=18.sp,
+            modifier=Modifier.padding(bottom=4.dp))
+    }
+    FixedTextField(
+        value=value,
+        onValueChange=onValueChange,
+        placeholderText=Utils.getTranslation(language,fieldPlaceholderText)
+    )
 
+}
 
 
 
@@ -739,9 +754,6 @@ fun NumberInput(
         }}
     )
 }
-
-
-
 
 
 

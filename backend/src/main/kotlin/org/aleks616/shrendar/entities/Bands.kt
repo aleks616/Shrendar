@@ -18,4 +18,20 @@ open class Bands {
 
     @Column(name="disbanded_year",columnDefinition="YEAR")
     open var disbandedYear:Int?=null
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="status",columnDefinition="ENUM('active', 'disbanded', 'on hold','unknown')")
+    open var status:Status?=null
+
+    @Column(name="country")
+    open var country:Int?=null
+
+    @Column(name="description")
+    open var description:String?=null
+}
+enum class Status{
+    active,
+    disbanded,
+    on_hold,
+    unknown
 }

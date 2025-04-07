@@ -3,6 +3,13 @@ package org.aleks616.shrendar
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class LoginRequest(
+    val login:String?,
+    val email:String?,
+    val password:String
+)
+
+@Serializable
 data class RegisterRequest(
     val login:String,
     val displayName:String,
@@ -37,7 +44,8 @@ data class UsersDto(
     val createdAt:Long?=null,
     val ranks:RanksDto?=null,
     val birthDate:String?=null,
-    val xp:Int?=null
+    val xp:Int?=null,
+    val verified:Boolean?=null
 )
 @Serializable
 data class RanksDto(
@@ -51,4 +59,6 @@ expect class NetworkClient() {
     suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)
     suspend fun doesLoginExist(login:String):Boolean
     suspend fun doesEmailExist(email:String):Boolean
+
+    suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean
 }

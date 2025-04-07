@@ -1,4 +1,4 @@
-helper.kt
+secret.kt
 *.iml
 .kotlin
 .gradle
@@ -18,3 +18,4 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 /composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/helper.kt
+/backend/src/main/kotlin/org/aleks616/shrendar/secret.kt

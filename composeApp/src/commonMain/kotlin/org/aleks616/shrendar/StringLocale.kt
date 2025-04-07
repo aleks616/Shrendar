@@ -26,11 +26,21 @@ object StringLocale{
     const val ERROR_LOGIN_ALREADY_EXISTS="loginAlreadyExists"
     const val ERROR_EMAIL_ALREADY_EXISTS="emailAlreadyExists"
 
+    const val ERROR_EMAIL_DOES_NOT_EXIST="emailDoesNotExist"
+    const val ERROR_LOGIN_DOES_NOT_EXIST="loginDoesNotExist"
 
+
+    const val CREATE_ACCOUNT="createAccount"
+
+    const val ENTER_PASSWORD_TITLE="enterPassword_T"
+    const val ENTER_PASSWORD_PLACEHOLDER="enterPassword_P"
+
+    const val LOG_IN_BUTTON="logInButton"
 
     const val ENTER_LOGIN_TITLE="enterLogin_T"
     const val ENTER_LOGIN_DESCRIPTION="enterLogin_D"
     const val ENTER_LOGIN_PLACEHOLDER="enterLogin_P"
+
 
     val translations=mapOf(
         //region
@@ -102,7 +112,6 @@ object StringLocale{
             "en" to "E-mail address isn't valid.",
             "pl" to "Adres e-mail jest niepoprawny.",
         ),
-        //endregion
         ERROR_LOGIN_ALREADY_EXISTS to mapOf(
             "en" to "Account with that login already exists. Choose a different one or log in instead.",
             "pl" to "Ta nazwa użytkownika jest zajęta, wybierz inną lub zaloguj się."
@@ -111,11 +120,37 @@ object StringLocale{
             "en" to "Account with that e-mail already exists. Log in instead.",
             "pl" to "Konto z podanym adresem e-mail już istnieje, wprowadź inny lub zaloguj się."
         ),
+        ERROR_LOGIN_DOES_NOT_EXIST to mapOf(
+            "en" to "Account with that login doesn't exists.",
+            "pl" to "Konto z taką nazwą użytkownika nie istnieje."
+        ),
+        ERROR_EMAIL_DOES_NOT_EXIST to mapOf(
+            "en" to "Account with that e-mail address doesn't exists.",
+            "pl" to "Konto z takim adresem e-mail nie istnieje."
+        ),
 
 
+        CREATE_ACCOUNT to mapOf(
+            "en" to "Create account.",
+            "pl" to "Utwórz konto."
+        ),
+        //endregion
+        ENTER_PASSWORD_TITLE to mapOf(
+            "en" to "Enter password",
+            "pl" to "Podaj hasło"
+        ),
+        ENTER_PASSWORD_PLACEHOLDER to mapOf(
+            "en" to "password",
+            "pl" to "hasło"
+        ),
+
+        LOG_IN_BUTTON to mapOf(
+            "en" to "Log in",
+            "pl" to "Zaloguj się"
+        ),
         ENTER_LOGIN_TITLE to mapOf(
-            "en" to "Enter login",
-            "pl" to "Podaj login"
+            "en" to "Enter login or e-mail",
+            "pl" to "Podaj login lub adres e-mail"
         ),
 
         ENTER_LOGIN_DESCRIPTION to mapOf(
@@ -123,8 +158,8 @@ object StringLocale{
             "pl" to "Nie będzie on widoczny."
         ),
         ENTER_LOGIN_PLACEHOLDER to mapOf(
-            "en" to "login",
-            "pl" to "login"
+            "en" to "Login or e-mail",
+            "pl" to "Login lub e-mail"
         ),
 
         WELCOME to mapOf(

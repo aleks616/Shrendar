@@ -14,4 +14,7 @@ open class Genres {
 
     @Column(name="name",nullable=false,length=80)
     open var name:String?=null
+
+    @Column(name="properties",length=7)
+    open var properties:String?="0000000"
 }

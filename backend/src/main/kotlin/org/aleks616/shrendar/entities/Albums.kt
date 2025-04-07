@@ -20,4 +20,18 @@ open class Albums {
 
     @Column(name="release_date")
     open var releaseDate:LocalDate?=null
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="type", columnDefinition="ENUM('studio','EP','compilation','concert','demo','single','other')")
+    open var type:AlbumType?=null
+}
+
+enum class AlbumType{
+    studio,
+    EP,
+    compilation,
+    concert,
+    demo,
+    single,
+    other
 }

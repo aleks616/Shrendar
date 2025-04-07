@@ -26,4 +26,7 @@ open class BandsMembers {
 
     @Column(name="left_year",columnDefinition="YEAR")
     open var leftYear:Int?=null
+
+    @Column(name="nickname",length=50)
+    open var nickname:String?=null
 }

@@ -16,7 +16,8 @@ data class UsersDto(
     val createdAt:Long?=null,
     val ranks:RanksDto?=null,
     val birthDate:String?=null,
-    val xp:Int?=null
+    val xp:Int?=null,
+    val verified:Boolean?=false
 ):Serializable{
     /**
      * DTO for {@link org.aleks616.shrendar.entities.Ranks}

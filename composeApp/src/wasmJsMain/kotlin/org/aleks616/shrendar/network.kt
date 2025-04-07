@@ -7,6 +7,7 @@ import kotlinx.coroutines.await
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.w3c.fetch.RequestInit
 import org.w3c.fetch.Response
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
@@ -60,6 +61,28 @@ actual class NetworkClient actual constructor() {
             xhr.setRequestHeader("Content-Type","application/json")
             xhr.onload={
                 continuation.resume(xhr)
+            }
+            xhr.send(requestBody)
+        }
+    }
+
+    actual suspend fun isPasswordCorrect(email:String?,login:String?,password:CharArray):Boolean{
+        val requestBody=Json.encodeToString(
+            LoginRequest(
+                login=login,
+                email=email,
+                password=password.concatToString()
+            )
+        )
+
+        return suspendCoroutine {continuation ->
+            val xhr=XMLHttpRequest()
+            xhr.open("POST","http://localhost:8081/api/passwordCheck")
+            xhr.setRequestHeader("Content-Type","application/json")
+            xhr.onload={
+                val responseText=xhr.responseText
+                val result=Json.decodeFromString<Boolean>(responseText)
+                continuation.resume(result)
             }
             xhr.send(requestBody)
         }

@@ -1,5 +1,6 @@
 package org.aleks616.shrendar
 
+import androidx.compose.ui.util.fastCbrt
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -10,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 actual class NetworkClient actual constructor() {
@@ -25,6 +27,17 @@ actual class NetworkClient actual constructor() {
 
     actual suspend fun fetchUsers():List<UsersDto> {
         val response=client.get("http://127.0.0.1:8081/api/users")
+        return Json.decodeFromString(response.body())
+    }
+
+
+    actual suspend fun isPasswordCorrect(email:String?,login:String?,password:CharArray):Boolean{
+        val response=client.post("http://localhost:8081/api/passwordCheck"){
+            contentType(ContentType.Application.Json)
+            setBody(
+                LoginRequest(login=login,email=email,password=password.concatToString())
+                )
+            }
         return Json.decodeFromString(response.body())
     }
 

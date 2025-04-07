@@ -1,5 +1,4 @@
 package org.aleks616.shrendar
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -19,18 +18,18 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
+import org.aleks616.shrendar.Utils.getTranslation
+import org.aleks616.shrendar.Utils.isEmailValid
+import org.aleks616.shrendar.Utils.isPasswordSafe
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import shrendar.composeapp.generated.resources.Res
-import shrendar.composeapp.generated.resources.compose_multiplatform
 
 
 val networkClient=NetworkClient()
 suspend fun fetchRanks():List<Ranks> =networkClient.fetchRanks()
 suspend fun fetchUsers():List<UsersDto> =networkClient.fetchUsers()
 suspend fun doesLoginExist(login:String):Boolean=networkClient.doesLoginExist(login)
-suspend fun doesAccountWIthEmailExist(email:String):Boolean=networkClient.doesEmailExist(email)
-
+suspend fun doesAccountWithEmailExist(email:String):Boolean=networkClient.doesEmailExist(email)
+suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean =networkClient.isPasswordCorrect(email,login,password)
 suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)=networkClient.sendRegister(login,displayName,email,password)
 
 @Composable
@@ -39,7 +38,7 @@ fun App(){
     val width=getScreenWidth()
     var ranks by remember{mutableStateOf(emptyList<Ranks>())}
     var users by remember{mutableStateOf(emptyList<UsersDto>())}
-    var language by remember{mutableStateOf("en")}
+    var language by remember{mutableStateOf(getLanguage().code)}
     val screenWidth by remember{mutableStateOf(width)}
     var dropDownAccountVisible by remember{mutableStateOf(false)}
 
@@ -52,7 +51,7 @@ fun App(){
     }
     LaunchedEffect(screenWidth){}
 
-    var showContent by remember{mutableStateOf(false)}
+    //var showContent by remember{mutableStateOf(false)}
 
     var searchValue by remember{mutableStateOf("")}
 
@@ -111,10 +110,10 @@ fun App(){
 
                 /**content**/
                 Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
-                    BetterButton(onClick={showContent=!showContent}){
+                    /*BetterButton(onClick={showContent=!showContent}){
                         Text("Click me!")
-                    }
-                    AnimatedVisibility(showContent){
+                    }*/
+                    /*AnimatedVisibility(showContent){
                         val greeting=remember{Greeting().greet()}
                         Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally){
                             Image(painterResource(Res.drawable.compose_multiplatform),null)
@@ -122,69 +121,28 @@ fun App(){
                             //CenteredText(Greeting().getPlatform())
                             CenteredText(getScreenWidth().toString())
                         }
-                    }
-                    ranks.forEach{
+                    }*/
+                    /*ranks.forEach{
                         BetterText(text=it.id.toString()+" "+it.name+" "+it.minXp,fontSize="S")
-                    }
+                    }*/
                     CenteredText(users.size.toString(),fontSize=30.sp)
                     users.forEach{
                         BetterText(text=it.id.toString()+" "+it.login+" "+it.createdAt+" "+it.ranks?.name,fontSize="S")
                     }
                     BetterButton(onClick={language=if(language=="en") "pl" else "en"}){Text("language")}
-                    LoginScreen(language)
+                    RegisterScreen()
+                    LoginScreen()
                 }
             }
+
+
         }
     }
-}
-/**
- * @param locale - language code
- * @param key - [StringLocale] key, eg. sc.NAME
- * **/
-fun getTranslation(locale:String,key:String):String{
-    val sc=StringLocale
-    val st=sc.translations
-    return st[key]?.get(locale)?:""
-}
-
-
-/**
- * @param value value for [FixedTextField]
- * @param onValueChange for [FixedTextField], put {value=it}
- * @param language - language code e.g. "en" "pl", "en" on default
- * @param fieldTitle - big text displayed above the textField
- * @param fieldPlaceholderText - placeholder for the textField
- * @param fieldDescription - optional, smaller, text bellow fieldTitle
- * @see FixedTextField
- * @see TextField
- * @see CenteredText
- * **/
-@Composable
-fun TextFieldPlus(
-    value:String,
-    onValueChange:(String)->Unit,
-    language:String="en",
-    fieldTitle:String,
-    fieldPlaceholderText:String,
-    fieldDescription:String="",
-){
-    CenteredText(text=getTranslation(language,fieldTitle),fontSize=24.sp,
-        modifier=if(fieldDescription!="") {Modifier.padding(horizontal=6.dp,vertical=0.dp)} else {Modifier.padding(horizontal=6.dp,vertical=4.dp)})
-    if(fieldDescription!=""){
-        CenteredText(text=getTranslation(language,fieldDescription),fontSize=18.sp,
-            modifier=Modifier.padding(bottom=4.dp))
-    }
-    FixedTextField(
-        value=value,
-        onValueChange=onValueChange,
-        placeholderText=getTranslation(language,fieldPlaceholderText)
-    )
-
 }
 
 @Composable
 @Preview
-fun LoginScreen(language:String="en"){
+fun RegisterScreen(language:String=getLanguage().code){
     var enteredLogin by remember{mutableStateOf("")}
     var enteredDisplayName by remember{mutableStateOf("")}
     var enteredEmail by remember{mutableStateOf("")}
@@ -199,13 +157,14 @@ fun LoginScreen(language:String="en"){
     LaunchedEffect(errorText){}
 
     var loginExists:Boolean? by mutableStateOf(null)
+    var accountWithEmailExists:Boolean? by mutableStateOf(null)
+
     LaunchedEffect(enteredLogin){
         loginExists=doesLoginExist(enteredLogin)
     }
-
-    var accountWithEmailExists:Boolean? by mutableStateOf(null)
     LaunchedEffect(enteredEmail){
-        accountWithEmailExists=doesAccountWIthEmailExist(enteredEmail)
+        accountWithEmailExists=doesAccountWithEmailExist(enteredEmail)
+        loginExists=doesLoginExist(enteredLogin)
     }
 
     AppTheme{
@@ -231,6 +190,7 @@ fun LoginScreen(language:String="en"){
                 if(showPasswordSafetyMessage){CenteredText(color=MaterialTheme.colors.onError,text=getTranslation(language,sc.PASSWORD_SAFE_MESSAGE))}
 
                 Text(loginExists.toString())
+                Text(accountWithEmailExists.toString())
 
                 Button(
                     onClick={
@@ -238,8 +198,8 @@ fun LoginScreen(language:String="en"){
                         else if(!isEmailValid(enteredEmail)) getTranslation(language,sc.ERROR_EMAIL_INCORRECT)
                         else if(enteredPassword!=enteredConfirmPassword) getTranslation(language,sc.ERROR_PASSWORD_NOT_MATCH)
                         else if(!isPasswordSafe(enteredPassword)) getTranslation(language,sc.ERROR_PASSWORD_NOT_SAFE)
-                        else if(loginExists!=false) "Account with that login already exists. Choose a different one or log in instead."
-                        else if(accountWithEmailExists!=false) "Account with that e-mail already exists. Log in instead."
+                        else if(loginExists==true) getTranslation(language,sc.ERROR_LOGIN_ALREADY_EXISTS)
+                        else if(accountWithEmailExists==true) getTranslation(language,sc.ERROR_EMAIL_ALREADY_EXISTS) //TODO: CHANGE TO !=FALSE AND RESOLVE THE NULL
                         else ""
                         showPasswordSafetyMessage=!isPasswordSafe(enteredPassword)
 
@@ -249,40 +209,89 @@ fun LoginScreen(language:String="en"){
                             CoroutineScope(Dispatchers.Default).launch{
                                 sendRegister(enteredLogin,enteredDisplayName,enteredEmail,passwordCharArray)
                             }
-                            passwordCharArray.fill('\u0000')
+                            //passwordCharArray.fill('\u0000')
                         }
                     }
                 ){
-                    CenteredText("Create account")
+                    CenteredText(getTranslation(language,sc.CREATE_ACCOUNT))
                 }
             }
         }
     }
 }
 
+@Composable
+@Preview
+fun LoginScreen(language:String=getLanguage().code){
+    var enteredLogin by remember{mutableStateOf("")}
+    var enteredPassword by remember{mutableStateOf("")}
+    val sc=StringLocale
 
-fun isPasswordSafe(password:String):Boolean{
-    if(!(8..32).contains(password.length)) return false
+    var errorText by remember{mutableStateOf("test")}
+    LaunchedEffect(errorText){
 
-    var upper=false
-    var lower=false
-    var digit=false
-    var symbol=false
-    val symbolsSet=setOf('!','@','#','$','%','^','&','*','(',')','-','_','+','=','~','`','<','>',',','.','?','/','|','[',']','{','}',':',';')
-
-    for(ch in password){
-        if(ch.isUpperCase()) upper=true
-        else if(ch.isLowerCase()) lower=true
-        else if(ch.isDigit()) digit=true
-        else if(ch in symbolsSet) symbol=true
-        if(upper&&lower&&digit&&symbol) return true
     }
-    return upper&&lower&&digit&&symbol
-}
 
-fun isEmailValid(email:String):Boolean{
-    if (email.isBlank()) return false
-    val regex="^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:IPv6:[a-f0-9:]+|(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]))])$"
 
-    return Regex(regex).matches(email)
+    var isEmail by remember{mutableStateOf(false)}
+    LaunchedEffect(isEmail){
+
+    }
+
+    var accountExists:Boolean? by mutableStateOf(null)
+    LaunchedEffect(enteredLogin){
+        accountExists=if(isEmail) doesAccountWithEmailExist(enteredLogin)
+        else doesLoginExist(enteredLogin)
+    }
+
+    var isPasswordCorrect:Boolean? by remember{mutableStateOf(null)}
+    LaunchedEffect(isPasswordCorrect){
+        if(enteredPassword!=""){
+            isPasswordCorrect=if(isEmailValid(enteredLogin)) isPasswordCorrect(email=enteredLogin, password=enteredPassword.toCharArray())
+            else isPasswordCorrect(login=enteredLogin,password=enteredPassword.toCharArray())
+        }
+
+    }
+
+
+    AppTheme{
+        Box(modifier=Modifier.fillMaxSize()){
+            Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment=Alignment.CenterHorizontally){
+                TextFieldPlus(enteredLogin,{enteredLogin=it},language,
+                    getTranslation(language,sc.ENTER_LOGIN_TITLE),sc.ENTER_LOGIN_PLACEHOLDER)
+
+                TextFieldPlus(enteredPassword,{enteredPassword=it},language,
+                    getTranslation(language,sc.ENTER_PASSWORD_TITLE),sc.ENTER_PASSWORD_PLACEHOLDER)
+
+                Button(onClick={
+                    if(isEmailValid(enteredLogin)) isEmail=true
+
+                    val passwordCharArray=enteredPassword.toCharArray()
+                    CoroutineScope(Dispatchers.Default).launch{
+                        if(isEmail){
+                            if(doesAccountWithEmailExist(enteredLogin))
+                                isPasswordCorrect=isPasswordCorrect(email=enteredLogin,password=passwordCharArray)
+                            else
+                                errorText=getTranslation(language,sc.ERROR_EMAIL_DOES_NOT_EXIST)
+                        }
+                        else{
+                            if(doesLoginExist(enteredLogin))
+                                isPasswordCorrect=isPasswordCorrect(login=enteredLogin,password=passwordCharArray)
+                            else
+                                errorText=getTranslation(language,sc.ERROR_LOGIN_DOES_NOT_EXIST)
+                        }
+                    }.invokeOnCompletion{
+                        errorText=if(isPasswordCorrect==false) "Password is incorrect" else if(isPasswordCorrect==null) "null" else "good"
+                    }
+                    //passwordCharArray.fill('\u0000')
+
+
+                }){
+                    CenteredText(text=getTranslation(language,sc.LOG_IN_BUTTON))
+                }
+
+                Text(color=MaterialTheme.colors.onError,text=errorText)
+            }
+        }
+    }
 }

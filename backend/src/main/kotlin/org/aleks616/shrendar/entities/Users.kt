@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.entities
 
 import jakarta.persistence.*
+import org.hibernate.annotations.NaturalId
 import java.time.Instant
 import java.time.LocalDate
 
@@ -12,6 +13,7 @@ open class Users {
     @Column(name="user_id",nullable=false)
     open var id:Int?=null
 
+    @NaturalId
     @Column(name="login",nullable=false,length=50)
     open var login:String?=null
 
@@ -21,6 +23,7 @@ open class Users {
     @Column(name="password_hash",nullable=false)
     open var passwordHash:String?=null
 
+    @NaturalId
     @Column(name="email",nullable=false)
     open var email:String?=null
 
@@ -36,4 +39,7 @@ open class Users {
 
     @Column(name="xp")
     open var xp:Int?=null
+
+    @Column(name="verified")
+    open var verified:Boolean?=false
 }
