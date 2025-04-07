@@ -26,10 +26,25 @@ class AllControllers(
         val email:String,
         val password:String
     )
+    data class LoginRequest(
+        val login:String?,
+        val email:String?,
+        val password:String
+    )
+
     @PostMapping("/register")
     fun registerData(@RequestBody request:RegisterRequest){
         userRepository.createUser(request)
     }
+
+    @GetMapping("/loginCheck")
+    fun doesLoginExist(@RequestParam login:String):Boolean=userRepository.doesLoginExist(login)
+
+    @GetMapping("/emailCheck")
+    fun doesEmailExist(@RequestParam email:String):Boolean=userRepository.doesAccountWithEmailExist(email)
+
+    @PostMapping("/passwordCheck")
+    fun isPasswordCorrect(@RequestBody request:LoginRequest):Boolean=userRepository.isPasswordCorrect(request)
 
     @GetMapping("/albums")
     fun getAlbum()=albumRepository.getAll()
@@ -66,4 +81,6 @@ class AllControllers(
 
     @GetMapping("/users")
     fun getUsers()=userRepository.getUsersDto()
+
+
 }

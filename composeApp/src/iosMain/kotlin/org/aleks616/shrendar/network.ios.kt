@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 actual class NetworkClient actual constructor() {
     private val client=HttpClient {
@@ -37,6 +38,26 @@ actual class NetworkClient actual constructor() {
                     )
                 )
             }
+            if(!response.status.isSuccess()) {
+                throw Exception(response.status.toString())
+            }
         }
     }
+
+    actual suspend fun isPasswordCorrect(email:String?,login:String?,password:CharArray):Boolean{
+        val response=client.post("http://localhost:8081/api/passwordCheck"){
+            contentType(ContentType.Application.Json)
+            setBody(
+                LoginRequest(login=login,email=email,password=password.concatToString())
+            )
+        }
+        if(!response.status.isSuccess()) {
+            throw Exception(response.status.toString())
+        }
+        return Json.decodeFromString(response.body())
+    }
+
+    actual suspend fun doesLoginExist(login:String):Boolean=client.get("http://localhost:8081/api/loginCheck?login=$login").body()
+
+    actual suspend fun doesEmailExist(email:String):Boolean=client.get("http://localhost:8081/api/emailCheck?email=$email").body()
 }

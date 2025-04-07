@@ -19,4 +19,13 @@ open class Artists {
 
     @Column(name="death_date")
     open var deathDate:LocalDate?=null
+
+    @Column(name="gender")
+    open var gender:Char?=null
+
+    @Column(name="description")
+    open var description:String?=null
+
+    @Column(name="country")
+    open var country:Int?=null
 }

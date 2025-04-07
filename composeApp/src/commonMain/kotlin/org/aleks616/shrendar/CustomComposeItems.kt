@@ -21,10 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
-import androidx.compose.material.TextFieldDefaults.indicatorLine
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -32,7 +29,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -40,7 +36,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextLayoutResult
@@ -106,7 +101,7 @@ fun FixedTextField(
     onValueChange:(String) -> Unit,
     placeholderText:String,
     modifier:Modifier=Modifier,
-    visualTransformation:VisualTransformation=VisualTransformation.None,
+    visualTransformation:VisualTransformation=remember{VisualTransformation.None},
     keyboardOptions:KeyboardOptions=KeyboardOptions.Default,
     fontSize:TextUnit=18.sp,
     leadingIcon:@Composable (()->Unit)?=null,
@@ -149,29 +144,44 @@ fun FixedTextField(
             )
         }
     )
-
-
-   /* TextField(
-        value=value, onValueChange=onValueChange,
-        colors=TextFieldDefaults.textFieldColors(
-            cursorColor=colorSecondary()
-        ),
-        modifier=modifier.padding(start=15.dp,end=10.dp),
-        textStyle=TextStyle(fontSize=fontSize),
-        placeholder={
-            Text(text=placeholderText,fontSize=fontSize,textAlign=TextAlign.Center)
-        },
-        visualTransformation=visualTransformation,
-        keyboardOptions=keyboardOptions,
-        maxLines=maxLines
-    )*/
-
 }
 
 
 
 
+/**
+ * @param value value for [FixedTextField]
+ * @param onValueChange for [FixedTextField], put {value=it}
+ * @param language - language code e.g. "en" "pl", "en" on default
+ * @param fieldTitle - big text displayed above the textField
+ * @param fieldPlaceholderText - placeholder for the textField
+ * @param fieldDescription - optional, smaller, text bellow fieldTitle
+ * @see FixedTextField
+ * @see TextField
+ * @see CenteredText
+ * **/
+@Composable
+fun TextFieldPlus(
+    value:String,
+    onValueChange:(String)->Unit,
+    language:String="en",
+    fieldTitle:String,
+    fieldPlaceholderText:String,
+    fieldDescription:String="",
+){
+    CenteredText(text=Utils.getTranslation(language,fieldTitle),fontSize=24.sp,
+        modifier=if(fieldDescription!="") {Modifier.padding(horizontal=6.dp,vertical=0.dp)} else {Modifier.padding(horizontal=6.dp,vertical=4.dp)})
+    if(fieldDescription!=""){
+        CenteredText(text=Utils.getTranslation(language,fieldDescription),fontSize=18.sp,
+            modifier=Modifier.padding(bottom=4.dp))
+    }
+    FixedTextField(
+        value=value,
+        onValueChange=onValueChange,
+        placeholderText=Utils.getTranslation(language,fieldPlaceholderText)
+    )
 
+}
 
 
 
@@ -739,9 +749,6 @@ fun NumberInput(
         }}
     )
 }
-
-
-
 
 
 

@@ -1,8 +1,6 @@
 package org.aleks616.shrendar.dto
 
 import java.io.Serializable
-import java.time.Instant
-import java.time.LocalDate
 
 /**
  * DTO for {@link org.aleks616.shrendar.entities.Users}
@@ -16,7 +14,8 @@ data class UsersDto(
     val createdAt:Long?=null,
     val ranks:RanksDto?=null,
     val birthDate:String?=null,
-    val xp:Int?=null
+    val xp:Int?=null,
+    val verified:Boolean?=false
 ):Serializable{
     /**
      * DTO for {@link org.aleks616.shrendar.entities.Ranks}

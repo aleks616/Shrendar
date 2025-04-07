@@ -50,4 +50,29 @@ actual class NetworkClient actual constructor(){
             }
         }
     }
+
+    actual suspend fun doesLoginExist(login:String):Boolean{
+        val response=client.get("http://10.0.2.2:8081/api/loginCheck?login=$login")
+        return Json.decodeFromString(response.body())
+    }
+
+    actual suspend fun doesEmailExist(email:String):Boolean{
+        val response=client.get("http://10.0.2.2:8081/api/emailCheck?email=$email")
+        return Json.decodeFromString(response.body())
+    }
+
+    actual suspend fun isPasswordCorrect(email:String?,login:String?,password:CharArray):Boolean{
+        val response=client.post("http://localhost:8081/api/passwordCheck"){
+            contentType(ContentType.Application.Json)
+            setBody(
+                LoginRequest(login=login,email=email,password=password.concatToString())
+            )
+        }
+
+        if(!response.status.isSuccess()) {
+            throw Exception(response.status.toString())
+        }
+
+        return Json.decodeFromString(response.body())
+    }
 }
