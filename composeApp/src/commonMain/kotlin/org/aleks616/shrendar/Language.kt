@@ -33,4 +33,6 @@ fun codeToLanguage(code:String):String{
     }
 }
 
+expect fun setLanguage(code:String)
+
 expect fun getLanguage():Language

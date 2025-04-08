@@ -32,13 +32,23 @@ suspend fun doesAccountWithEmailExist(email:String):Boolean=networkClient.doesEm
 suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean =networkClient.isPasswordCorrect(email,login,password)
 suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)=networkClient.sendRegister(login,displayName,email,password)
 
+val h0=36.sp
+val h1=32.sp
+val h2=28.sp
+val h3=24.sp
+val h4=20.sp
+val h5=16.sp
+
 @Composable
 @Preview
 fun App(){
     val width=getScreenWidth()
     var ranks by remember{mutableStateOf(emptyList<Ranks>())}
     var users by remember{mutableStateOf(emptyList<UsersDto>())}
-    var language by remember{mutableStateOf(getLanguage().code)}
+    //var language by remember{mutableStateOf(getLanguage().code)}
+
+    //LaunchedEffect(Unit){language=getLanguage().code}
+
     val screenWidth by remember{mutableStateOf(width)}
     var dropDownAccountVisible by remember{mutableStateOf(false)}
 
@@ -109,11 +119,17 @@ fun App(){
                 }
 
                 /**content**/
-                Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
+                Row(Modifier.fillMaxWidth()){
+                    Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
+                        CenteredText("Today",fontSize=h3)
+                        //loop for suggested events today
+                    }
+                    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
+
                     /*BetterButton(onClick={showContent=!showContent}){
                         Text("Click me!")
-                    }*/
-                    /*AnimatedVisibility(showContent){
+                    }
+                    AnimatedVisibility(showContent){
                         val greeting=remember{Greeting().greet()}
                         Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally){
                             Image(painterResource(Res.drawable.compose_multiplatform),null)
@@ -122,16 +138,28 @@ fun App(){
                             CenteredText(getScreenWidth().toString())
                         }
                     }*/
-                    /*ranks.forEach{
+                    ranks.forEach{
                         BetterText(text=it.id.toString()+" "+it.name+" "+it.minXp,fontSize="S")
-                    }*/
+                    }
                     CenteredText(users.size.toString(),fontSize=30.sp)
                     users.forEach{
                         BetterText(text=it.id.toString()+" "+it.login+" "+it.createdAt+" "+it.ranks?.name,fontSize="S")
                     }
-                    BetterButton(onClick={language=if(language=="en") "pl" else "en"}){Text("language")}
-                    RegisterScreen()
-                    LoginScreen()
+                    BetterButton(
+                        onClick={
+                            setLanguage("en") //works only after hard reload! //todo: move the button+don't hardcode
+                        }
+                    ){
+                        Text("language")
+                    }
+
+                    //RegisterScreen()
+                    //LoginScreen()
+                }
+
+                    Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
+                        CenteredText("test right")
+                    }
                 }
             }
 

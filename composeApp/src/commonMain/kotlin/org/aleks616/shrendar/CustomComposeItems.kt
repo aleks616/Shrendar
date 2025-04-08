@@ -64,7 +64,7 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun CenteredText(
     text:String,
-    modifier:Modifier=Modifier,
+    modifier:Modifier=Modifier.fillMaxWidth(),
     fontSize:TextUnit=18.sp,
     color:Color=Color.Unspecified,
     fontStyle:FontStyle?=null,
