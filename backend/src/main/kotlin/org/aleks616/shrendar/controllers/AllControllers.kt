@@ -7,18 +7,18 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api")
 class AllControllers(
-    private val albumRepository:AlbumService,
-    private val artistRepository:ArtistService,
-    private val bandRepository:BandService,
+    private val albumService:AlbumService,
+    private val artistService:ArtistService,
+    private val bandService:BandService,
     private val bandsGenreRepository:BandsGenreRepository,
     private val bandsMemberRepository:BandsMemberRepository,
-    private val contributionRepository:ContributionService,
-    private val genreRepository:GenreService,
-    private val rankRepository:RankService,
+    private val contributionService:ContributionService,
+    private val genreService:GenreService,
+    private val rankService:RankService,
     private val userArtistRepository:UserArtistRepository,
     private val userBandRepository:UserBandRepository,
     private val userGenreRepository:UserGenreRepository,
-    private val userRepository:UserService,
+    private val userService:UserService,
 ){
     data class RegisterRequest(
         val login:String,
@@ -34,26 +34,29 @@ class AllControllers(
 
     @PostMapping("/register")
     fun registerData(@RequestBody request:RegisterRequest){
-        userRepository.createUser(request)
+        userService.createUser(request)
     }
 
     @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):Boolean=userRepository.doesLoginExist(login)
+    fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesLoginExist(login)
 
     @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):Boolean=userRepository.doesAccountWithEmailExist(email)
+    fun doesEmailExist(@RequestParam email:String):Boolean=userService.doesAccountWithEmailExist(email)
 
     @PostMapping("/passwordCheck")
-    fun isPasswordCorrect(@RequestBody request:LoginRequest):Boolean=userRepository.isPasswordCorrect(request)
+    fun isPasswordCorrect(@RequestBody request:LoginRequest):Boolean=userService.isPasswordCorrect(request)
 
     @GetMapping("/albums")
-    fun getAlbum()=albumRepository.getAll()
+    fun getAlbum()=albumService.getAll()
 
     @GetMapping("/artist")
-    fun getArtist()=artistRepository.getAll()
+    fun getArtist()=artistService.getAll()
+
+    @GetMapping("/artistBirthdays")
+    fun getArtistWithBirthdayInDate(@RequestParam month:Int, @RequestParam day:Int)=artistService.getTodayBirthdays(month,day)
 
     @GetMapping("/bands")
-    fun getBand()=bandRepository.getAll()
+    fun getBand()=bandService.getAll()
 
     @GetMapping("/bandsGenres")
     fun getBandsGenre()=bandsGenreRepository.findAll()
@@ -62,13 +65,13 @@ class AllControllers(
     fun getBandsMember()=bandsMemberRepository.findAll()
 
     @GetMapping("/contributions")
-    fun getContribution()=contributionRepository.getAll()
+    fun getContribution()=contributionService.getAll()
 
     @GetMapping("/genres")
-    fun getGenre()=genreRepository.getAll()
+    fun getGenre()=genreService.getAll()
 
     @GetMapping("/ranks")
-    fun getRank()=rankRepository.getAll()
+    fun getRank()=rankService.getAll()
 
     @GetMapping("/userArtist")
     fun getUserArtist()=userArtistRepository.findAll()
@@ -80,7 +83,7 @@ class AllControllers(
     fun getUserGenre()=userGenreRepository.findAll()
 
     @GetMapping("/users")
-    fun getUsers()=userRepository.getUsersDto()
+    fun getUsers()=userService.getUsersDto()
 
 
 }
