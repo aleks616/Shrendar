@@ -75,4 +75,9 @@ actual class NetworkClient actual constructor(){
 
         return Json.decodeFromString(response.body())
     }
+
+    actual suspend fun fetchArtistsBirthdays(month:Int?,day:Int?):List<ArtistsBirthDayDto>{
+        val response=client.get("http://10.0.2.2:8081/api/artistBirthdays?month=$month&day=$day")
+        return Json.decodeFromString(response.body())
+    }
 }

@@ -19,6 +19,7 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toLocalDateTime
 import org.aleks616.shrendar.Utils.getTranslation
 import org.aleks616.shrendar.Utils.isEmailValid
 import org.aleks616.shrendar.Utils.isPasswordSafe
@@ -36,6 +37,8 @@ suspend fun doesLoginExist(login:String):Boolean=networkClient.doesLoginExist(lo
 suspend fun doesAccountWithEmailExist(email:String):Boolean=networkClient.doesEmailExist(email)
 suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean =networkClient.isPasswordCorrect(email,login,password)
 suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)=networkClient.sendRegister(login,displayName,email,password)
+
+suspend fun fetchArtistsBirthdays(month:Int,day:Int):List<ArtistsBirthDayDto> =networkClient.fetchArtistsBirthdays(month,day)
 
 val h0=36.sp
 val h1=32.sp
@@ -58,6 +61,7 @@ fun App(){
     val width=getScreenWidth()
     var ranks by remember{mutableStateOf(emptyList<Ranks>())}
     var users by remember{mutableStateOf(emptyList<UsersDto>())}
+    var artistsBirthdays by remember{mutableStateOf(emptyList<ArtistsBirthDayDto>())}
     //var language by remember{mutableStateOf(getLanguage().code)}
 
     //LaunchedEffect(Unit){language=getLanguage().code}
@@ -68,9 +72,15 @@ fun App(){
     LaunchedEffect(dropDownAccountVisible){
 
     }
+
+    val todayDate=kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
+    //val today:Triple<Int,Int,Int> =Triple(todayDate.year,todayDate.monthNumber,todayDate.dayOfMonth) //todo: use this instead!
+    /**year, month, day **/
+    val today:Triple<Int,Int,Int> =Triple(2025,5,4)
     LaunchedEffect(Unit){
         ranks=fetchRanks()
         users=fetchUsers()
+        artistsBirthdays=fetchArtistsBirthdays(day=4,month=5)
     }
     LaunchedEffect(screenWidth){}
 
@@ -80,11 +90,14 @@ fun App(){
 
     val narrow=width<450.dp
 
+
+
     val events=listOf(
         EventToday(
-            name="Gary Holt birthday", genreProperties="232123", bands=listOf("slayer","exodus"), artists=listOf("gary holt")
+            name="Gary Holt", genreProperties="232123", bands=listOf("slayer","exodus"), artists=listOf("gary holt")
         )
     )
+
 
 
 
@@ -154,13 +167,17 @@ fun App(){
                 Row(Modifier.fillMaxWidth()){
                     Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
                         CenteredText(getTranslation(getLanguage().code,sc.TODAY),fontSize=h3)
+                        Text(today.first.toString()+"-"+today.second+"-"+today.third,fontSize=h5)
                         //loop for suggested events today
-                        events.forEach{e->
+                        /*events.forEach{e->
                             Text(e.name,fontSize=h4)
                             var bottomText=""
                             e.artists.forEach {bottomText+=" $it"}
                             e.bands.forEach {bottomText+=" $it"}
                             Text(bottomText,fontSize=h5)
+                        }*/
+                        artistsBirthdays.forEach {b->
+                            Text(b.name+" "+b.age.toString())
                         }
                     }
                     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
@@ -177,21 +194,13 @@ fun App(){
                             CenteredText(getScreenWidth().toString())
                         }
                     }*/
-                    ranks.forEach{
+                    /*ranks.forEach{
                         BetterText(text=it.id.toString()+" "+it.name+" "+it.minXp,fontSize="S")
                     }
                     CenteredText(users.size.toString(),fontSize=30.sp)
                     users.forEach{
                         BetterText(text=it.id.toString()+" "+it.login+" "+it.createdAt+" "+it.ranks?.name,fontSize="S")
-                    }
-                    BetterButton(
-                        onClick={
-                            setLanguage("en") //works only after hard reload! //todo: move the button+don't hardcode
-                        }
-                    ){
-                        Text("language")
-                    }
-
+                    }*/
                     //RegisterScreen()
                     //LoginScreen()
                 }
