@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +22,11 @@ import kotlinx.coroutines.launch
 import org.aleks616.shrendar.Utils.getTranslation
 import org.aleks616.shrendar.Utils.isEmailValid
 import org.aleks616.shrendar.Utils.isPasswordSafe
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import shrendar.composeapp.generated.resources.*
+import shrendar.composeapp.generated.resources.Res
+import shrendar.composeapp.generated.resources.flagpl
 
 
 val networkClient=NetworkClient()
@@ -39,6 +44,14 @@ val h3=24.sp
 val h4=20.sp
 val h5=16.sp
 
+
+data class EventToday(
+    val name:String,
+    val genreProperties:String, //don't display
+    val bands:List<String>,
+    val artists:List<String>
+)
+val sc=StringLocale
 @Composable
 @Preview
 fun App(){
@@ -67,6 +80,14 @@ fun App(){
 
     val narrow=width<450.dp
 
+    val events=listOf(
+        EventToday(
+            name="Gary Holt birthday", genreProperties="232123", bands=listOf("slayer","exodus"), artists=listOf("gary holt")
+        )
+    )
+
+
+
     AppTheme{
         Box(modifier=Modifier.fillMaxSize()){
             if(dropDownAccountVisible){
@@ -94,6 +115,16 @@ fun App(){
                     }
                     Box(modifier=Modifier.fillMaxHeight().align(Alignment.CenterVertically)){  /**right header**/
                         Row(modifier=Modifier.fillMaxHeight(),verticalAlignment=Alignment.CenterVertically){
+
+                            val newLang=if(getLanguage().code=="en") "pl" else "en"
+                            IconButton(onClick={
+                                setLanguage(newLang)
+                            }){
+                                Icon(painterResource(if(newLang=="pl") Res.drawable.flagpl else Res.drawable.flag_en),
+                                contentDescription=null,tint=Color.Unspecified,modifier=Modifier.scale(0.75f)
+                                )
+                            }
+
                             FixedTextField(searchValue,{searchValue=it}, placeholderText=if(!narrow) "search" else "",
                                 modifier=if(narrow) Modifier.width(120.dp) else Modifier
                                     .padding(end=12.dp),
@@ -105,6 +136,7 @@ fun App(){
                                             contentDescription=null,tint=colorSecondary())
                                     }
                                 })
+
                             val scale=if(narrow) 1.4f else 2f
                             Icon(contentDescription=null,imageVector=Icons.Sharp.ThumbUp,
                                 modifier=Modifier.fillMaxHeight().scale(scale).padding(horizontal=16.dp).offset(x=(-4).dp))
@@ -121,8 +153,15 @@ fun App(){
                 /**content**/
                 Row(Modifier.fillMaxWidth()){
                     Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
-                        CenteredText("Today",fontSize=h3)
+                        CenteredText(getTranslation(getLanguage().code,sc.TODAY),fontSize=h3)
                         //loop for suggested events today
+                        events.forEach{e->
+                            Text(e.name,fontSize=h4)
+                            var bottomText=""
+                            e.artists.forEach {bottomText+=" $it"}
+                            e.bands.forEach {bottomText+=" $it"}
+                            Text(bottomText,fontSize=h5)
+                        }
                     }
                     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
 
@@ -177,7 +216,6 @@ fun RegisterScreen(language:String=getLanguage().code){
     var enteredPassword by remember{mutableStateOf("")}
     var enteredConfirmPassword by remember{mutableStateOf("")}
 
-    val sc=StringLocale
 
     var errorText by remember{mutableStateOf("")}
     var showPasswordSafetyMessage by remember{mutableStateOf(false)}
