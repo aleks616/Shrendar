@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,10 +19,15 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toLocalDateTime
 import org.aleks616.shrendar.Utils.getTranslation
 import org.aleks616.shrendar.Utils.isEmailValid
 import org.aleks616.shrendar.Utils.isPasswordSafe
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import shrendar.composeapp.generated.resources.*
+import shrendar.composeapp.generated.resources.Res
+import shrendar.composeapp.generated.resources.flagpl
 
 
 val networkClient=NetworkClient()
@@ -32,22 +38,49 @@ suspend fun doesAccountWithEmailExist(email:String):Boolean=networkClient.doesEm
 suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean =networkClient.isPasswordCorrect(email,login,password)
 suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray)=networkClient.sendRegister(login,displayName,email,password)
 
+suspend fun fetchArtistsBirthdays(month:Int,day:Int):List<ArtistsBirthDayDto> =networkClient.fetchArtistsBirthdays(month,day)
+
+val h0=36.sp
+val h1=32.sp
+val h2=28.sp
+val h3=24.sp
+val h4=20.sp
+val h5=16.sp
+
+
+data class EventToday(
+    val name:String,
+    val genreProperties:String, //don't display
+    val bands:List<String>,
+    val artists:List<String>
+)
+val sc=StringLocale
 @Composable
 @Preview
 fun App(){
     val width=getScreenWidth()
     var ranks by remember{mutableStateOf(emptyList<Ranks>())}
     var users by remember{mutableStateOf(emptyList<UsersDto>())}
-    var language by remember{mutableStateOf(getLanguage().code)}
+    var artistsBirthdays by remember{mutableStateOf(emptyList<ArtistsBirthDayDto>())}
+    //var language by remember{mutableStateOf(getLanguage().code)}
+
+    //LaunchedEffect(Unit){language=getLanguage().code}
+
     val screenWidth by remember{mutableStateOf(width)}
     var dropDownAccountVisible by remember{mutableStateOf(false)}
 
     LaunchedEffect(dropDownAccountVisible){
 
     }
+
+    val todayDate=kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
+    //val today:Triple<Int,Int,Int> =Triple(todayDate.year,todayDate.monthNumber,todayDate.dayOfMonth) //todo: use this instead!
+    /**year, month, day **/
+    val today:Triple<Int,Int,Int> =Triple(2025,5,4)
     LaunchedEffect(Unit){
         ranks=fetchRanks()
         users=fetchUsers()
+        artistsBirthdays=fetchArtistsBirthdays(day=4,month=5)
     }
     LaunchedEffect(screenWidth){}
 
@@ -56,6 +89,17 @@ fun App(){
     var searchValue by remember{mutableStateOf("")}
 
     val narrow=width<450.dp
+
+
+
+    val events=listOf(
+        EventToday(
+            name="Gary Holt", genreProperties="232123", bands=listOf("slayer","exodus"), artists=listOf("gary holt")
+        )
+    )
+
+
+
 
     AppTheme{
         Box(modifier=Modifier.fillMaxSize()){
@@ -84,6 +128,16 @@ fun App(){
                     }
                     Box(modifier=Modifier.fillMaxHeight().align(Alignment.CenterVertically)){  /**right header**/
                         Row(modifier=Modifier.fillMaxHeight(),verticalAlignment=Alignment.CenterVertically){
+
+                            val newLang=if(getLanguage().code=="en") "pl" else "en"
+                            IconButton(onClick={
+                                setLanguage(newLang)
+                            }){
+                                Icon(painterResource(if(newLang=="pl") Res.drawable.flagpl else Res.drawable.flag_en),
+                                contentDescription=null,tint=Color.Unspecified,modifier=Modifier.scale(0.75f)
+                                )
+                            }
+
                             FixedTextField(searchValue,{searchValue=it}, placeholderText=if(!narrow) "search" else "",
                                 modifier=if(narrow) Modifier.width(120.dp) else Modifier
                                     .padding(end=12.dp),
@@ -95,6 +149,7 @@ fun App(){
                                             contentDescription=null,tint=colorSecondary())
                                     }
                                 })
+
                             val scale=if(narrow) 1.4f else 2f
                             Icon(contentDescription=null,imageVector=Icons.Sharp.ThumbUp,
                                 modifier=Modifier.fillMaxHeight().scale(scale).padding(horizontal=16.dp).offset(x=(-4).dp))
@@ -109,11 +164,28 @@ fun App(){
                 }
 
                 /**content**/
-                Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
+                Row(Modifier.fillMaxWidth()){
+                    Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
+                        CenteredText(getTranslation(getLanguage().code,sc.TODAY),fontSize=h3)
+                        Text(today.first.toString()+"-"+today.second+"-"+today.third,fontSize=h5)
+                        //loop for suggested events today
+                        /*events.forEach{e->
+                            Text(e.name,fontSize=h4)
+                            var bottomText=""
+                            e.artists.forEach {bottomText+=" $it"}
+                            e.bands.forEach {bottomText+=" $it"}
+                            Text(bottomText,fontSize=h5)
+                        }*/
+                        artistsBirthdays.forEach {b->
+                            Text(b.name+" "+b.age.toString())
+                        }
+                    }
+                    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
+
                     /*BetterButton(onClick={showContent=!showContent}){
                         Text("Click me!")
-                    }*/
-                    /*AnimatedVisibility(showContent){
+                    }
+                    AnimatedVisibility(showContent){
                         val greeting=remember{Greeting().greet()}
                         Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally){
                             Image(painterResource(Res.drawable.compose_multiplatform),null)
@@ -124,14 +196,18 @@ fun App(){
                     }*/
                     /*ranks.forEach{
                         BetterText(text=it.id.toString()+" "+it.name+" "+it.minXp,fontSize="S")
-                    }*/
+                    }
                     CenteredText(users.size.toString(),fontSize=30.sp)
                     users.forEach{
                         BetterText(text=it.id.toString()+" "+it.login+" "+it.createdAt+" "+it.ranks?.name,fontSize="S")
+                    }*/
+                    //RegisterScreen()
+                    //LoginScreen()
+                }
+
+                    Column(Modifier.weight(0.2f).background(color=MaterialTheme.colors.primaryVariant).fillMaxSize()){
+                        CenteredText("test right")
                     }
-                    BetterButton(onClick={language=if(language=="en") "pl" else "en"}){Text("language")}
-                    RegisterScreen()
-                    LoginScreen()
                 }
             }
 
@@ -149,7 +225,6 @@ fun RegisterScreen(language:String=getLanguage().code){
     var enteredPassword by remember{mutableStateOf("")}
     var enteredConfirmPassword by remember{mutableStateOf("")}
 
-    val sc=StringLocale
 
     var errorText by remember{mutableStateOf("")}
     var showPasswordSafetyMessage by remember{mutableStateOf(false)}

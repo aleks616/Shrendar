@@ -42,8 +42,9 @@ object StringLocale{
     const val ENTER_LOGIN_PLACEHOLDER="enterLogin_P"
 
 
+    const val TODAY="today"
     val translations=mapOf(
-        //region
+        //region login/register
         CREATE_LOGIN_TITLE to mapOf(
             "en" to "Create a login.",
             "pl" to "Stwórz login."
@@ -134,7 +135,6 @@ object StringLocale{
             "en" to "Create account.",
             "pl" to "Utwórz konto."
         ),
-        //endregion
         ENTER_PASSWORD_TITLE to mapOf(
             "en" to "Enter password",
             "pl" to "Podaj hasło"
@@ -160,6 +160,12 @@ object StringLocale{
         ENTER_LOGIN_PLACEHOLDER to mapOf(
             "en" to "Login or e-mail",
             "pl" to "Login lub e-mail"
+        ),
+        //endregion
+
+        TODAY to mapOf(
+            "en" to "Today",
+            "pl" to "Dzisiaj"
         ),
 
         WELCOME to mapOf(

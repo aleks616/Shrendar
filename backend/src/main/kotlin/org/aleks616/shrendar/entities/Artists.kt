@@ -14,7 +14,7 @@ open class Artists {
     @Column(name="name",nullable=false,length=200)
     open var name:String?=null
 
-    @Column(name="birth_date")
+    @Column(name="birthdate")
     open var birthDate:LocalDate?=null
 
     @Column(name="death_date")

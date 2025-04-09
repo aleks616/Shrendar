@@ -52,6 +52,15 @@ data class RanksDto(
     val id:Int?=null,
     val name:String?=null
 )
+@Serializable
+data class ArtistsBirthDayDto(
+    val id:Int?=null,
+    val name:String?=null,
+    val birthDay:Int?=null,
+    val birthMonth:Int?=null,
+    val birthYear:Int?=null,
+    val age:Int?=null
+)
 
 expect class NetworkClient() {
     suspend fun fetchRanks():List<Ranks>
@@ -61,4 +70,5 @@ expect class NetworkClient() {
     suspend fun doesEmailExist(email:String):Boolean
 
     suspend fun isPasswordCorrect(email:String?=null,login:String?=null,password:CharArray):Boolean
+    suspend fun fetchArtistsBirthdays(month:Int?,day:Int?):List<ArtistsBirthDayDto>
 }

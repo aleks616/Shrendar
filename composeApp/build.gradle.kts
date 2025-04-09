@@ -68,7 +68,9 @@ kotlin{
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies{
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+            implementation(compose.components.resources)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 /*            implementation("io.ktor:ktor-client-core:2.3.3") {
                 exclude(group="org.jetbrains.kotlin",module="kotlin-stdlib")
@@ -144,6 +146,9 @@ android{
 
 dependencies{
    implementation(libs.androidx.adaptive.android)
+    implementation(project(":composeApp"))
+    implementation(libs.places)
+    implementation(libs.firebase.dataconnect)
     /* implementation("io.ktor:ktor-client-core:2.3.3")
        implementation("io.ktor:ktor-client-cio:2.3.3")*/
     debugImplementation(compose.uiTooling)
