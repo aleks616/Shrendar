@@ -43,6 +43,28 @@ object StringLocale{
 
 
     const val TODAY="today"
+    const val SEARCH="search"
+
+    const val RANK1="Newbie"
+    const val RANK2="Kindermetal"
+    const val RANK3="CD Borrower"
+    const val RANK4="Classics Fan"
+    const val RANK5="Metalhead"
+    const val RANK6="Showgoer"
+    const val RANK7="Blasphemer"
+    const val RANK8="Collector"
+    const val RANK9="Real fan"
+    const val RANK10="Satan's little helper"
+    const val RANK11="Pick catcher"
+    const val RANK12="Veteran"
+    const val RANK13="No.1 Fan"
+    const val RANK14="Cowboy from Hell"
+    const val RANK15="Hellraiser"
+    const val RANK16="Holier than Thou"
+    const val RANK17MOD="Right hand of Lucifer (Moderator)"
+    const val RANK18WEBMASTER="Price of Darkness (Webmaster)"
+
+
     val translations=mapOf(
         //region login/register
         CREATE_LOGIN_TITLE to mapOf(
@@ -163,9 +185,90 @@ object StringLocale{
         ),
         //endregion
 
+        //region rank
+        RANK1 to mapOf(
+            "en" to "Newbie",
+            "pl" to "Nowicjusz"
+        ),
+        RANK2 to mapOf(
+            "en" to "Kindermetal",
+            "pl" to "Kindermetal"
+        ),
+        RANK3 to mapOf(
+            "en" to "CD Borrower",
+            "pl" to "CD Borrower"
+        ),
+        RANK4 to mapOf(
+            "en" to "Classics Fan",
+            "pl" to "Fan klasyków"
+        ),
+        RANK5 to mapOf(
+            "en" to "Metalhead",
+            "pl" to "Metalowiec"
+        ),
+        RANK6 to mapOf(
+            "en" to "Showgoer",
+            "pl" to "Uczestnik koncertów"
+        ),
+        RANK7 to mapOf(
+            "en" to "Blasphemer",
+            "pl" to "Bluźnierca"
+        ),
+        RANK8 to mapOf(
+            "en" to "Collector",
+            "pl" to "Kolekcjoner"
+        ),
+        RANK9 to mapOf(
+            "en" to "Real fan",
+            "pl" to "Prawdziwy fan"
+        ),
+        RANK10 to mapOf(
+            "en" to "Satan's little helper",
+            "pl" to "Satan's little helper"
+        ),
+        RANK11 to mapOf(
+            "en" to "Pick catcher",
+            "pl" to "Pick catcher"
+        ),
+        RANK12 to mapOf(
+            "en" to "Veteran",
+            "pl" to "Weteran"
+        ),
+        RANK13 to mapOf(
+            "en" to "No.1 Fan",
+            "pl" to "Fan nr. 1"
+        ),
+        RANK14 to mapOf(
+            "en" to "Cowboy from Hell",
+            "pl" to "Cowboy from Hell"
+        ),
+        RANK15 to mapOf(
+            "en" to "Hellraiser",
+            "pl" to "Hellraiser"
+        ),
+        RANK16 to mapOf(
+            "en" to "Holier than Thou",
+            "pl" to "Holier than Thou"
+        ),
+        RANK17MOD to mapOf(
+            "en" to "Right hand of Lucifer (Moderator)",
+            "pl" to "Right hand of Lucifer (Moderator)"
+        ),
+        RANK18WEBMASTER to mapOf(
+            "en" to "Price of Darkness (Webmaster)",
+            "pl" to "Price of Darkness (Webmaster)"
+        ),
+        //endregion
+
+
+
         TODAY to mapOf(
             "en" to "Today",
             "pl" to "Dzisiaj"
+        ),
+        SEARCH to mapOf(
+            "en" to "Search",
+            "pl" to "Szukaj"
         ),
 
         WELCOME to mapOf(

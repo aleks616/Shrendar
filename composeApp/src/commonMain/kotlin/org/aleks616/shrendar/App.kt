@@ -138,9 +138,9 @@ fun App(){
                                 )
                             }
 
-                            FixedTextField(searchValue,{searchValue=it}, placeholderText=if(!narrow) "search" else "",
-                                modifier=if(narrow) Modifier.width(120.dp) else Modifier
-                                    .padding(end=12.dp),
+                            FixedTextField(searchValue,{searchValue=it},
+                                placeholderText=if(!narrow) getTranslation(getLanguage().code,sc.SEARCH) else "",
+                                modifier=if(narrow) Modifier.width(120.dp) else Modifier.padding(end=12.dp),
                                 trailingIcon={IconButton(
                                         onClick={
                                             //todo: search

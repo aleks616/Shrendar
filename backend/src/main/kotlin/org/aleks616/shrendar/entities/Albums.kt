@@ -24,6 +24,12 @@ open class Albums {
     @Enumerated(EnumType.STRING)
     @Column(name="type", columnDefinition="ENUM('studio','EP','compilation','concert','demo','single','other')")
     open var type:AlbumType?=null
+
+    @Column(name="importance", columnDefinition="BIT(4)")
+    open var importance:Int?=null
+
+    @Column(name="genre_properties", columnDefinition="VARCHAR(7)")
+    open var genre_properties:String?=null
 }
 
 enum class AlbumType{
