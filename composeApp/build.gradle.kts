@@ -36,42 +36,33 @@ kotlin{
         }
     }
 
-    jvm("desktop")
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs{
-        dependencies{
-            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.16.0")
-            implementation("org.jetbrains.kotlin-wrappers:kotlin-js:1.0.0-pre.619")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-//            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-wasm:1.8.0")
-//            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-wasm:1.6.3")
-        }
-        moduleName="composeApp"
+    js(IR){
         browser()
         binaries.executable()
     }
+
+    jvm("desktop")
 
     sourceSets{
         val desktopMain by getting
 
         androidMain.dependencies{
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            implementation(libs.io.ktor.ktor.serialization.kotlinx.json3)
+            implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json2)
 
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-            implementation("io.ktor:ktor-client-okhttp:2.3.12")
-            implementation("com.squareup.okhttp3:okhttp:4.12.0")
-            implementation("io.ktor:ktor-client-android:2.3.12")
+            implementation(libs.io.ktor.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.okhttp)
+            implementation(libs.ktor.client.android)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies{
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+            implementation(libs.kotlinx.coroutines.core.js)
+            implementation(libs.kotlinx.datetime)
             implementation(compose.components.resources)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            implementation(libs.jetbrains.kotlinx.coroutines.core)
+            implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json2)
 /*            implementation("io.ktor:ktor-client-core:2.3.3") {
                 exclude(group="org.jetbrains.kotlin",module="kotlin-stdlib")
             }
@@ -89,18 +80,18 @@ kotlin{
             implementation(libs.androidx.lifecycle.runtime.compose)
         }
         desktopMain.dependencies{
-            implementation("io.ktor:ktor-client-java:2.3.12")
-            implementation("io.ktor:ktor-client-cio:2.3.12")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+            implementation(libs.ktor.client.java)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.io.ktor.ktor.client.content.negotiation)
+            implementation(libs.io.ktor.ktor.serialization.kotlinx.json3)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
         iosMain.dependencies{
-            implementation("io.ktor:ktor-client-darwin:2.3.12")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
-            implementation("io.ktor:ktor-client-darwin:2.3.12")
+            implementation(libs.ktor.ktor.client.darwin)
+            implementation(libs.io.ktor.ktor.client.content.negotiation)
+            implementation(libs.io.ktor.ktor.serialization.kotlinx.json3)
+            implementation(libs.ktor.ktor.client.darwin)
         }
     }
 }
@@ -109,7 +100,7 @@ android{
     configurations.all {
         exclude(group="org.jetbrains.kotlin-wrappers",module="kotlin-js")
         /**uncomment this to make android work/comment out to make wasmjs work**/
-        //exclude(group="org.jetbrains.kotlinx",module="kotlinx-browser")
+        exclude(group="org.jetbrains.kotlinx",module="kotlinx-browser")
     }
     apply(plugin="com.android.application")
     namespace="org.aleks616.shrendar"
@@ -146,14 +137,13 @@ android{
 
 dependencies{
    implementation(libs.androidx.adaptive.android)
-    implementation(project(":composeApp"))
     implementation(libs.places)
     implementation(libs.firebase.dataconnect)
     /* implementation("io.ktor:ktor-client-core:2.3.3")
        implementation("io.ktor:ktor-client-cio:2.3.3")*/
     debugImplementation(compose.uiTooling)
-    implementation("org.jetbrains.compose.foundation:foundation:1.5.0")
-    runtimeOnly("org.jetbrains.compose.ui:ui-tooling:1.5.0")
+    implementation(libs.foundation)
+    runtimeOnly(libs.ui.tooling)
 }
 
 compose.desktop{

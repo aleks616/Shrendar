@@ -12,7 +12,7 @@ open class Ranks {
     @Column(name="rank_id",nullable=false)
     open var id:Int?=null
 
-    @Column(name="name",length=30)
+    @Column(name="name",length=35)
     open var name:String?=null
 
     @Column(name="min_xp",nullable=false)
