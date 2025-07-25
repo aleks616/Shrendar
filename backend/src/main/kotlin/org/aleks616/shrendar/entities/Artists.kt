@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
-@Table(name="artists",schema="Shrendar")
+@Table(name="artist",schema="Shrendar")
 open class Artists {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

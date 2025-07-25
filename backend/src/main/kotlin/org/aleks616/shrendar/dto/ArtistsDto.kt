@@ -13,3 +13,22 @@ data class ArtistsBirthDayDto(
     val birthYear:Int?=null,
     val age:Int?=null
     ):Serializable
+
+data class ArtistsDeathDayDto(
+    val id:Int=-1,
+    val name:String="",
+    val deathDay:Int?=null,
+    val deathMonth:Int?=null,
+    val deathYear:Int?=null,
+    val age:Int?=null
+):Serializable
+
+data class RecentDeathAnniversariesDTO(
+    val id:Int=-1,
+    val name:String="",
+    val birthDate:String?=null,
+    val deathDate:String?=null,
+   // val age:Int?=null
+):Serializable
+
+//todo: died *RECENTLY*

@@ -13,6 +13,7 @@ class AllControllers(
     private val bandsGenreRepository:BandsGenreRepository,
     private val bandsMemberRepository:BandsMemberRepository,
     private val contributionService:ContributionService,
+    private val eventService:EventService,
     private val genreService:GenreService,
     private val rankService:RankService,
     private val userArtistRepository:UserArtistRepository,
@@ -54,6 +55,18 @@ class AllControllers(
 
     @GetMapping("/artistBirthdays")
     fun getArtistWithBirthdayInDate(@RequestParam month:Int, @RequestParam day:Int)=artistService.getTodayBirthdays(month,day)
+
+    @GetMapping("/artistDeaths")
+    fun getArtistWithDeathInDate(@RequestParam month:Int, @RequestParam day:Int)=artistService.getTodayDeathAnniversaries(month,day)
+
+    @GetMapping("/recentDeaths")
+    fun getRecentArtistDeathAnniversaries()=artistService.getRecentDeaths()
+
+    @GetMapping("/albumsInDate")
+    fun getAlbumAnniversariesByDate(@RequestParam month:Int,@RequestParam day:Int)=albumService.getAlbumAnniversariesByDate(month,day)
+
+    @GetMapping("/eventsInDate")
+    fun getEventsByDate(@RequestParam month:Int,@RequestParam day:Int)=eventService.getEventsByDate(month,day)
 
     @GetMapping("/bands")
     fun getBand()=bandService.getAll()

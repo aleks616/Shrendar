@@ -74,13 +74,13 @@ fun App(){
     }
 
     val todayDate=kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
-    //val today:Triple<Int,Int,Int> =Triple(todayDate.year,todayDate.monthNumber,todayDate.dayOfMonth) //todo: use this instead!
+    val today:Triple<Int,Int,Int> =Triple(todayDate.year,todayDate.monthNumber,todayDate.dayOfMonth) //todo: use this instead!
     /**year, month, day **/
-    val today:Triple<Int,Int,Int> =Triple(2025,5,4)
+    //val today:Triple<Int,Int,Int> =Triple(2025,5,4)
     LaunchedEffect(Unit){
         ranks=fetchRanks()
         users=fetchUsers()
-        artistsBirthdays=fetchArtistsBirthdays(day=4,month=5)
+        artistsBirthdays=fetchArtistsBirthdays(day=today.third,month=today.second)
     }
     LaunchedEffect(screenWidth){}
 

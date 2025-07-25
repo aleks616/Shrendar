@@ -3,7 +3,8 @@ package org.aleks616.shrendar
 object Utils{
     /**
      * @param month value 1-12 NOT 0-11
-     * assumes february can be 29 days
+     * @param day value 1-31
+     * assumes february can be 29 days long
      * **/
     fun doesDateExist(month:Int,day:Int):Boolean{
         return if(month>12 || day>31) false
