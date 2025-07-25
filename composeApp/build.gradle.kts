@@ -1,9 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-
 plugins{
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -58,7 +55,6 @@ kotlin{
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies{
-            implementation(libs.kotlinx.coroutines.core.js)
             implementation(libs.kotlinx.datetime)
             implementation(compose.components.resources)
             implementation(libs.jetbrains.kotlinx.coroutines.core)
@@ -92,6 +88,12 @@ kotlin{
             implementation(libs.io.ktor.ktor.client.content.negotiation)
             implementation(libs.io.ktor.ktor.serialization.kotlinx.json3)
             implementation(libs.ktor.ktor.client.darwin)
+        }
+        jsMain.dependencies{
+            implementation(libs.io.ktor.ktor.client.content.negotiation)
+            implementation(libs.io.ktor.ktor.serialization.kotlinx.json3)
+            implementation(libs.kotlinx.coroutines.core.js)
+            implementation(libs.ktor.client.js)
         }
     }
 }
@@ -136,6 +138,7 @@ android{
 }
 
 dependencies{
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
    implementation(libs.androidx.adaptive.android)
     implementation(libs.places)
     implementation(libs.firebase.dataconnect)
