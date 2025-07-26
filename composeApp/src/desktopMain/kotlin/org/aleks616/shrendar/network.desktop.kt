@@ -3,6 +3,7 @@ package org.aleks616.shrendar
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -12,25 +13,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-actual class NetworkClient actual constructor() {
+actual class NetworkClient actual constructor(){
     private val client=HttpClient(CIO){
-        install(ContentNegotiation) { json() }
+        install(ContentNegotiation){json()}
+        install(DefaultRequest){header("skip_zrok_interstitial","Y") }
 
     }
 
     actual suspend fun fetchRanks():List<Ranks> {
-        val response=client.get("http://127.0.0.1:8081/api/ranks")
+        val response=client.get("https://ulqkmyeojo31.share.zrok.io/api/ranks")
         return Json.decodeFromString(response.body())
     }
 
     actual suspend fun fetchUsers():List<UsersDto> {
-        val response=client.get("http://127.0.0.1:8081/api/users")
+        val response=client.get("https://ulqkmyeojo31.share.zrok.io/api/users")
         return Json.decodeFromString(response.body())
     }
 
 
     actual suspend fun isPasswordCorrect(email:String?,login:String?,password:CharArray):Boolean{
-        val response=client.post("http://localhost:8081/api/passwordCheck"){
+        val response=client.post("https://ulqkmyeojo31.share.zrok.io/api/passwordCheck"){
             contentType(ContentType.Application.Json)
             setBody(
                 LoginRequest(login=login,email=email,password=password.concatToString())
@@ -41,7 +43,7 @@ actual class NetworkClient actual constructor() {
 
     actual suspend fun sendRegister(login:String,displayName:String,email:String,password:CharArray){
         CoroutineScope(Dispatchers.IO).launch{
-            val response=client.post("http://localhost:8081/api/register"){
+            val response=client.post("https://ulqkmyeojo31.share.zrok.io/api/register"){
                 contentType(ContentType.Application.Json)
                 setBody(
                     RegisterRequest(
@@ -59,17 +61,17 @@ actual class NetworkClient actual constructor() {
     }
 
     actual suspend fun doesLoginExist(login:String):Boolean{
-        val response=client.get("http://127.0.0.1:8081/api/loginCheck?login=$login")
+        val response=client.get("https://ulqkmyeojo31.share.zrok.io/api/loginCheck?login=$login")
         return Json.decodeFromString(response.body())
     }
 
     actual suspend fun doesEmailExist(email:String):Boolean{
-        val response=client.get("http://127.0.0.1:8081/api/emailCheck?email=$email")
+        val response=client.get("https://ulqkmyeojo31.share.zrok.io/api/emailCheck?email=$email")
         return Json.decodeFromString(response.body())
     }
 
     actual suspend fun fetchArtistsBirthdays(month:Int?,day:Int?):List<ArtistsBirthDayDto>{
-        val response=client.get("http://127.0.0.1:8081/api/artistBirthdays?month=$month&day=$day")
+        val response=client.get("https://ulqkmyeojo31.share.zrok.io/api/artistBirthdays?month=$month&day=$day")
         return Json.decodeFromString(response.body())
     }
 
