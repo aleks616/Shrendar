@@ -19,6 +19,7 @@ class NgrokHeaderFilter:OncePerRequestFilter(){
         filterChain:FilterChain
     ){
         response.setHeader("ngrok-skip-browser-warning","true")
+        response.setHeader("skip_zrok_interstitial","a")
         filterChain.doFilter(request,response)
     }
 }
@@ -32,7 +33,7 @@ class WebConfig:WebMvcConfigurer{
                 "http://localhost:[*]",
                 "https://*.ngrok-free.app"
             )
-            .exposedHeaders("ngrok-skip-browser-warning")
+            .exposedHeaders("ngrok-skip-browser-warning","skip_zrok_interstitial")
             .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
