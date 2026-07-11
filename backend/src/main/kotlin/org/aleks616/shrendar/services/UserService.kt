@@ -1,11 +1,13 @@
 package org.aleks616.shrendar.services
 
-import org.aleks616.shrendar.controllers.AllControllers
 import org.aleks616.shrendar.controllers.AllControllers.RegisterRequest
 import org.aleks616.shrendar.dto.UsersDto
 import org.aleks616.shrendar.entities.Users
 import org.aleks616.shrendar.repositories.RankRepository
 import org.aleks616.shrendar.repositories.UserRepository
+import org.aleks616.shrendar.VerificationCodeGenerator
+import org.aleks616.shrendar.VerificationCodeStorage
+import org.aleks616.shrendar.controllers.AllControllers
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -13,33 +15,37 @@ import java.time.Instant
 @Service
 class UserService(
     private val repository:UserRepository,
-    private val rankRepository:RankRepository
-){
-    fun matches(raw:String,encrypted:String):Boolean{
-        val encoder=BCryptPasswordEncoder()
+    private val rankRepository:RankRepository,
+    private val verificationCodeStorage:VerificationCodeStorage,
+    private val emailService:SendEmailService,
+    private val verificationCodeGenerator:VerificationCodeGenerator,
+    private val encoder:BCryptPasswordEncoder
+) {
+    fun matches(raw:String,encrypted:String):Boolean {
         return encoder.matches(raw,encrypted)
     }
 
-    val encoder=BCryptPasswordEncoder()
     fun getUsers():List<Users> =repository.findAll()
 
-    fun doesLoginExist(login:String):Boolean{
-        return getUsers().any{it.login.equals(login,ignoreCase=true)}
-    }
-    fun doesAccountWithEmailExist(email:String):Boolean{
-        return getUsers().any{it.email.equals(email,ignoreCase=true)}
+    fun doesLoginExist(login:String):Boolean {
+        return getUsers().any {it.login.equals(login,ignoreCase=true)}
     }
 
-    fun isPasswordCorrect(req:AllControllers.LoginRequest):Boolean{
-        if(req.email==null&&req.login==null) return false
-        val user=if(req.email!=null) repository.findByEmail(req.email) else repository.findByLogin(req.login!!)
-
-        println( matches(req.password, user.passwordHash?:""))
-        return matches(req.password, user.passwordHash?:"")
+    fun doesAccountWithEmailExist(email:String):Boolean {
+        return getUsers().any {it.email.equals(email,ignoreCase=true)}
     }
 
-    fun getUsersDto():List<UsersDto>{
-        return getUsers().map{u ->
+    fun authenticate(req:AllControllers.LoginRequest):String? {
+        val user=if(req.email!=null) repository.findByEmail(req.email)
+        else if(req.login!=null) repository.findByLogin(req.login)
+        else null
+        if(user==null) return null
+
+        return if(matches(req.password,user.passwordHash?:"")) user.login else null
+    }
+
+    fun getUsersDto():List<UsersDto> {
+        return getUsers().map {u->
             UsersDto(
                 id=u.id,
                 login=u.login,
@@ -48,18 +54,24 @@ class UserService(
                 email=u.email,
                 createdAt=u.createdAt?.toEpochMilli(),
                 birthDate=u.birthDate?.toString(),
-                ranks=u.ranks?.let{UsersDto.RanksDto(it.id,it.name)},
+                ranks=u.ranks?.let {UsersDto.RanksDto(it.id,it.name)},
                 xp=u.xp,
                 verified=u.verified
             )
         }
     }
 
-    fun getAll():List<Users> =repository.findAll()
+    fun initiateRegistration(req:RegisterRequest):Boolean {
+        if(doesLoginExist(req.login)||doesAccountWithEmailExist(req.email)) return false
+        if(!verificationCodeStorage.canSendCode(req.email)) return false
+        val code=verificationCodeGenerator.generateVerificationCode()
+        verificationCodeStorage.storeCode(req.email,code)
+        emailService.sendVerificationCode(req.email,code)
+        return true
+    }
 
-    fun createUser(req:RegisterRequest){
-        println(req.password)
-        println(req.password.map{it.code})
+    fun createUser(req:RegisterRequest,code:String):Boolean {
+        if(!verificationCodeStorage.validateCode(req.email,code)) return false
         val encryptedPassword=encoder.encode(req.password)
         repository.save(Users().apply {
             login=req.login
@@ -69,7 +81,8 @@ class UserService(
             createdAt=Instant.now()
             ranks=rankRepository.findById(1).orElseThrow()
             xp=0
-            verified=false
+            verified=true
         })
+        return true
     }
 }

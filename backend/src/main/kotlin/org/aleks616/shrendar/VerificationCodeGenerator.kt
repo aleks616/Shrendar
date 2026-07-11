@@ -11,7 +11,7 @@ object VerificationCodeGenerator{
 
     fun generateVerificationCode():String{
         val code=StringBuilder(CODE_LENGTH)
-        for(i in 0 ..<CODE_LENGTH){
+        for(i in 0 until CODE_LENGTH) {
             code.append(CHARACTERS[random.nextInt(CHARACTERS.length)])
         }
         return code.toString()
