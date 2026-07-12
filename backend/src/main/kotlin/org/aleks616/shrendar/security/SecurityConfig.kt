@@ -25,7 +25,9 @@ class SecurityConfig {
                 "/api/passwordCheck",
                 "/api/loginCheck",
                 "/api/emailCheck",
-                "/api/login"
+                "/api/login",
+                "/api/requestPasswordReset",
+                "/api/resetPassword"
             ).permitAll()
             it.anyRequest().authenticated()
         }

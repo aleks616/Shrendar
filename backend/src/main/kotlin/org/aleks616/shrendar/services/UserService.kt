@@ -1,5 +1,7 @@
 package org.aleks616.shrendar.services
 
+import org.aleks616.shrendar.PasswordResetCodeGenerator
+import org.aleks616.shrendar.PasswordResetCodeStorage
 import org.aleks616.shrendar.controllers.AllControllers.RegisterRequest
 import org.aleks616.shrendar.dto.UsersDto
 import org.aleks616.shrendar.entities.Users
@@ -17,8 +19,10 @@ class UserService(
     private val repository:UserRepository,
     private val rankRepository:RankRepository,
     private val verificationCodeStorage:VerificationCodeStorage,
-    private val emailService:SendEmailService,
     private val verificationCodeGenerator:VerificationCodeGenerator,
+    private val passwordResetCodeStorage:PasswordResetCodeStorage,
+    private val passwordResetCodeGenerator:PasswordResetCodeGenerator,
+    private val emailService:EmailService,
     private val encoder:BCryptPasswordEncoder
 ) {
     fun matches(raw:String,encrypted:String):Boolean {
@@ -27,12 +31,8 @@ class UserService(
 
     fun getUsers():List<Users> =repository.findAll()
 
-    fun doesLoginExist(login:String):Boolean {
-        return getUsers().any {it.login.equals(login,ignoreCase=true)}
-    }
-
-    fun doesAccountWithEmailExist(email:String):Boolean {
-        return getUsers().any {it.email.equals(email,ignoreCase=true)}
+    fun doesAccountExist(accountKey:String):Boolean {
+        return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
     }
 
     fun authenticate(req:AllControllers.LoginRequest):String? {
@@ -62,7 +62,7 @@ class UserService(
     }
 
     fun initiateRegistration(req:RegisterRequest):Boolean {
-        if(doesLoginExist(req.login)||doesAccountWithEmailExist(req.email)) return false
+        if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!verificationCodeStorage.canSendCode(req.email)) return false
         val code=verificationCodeGenerator.generateVerificationCode()
         verificationCodeStorage.storeCode(req.email,code)
@@ -83,6 +83,28 @@ class UserService(
             xp=0
             verified=true
         })
+        emailService.sendAccountCreatedMessage(req.email)
+        return true
+    }
+
+    fun requestPasswordReset(accountKey:String):Boolean {
+        if(!doesAccountExist(accountKey)) return false
+        if(!passwordResetCodeStorage.canSendCode(accountKey)) return false
+        val code=passwordResetCodeGenerator.generatePasswordResetCode()
+        passwordResetCodeStorage.storeCode(accountKey,code)
+        val email=if(doesAccountExist(accountKey)) accountKey
+        else repository.findByLogin(accountKey)?.email?:return false
+
+        emailService.sendPasswordResetMessage(email,code)
+        return true
+    }
+
+    fun changePassword(email:String,password:String,resetCode:String):Boolean {
+        if(!passwordResetCodeStorage.validateCode(email,resetCode)) return false
+        val encryptedPassword=encoder.encode(password)
+        val user=repository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
+        user.passwordHash=encryptedPassword
+        repository.save(user)
         return true
     }
 }

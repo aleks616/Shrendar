@@ -33,8 +33,9 @@ out/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
+### Secrets ###
+secrets.properties
+src/main/resources/secrets.properties
 
 ### Kotlin ###
 .kotlin

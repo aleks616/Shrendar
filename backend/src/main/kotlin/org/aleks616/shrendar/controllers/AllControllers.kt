@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.dto.ResetPassword
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.security.JwtUtil
@@ -42,8 +43,7 @@ class AllControllers(
         val password:String
     )
 
-    @PostMapping("/register")
-    fun registerData(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
+    @PostMapping("/register") fun registerData(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
         return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
@@ -58,8 +58,7 @@ class AllControllers(
                 .body("Cannot initiate registration: email/login may exist or rate-limited")
     }
 
-    @PostMapping("/register/confirm")
-    fun confirmRegistration(
+    @PostMapping("/register/confirm") fun confirmRegistration(
         @RequestBody request:RegisterRequest,
         @RequestParam code:String,
         servletRequest:HttpServletRequest
@@ -73,14 +72,31 @@ class AllControllers(
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid code or registration could not be completed")
     }
 
+    @PostMapping("/requestPasswordReset") fun requestPasswordReset(@RequestParam accountKey:String):ResponseEntity<String> {
+        return if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
+            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many reset passwords attempts")
+        else if(!userService.doesAccountExist(accountKey))
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found")
+        else if(userService.requestPasswordReset(accountKey))
+            ResponseEntity.ok("Password reset code sent to email")
+        else ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not send password reset code, try again in 5 minutes")
+    }
+
+    @PostMapping("/resetPassword") fun resetPassword(@RequestBody request:ResetPassword,@RequestParam code:String):ResponseEntity<String> {
+        return if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
+            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests")
+        else if(userService.changePassword(request.email,request.newPassword,code))
+            ResponseEntity.ok("Password changed successfully")
+        else ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not change password, try again later")
+    }
+
     @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesLoginExist(login)
+    fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesAccountExist(login)
 
     @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):Boolean=userService.doesAccountWithEmailExist(email)
+    fun doesEmailExist(@RequestParam email:String):Boolean=userService.doesAccountExist(email)
 
-    @PostMapping("/login")
-    fun login(@RequestBody request:LoginRequest,servletRequest:HttpServletRequest):ResponseEntity<Any> {
+    @PostMapping("/login") fun login(@RequestBody request:LoginRequest,servletRequest:HttpServletRequest):ResponseEntity<Any> {
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("login:ip:$ip",10,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(mapOf("error" to "Too many login attempts"))
@@ -94,8 +110,7 @@ class AllControllers(
         return ResponseEntity.ok(mapOf("token" to token))
     }
 
-    @PostMapping("/logout")
-    fun logout(servletRequest:HttpServletRequest):ResponseEntity<String> {
+    @PostMapping("/logout") fun logout(servletRequest:HttpServletRequest):ResponseEntity<String> {
         val header=servletRequest.getHeader("Authorization")
         if(header!=null&&header.startsWith("Bearer ")) {
             val token=header.substringAfter("Bearer ").trim()

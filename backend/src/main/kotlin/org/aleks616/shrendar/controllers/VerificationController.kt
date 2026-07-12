@@ -5,7 +5,7 @@ import org.aleks616.shrendar.VerificationCodeGenerator
 import org.aleks616.shrendar.VerificationCodeStorage
 import org.aleks616.shrendar.repositories.UserRepository
 import org.aleks616.shrendar.security.RateLimiter
-import org.aleks616.shrendar.services.SendEmailService
+import org.aleks616.shrendar.services.EmailService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/auth")
 class VerificationController(
-    @Autowired private val emailService:SendEmailService,
+    @Autowired private val emailService:EmailService,
     private val verificationCodeGenerator:VerificationCodeGenerator,
     private val verificationCodeStorage:VerificationCodeStorage,
     private val userRepository:UserRepository,
