@@ -1,15 +1,14 @@
 package org.aleks616.shrendar.services
 
-import org.aleks616.shrendar.PasswordResetCodeGenerator
-import org.aleks616.shrendar.PasswordResetCodeStorage
+import org.aleks616.shrendar.CodeGenerator
+import org.aleks616.shrendar.CodeStorage
 import org.aleks616.shrendar.controllers.AllControllers.RegisterRequest
 import org.aleks616.shrendar.dto.UsersDto
 import org.aleks616.shrendar.entities.Users
 import org.aleks616.shrendar.repositories.RankRepository
 import org.aleks616.shrendar.repositories.UserRepository
-import org.aleks616.shrendar.VerificationCodeGenerator
-import org.aleks616.shrendar.VerificationCodeStorage
 import org.aleks616.shrendar.controllers.AllControllers
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -18,10 +17,8 @@ import java.time.Instant
 class UserService(
     private val repository:UserRepository,
     private val rankRepository:RankRepository,
-    private val verificationCodeStorage:VerificationCodeStorage,
-    private val verificationCodeGenerator:VerificationCodeGenerator,
-    private val passwordResetCodeStorage:PasswordResetCodeStorage,
-    private val passwordResetCodeGenerator:PasswordResetCodeGenerator,
+    @Qualifier("registrationCodeStorage") private val registrationCodeStorage:CodeStorage,
+    @Qualifier("passwordResetCodeStorage") private val passwordResetCodeStorage:CodeStorage,
     private val emailService:EmailService,
     private val encoder:BCryptPasswordEncoder
 ) {
@@ -63,15 +60,15 @@ class UserService(
 
     fun initiateRegistration(req:RegisterRequest):Boolean {
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
-        if(!verificationCodeStorage.canSendCode(req.email)) return false
-        val code=verificationCodeGenerator.generateVerificationCode()
-        verificationCodeStorage.storeCode(req.email,code)
+        if(!registrationCodeStorage.canSendCode(req.email)) return false
+        val code=CodeGenerator.generateCode()
+        registrationCodeStorage.storeCode(req.email,code)
         emailService.sendVerificationCode(req.email,code)
         return true
     }
 
     fun createUser(req:RegisterRequest,code:String):Boolean {
-        if(!verificationCodeStorage.validateCode(req.email,code)) return false
+        if(!registrationCodeStorage.validateCode(req.email,code)) return false
         val encryptedPassword=encoder.encode(req.password)
         repository.save(Users().apply {
             login=req.login
@@ -90,7 +87,7 @@ class UserService(
     fun requestPasswordReset(accountKey:String):Boolean {
         if(!doesAccountExist(accountKey)) return false
         if(!passwordResetCodeStorage.canSendCode(accountKey)) return false
-        val code=passwordResetCodeGenerator.generatePasswordResetCode()
+        val code=CodeGenerator.generateCode(numericOnly=true)
         passwordResetCodeStorage.storeCode(accountKey,code)
         val email=if(doesAccountExist(accountKey)) accountKey
         else repository.findByLogin(accountKey)?.email?:return false

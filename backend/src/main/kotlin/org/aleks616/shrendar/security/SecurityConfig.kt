@@ -2,6 +2,7 @@ package org.aleks616.shrendar.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -9,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
+@EnableWebSecurity
 class SecurityConfig {
     @Bean
     fun passwordEncoder():BCryptPasswordEncoder=BCryptPasswordEncoder()
@@ -19,17 +21,10 @@ class SecurityConfig {
         http.sessionManagement {it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         http.authorizeHttpRequests {
             it.requestMatchers(
-                "/api/register",
-                "/api/register/confirm",
-                "/api/auth/**",
-                "/api/passwordCheck",
-                "/api/loginCheck",
-                "/api/emailCheck",
-                "/api/login",
-                "/api/requestPasswordReset",
-                "/api/resetPassword"
-            ).permitAll()
-            it.anyRequest().authenticated()
+                "/api/logout",
+                "/api/users"
+            ).authenticated()
+            it.anyRequest().permitAll()
         }
         http.addFilterBefore(
             JwtAuthenticationFilter(tokenBlacklistService),
