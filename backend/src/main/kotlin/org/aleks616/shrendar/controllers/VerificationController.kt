@@ -3,7 +3,7 @@ package org.aleks616.shrendar.controllers
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.CodeGenerator
 import org.aleks616.shrendar.CodeStorage
-import org.aleks616.shrendar.repositories.UserRepository
+import org.aleks616.shrendar.user.UserRepository
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.services.EmailService
 import org.springframework.beans.factory.annotation.Autowired

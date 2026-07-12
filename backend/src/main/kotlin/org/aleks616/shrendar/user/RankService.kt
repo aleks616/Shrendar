@@ -1,7 +1,7 @@
-package org.aleks616.shrendar.services
+package org.aleks616.shrendar.user
 
-import org.aleks616.shrendar.entities.Ranks
 import org.aleks616.shrendar.repositories.RankRepository
+import org.aleks616.shrendar.user.model.Ranks
 import org.springframework.stereotype.Service
 
 @Service

@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.entities
 
 import jakarta.persistence.*
+import org.aleks616.shrendar.user.Users
 import java.time.Instant
 
 @Entity

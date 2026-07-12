@@ -1,13 +1,9 @@
-package org.aleks616.shrendar.services
+package org.aleks616.shrendar.user
 
 import org.aleks616.shrendar.CodeGenerator
 import org.aleks616.shrendar.CodeStorage
-import org.aleks616.shrendar.controllers.AllControllers.RegisterRequest
-import org.aleks616.shrendar.dto.UsersDto
-import org.aleks616.shrendar.entities.Users
 import org.aleks616.shrendar.repositories.RankRepository
-import org.aleks616.shrendar.repositories.UserRepository
-import org.aleks616.shrendar.controllers.AllControllers
+import org.aleks616.shrendar.services.EmailService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -32,7 +28,7 @@ class UserService(
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
     }
 
-    fun authenticate(req:AllControllers.LoginRequest):String? {
+    fun authenticate(req:UserController.LoginRequest):String? {
         val user=if(req.email!=null) repository.findByEmail(req.email)
         else if(req.login!=null) repository.findByLogin(req.login)
         else null
@@ -58,7 +54,7 @@ class UserService(
         }
     }
 
-    fun initiateRegistration(req:RegisterRequest):Boolean {
+    fun initiateRegistration(req:UserController.RegisterRequest):Boolean {
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!registrationCodeStorage.canSendCode(req.email)) return false
         val code=CodeGenerator.generateCode()
@@ -67,7 +63,7 @@ class UserService(
         return true
     }
 
-    fun createUser(req:RegisterRequest,code:String):Boolean {
+    fun createUser(req:UserController.RegisterRequest,code:String):Boolean {
         if(!registrationCodeStorage.validateCode(req.email,code)) return false
         val encryptedPassword=encoder.encode(req.password)
         repository.save(Users().apply {

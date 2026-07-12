@@ -1,9 +1,9 @@
-package org.aleks616.shrendar.dto
+package org.aleks616.shrendar.user
 
 import java.io.Serializable
 
 /**
- * DTO for {@link org.aleks616.shrendar.entities.Users}
+ * DTO for {@link org.aleks616.shrendar.user.Users}
  */
 data class UsersDto(
     val id:Int?=null,
@@ -18,7 +18,7 @@ data class UsersDto(
     val verified:Boolean?=false
 ):Serializable{
     /**
-     * DTO for {@link org.aleks616.shrendar.entities.Ranks}
+     * DTO for {@link org.aleks616.shrendar.user.models.Ranks}
      */
     data class RanksDto(
         val id:Int?=null,

@@ -1,4 +1,4 @@
-package org.aleks616.shrendar.entities
+package org.aleks616.shrendar.user.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
