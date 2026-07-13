@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ArtistRepository:JpaRepository<Artists,Int> {
 @Query("""
-    SELECT NEW org.aleks616.shrendar.dto.ArtistsBirthDayDto(
+    SELECT NEW org.aleks616.shrendar.artist.model.ArtistsBirthDayDto(
         a.id, a.name, 
         CAST(FUNCTION('DAYOFMONTH',a.birthDate) AS INTEGER), 
         CAST(FUNCTION('MONTH',a.birthDate) AS INTEGER),
@@ -27,7 +27,7 @@ interface ArtistRepository:JpaRepository<Artists,Int> {
 
 
     @Query("""
-    SELECT NEW org.aleks616.shrendar.dto.ArtistsDeathDayDto(
+    SELECT NEW org.aleks616.shrendar.artist.model.ArtistsDeathDayDto(
         a.id, a.name, 
         CAST(FUNCTION('DAYOFMONTH',a.deathDate) AS INTEGER), 
         CAST(FUNCTION('MONTH',a.deathDate) AS INTEGER),
@@ -40,7 +40,7 @@ interface ArtistRepository:JpaRepository<Artists,Int> {
 
 
 @Query("""
-    SELECT NEW org.aleks616.shrendar.dto.RecentDeathAnniversariesDTO(
+    SELECT NEW org.aleks616.shrendar.artist.model.RecentDeathAnniversariesDTO(
         a.id, a.name, CAST(a.birthDate AS string), CAST(a.deathDate AS string)
     )
     FROM Artists a
