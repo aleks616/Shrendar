@@ -1,5 +1,6 @@
 package org.aleks616.shrendar
 
+import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

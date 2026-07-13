@@ -1,4 +1,4 @@
-package org.aleks616.shrendar.user.model
+package org.aleks616.shrendar.band.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,21 +9,24 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.aleks616.shrendar.artist.model.Artists
+import org.aleks616.shrendar.genre.model.Genres
 
 @Entity
-@Table(name="user_artists",schema="Shrendar")
-open class UserArtist {
+@Table(name="bands_genres",schema="Shrendar")
+open class BandsGenres{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
     open var id:Int?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    open var users:Users?=null
+    @JoinColumn(name="band_id")
+    open var bands:Bands?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="artist_id")
-    open var artist:Artists?=null
+    @JoinColumn(name="genre_id")
+    open var genres:Genres?=null
+
+    @Column(name="importance", columnDefinition="BIT(4)")
+    open var importance:Int?=null
 }

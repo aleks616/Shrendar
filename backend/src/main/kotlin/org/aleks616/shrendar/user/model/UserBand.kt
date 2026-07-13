@@ -9,8 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.aleks616.shrendar.entities.Bands
-import org.aleks616.shrendar.user.Users
+import org.aleks616.shrendar.band.model.Bands
 
 @Entity
 @Table(name="user_bands",schema="Shrendar")
