@@ -1,7 +1,6 @@
 package org.aleks616.shrendar
 
-import org.aleks616.shrendar.GenreSimilarity.getGenreSimilarity
-import org.assertj.core.api.Assertions.assertThat
+import org.aleks616.shrendar.genre.service.GenreSimilarity.getGenreSimilarity
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
