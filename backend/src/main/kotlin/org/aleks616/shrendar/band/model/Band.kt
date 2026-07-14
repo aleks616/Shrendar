@@ -3,8 +3,8 @@ package org.aleks616.shrendar.band.model
 import jakarta.persistence.*
 
 @Entity
-@Table(name="bands",schema="Shrendar")
-open class Bands {
+@Table(name="band",schema="Shrendar")
+open class Band {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="band_id",nullable=false)

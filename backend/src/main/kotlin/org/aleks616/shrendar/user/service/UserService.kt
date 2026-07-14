@@ -3,7 +3,7 @@ package org.aleks616.shrendar.user.service
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.controller.UserAccountController
-import org.aleks616.shrendar.user.model.Users
+import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
@@ -25,7 +25,7 @@ class UserService(
         return encoder.matches(raw,encrypted)
     }
 
-    fun getUsers():List<Users> =repository.findAll()
+    fun getUsers():List<User> =repository.findAll()
 
     fun doesAccountExist(accountKey:String):Boolean {
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
@@ -50,7 +50,7 @@ class UserService(
                 email=u.email,
                 createdAt=u.createdAt?.toEpochMilli(),
                 birthDate=u.birthDate?.toString(),
-                ranks=u.ranks?.let {UsersDto.RanksDto(it.id,it.name)},
+                ranks=u.rank?.let {UsersDto.RanksDto(it.id,it.name)},
                 xp=u.xp,
                 verified=u.verified
             )
@@ -69,13 +69,13 @@ class UserService(
     fun createUser(req:UserAccountController.RegisterRequest,code:String):Boolean {
         if(!registrationCodeStorage.validateCode(req.email,code)) return false
         val encryptedPassword=encoder.encode(req.password)
-        repository.save(Users().apply {
+        repository.save(User().apply {
             login=req.login
             username=req.displayName
             passwordHash=encryptedPassword
             email=req.email
             createdAt=Instant.now()
-            ranks=rankRepository.findById(1).orElseThrow()
+            rank=rankRepository.findById(1).orElseThrow()
             xp=0
             verified=true
         })

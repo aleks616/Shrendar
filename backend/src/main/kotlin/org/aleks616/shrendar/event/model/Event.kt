@@ -10,11 +10,11 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.Lob
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.aleks616.shrendar.band.model.Bands
+import org.aleks616.shrendar.band.model.Band
 import java.time.LocalDate
 
 @Entity
-@Table(name="events",schema="Shrendar")
+@Table(name="event",schema="Shrendar")
 open class Event {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ open class Event {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
-    open var band:Bands?=null
+    open var band:Band?=null
 
     @Column(name="date")
     open var date:LocalDate?=null

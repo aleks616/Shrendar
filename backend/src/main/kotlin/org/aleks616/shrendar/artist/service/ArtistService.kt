@@ -1,7 +1,7 @@
 package org.aleks616.shrendar.artist.service
 
 import org.aleks616.shrendar.common.Utils
-import org.aleks616.shrendar.artist.model.Artists
+import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistsBirthDayDto
 import org.aleks616.shrendar.artist.model.ArtistsDeathDayDto
 import org.aleks616.shrendar.artist.model.RecentDeathAnniversariesDTO
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ArtistService(private val repository:ArtistRepository){
-    fun getAll():List<Artists> =repository.findAll()
+    fun getAll():List<Artist> =repository.findAll()
 
     fun getTodayBirthdays(month:Int,day:Int):List<ArtistsBirthDayDto> {
         if(!Utils.doesDateExist(month,day)) throw IllegalArgumentException("month and day aren't valid")

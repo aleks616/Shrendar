@@ -14,8 +14,8 @@ import java.time.Instant
 import java.time.LocalDate
 
 @Entity
-@Table(name="users",schema="Shrendar")
-open class Users {
+@Table(name="user",schema="Shrendar")
+open class User {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="user_id",nullable=false)
@@ -40,7 +40,7 @@ open class Users {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="rank_id")
-    open var ranks:Ranks?=null
+    open var rank:Rank?=null
 
     @Column(name="birth_date")
     open var birthDate:LocalDate?=null

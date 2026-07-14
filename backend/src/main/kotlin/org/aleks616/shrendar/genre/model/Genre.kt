@@ -6,8 +6,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name="genres",schema="Shrendar")
-open class Genres {
+@Table(name="genre",schema="Shrendar")
+open class Genre {
     @Id
     @Column(name="genre_id",nullable=false)
     open var id:Int?=null
