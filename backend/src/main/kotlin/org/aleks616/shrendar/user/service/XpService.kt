@@ -1,6 +1,5 @@
 package org.aleks616.shrendar.user.service
 
-import jakarta.persistence.criteria.CriteriaBuilder
 import org.aleks616.shrendar.user.model.Users
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
@@ -72,7 +71,7 @@ class XpService(
     @Transactional
     fun manualRankAssign(login:String,rankId:Int){
         val user=userRepository.findByLogin(login)?:return
-        //can't find by id because it gives assignement type error
+        //can't find by id because it gives assignment type error
         val ranks=rankRepository.findAll()
         val rank=ranks.find {it.id==rankId}
         user.ranks=rank
