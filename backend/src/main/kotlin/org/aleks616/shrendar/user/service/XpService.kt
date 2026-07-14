@@ -1,5 +1,7 @@
 package org.aleks616.shrendar.user.service
 
+import jakarta.persistence.criteria.CriteriaBuilder
+import org.aleks616.shrendar.user.model.Users
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.springframework.scheduling.annotation.Scheduled
@@ -27,12 +29,12 @@ class XpService(
             user.xp=(user.xp?:0)+4
         }
         userRepository.saveAll(users)
-        assignRanks()
+        updateAllUsersRanks()
         File("last-xp-update-date").writeText(date)
     }
 
     @Transactional
-    fun assignRanks() {
+    fun updateAllUsersRanks() {
         val users=userRepository.findAll()
         val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
         users.forEach {user->
@@ -42,5 +44,38 @@ class XpService(
             }
         }
         userRepository.saveAll(users)
+    }
+
+    /**
+     * Updates user's xp by @amount
+     * also for decrease with -amount
+     * @login - user's login, DO NOT CONFUSE WITH DISPLAY NAME
+     * **/
+    @Transactional
+    fun increaseUserXp(login:String,amount:Int) {
+        val user=userRepository.findByLogin(login)?:return
+        user.xp=(user.xp?:0)+amount
+        userRepository.save(user)
+        updateUserRank(user)
+    }
+
+    @Transactional
+    fun updateUserRank(user:Users) {
+        val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
+        val newRank=ranks.firstOrNull {(user.xp?:0)>=(it.minXp?:0)}
+        if(user.ranks!=newRank) {
+            user.ranks=newRank
+        }
+        userRepository.save(user)
+    }
+
+    @Transactional
+    fun manualRankAssign(login:String,rankId:Int){
+        val user=userRepository.findByLogin(login)?:return
+        //can't find by id because it gives assignement type error
+        val ranks=rankRepository.findAll()
+        val rank=ranks.find {it.id==rankId}
+        user.ranks=rank
+        userRepository.save(user)
     }
 }
