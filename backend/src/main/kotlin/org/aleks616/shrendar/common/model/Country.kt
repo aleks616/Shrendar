@@ -8,7 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name="countries",schema="Shrendar")
+@Table(name="country",schema="Shrendar")
 open class Country {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

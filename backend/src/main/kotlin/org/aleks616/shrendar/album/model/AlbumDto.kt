@@ -6,9 +6,9 @@ import java.time.LocalDate
 /**
  * DTO for {@link org.aleks616.shrendar.entities.Albums}
  */
-data class AlbumsByDateDto(
+data class AlbumByDateDto(
     val id:Int?=null,
-    val bands:BandsDto?=null,
+    val bands:BandDto?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,
     val type:AlbumType?=null,
@@ -18,5 +18,5 @@ data class AlbumsByDateDto(
     /**
      * DTO for {@link org.aleks616.shrendar.entities.Bands}
      */
-    data class BandsDto(val id:Int?=null,val name:String?=null):Serializable
+    data class BandDto(val id:Int?=null,val name:String?=null):Serializable
 }

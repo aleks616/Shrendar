@@ -9,7 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.aleks616.shrendar.artist.model.Artists
+import org.aleks616.shrendar.artist.model.Artist
 
 @Entity
 @Table(name="bands_members",schema="Shrendar")
@@ -21,11 +21,11 @@ open class BandsMembers {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="artist_id")
-    open var artist:Artists?=null
+    open var artist:Artist?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
-    open var bands:Bands?=null
+    open var band:Band?=null
 
     @Column(name="role",length=50)
     open var role:String?=null

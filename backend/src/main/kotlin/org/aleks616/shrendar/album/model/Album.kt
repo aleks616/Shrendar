@@ -1,12 +1,12 @@
 package org.aleks616.shrendar.album.model
 
 import jakarta.persistence.*
-import org.aleks616.shrendar.band.model.Bands
+import org.aleks616.shrendar.band.model.Band
 import java.time.LocalDate
 
 @Entity
-@Table(name="albums",schema="Shrendar")
-open class Albums {
+@Table(name="album",schema="Shrendar")
+open class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)
@@ -14,7 +14,7 @@ open class Albums {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
-    open var bands:Bands?=null
+    open var band:Band?=null
 
     @Column(name="title",nullable=false,length=100)
     open var title:String?=null

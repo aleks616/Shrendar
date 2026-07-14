@@ -1,6 +1,6 @@
 package org.aleks616.shrendar.user.service
 
-import org.aleks616.shrendar.user.model.Users
+import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.springframework.scheduling.annotation.Scheduled
@@ -38,8 +38,8 @@ class XpService(
         val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
         users.forEach {user->
             val newRank=ranks.firstOrNull {(user.xp?:0)>=(it.minXp?:0)}
-            if(user.ranks!=newRank) {
-                user.ranks=newRank
+            if(user.rank!=newRank) {
+                user.rank=newRank
             }
         }
         userRepository.saveAll(users)
@@ -59,11 +59,11 @@ class XpService(
     }
 
     @Transactional
-    fun updateUserRank(user:Users) {
+    fun updateUserRank(user:User) {
         val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
         val newRank=ranks.firstOrNull {(user.xp?:0)>=(it.minXp?:0)}
-        if(user.ranks!=newRank) {
-            user.ranks=newRank
+        if(user.rank!=newRank) {
+            user.rank=newRank
         }
         userRepository.save(user)
     }
@@ -74,7 +74,7 @@ class XpService(
         //can't find by id because it gives assignment type error
         val ranks=rankRepository.findAll()
         val rank=ranks.find {it.id==rankId}
-        user.ranks=rank
+        user.rank=rank
         userRepository.save(user)
     }
 }

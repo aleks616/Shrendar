@@ -9,11 +9,11 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import org.aleks616.shrendar.artist.model.Artists
+import org.aleks616.shrendar.artist.model.Artist
 
 @Entity
-@Table(name="user_artists",schema="Shrendar")
-open class UserArtist {
+@Table(name="users_artists",schema="Shrendar")
+open class UsersArtists {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
@@ -21,9 +21,9 @@ open class UserArtist {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
-    open var users:Users?=null
+    open var user:User?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="artist_id")
-    open var artist:Artists?=null
+    open var artist:Artist?=null
 }

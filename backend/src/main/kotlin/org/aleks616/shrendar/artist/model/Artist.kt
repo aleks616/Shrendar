@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name="artist",schema="Shrendar")
-open class Artists {
+open class Artist {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="artist_id",nullable=false)

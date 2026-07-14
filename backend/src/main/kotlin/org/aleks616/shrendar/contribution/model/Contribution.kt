@@ -1,20 +1,19 @@
 package org.aleks616.shrendar.contribution.model
 
 import jakarta.persistence.*
-import org.aleks616.shrendar.user.model.Users
+import org.aleks616.shrendar.user.model.User
 import java.time.Instant
 
 @Entity
-@Table(name="contributions",schema="Shrendar")
-open class Contributions {
+@Table(name="contribution",schema="Shrendar")
+open class Contribution {
     @Id
     @Column(name="contribution_id",nullable=false)
     open var id:Int?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
-    open var users:Users?=null
-
+    open var user:User?=null
 
     @Enumerated(EnumType.STRING)
     @Column(name="action",columnDefinition="ENUM('create', 'update', 'delete')")
