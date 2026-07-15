@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.user.service
 
+import jakarta.mail.Message
 import jakarta.mail.internet.InternetAddress
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -10,18 +11,20 @@ class EmailService(
     private val mailSender:JavaMailSender
 ){
     fun sendVerificationCode(email:String,code:String){
-        InternetAddress(email.trim()).apply {validate()}
-        val message=SimpleMailMessage().apply {
-            setTo(email.trim())
-            subject="Verify Your Account"
-            text="""
-                Your verification code is: $code
-                
-                This code expires in 15 minutes.
-                If you didn't request this, please ignore this email.
-            """
-        }
-        mailSender.send(message)
+        //todo: language param (with frontend/mobile)
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Shrendar account registration"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent("<html><body>" +
+                               "<p>Your verification code is: \$code\n" +
+                               "or you can click this link: http://localhost:3000/confirm-account-creation?code=\$code</p>\n" +
+                               "This code expires in 15 minutes.\n"+
+                               "If you didn't request this, you can safely ignore this e-mail" +
+                               "</body></html>", "text/html; charset=utf-8")
+
+        mailSender.send(mimeMessage)
     }
 
     fun sendAccountCreatedMessage(email:String){

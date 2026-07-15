@@ -70,6 +70,7 @@ class XpService(
 
     @Transactional
     fun manualRankAssign(login:String,rankId:Int){
+        //todo: update xp amount automatically
         val user=userRepository.findByLogin(login)?:return
         //can't find by id because it gives assignment type error
         val ranks=rankRepository.findAll()
