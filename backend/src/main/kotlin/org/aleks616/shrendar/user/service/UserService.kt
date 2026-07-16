@@ -102,6 +102,8 @@ class UserService(
         val user=repository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         user.passwordHash=encryptedPassword
         repository.save(user)
+
+        emailService.sendPasswordHasBeenChangedMessage(email)
         return true
     }
 }
