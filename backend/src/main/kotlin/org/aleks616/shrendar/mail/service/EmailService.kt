@@ -47,4 +47,16 @@ class EmailService(
         mimeMessage.setContent(content,"text/html; charset=utf-8")
         mailSender.send(mimeMessage)
     }
+
+    fun sendPasswordHasBeenChangedMessage(email:String){
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordChanged-$languageCode.html").readText()
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Account Created"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
+    }
 }
