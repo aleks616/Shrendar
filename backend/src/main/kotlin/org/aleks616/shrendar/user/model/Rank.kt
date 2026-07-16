@@ -6,7 +6,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name="rank",schema="Shrendar")
+@Table(name="`rank`",schema="Shrendar")
 open class Rank {
     @Id
     @Column(name="rank_id",nullable=false)

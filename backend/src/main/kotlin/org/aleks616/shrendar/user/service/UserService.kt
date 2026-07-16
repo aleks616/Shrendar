@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.user.service
 
+import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.controller.UserAccountController
