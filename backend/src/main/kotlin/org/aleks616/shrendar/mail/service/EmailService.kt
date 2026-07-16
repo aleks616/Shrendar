@@ -10,8 +10,8 @@ import java.io.File
 @Service
 class EmailService(
     private val mailSender:JavaMailSender
-){
-    fun sendVerificationCode(email:String,code:String){
+) {
+    fun sendVerificationCode(email:String,code:String) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
         val languageCode="en" //todo: language param (with frontend/mobile)
@@ -24,7 +24,7 @@ class EmailService(
         mailSender.send(mimeMessage)
     }
 
-    fun sendAccountCreatedMessage(email:String){
+    fun sendAccountCreatedMessage(email:String) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
         val languageCode="en" //todo: language param (with frontend/mobile)
@@ -36,19 +36,15 @@ class EmailService(
         mailSender.send(mimeMessage)
     }
 
-    fun sendPasswordResetMessage(email:String,code:String){
-        InternetAddress(email.trim()).apply {validate()}
-        val message=SimpleMailMessage().apply {
-            setTo(email.trim())
-            subject="Password Reset"
-            text="""
-                Your password reset code is: $code
-                Or you can click this link: http://localhost:3000/reset-password?code=$code
-                
-                This code expires in 15 minutes.
-                If you didn't request this, someone may be trying to access your account.
-            """
-        }
-        mailSender.send(message)
+    fun sendPasswordResetMessage(email:String,code:String) {
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordResetCode-$languageCode.html").readText().replace("\$code",code)
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Password reset"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
     }
 }
