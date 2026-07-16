@@ -25,17 +25,15 @@ class EmailService(
     }
 
     fun sendAccountCreatedMessage(email:String){
-        InternetAddress(email.trim()).apply {validate()}
-        val message=SimpleMailMessage().apply {
-            setTo(email.trim())
-            subject="Account Created"
-            text="""
-                Your account has been created successfully.
-                
-                You can now log in into your account.
-            """
-        }
-        mailSender.send(message)
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountVerified-$languageCode.html").readText()
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Account Created"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
     }
 
     fun sendPasswordResetMessage(email:String,code:String){
