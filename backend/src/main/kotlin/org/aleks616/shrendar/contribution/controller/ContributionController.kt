@@ -11,5 +11,5 @@ class ContributionController (
     private val contributionService:ContributionService,
 ){
     @GetMapping("/contributions")
-    fun getContribution()=contributionService.getAll()
+    fun getContributions()=contributionService.getAll()
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -43,6 +44,7 @@ class WebConfig:WebMvcConfigurer{
 }
 
 @SpringBootApplication
+@EnableScheduling
 class BackendApplication
 
 fun main(args: Array<String>){
