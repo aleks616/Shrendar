@@ -59,4 +59,40 @@ class EmailService(
         mimeMessage.setContent(content,"text/html; charset=utf-8")
         mailSender.send(mimeMessage)
     }
+
+    fun sendAccountScheduledForDeletionMessage(email:String){
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionScheduled-$languageCode.html").readText()
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Account will be deleted"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
+    }
+
+    fun sendAccountDeletionCancelledMessage(email:String){
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionCanceled-$languageCode.html").readText()
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Account won't be deleted"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
+    }
+
+    fun sendAccountDeletedMessage(email:String){
+        val address=email.trim()
+        InternetAddress(address).apply {validate()}
+        val languageCode="en" //todo: language param (with frontend/mobile)
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeleted-$languageCode.html").readText()
+        val mimeMessage=mailSender.createMimeMessage()
+        mimeMessage.subject="Account has been deleted"
+        mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
+        mimeMessage.setContent(content,"text/html; charset=utf-8")
+        mailSender.send(mimeMessage)
+    }
 }
