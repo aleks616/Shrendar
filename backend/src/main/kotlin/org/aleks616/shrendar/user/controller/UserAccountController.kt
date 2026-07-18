@@ -127,6 +127,18 @@ class UserAccountController(
             ResponseEntity.ok("Username changed")
     }
 
+    @PostMapping("/updateEmail")
+    fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
+        return if(!userService.doesAccountExist(email))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
+        else if(userService.doesAccountExist(newEmail))
+            ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
+        else if(!userService.changeEmail(email,newEmail))
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't change email address")
+        else
+            ResponseEntity.ok("Email changed")
+    }
+
     @GetMapping("/loginCheck")
     fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesAccountExist(login)
 

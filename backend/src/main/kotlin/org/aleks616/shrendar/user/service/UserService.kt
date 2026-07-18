@@ -133,7 +133,13 @@ class UserService(
         }
         userLog.displayNameChangedTime=Instant.now()
         userLogRepository.save(userLog)
+        return true
+    }
 
+    fun changeEmail(email:String, newEmail:String):Boolean{
+        val user=userRepository.findByEmail(email)?:return false
+        user.email=newEmail
+        userRepository.save(user)
         return true
     }
 }

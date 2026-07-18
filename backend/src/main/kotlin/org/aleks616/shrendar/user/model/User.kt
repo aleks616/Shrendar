@@ -21,8 +21,7 @@ open class User {
     @Column(name="user_id",nullable=false)
     open var id:Int?=null
 
-    @NaturalId
-    @Column(name="login",nullable=false,length=50)
+    @Column(name="login",nullable=false,length=50,unique=true)
     open var login:String?=null
 
     @Column(name="username",nullable=false,length=50)
@@ -31,8 +30,7 @@ open class User {
     @Column(name="password_hash",nullable=false)
     open var passwordHash:String?=null
 
-    @NaturalId
-    @Column(name="email",nullable=false)
+    @Column(name="email",nullable=false,unique=true)
     open var email:String?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
