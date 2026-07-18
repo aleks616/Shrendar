@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Service
 class UserService(
@@ -113,12 +114,26 @@ class UserService(
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         userToChange.passwordHash=encryptedPassword
         userRepository.save(userToChange)
-
         val userLog=userLogRepository.findById(userToChange.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${userToChange.id}")}
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
         emailService.sendPasswordHasBeenChangedMessage(email)
+        return true
+    }
+
+    fun changeUsername(email:String, newUsername:String):Boolean{
+        val user=userRepository.findByEmail(email)?:return false
+        user.username=newUsername
+        userRepository.save(user)
+        val userLog=userLogRepository.findById(user.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${user.id}")}
+        if(userLog.displayNameChangedTime!=null){
+            if(ChronoUnit.DAYS.between(userLog.displayNameChangedTime,Instant.now())<90)
+                return false
+        }
+        userLog.displayNameChangedTime=Instant.now()
+        userLogRepository.save(userLog)
+
         return true
     }
 }
