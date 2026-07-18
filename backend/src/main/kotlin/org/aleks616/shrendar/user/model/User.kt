@@ -35,9 +35,6 @@ open class User {
     @Column(name="email",nullable=false)
     open var email:String?=null
 
-    @Column(name="created_at",nullable=false)
-    open var createdAt:Instant?=null
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="rank_id")
     open var rank:Rank?=null
