@@ -190,7 +190,6 @@ class UserService(
             if(userLog.accountDeletionScheduledTime!=null){
                 if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
                     userRepository.deleteUserById(user.id!!)
-                    userLogRepository.delete(userLog)
                     emailService.sendAccountDeletedMessage(user.email!!)
                 }
             }
