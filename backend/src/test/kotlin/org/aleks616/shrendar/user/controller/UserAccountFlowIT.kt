@@ -60,11 +60,14 @@ class UserAccountFlowIT {
     @Autowired
     private lateinit var userLogRepository:org.aleks616.shrendar.user.repository.UserLogRepository
 
+    @Autowired
+    private lateinit var userPasswordHistoryRepository:org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
+
     @BeforeEach
     fun setup() {
         val mimeMessage=mock(jakarta.mail.internet.MimeMessage::class.java)
         `when`(mailSender.createMimeMessage()).thenReturn(mimeMessage)
-
+        userPasswordHistoryRepository.deleteAll()
         userLogRepository.deleteAll()
         userRepository.deleteAll()
         if(!rankRepository.existsById(1)) {
