@@ -11,7 +11,6 @@ data class UsersDto(
     val username:String?=null,
     val passwordHash:String?=null,
     val email:String?=null,
-    val createdAt:Long?=null,
     val ranks:RanksDto?=null,
     val birthDate:String?=null,
     val xp:Int?=null,

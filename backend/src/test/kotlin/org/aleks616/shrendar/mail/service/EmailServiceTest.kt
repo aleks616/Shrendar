@@ -62,7 +62,7 @@ class EmailServiceTest {
         emailService.sendPasswordHasBeenChangedMessage(email)
 
         verify(mailSender).send(mimeMessage)
-        verify(mimeMessage).subject="Account Created"
+        verify(mimeMessage).subject="Password has been changed"
     }
 
     @Test
