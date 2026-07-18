@@ -153,6 +153,19 @@ class UserAccountController(
         else ResponseEntity.ok("Birthday added")
     }
 
+    /**requires email**/
+    @PostMapping("/deleteAccount")
+    fun deleteAccount(@RequestBody request:LoginRequest):ResponseEntity<Any> {
+        //5. Add a daily/hourly check, delete an account requested to delete then if 21 days have passed
+        //deleting doesn't work
+        userService.authenticate(request,false)
+        userService.requestDeletion(request.email!!)
+
+
+        return ResponseEntity.ok("Confirmed")
+    }
+
+
     @GetMapping("/loginCheck")
     fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesAccountExist(login)
 
