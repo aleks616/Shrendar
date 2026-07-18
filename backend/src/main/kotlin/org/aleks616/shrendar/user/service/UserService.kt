@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @Service
@@ -41,7 +42,7 @@ class UserService(
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
         if(user==null) return null
-        val userLog=userLogRepository.findById(user.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${user.id}")}
+        val userLog=findUserLog(user.id!!)
         userLog.lastLoginTime=Instant.now()
         userLogRepository.save(userLog)
 
@@ -114,7 +115,7 @@ class UserService(
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         userToChange.passwordHash=encryptedPassword
         userRepository.save(userToChange)
-        val userLog=userLogRepository.findById(userToChange.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${userToChange.id}")}
+        val userLog=findUserLog(userToChange.id!!)
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
@@ -126,7 +127,7 @@ class UserService(
         val user=userRepository.findByEmail(email)?:return false
         user.username=newUsername
         userRepository.save(user)
-        val userLog=userLogRepository.findById(user.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${user.id}")}
+        val userLog=findUserLog(user.id!!)
         if(userLog.displayNameChangedTime!=null){
             if(ChronoUnit.DAYS.between(userLog.displayNameChangedTime,Instant.now())<90)
                 return false
@@ -141,5 +142,23 @@ class UserService(
         user.email=newEmail
         userRepository.save(user)
         return true
+    }
+
+    fun addBirthday(email:String, date:LocalDate):Boolean{
+        val user=userRepository.findByEmail(email)?:return false
+        user.birthDate=date
+        val userLog=findUserLog(user.id!!)
+        if(userLog.birthdayChangedTime!=null){
+            if(ChronoUnit.DAYS.between(userLog.birthdayChangedTime,Instant.now())<180)
+                return false
+        }
+        userLog.birthdayChangedTime=Instant.now()
+        userRepository.save(user)
+        userLogRepository.save(userLog)
+        return true
+    }
+
+    fun findUserLog(userId:Int):UserLog{
+        return userLogRepository.findById(userId).orElseThrow {IllegalStateException("UserLog not found for user id $userId")}
     }
 }
