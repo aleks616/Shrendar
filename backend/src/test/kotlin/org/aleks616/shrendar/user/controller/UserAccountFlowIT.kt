@@ -13,7 +13,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.mail.javamail.JavaMailSender
@@ -44,17 +44,20 @@ class UserAccountFlowIT {
     @Qualifier("passwordResetCodeStorage")
     private lateinit var passwordResetCodeStorage:CodeStorage
 
-    @Autowired
-    private lateinit var objectMapper:ObjectMapper
+    private var objectMapper:ObjectMapper = ObjectMapper().findAndRegisterModules()
 
     @MockitoBean
     private lateinit var mailSender:JavaMailSender
+
+    @Autowired
+    private lateinit var userLogRepository: org.aleks616.shrendar.user.repository.UserLogRepository
 
     @BeforeEach
     fun setup() {
         val mimeMessage=mock(jakarta.mail.internet.MimeMessage::class.java)
         `when`(mailSender.createMimeMessage()).thenReturn(mimeMessage)
 
+        userLogRepository.deleteAll()
         userRepository.deleteAll()
         if(!rankRepository.existsById(1)) {
             rankRepository.save(Rank().apply {
