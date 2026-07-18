@@ -16,79 +16,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="33e47274-64ce-40e9-a206-bfa4093e5ceb" name="Changes" comment="separeted backend">
-      <change beforePath="$PROJECT_DIR$/.fleet/receipt.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/settings.gradle.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/AndroidManifest.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/aleks616/shrendar/Language.android.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/aleks616/shrendar/MainActivity.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/aleks616/shrendar/Platform.android.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/kotlin/org/aleks616/shrendar/network.android.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/drawable-v24/ic_launcher_foreground.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/drawable/ic_launcher_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/values/strings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/androidMain/res/xml/network_security_config.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/compose-multiplatform.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/flag-en.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/flagpl.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/composeResources/drawable/logo.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/App.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/CustomComposeItems.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/Greeting.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/Language.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/Platform.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/StringLocale.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/Theme.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/Utils.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/commonMain/kotlin/org/aleks616/shrendar/network.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/Language.desktop.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/Platform.jvm.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/TempTest.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/main.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/desktopMain/kotlin/org/aleks616/shrendar/network.desktop.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/iosMain/kotlin/org/aleks616/shrendar/Language.ios.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/iosMain/kotlin/org/aleks616/shrendar/MainViewController.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/iosMain/kotlin/org/aleks616/shrendar/Platform.ios.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/iosMain/kotlin/org/aleks616/shrendar/network.ios.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/jsMain/kotlin/org/aleks616/shrendar/Language.js.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/jsMain/kotlin/org/aleks616/shrendar/Platform.js.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/src/jsMain/kotlin/org/aleks616/shrendar/network.js.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/composeApp/webpack.config.d/devServer.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/Configuration/Config.xcconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp.xcodeproj/project.pbxproj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Assets.xcassets/AccentColor.colorset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Assets.xcassets/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/ContentView.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Info.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/Preview Content/Preview Assets.xcassets/Contents.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/iosApp/iosApp/iOSApp.swift" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kotlin-js-store/yarn.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
-    </list>
+    <list default="true" id="33e47274-64ce-40e9-a206-bfa4093e5ceb" name="Changes" comment="deleted old compose multiplatform project, the config was very broken, and the code was ugly.&#10;In future I'm going to make android and ios apps separately, without multiplatform logic, so it's better this way." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -143,6 +71,9 @@
     &quot;assignee&quot;: &quot;aleks616&quot;
   }
 }</component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="743bc188-379b-4ab0-880e-d147c42521fb" />
+  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/aleks616/Shrendar.git&quot;,
@@ -186,23 +117,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0007507864950262" />
-      <entry key="MS500" value="1.3926364791465629" />
-      <entry key="S2" value="3.7923201809442717" />
-      <entry key="S5" value="6.7078998549985895" />
-      <entry key="S10" value="8.953513822783322" />
-      <entry key="S30" value="11.355846692022915" />
-      <entry key="S60" value="12.132438692845696" />
-      <entry key="M2" value="12.554069726713351" />
-      <entry key="M5" value="12.818605591626607" />
-      <entry key="M10" value="12.908789915473683" />
-      <entry key="M15" value="12.939078613834543" />
-      <entry key="M30" value="12.969481801841638" />
-      <entry key="H1" value="12.984726492019757" />
-      <entry key="H2" value="12.992359639696764" />
-      <entry key="H4" value="12.99617891775857" />
-      <entry key="D1" value="12.99936302762607" />
-      <entry key="W1" value="12.999909000876618" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000000000953828" />
+      <entry key="S2" value="1.0140314525419805" />
+      <entry key="S5" value="2.0005835160741707" />
+      <entry key="S10" value="6.910213899282866" />
+      <entry key="S30" value="27.621046454196357" />
+      <entry key="S60" value="42.30453533265068" />
+      <entry key="M2" value="53.16874806974756" />
+      <entry key="M5" value="63.155550961439744" />
+      <entry key="M10" value="69.24821901357339" />
+      <entry key="M15" value="72.10733439741443" />
+      <entry key="M30" value="75.61852328756105" />
+      <entry key="H1" value="77.68417529051871" />
+      <entry key="H2" value="78.80850576946669" />
+      <entry key="H4" value="79.39554963636463" />
+      <entry key="D1" value="79.8980224301668" />
+      <entry key="W1" value="79.98540115089786" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -224,23 +155,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9733903899906321" />
-      <entry key="MS500" value="1.383512421409493" />
-      <entry key="S2" value="3.770933865334552" />
-      <entry key="S5" value="6.683085035102327" />
-      <entry key="S10" value="8.931295275206349" />
-      <entry key="S30" value="11.343945773388748" />
-      <entry key="S60" value="12.125670119156624" />
-      <entry key="M2" value="12.550455075527303" />
-      <entry key="M5" value="12.817100784589242" />
-      <entry key="M10" value="12.908027366681495" />
-      <entry key="M15" value="12.938567969110332" />
-      <entry key="M30" value="12.969225333900773" />
-      <entry key="H1" value="12.984597970496518" />
-      <entry key="H2" value="12.992295306901696" />
-      <entry key="H4" value="12.996146733334488" />
-      <entry key="D1" value="12.999357661050153" />
-      <entry key="W1" value="12.999908234161545" />
+      <entry key="MS100" value="0.9794202975869268" />
+      <entry key="MS500" value="0.9958497531893328" />
+      <entry key="S2" value="1.0129726432421569" />
+      <entry key="S5" value="1.9992757024471142" />
+      <entry key="S10" value="6.905758922604195" />
+      <entry key="S30" value="27.609823802779413" />
+      <entry key="S60" value="42.29437384086173" />
+      <entry key="M2" value="53.16179448673075" />
+      <entry key="M5" value="63.15195812595154" />
+      <entry key="M10" value="69.24612734495977" />
+      <entry key="M15" value="72.10584163362087" />
+      <entry key="M30" value="75.61771478184176" />
+      <entry key="H1" value="77.68375241471907" />
+      <entry key="H2" value="78.80828921866372" />
+      <entry key="H4" value="79.39544002052853" />
+      <entry key="D1" value="79.8980039691563" />
+      <entry key="W1" value="79.98539850884188" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -818,7 +749,7 @@
       <workItem from="1783703157870" duration="35000" />
       <workItem from="1784334154300" duration="217000" />
       <workItem from="1784334570358" duration="481000" />
-      <workItem from="1784335453122" duration="860000" />
+      <workItem from="1784335453122" duration="1063000" />
     </task>
     <task id="LOCAL-00001" summary="separeted backend">
       <option name="closed" value="true" />
@@ -828,7 +759,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784335705672</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="deleted old compose multiplatform project, the config was very broken, and the code was ugly.&#10;In future I'm going to make android and ios apps separately, without multiplatform logic, so it's better this way.">
+      <option name="closed" value="true" />
+      <created>1784336467837</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1784336467837</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -851,6 +790,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="separeted backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="separeted backend" />
+    <MESSAGE value="deleted old compose multiplatform project, the config was very broken, and the code was ugly.&#10;In future I'm going to make android and ios apps separately, without multiplatform logic, so it's better this way." />
+    <option name="LAST_COMMIT_MESSAGE" value="deleted old compose multiplatform project, the config was very broken, and the code was ugly.&#10;In future I'm going to make android and ios apps separately, without multiplatform logic, so it's better this way." />
   </component>
 </project>
