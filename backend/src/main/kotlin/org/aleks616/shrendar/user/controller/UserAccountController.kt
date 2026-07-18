@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Controller
 @RequestMapping("/api/user-account")
@@ -138,6 +140,31 @@ class UserAccountController(
         else
             ResponseEntity.ok("Email changed")
     }
+
+    @PostMapping("/addBirthday")
+    fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
+        return if(!userService.doesAccountExist(email))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
+        else if(!userService.addBirthday(email,date))
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't add birthday")
+        else if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User too young")
+        }
+        else ResponseEntity.ok("Birthday added")
+    }
+
+    /**requires email**/
+    @PostMapping("/deleteAccount")
+    fun deleteAccount(@RequestBody request:LoginRequest):ResponseEntity<Any> {
+        //5. Add a daily/hourly check, delete an account requested to delete then if 21 days have passed
+        //deleting doesn't work
+        userService.authenticate(request,false)
+        userService.requestDeletion(request.email!!)
+
+
+        return ResponseEntity.ok("Confirmed")
+    }
+
 
     @GetMapping("/loginCheck")
     fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesAccountExist(login)

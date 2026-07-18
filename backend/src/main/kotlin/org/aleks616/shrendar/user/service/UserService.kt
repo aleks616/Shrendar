@@ -11,9 +11,12 @@ import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @Service
@@ -36,14 +39,22 @@ class UserService(
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
     }
 
-    fun authenticate(req:UserAccountController.LoginRequest):String? {
+    fun authenticate(req:UserAccountController.LoginRequest,log:Boolean=true):String? {
         val user=if(req.email!=""&&req.email!=null) userRepository.findByEmail(req.email)
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
         if(user==null) return null
-        val userLog=userLogRepository.findById(user.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${user.id}")}
-        userLog.lastLoginTime=Instant.now()
-        userLogRepository.save(userLog)
+        val userLog=findUserLog(user.id!!)
+
+        if(userLog.accountDeletionScheduledTime!=null){
+            userLog.accountDeletionScheduledTime=null
+            userLogRepository.save(userLog)
+            emailService.sendAccountDeletionCancelledMessage(user.email!!)
+        }
+        if(log){
+            userLog.lastLoginTime=Instant.now()
+            userLogRepository.save(userLog)
+        }
 
         return if(matches(req.password,user.passwordHash?:"")) user.login else null
     }
@@ -114,7 +125,7 @@ class UserService(
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         userToChange.passwordHash=encryptedPassword
         userRepository.save(userToChange)
-        val userLog=userLogRepository.findById(userToChange.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${userToChange.id}")}
+        val userLog=findUserLog(userToChange.id!!)
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
@@ -126,7 +137,7 @@ class UserService(
         val user=userRepository.findByEmail(email)?:return false
         user.username=newUsername
         userRepository.save(user)
-        val userLog=userLogRepository.findById(user.id!!).orElseThrow {IllegalStateException("UserLog not found for user id ${user.id}")}
+        val userLog=findUserLog(user.id!!)
         if(userLog.displayNameChangedTime!=null){
             if(ChronoUnit.DAYS.between(userLog.displayNameChangedTime,Instant.now())<90)
                 return false
@@ -142,4 +153,47 @@ class UserService(
         userRepository.save(user)
         return true
     }
+
+    fun addBirthday(email:String, date:LocalDate):Boolean{
+        val user=userRepository.findByEmail(email)?:return false
+        user.birthDate=date
+        val userLog=findUserLog(user.id!!)
+        if(userLog.birthdayChangedTime!=null){
+            if(ChronoUnit.DAYS.between(userLog.birthdayChangedTime,Instant.now())<180)
+                return false
+        }
+        userLog.birthdayChangedTime=Instant.now()
+        userRepository.save(user)
+        userLogRepository.save(userLog)
+        return true
+    }
+
+    fun findUserLog(userId:Int):UserLog{
+        return userLogRepository.findById(userId).orElseThrow {IllegalStateException("UserLog not found for user id $userId")}
+    }
+
+    fun requestDeletion(userEmail:String):Boolean{
+        val user=userRepository.findByEmail(userEmail)?:return false
+        val userLog=findUserLog(user.id!!)
+        userLog.accountDeletionScheduledTime=Instant.now()
+        userLogRepository.save(userLog)
+        emailService.sendAccountScheduledForDeletionMessage(user.email!!)
+        return true
+    }
+
+    @Scheduled(fixedRate=24*60*60*1000)
+    @Transactional
+    fun checkAccountScheduledToBeDeleted(){
+        val users=userRepository.findAll()
+        users.forEach{user->
+            val userLog=findUserLog(user.id!!)
+            if(userLog.accountDeletionScheduledTime!=null){
+                if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
+                    userRepository.deleteUserById(user.id!!)
+                    emailService.sendAccountDeletedMessage(user.email!!)
+                }
+            }
+        }
+    }
+
 }
