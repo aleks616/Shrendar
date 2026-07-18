@@ -112,7 +112,7 @@ class UserService(
         if(!passwordResetCodeStorage.canSendCode(accountKey)) return false
         val code=CodeGenerator.generateCode(numericOnly=true)
         passwordResetCodeStorage.storeCode(accountKey,code)
-        val email=if(doesAccountExist(accountKey)) accountKey
+        val email=if(accountKey.contains("@")) accountKey
         else userRepository.findByLogin(accountKey)?.email?:return false
 
         emailService.sendPasswordResetMessage(email,code)
@@ -189,6 +189,8 @@ class UserService(
             val userLog=findUserLog(user.id!!)
             if(userLog.accountDeletionScheduledTime!=null){
                 if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
+                    userLogRepository.deleteById(userLog.id)
+                    userLogRepository.flush()
                     userRepository.deleteUserById(user.id!!)
                     emailService.sendAccountDeletedMessage(user.email!!)
                 }
