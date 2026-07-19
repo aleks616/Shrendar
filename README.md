@@ -19,6 +19,8 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 
 - User interactions with Wiki
 
+- User interaction with other Users
+
 - Frontend
 
 - Mobile apps
