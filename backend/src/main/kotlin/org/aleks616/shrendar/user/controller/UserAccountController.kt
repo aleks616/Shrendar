@@ -5,6 +5,7 @@ import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.user.model.ResetPassword
+import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Controller
 @RequestMapping("/api/user-account")
@@ -139,12 +142,34 @@ class UserAccountController(
             ResponseEntity.ok("Email changed")
     }
 
+    @PostMapping("/addBirthday")
+    fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
+        return if(!userService.doesAccountExist(email))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
+        else if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User too young")
+        }
+        else if(!userService.addBirthday(email,date))
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't add birthday")
+        else ResponseEntity.ok("Birthday added")
+    }
+
+    /**requires email**/
+    @PostMapping("/deleteAccount")
+    fun deleteAccount(@RequestBody request:LoginRequest):ResponseEntity<Any> {
+        userService.authenticate(request,false)
+        userService.requestDeletion(request.email!!)
+
+        return ResponseEntity.ok("Confirmed")
+    }
+
+
     @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):Boolean=userService.doesAccountExist(login)
+    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userService.doesAccountExist(login))
 
     @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):Boolean=userService.doesAccountExist(email)
+    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userService.doesAccountExist(email))
 
     @GetMapping("/users")
-    fun getUsers()=userService.getUsersDto()
+    fun getUsers():ResponseEntity<List<UsersDto>> = ResponseEntity.ok(userService.getUsersDto())
 }
