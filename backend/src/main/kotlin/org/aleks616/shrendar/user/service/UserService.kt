@@ -131,10 +131,9 @@ class UserService(
         passwordHistory.forEach {
             if(it.password==encryptedPassword) return false
         }
-        userPasswordHistoryRepository.save(userPasswordHistory).apply {
-            user=userToChange
-            password=encryptedPassword
-        }
+        userPasswordHistory.user=userToChange
+        userPasswordHistory.password=encryptedPassword
+        userPasswordHistoryRepository.save(userPasswordHistory)
         deleteOldPasswordHistory(userToChange.id!!)
 
         userToChange.passwordHash=encryptedPassword
