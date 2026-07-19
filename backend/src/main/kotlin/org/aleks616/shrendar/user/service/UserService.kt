@@ -6,9 +6,11 @@ import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.controller.UserAccountController
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UserLog
+import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
+import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
@@ -24,6 +26,7 @@ class UserService(
     private val userRepository:UserRepository,
     private val userLogRepository:UserLogRepository,
     private val rankRepository:RankRepository,
+    private val userPasswordHistoryRepository:UserPasswordHistoryRepository,
     @Qualifier("registrationCodeStorage") private val registrationCodeStorage:CodeStorage,
     @Qualifier("passwordResetCodeStorage") private val passwordResetCodeStorage:CodeStorage,
     private val emailService:EmailService,
@@ -119,10 +122,20 @@ class UserService(
         return true
     }
 
-    fun changePassword(email:String,password:String,resetCode:String):Boolean {
+    fun changePassword(email:String,newpassword:String,resetCode:String):Boolean {
         if(!passwordResetCodeStorage.validateCode(email,resetCode)) return false
-        val encryptedPassword=encoder.encode(password)
+        val encryptedPassword=encoder.encode(newpassword)
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
+        val userPasswordHistory=UserPasswordHistory()
+        val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id!!)
+        passwordHistory.forEach {
+            if(it.password==encryptedPassword) return false
+        }
+        userPasswordHistory.user=userToChange
+        userPasswordHistory.password=encryptedPassword
+        userPasswordHistoryRepository.save(userPasswordHistory)
+        deleteOldPasswordHistory(userToChange.id!!)
+
         userToChange.passwordHash=encryptedPassword
         userRepository.save(userToChange)
         val userLog=findUserLog(userToChange.id!!)
@@ -195,6 +208,13 @@ class UserService(
                     emailService.sendAccountDeletedMessage(user.email!!)
                 }
             }
+        }
+    }
+    fun deleteOldPasswordHistory(userId:Int) {
+        val history=userPasswordHistoryRepository.findAllByUserId(userId)
+        if(history.size>10) {
+            val toDelete=history.sortedBy {it.id}.first()
+            userPasswordHistoryRepository.delete(toDelete)
         }
     }
 

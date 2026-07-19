@@ -7,6 +7,7 @@ import org.aleks616.shrendar.user.model.ResetPassword
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,11 +61,14 @@ class UserAccountFlowIT {
     @Autowired
     private lateinit var userLogRepository:org.aleks616.shrendar.user.repository.UserLogRepository
 
+    @Autowired
+    private lateinit var userPasswordHistoryRepository:org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
+
     @BeforeEach
     fun setup() {
         val mimeMessage=mock(jakarta.mail.internet.MimeMessage::class.java)
         `when`(mailSender.createMimeMessage()).thenReturn(mimeMessage)
-
+        userPasswordHistoryRepository.deleteAll()
         userLogRepository.deleteAll()
         userRepository.deleteAll()
         if(!rankRepository.existsById(1)) {
@@ -636,6 +640,41 @@ class UserAccountFlowIT {
         }
     }
 
+
+    @Test
+    fun `deleteOldPasswordHistory should keep only 10 latest passwords and delete the oldest`() {
+        val email="history@example.com"
+        val login="historyuser"
+        registerAndConfirm(login,email)
+        val user=userRepository.findByEmail(email)!!
+
+        val historyIds=mutableListOf<Long>()
+        repeat(10) {i->
+            val h=userPasswordHistoryRepository.save(UserPasswordHistory().apply {
+                this.user=user
+                this.password="password$i"
+            })
+            historyIds.add(h.id!!)
+        }
+
+        mockMvc.post("/api/user-account/requestPasswordReset") {
+            param("accountKey",email)
+        }
+        val codeField=CodeStorage::class.java.getDeclaredField("codes")
+        codeField.isAccessible=true
+        val resetCode=(codeField.get(passwordResetCodeStorage) as Map<String,String>)[email]!!
+
+        mockMvc.post("/api/user-account/resetPassword") {
+            param("code",resetCode)
+            contentType=MediaType.APPLICATION_JSON
+            content=objectMapper.writeValueAsString(ResetPassword(email,"newPassword123"))
+        }.andExpect {status {isOk()}}
+
+        val history=userPasswordHistoryRepository.findAllByUserId(user.id!!)
+        assertEquals(10,history.size)
+        assertFalse(history.any {it.id==historyIds.first()})
+        assertTrue(history.any {it.id==historyIds.last()})
+    }
 
     private fun registerAndConfirm(login:String,email:String,password:String="password") {
         val regReq=UserAccountController.RegisterRequest(login,login,email,password)
