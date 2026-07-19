@@ -13,7 +13,7 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 
 ## Roadmap
 
-- Login/registration with password, e-mail, username changes and logs
+- Login/registration with password, e-mail, username changes and logs - done
 
 - Wiki pages
 
