@@ -2,14 +2,14 @@ package org.aleks616.shrendar.artist.controller
 
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import java.time.LocalDate
 
 class ArtistControllerTest {
 
@@ -26,13 +26,14 @@ class ArtistControllerTest {
 
     @Test
     fun `getAll should return all artists`() {
-        val artists=listOf(createArtist(1,"James Hetfield"))
+        val id=(1..100).random()
+        val artists=listOf(createArtist(id,"James Hetfield"))
         `when`(artistService.getAll()).thenReturn(artists)
 
         mockMvc.get("/api/artist/")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'name':'James Hetfield'}]")}
+                content {json("[{'id':$id,'name':'James Hetfield'}]")}
             }
     }
 
