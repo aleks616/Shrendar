@@ -43,6 +43,4 @@ data class RecentDeathAnniversariesDTO(
     val birthDate:String?=null,
     val deathDate:String?=null,
    // val age:Int?=null
-):Serializable
-
-//todo: died *RECENTLY**/
+):Serializable*/
