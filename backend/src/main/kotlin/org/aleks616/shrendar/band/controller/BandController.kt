@@ -26,8 +26,6 @@ class BandController (
         return bandService.getBandById(id)
     }
 
-    //genres
-
     @GetMapping("/{bandId}/members")
     fun getAllMembersOfBand(@PathVariable bandId:Int):List<BandsMembersDto>{
         return bandsMemberService.getAllBandMembers(bandId)
