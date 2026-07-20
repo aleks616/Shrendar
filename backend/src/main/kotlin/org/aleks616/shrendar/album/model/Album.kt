@@ -26,11 +26,14 @@ open class Album {
     @Column(name="type", columnDefinition="ENUM('studio','EP','compilation','concert','demo','single','other')")
     open var type:AlbumType?=null
 
-    @Column(name="importance", columnDefinition="BIT(4)")
+    @Column(name="importance", columnDefinition="TINYINT")
     open var importance:Int?=null
 
     @Column(name="genre_properties", columnDefinition="VARCHAR(7)")
     open var genre_properties:String?=null
+
+    @Column(name="artwork_url")
+    open var artworkUrl:String?=null
 }
 
 enum class AlbumType{
