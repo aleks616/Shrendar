@@ -21,6 +21,4 @@ interface BandRepository :JpaRepository<Band,Int>{
     fun findByCountry(country:Int):List<Band>
     fun findByFormedYearBetween(formedYearAfter:Int,formedYearBefore:Int):List<Band>
     fun findByStatus(status:Status):List<Band>
-
-
 }

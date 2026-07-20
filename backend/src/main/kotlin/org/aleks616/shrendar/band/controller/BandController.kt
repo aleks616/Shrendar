@@ -1,16 +1,12 @@
 package org.aleks616.shrendar.band.controller
 
+import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
 import org.aleks616.shrendar.band.model.BandDto
-import org.aleks616.shrendar.band.model.BandsMembersDataDto
 import org.aleks616.shrendar.band.model.BandsMembersDto
 import org.aleks616.shrendar.band.model.Status
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
@@ -81,6 +77,11 @@ class BandController (
         return bandService.getBandsByStatus(statusStringToEnum(status))
     }
 
+    @GetMapping("/artist/{id}")
+    fun getBandsByArtistId(@PathVariable id:Int):List<ArtistBandsHistoryDto>{
+        return bandsMemberService.getBandsByArtistId(id)
+    }
+
     fun statusStringToEnum(statusString:String):Status {
         return when(statusString.lowercase()){
             "active"->Status.active
@@ -91,5 +92,4 @@ class BandController (
             else->throw IllegalArgumentException("invalid status")
         }
     }
-
 }

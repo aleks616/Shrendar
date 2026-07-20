@@ -1,10 +1,24 @@
 package org.aleks616.shrendar.artist.model
 
+/*import org.aleks616.shrendar.band.model.CountryDto
 import java.io.Serializable
 
+
+data class ArtistDto(
+    val id:Int?=null,
+    val name:String?=null,
+    val birthDate:String?=null,
+    val deathDate:String?=null,
+    val gender:String?=null,
+    val description:String?=null,
+    val country:CountryDto?=null
+):Serializable
+
+*/
 /**
  * DTO for {@link org.aleks616.shrendar.entities.Artists}
- */
+ *//*
+
 data class ArtistsBirthDayDto(
     val id:Int?=null,
     val name:String?=null,
@@ -31,4 +45,4 @@ data class RecentDeathAnniversariesDTO(
    // val age:Int?=null
 ):Serializable
 
-//todo: died *RECENTLY*
+//todo: died *RECENTLY**/

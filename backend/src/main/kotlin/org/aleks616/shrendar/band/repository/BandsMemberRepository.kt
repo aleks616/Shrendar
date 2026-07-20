@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.band.repository
 
+import org.aleks616.shrendar.band.model.ArtistBandsDto
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.model.BandsMembersDataDto
 import org.springframework.data.jpa.repository.JpaRepository
@@ -16,5 +17,13 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         WHERE bm.band.id=:band
     """)
     fun findAllByBandName(band:Int):List<BandsMembersDataDto>
+
+    @Query("""
+        SELECT bm.id, a.id, a.name, b.id, b.name, bm.role, bm.joinedYear, bm.leftYear, bm.nickname
+        FROM Band b JOIN BandsMembers bm ON b.id=bm.band.id
+        JOIN Artist a ON bm.artist.id=a.id
+        WHERE a.id=:id
+    """)
+    fun findBandsByArtistId(id:Int):List<ArtistBandsDto>
 
 }

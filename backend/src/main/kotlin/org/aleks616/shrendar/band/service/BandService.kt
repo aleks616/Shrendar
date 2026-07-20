@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class BandService(private val bandRepository:BandRepository,private val countryRepository:CountryRepository){
+class BandService(
+    private val bandRepository:BandRepository,
+    private val countryRepository:CountryRepository
+){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
         return bandRepository.findCountryByBandId(bandId)
@@ -47,15 +50,6 @@ class BandService(private val bandRepository:BandRepository,private val countryR
             CountryDto(c.id,c.name)
         }.firstOrNull()
     }
-
-    //all members
-
-
-    //past members
-
-
-    //current members
-
 
     fun getBandsByName(name:String):List<BandDto>{
         val bands=bandRepository.findByNameContainingIgnoreCase(name)
