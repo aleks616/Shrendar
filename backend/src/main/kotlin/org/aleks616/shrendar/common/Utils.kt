@@ -4,7 +4,7 @@ object Utils{
     /**
      * @param month value 1-12 NOT 0-11
      * @param day value 1-31
-     * assumes february can be 29 days long
+     * assumes February can be 29 days long, as there's no year param
      * **/
     fun doesDateExist(month:Int,day:Int):Boolean{
         return if(month>12 || day>31) false

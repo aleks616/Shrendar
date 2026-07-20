@@ -26,7 +26,7 @@ object JwtUtil {
             val headerB=parts[0]
             val payloadB=parts[1]
             val sigB=parts[2]
-            val signingInput=(headerB+"."+payloadB).toByteArray(UTF_8)
+            val signingInput=("$headerB.$payloadB").toByteArray(UTF_8)
             val expectedSig=hmacSha256(signingInput,SECRET.toByteArray(UTF_8))
             val expectedSigB=Base64.getUrlEncoder().withoutPadding().encodeToString(expectedSig)
             if(!expectedSigB.equals(sigB)) return null
@@ -37,7 +37,7 @@ object JwtUtil {
             if(Instant.now().epochSecond>exp) return null
             return sub
         }
-        catch(e:Exception) {
+        catch(_:Exception) {
             return null
         }
     }
@@ -51,7 +51,7 @@ object JwtUtil {
             val payload=mapper.readValue(payloadJson,Map::class.java)
             return (payload["exp"] as Number).toLong()
         }
-        catch(e:Exception) {
+        catch(_:Exception) {
             return null
         }
     }
@@ -62,7 +62,7 @@ object JwtUtil {
         val payload=mapper.writeValueAsString(mapOf("sub" to subject,"exp" to exp))
         val headerB=Base64.getUrlEncoder().withoutPadding().encodeToString(header.toByteArray(UTF_8))
         val payloadB=Base64.getUrlEncoder().withoutPadding().encodeToString(payload.toByteArray(UTF_8))
-        val signingInput=(headerB+"."+payloadB).toByteArray(UTF_8)
+        val signingInput=("$headerB.$payloadB").toByteArray(UTF_8)
         val sig=hmacSha256(signingInput,SECRET.toByteArray(UTF_8))
         val sigB=Base64.getUrlEncoder().withoutPadding().encodeToString(sig)
         return "$headerB.$payloadB.$sigB"

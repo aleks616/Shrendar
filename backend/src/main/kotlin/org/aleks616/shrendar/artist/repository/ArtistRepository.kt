@@ -1,53 +1,60 @@
 package org.aleks616.shrendar.artist.repository
 
 import org.aleks616.shrendar.artist.model.Artist
-import org.aleks616.shrendar.artist.model.ArtistsBirthDayDto
-import org.aleks616.shrendar.artist.model.ArtistsDeathDayDto
-import org.aleks616.shrendar.artist.model.RecentDeathAnniversariesDTO
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
 interface ArtistRepository:JpaRepository<Artist,Int> {
-@Query("""
-    SELECT NEW org.aleks616.shrendar.artist.model.ArtistsBirthDayDto(
-        a.id, a.name, 
-        CAST(FUNCTION('DAYOFMONTH',a.birthDate) AS INTEGER), 
-        CAST(FUNCTION('MONTH',a.birthDate) AS INTEGER),
-        CAST(FUNCTION('YEAR', a.birthDate) AS INTEGER)
-        ,FLOOR(CAST(FUNCTION('DATEDIFF', CURRENT_DATE, a.birthDate) AS INTEGER) / 365)
-)
-    FROM Artist a WHERE FUNCTION('MONTH',a.birthDate)=:month AND FUNCTION('DAYOFMONTH',a.birthDate)=:day
-""")
-    fun findByBirthday(@Param("month") month:Int,@Param("day") day:Int):List<ArtistsBirthDayDto>
-    //THIS IS FOR BIRTHDAYS! SO IT DOESN'T HAVE TO BE ACCURATE IN WEIRD CASES!
-
-
+    fun existsArtistById(id:Int):Boolean
+    fun findArtistById(id:Int):MutableList<Artist>
+    fun findArtistByNameContains(name:String):MutableList<Artist>
+    fun findArtistByNameStartsWith(name:String):MutableList<Artist>
+    fun findArtistByNameEndsWithIgnoreCase(name:String):MutableList<Artist>
 
     @Query("""
-    SELECT NEW org.aleks616.shrendar.artist.model.ArtistsDeathDayDto(
-        a.id, a.name, 
-        CAST(FUNCTION('DAYOFMONTH',a.deathDate) AS INTEGER), 
-        CAST(FUNCTION('MONTH',a.deathDate) AS INTEGER),
-        CAST(FUNCTION('YEAR', a.deathDate) AS INTEGER)
-        ,CAST(FLOOR(CAST(FUNCTION('DATEDIFF', a.deathDate, a.birthDate) AS DOUBLE) / 365.25) AS INTEGER ) 
-)
-    FROM Artist a WHERE FUNCTION('MONTH',a.deathDate)=:month AND FUNCTION('DAYOFMONTH',a.deathDate)=:day
-""")
-    fun findByDeathDate(@Param("month") month: Int,@Param("day") day: Int):List<ArtistsDeathDayDto>
+        SELECT a
+        FROM Artist a
+        WHERE FUNCTION('MONTH',a.birthDate)=:month AND FUNCTION('DAYOFMONTH',a.birthDate)=:day
+    """)
+    fun findArtistByBirthDate(month:Int,day:Int):MutableList<Artist>
 
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT('2000-',MONTH(a.birth_date),'-',DAYOFMONTH(a.birth_date))) BETWEEN DATE(CONCAT('2000-',:startMonth,'-',:startDay)) AND DATE(CONCAT('2000-',:endMonth,'-',:endDay))
+        ORDER BY MONTH(a.birth_date), DAYOFMONTH(a.birth_date)
+    """,nativeQuery=true)
+    fun findArtistByBirthdayBetween(startMonth:Int,startDay:Int,endMonth:Int,endDay:Int):List<Artist>
 
-@Query("""
-    SELECT NEW org.aleks616.shrendar.artist.model.RecentDeathAnniversariesDTO(
-        a.id, a.name, CAST(a.birthDate AS string), CAST(a.deathDate AS string)
-    )
-    FROM Artist a
-    WHERE a.deathDate IS NOT NULL
-    AND FUNCTION('DATEDIFF', CURRENT_DATE,
-        FUNCTION('DATE', CONCAT('2025-', FUNCTION('MONTH', a.deathDate), '-', FUNCTION('DAY', a.deathDate)))) BETWEEN 0 AND 30
-    ORDER BY FUNCTION('DATEDIFF',FUNCTION('DATE', CONCAT('2025-', FUNCTION('MONTH', a.deathDate), '-', FUNCTION('DAY', a.deathDate))),CURRENT_DATE) DESC
-""")
-    fun findRecentDeathAnniversaries():List<RecentDeathAnniversariesDTO>
+    @Query("""
+        SELECT a
+        FROM Artist a
+        WHERE FUNCTION('YEAR',a.birthDate)=:year
+    """)
+    fun findArtistsByBirthYear(year:Int):MutableList<Artist>
+
+    @Query("""
+        SELECT a
+        FROM Artist a
+        WHERE FUNCTION('YEAR',a.birthDate)>=:startYear AND FUNCTION('YEAR',a.birthDate)>=:endYear
+    """)
+    fun findArtistsByBirthYearBetween(startYear:Int,endYear:Int):List<Artist>
+
+    @Query("""
+        SELECT a
+        FROM Artist a
+        WHERE FUNCTION('MONTH',a.deathDate)=:month AND FUNCTION('DAYOFMONTH',a.deathDate)=:day
+    """)
+    fun findArtistByDeathDate(month:Int,day:Int):MutableList<Artist>
+
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT('2000-',MONTH(a.death_date),'-',DAYOFMONTH(a.death_date))) BETWEEN DATE(CONCAT('2000-',:startMonth,'-',:startDay)) AND DATE(CONCAT('2000-',:endMonth,'-',:endDay))
+        ORDER BY MONTH(a.death_date), DAYOFMONTH(a.death_date)
+    """,nativeQuery=true)
+    fun findArtistByDeathDateBetween(startMonth:Int,startDay:Int,endMonth:Int,endDay:Int):List<Artist>
+    fun findArtistByCountry(country:Int):MutableList<Artist>
 }

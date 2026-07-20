@@ -1,18 +1,19 @@
 package org.aleks616.shrendar
 
-import jakarta.servlet.FilterChain
+/*import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.stereotype.Component
+import org.springframework.web.filter.OncePerRequestFilter*/
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.stereotype.Component
-import org.springframework.web.filter.OncePerRequestFilter
+
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
-@Component
+/*@Component
 class NgrokHeaderFilter:OncePerRequestFilter(){
     override fun doFilterInternal(
         request:HttpServletRequest,
@@ -23,7 +24,7 @@ class NgrokHeaderFilter:OncePerRequestFilter(){
         response.setHeader("skip_zrok_interstitial","a")
         filterChain.doFilter(request,response)
     }
-}
+}*/
 
 @Configuration
 class WebConfig:WebMvcConfigurer{
@@ -32,9 +33,9 @@ class WebConfig:WebMvcConfigurer{
             .allowedOriginPatterns(
                 "https://localhost:[*]",
                 "http://localhost:[*]",
-                "https://*.ngrok-free.app"
+                //"https://*.ngrok-free.app"
             )
-            .exposedHeaders("ngrok-skip-browser-warning","skip_zrok_interstitial")
+            //.exposedHeaders("ngrok-skip-browser-warning","skip_zrok_interstitial")
             .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)

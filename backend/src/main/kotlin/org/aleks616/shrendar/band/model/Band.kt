@@ -20,7 +20,7 @@ open class Band {
     open var disbandedYear:Int?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="status",columnDefinition="ENUM('active', 'disbanded', 'on hold','unknown')")
+    @Column(name="status",columnDefinition="ENUM('active', 'disbanded', 'on_hold','unknown')")
     open var status:Status?=null
 
     @Column(name="country")

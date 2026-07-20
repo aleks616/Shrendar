@@ -4,15 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/last-xp-update-date" beforeDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/ArtistBandsDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandsMembersDataDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandsMembersDataDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandsMemberRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandsMemberRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandsMemberService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandsMemberService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/security/JwtUtil.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/security/JwtUtil.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageOptionsProvider">
+    <option name="myAddOrReplace" value="1" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="120" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
   </component>
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
@@ -39,35 +62,197 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="com.intellij.jpb.JpaRepository" />
+        <option value="Kotlin Enum" />
+        <option value="Kotlin Script" />
+        <option value="Spring Service" />
+        <option value="com.intellij.jpb.NewDataClass" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="743bc188-379b-4ab0-880e-d147c42521fb" />
+  </component>
+  <component name="HttpClientEndpointsTabState">
+    <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests /&gt;" />
+  </component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="1.8009882820357185E-136" />
+      <entry key="S2" value="1.8931434618619695E-34" />
+      <entry key="S5" value="4.9094268096561835E-14" />
+      <entry key="S10" value="3.3287484474089536E-7" />
+      <entry key="S30" value="0.024209816383829744" />
+      <entry key="S60" value="0.6689207780310477" />
+      <entry key="M2" value="4.470310315135424" />
+      <entry key="M5" value="19.478205360431907" />
+      <entry key="M10" value="49.53998493379476" />
+      <entry key="M15" value="81.67585962470011" />
+      <entry key="M30" value="160.6307743477938" />
+      <entry key="H1" value="263.36183563201985" />
+      <entry key="H2" value="454.67240365734204" />
+      <entry key="H4" value="850.5733565554974" />
+      <entry key="D1" value="2127.0410532175147" />
+      <entry key="W1" value="2614.250061641699" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0000000000000022" />
+      <entry key="S10" value="1.0000000702877436" />
+      <entry key="S30" value="1.0127715313789076" />
+      <entry key="S60" value="1.381513656665377" />
+      <entry key="M2" value="3.4295011730342337" />
+      <entry key="M5" value="9.744542946059624" />
+      <entry key="M10" value="21.465301168308173" />
+      <entry key="M15" value="35.139973712971255" />
+      <entry key="M30" value="69.37730027744601" />
+      <entry key="H1" value="110.12545338871035" />
+      <entry key="H2" value="165.82056667153435" />
+      <entry key="H4" value="259.17548420272317" />
+      <entry key="D1" value="534.0022206361717" />
+      <entry key="W1" value="634.4625479629524" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.002489376225232933" />
+      <entry key="MS500" value="0.3014519569226901" />
+      <entry key="S2" value="0.7409766574552297" />
+      <entry key="S5" value="0.8869963051522008" />
+      <entry key="S10" value="0.9418052082442391" />
+      <entry key="S30" value="1.0165521537437892" />
+      <entry key="S60" value="2.0298631431274066" />
+      <entry key="M2" value="7.860218645887992" />
+      <entry key="M5" value="29.16724852549369" />
+      <entry key="M10" value="70.93298408027121" />
+      <entry key="M15" value="116.73068420986851" />
+      <entry key="M30" value="229.91771568775758" />
+      <entry key="H1" value="373.41326757600467" />
+      <entry key="H2" value="620.4352321556404" />
+      <entry key="H4" value="1109.7015334705918" />
+      <entry key="D1" value="2661.02631879333" />
+      <entry key="W1" value="3248.709720675161" />
+    </decayedShown>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3GgzaXZM2SMA8GlSzrP8kTHbHmw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Gradle.Build backend.executor": "Run",
+    "Gradle.Tests in 'org.aleks616.shrendar'.executor": "Run",
     "Gradle.Tests in 'shrendar.test'.executor": "Run",
+    "Gradle.UserAccountFlowIT.deleteOldPasswordHistory should keep only 10 latest passwords and delete the oldest.executor": "Run",
+    "Gradle.UserAccountFlowIT.deleteOldPasswordHistory should keep only last 10 entries.executor": "Run",
+    "Gradle.UserAccountFlowIT.executor": "Run",
+    "Gradle.run all tests.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "HTTP Request.generated-requests | #11.executor": "Run",
+    "HTTP Request.generated-requests | #2.executor": "Run",
+    "HTTP Request.generated-requests | #3.executor": "Run",
+    "HTTP Request.generated-requests | #4.executor": "Run",
+    "HTTP Request.generated-requests | #5.executor": "Run",
+    "HTTP Request.generated-requests | #6.executor": "Run",
+    "HTTP Request.generated-requests | #7.executor": "Run",
+    "HTTP Request.generated-requests | #8.executor": "Run",
+    "HTTP Request.generated-requests | #9.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #1.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #2.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #3.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #4.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #1.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #10.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #2.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #3.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #8.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #9.executor": "Run",
     "JUnit.run all tests.executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.BackendApplication.executor": "Run",
-    "node.js.selected.package.tslint": "(autodetect)"
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "junie.plugin.stays.banner.dismissed": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.completion.inline",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT"
+    ]
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.run all tests">
+  <component name="RecentsManager">
+    <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="org.aleks616.shrendar.album.controller" />
+      <recent name="org.aleks616.shrendar" />
+      <recent name="org.aleks616.shrendar.user.model" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="generated-requests | #11" value="STOPPED" />
+              <entry key="generated-requests | #7" value="STOPPED" />
+              <entry key="generated-requests | #8" value="STOPPED" />
+              <entry key="generated-requests | #9" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.BackendApplication">
     <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
       <embedded_app_extension_list />
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="run all tests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="Tests in 'org.aleks616.shrendar'" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -79,6 +264,8 @@
         <option name="taskNames">
           <list>
             <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.*&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -92,14 +279,30 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
+    <configuration name="generated-requests | #11" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#11" index="11" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #7" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#7" index="7" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #8" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#8" index="8" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #9" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#9" index="9" runType="Run single request">
+      <method v="2" />
+    </configuration>
     <configuration name="run all tests" type="JUnit" factoryName="JUnit">
-      <module name="shrendar" />
+      <module name="shrendar.test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="24" />
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
+      <option name="TEST_OBJECT" value="directory" />
+      <option name="VM_PARAMETERS" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
       <dir value="$PROJECT_DIR$/src/test" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -119,16 +322,34 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.run all tests" />
+      <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
+      <item itemvalue="HTTP Request.generated-requests | #11" />
+      <item itemvalue="HTTP Request.generated-requests | #7" />
+      <item itemvalue="HTTP Request.generated-requests | #8" />
+      <item itemvalue="HTTP Request.generated-requests | #9" />
       <item itemvalue="JUnit.run all tests" />
       <item itemvalue="Spring Boot.BackendApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.run all tests" />
         <item itemvalue="Spring Boot.BackendApplication" />
+        <item itemvalue="HTTP Request.generated-requests | #11" />
+        <item itemvalue="HTTP Request.generated-requests | #9" />
+        <item itemvalue="HTTP Request.generated-requests | #8" />
+        <item itemvalue="HTTP Request.generated-requests | #7" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.25134.95" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.25134.95" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
   </component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
@@ -139,16 +360,89 @@
       <option name="project" value="LOCAL" />
       <updated>1784406754275</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
+      <option name="closed" value="true" />
+      <created>1784407088053</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1784407088053</updated>
+    </task>
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
+      <created>1784408065906</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784408065906</updated>
+      <workItem from="1784408066707" duration="5125000" />
+      <workItem from="1784465297029" duration="21151000" />
+      <workItem from="1784546308680" duration="2849000" />
+      <workItem from="1784549757415" duration="20645000" />
+    </task>
+    <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
+      <option name="closed" value="true" />
+      <created>1784418759264</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1784418759264</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added tests, fixed bugs">
+      <option name="closed" value="true" />
+      <created>1784419293670</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1784419293670</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum">
+      <option name="closed" value="true" />
+      <created>1784475084777</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1784475084777</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller">
+      <option name="closed" value="true" />
+      <created>1784553100463</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784553100463</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller">
+      <option name="closed" value="true" />
+      <created>1784565922015</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1784565922015</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="idk" />
     <MESSAGE value="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
+    <MESSAGE value="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted" />
+    <MESSAGE value="added tests, fixed bugs" />
+    <MESSAGE value="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum" />
+    <MESSAGE value="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller" />
+    <MESSAGE value="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/shrendar$PasswordResetCodeGeneratorTest_generateVerificationCodeTest.ic" NAME="PasswordResetCodeGeneratorTest.generateVerificationCodeTest Coverage Results" MODIFIED="1783819469570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$BackendApplication.ic" NAME="BackendApplication Coverage Results" MODIFIED="1784403238362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$Tests_in__org_aleks616_shrendar_.ic" NAME="Tests in 'org.aleks616.shrendar' Coverage Results" MODIFIED="1784419217062" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$run_all_tests.ic" NAME="run_all_tests Coverage Results" MODIFIED="1784406254766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>
