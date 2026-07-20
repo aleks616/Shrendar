@@ -1,10 +1,11 @@
 package org.aleks616.shrendar.band.controller
 
 import org.aleks616.shrendar.band.model.BandDto
+import org.aleks616.shrendar.band.model.BandsMembersDataDto
+import org.aleks616.shrendar.band.model.BandsMembersDto
 import org.aleks616.shrendar.band.model.Status
-import org.aleks616.shrendar.band.repository.BandsGenreRepository
-import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.band.service.BandsMemberService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,45 +17,54 @@ import java.time.LocalDate
 @RequestMapping("/api/band")
 class BandController (
     private val bandService:BandService,
-    private val bandsGenreRepository:BandsGenreRepository,
-    private val bandsMemberRepository:BandsMemberRepository,
+    private val bandsMemberService:BandsMemberService,
 ){
 
     @GetMapping("/")
-    fun getBand():List<BandDto>{
+    fun getAll():List<BandDto>{
        return bandService.getAll()
     }
 
-    /*@GetMapping("/genres")
-    fun getBandsGenre()=bandsGenreRepository.findAll()
+    @GetMapping("/id/{id}")
+    fun getBand(@PathVariable id:Int):BandDto{
+        return bandService.getBandById(id)
+    }
 
-    @GetMapping("/member")
-    fun getBandsMember()=bandsMemberRepository.findAll()*/
+    //genres
 
-    //all members
+    @GetMapping("/{bandId}/members")
+    fun getAllMembersOfBand(@PathVariable bandId:Int):List<BandsMembersDto>{
+        return bandsMemberService.getAllBandMembers(bandId)
+    }
 
+    @GetMapping("/{bandId}/members/current")
+    fun getCurrentBandMembers(@PathVariable bandId:Int):List<BandsMembersDto>{
+        return bandsMemberService.getCurrentBandMembers(bandId)
+    }
 
-    //past members
+    @GetMapping("/{bandId}/members/past")
+    fun getPastBandMembers(@PathVariable bandId:Int):List<BandsMembersDto>{
+        return bandsMemberService.getPastBandMembers(bandId)
+    }
 
-
-    //current members
-
-
-    //by name like
-    @GetMapping("/like/{name}")
+    @GetMapping("/name-like/{name}")
     fun getBandByNameLike(@PathVariable name:String):List<BandDto>{
         return bandService.getBandsByName(name)
     }
 
-    //by name exact
-    @GetMapping("/{name}")
+    @GetMapping("/name-exact/{name}")
     fun getBandsByNameExact(@PathVariable name:String):List<BandDto>{
         return bandService.getBandsByNameExact(name)
     }
 
-    @GetMapping("/country/{name}")
-    fun getBandsByCountry(@PathVariable name:String):List<BandDto>{
+    @GetMapping("/country")
+    fun getBandsByCountryName(@RequestParam name:String):List<BandDto>{
         return bandService.getBandsByCountry(name)
+    }
+
+    @GetMapping("/country/")
+    fun getBandsByCountryId(@RequestParam id:Int):List<BandDto>{
+        return bandService.getBandsByCountryId(id)
     }
 
     @GetMapping("/foundedBetween")

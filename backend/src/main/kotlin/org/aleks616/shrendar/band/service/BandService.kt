@@ -36,6 +36,11 @@ class BandService(private val bandRepository:BandRepository,private val countryR
         return getBandData(bands)
     }
 
+    fun getBandById(id:Int):BandDto{
+        val band=bandRepository.findById(id)
+        return getBandData(listOf(band.get())).first()
+    }
+
     fun getCountryByName(name:String):CountryDto?{
         val country=countryRepository.getCountryByName(name)
         return country.map {c->
@@ -65,6 +70,11 @@ class BandService(private val bandRepository:BandRepository,private val countryR
     fun getBandsByCountry(name:String):List<BandDto>{
         val country=getCountryByName(name)
         val bands=bandRepository.findByCountry(country?.id!!)
+        return getBandData(bands)
+    }
+
+    fun getBandsByCountryId(id:Int):List<BandDto>{
+        val bands=bandRepository.findByCountry(id)
         return getBandData(bands)
     }
 

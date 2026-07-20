@@ -4,22 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandDto.kt" afterDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandsMembersDataDto.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandsMemberService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/last-xp-update-date" beforeDir="false" afterPath="$PROJECT_DIR$/last-xp-update-date" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/Album.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/Album.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/AlbumDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/AlbumDto.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/repository/AlbumRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/repository/AlbumRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/service/AlbumService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/service/AlbumService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/Band.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/Band.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandsMemberRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/repository/BandsMemberRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/Utils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/Utils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +61,7 @@
         <option value="com.intellij.jpb.JpaRepository" />
         <option value="Kotlin Enum" />
         <option value="Kotlin Script" />
+        <option value="Spring Service" />
         <option value="com.intellij.jpb.NewDataClass" />
       </list>
     </option>
@@ -79,6 +72,9 @@
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="743bc188-379b-4ab0-880e-d147c42521fb" />
   </component>
+  <component name="HttpClientEndpointsTabState">
+    <option name="cachedRequestData" value="&lt;CachedHttpClientTabRequests /&gt;" />
+  </component>
   <component name="HttpClientOnboardingState">{
   &quot;isOnboardingCommentShown&quot;: true
 }</component>
@@ -88,61 +84,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.000000000143324" />
-      <entry key="MS500" value="1.0107744634499285" />
-      <entry key="S2" value="1.3947415643313679" />
-      <entry key="S5" value="1.9911703866305235" />
-      <entry key="S10" value="2.507996142875062" />
-      <entry key="S30" value="4.458041538710351" />
-      <entry key="S60" value="8.64564473260847" />
-      <entry key="M2" value="18.06848574825764" />
-      <entry key="M5" value="42.88602302204127" />
-      <entry key="M10" value="78.86887185818956" />
-      <entry key="M15" value="113.26463731247514" />
-      <entry key="M30" value="203.0890843425728" />
-      <entry key="H1" value="333.49634592237845" />
-      <entry key="H2" value="501.04155135786425" />
-      <entry key="H4" value="697.6060670444996" />
-      <entry key="D1" value="1087.073645405431" />
-      <entry key="W1" value="1201.7352921564257" />
+      <entry key="MS100" value="2.84178251095498E-128" />
+      <entry key="MS500" value="3.0954099033068683E-26" />
+      <entry key="S2" value="4.216218814073415E-7" />
+      <entry key="S5" value="0.0032740191314654106" />
+      <entry key="S10" value="0.09045436658304416" />
+      <entry key="S30" value="1.4065312906261482" />
+      <entry key="S60" value="3.7431821222255213" />
+      <entry key="M2" value="9.129021513172942" />
+      <entry key="M5" value="29.057315270754522" />
+      <entry key="M10" value="55.51816539567137" />
+      <entry key="M15" value="76.25493010178154" />
+      <entry key="M30" value="142.35455010471344" />
+      <entry key="H1" value="308.9688153391669" />
+      <entry key="H2" value="616.1959179661708" />
+      <entry key="H4" value="1014.8144066974104" />
+      <entry key="D1" value="1827.1712620787987" />
+      <entry key="W1" value="2075.3943631320485" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.6765048244416496E-91" />
-      <entry key="MS500" value="6.996501982129255E-19" />
-      <entry key="S2" value="2.8921461821070965E-5" />
-      <entry key="S5" value="0.01529328994314492" />
-      <entry key="S10" value="0.12438385686101269" />
-      <entry key="S30" value="0.7107123012186439" />
-      <entry key="S60" value="2.3064542539943482" />
-      <entry key="M2" value="7.12264564746503" />
-      <entry key="M5" value="19.914718672821497" />
-      <entry key="M10" value="35.44812277088702" />
-      <entry key="M15" value="48.62266491194766" />
-      <entry key="M30" value="79.87673287440519" />
-      <entry key="H1" value="120.46859333490448" />
-      <entry key="H2" value="166.13404364993534" />
-      <entry key="H4" value="211.50224693158654" />
-      <entry key="D1" value="286.9123228638461" />
-      <entry key="W1" value="307.27931108255905" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.000000000000207" />
+      <entry key="S2" value="1.0009625722163624" />
+      <entry key="S5" value="1.1032613628482177" />
+      <entry key="S10" value="1.5344541368979954" />
+      <entry key="S30" value="2.6726276543312126" />
+      <entry key="S60" value="3.361019584382776" />
+      <entry key="M2" value="4.5762779486204295" />
+      <entry key="M5" value="8.005559957832276" />
+      <entry key="M10" value="12.526555482395104" />
+      <entry key="M15" value="16.449346076895353" />
+      <entry key="M30" value="27.68552148120581" />
+      <entry key="H1" value="55.16535607686057" />
+      <entry key="H2" value="114.79301397228845" />
+      <entry key="H4" value="199.01603440471044" />
+      <entry key="D1" value="366.8867702933898" />
+      <entry key="W1" value="415.90525515750363" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.8950250710673773" />
-      <entry key="MS500" value="0.9887524646412378" />
-      <entry key="S2" value="1.3536062647409262" />
-      <entry key="S5" value="1.9200072396597192" />
-      <entry key="S10" value="2.542388915258986" />
-      <entry key="S30" value="5.088041954762748" />
-      <entry key="S60" value="10.852206626027206" />
-      <entry key="M2" value="25.038925612496428" />
-      <entry key="M5" value="62.613052938522785" />
-      <entry key="M10" value="114.144050726893" />
-      <entry key="M15" value="161.72838079664746" />
-      <entry key="M30" value="282.8351268838096" />
-      <entry key="H1" value="453.86695271374833" />
-      <entry key="H2" value="667.1089671903244" />
-      <entry key="H4" value="909.0666381970835" />
-      <entry key="D1" value="1373.9767962123021" />
-      <entry key="W1" value="1509.0132085201733" />
+      <entry key="MS100" value="3.490413857395846E-64" />
+      <entry key="MS500" value="2.095635260772371E-13" />
+      <entry key="S2" value="9.727650839857148E-4" />
+      <entry key="S5" value="0.11524989604980801" />
+      <entry key="S10" value="0.7178197231578765" />
+      <entry key="S30" value="3.530364193501338" />
+      <entry key="S60" value="6.769217203481902" />
+      <entry key="M2" value="13.502054823895827" />
+      <entry key="M5" value="36.9471528575304" />
+      <entry key="M10" value="67.96548852695788" />
+      <entry key="M15" value="92.6395188863908" />
+      <entry key="M30" value="169.989103975775" />
+      <entry key="H1" value="364.0841712887026" />
+      <entry key="H2" value="730.9381012625873" />
+      <entry key="H4" value="1213.787620698089" />
+      <entry key="D1" value="2194.045410167884" />
+      <entry key="W1" value="2491.297593230873" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -172,6 +168,9 @@
     "HTTP Request.generated-requests | #4.executor": "Run",
     "HTTP Request.generated-requests | #5.executor": "Run",
     "HTTP Request.generated-requests | #6.executor": "Run",
+    "HTTP Request.generated-requests | #7.executor": "Run",
+    "HTTP Request.generated-requests | #8.executor": "Run",
+    "HTTP Request.generated-requests | #9.executor": "Run",
     "HTTP Request.shrendar-endpoints_23 | #1.executor": "Run",
     "HTTP Request.shrendar-endpoints_23 | #2.executor": "Run",
     "HTTP Request.shrendar-endpoints_23 | #3.executor": "Run",
@@ -228,17 +227,17 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="generated-requests | #2" value="STOPPED" />
-              <entry key="generated-requests | #4" value="STOPPED" />
-              <entry key="generated-requests | #5" value="STOPPED" />
               <entry key="generated-requests | #6" value="STOPPED" />
+              <entry key="generated-requests | #7" value="STOPPED" />
+              <entry key="generated-requests | #8" value="STOPPED" />
+              <entry key="generated-requests | #9" value="STOPPED" />
             </map>
           </value>
         </entry>
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="HTTP Request.generated-requests | #7">
+  <component name="RunManager" selected="Spring Boot.BackendApplication">
     <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
       <embedded_app_extension_list />
       <method v="2">
@@ -272,16 +271,16 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #4" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#4" index="4" runType="Run single request">
-      <method v="2" />
-    </configuration>
-    <configuration name="generated-requests | #5" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
-      <method v="2" />
-    </configuration>
     <configuration name="generated-requests | #6" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="generated-requests | #7" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#7" index="7" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #8" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#8" index="8" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #9" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#9" index="9" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="run all tests" type="JUnit" factoryName="JUnit">
@@ -316,20 +315,20 @@
     </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
-      <item itemvalue="HTTP Request.generated-requests | #5" />
       <item itemvalue="HTTP Request.generated-requests | #6" />
       <item itemvalue="HTTP Request.generated-requests | #7" />
-      <item itemvalue="HTTP Request.generated-requests | #4" />
+      <item itemvalue="HTTP Request.generated-requests | #8" />
+      <item itemvalue="HTTP Request.generated-requests | #9" />
       <item itemvalue="JUnit.run all tests" />
       <item itemvalue="Spring Boot.BackendApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.BackendApplication" />
+        <item itemvalue="HTTP Request.generated-requests | #9" />
+        <item itemvalue="HTTP Request.generated-requests | #8" />
         <item itemvalue="HTTP Request.generated-requests | #7" />
         <item itemvalue="HTTP Request.generated-requests | #6" />
-        <item itemvalue="Spring Boot.BackendApplication" />
-        <item itemvalue="HTTP Request.generated-requests | #5" />
-        <item itemvalue="HTTP Request.generated-requests | #4" />
       </list>
     </recent_temporary>
   </component>
@@ -340,6 +339,9 @@
         <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.25134.95" />
       </set>
     </attachedChunks>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
   </component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
@@ -367,7 +369,7 @@
       <workItem from="1784408066707" duration="5125000" />
       <workItem from="1784465297029" duration="21151000" />
       <workItem from="1784546308680" duration="2849000" />
-      <workItem from="1784549757415" duration="2971000" />
+      <workItem from="1784549757415" duration="12050000" />
     </task>
     <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
       <option name="closed" value="true" />
@@ -393,7 +395,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784475084777</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller">
+      <option name="closed" value="true" />
+      <created>1784553100463</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784553100463</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -405,7 +415,8 @@
     <MESSAGE value="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted" />
     <MESSAGE value="added tests, fixed bugs" />
     <MESSAGE value="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum" />
+    <MESSAGE value="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
