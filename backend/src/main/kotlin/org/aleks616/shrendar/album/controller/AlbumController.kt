@@ -1,7 +1,9 @@
 package org.aleks616.shrendar.album.controller
 
+import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumByDateDto
 import org.aleks616.shrendar.album.model.AlbumDataDto
+import org.aleks616.shrendar.album.model.AlbumWikiDto
 import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.common.Utils
 import org.springframework.web.bind.annotation.*
@@ -13,8 +15,19 @@ class AlbumController (
     private val albumService:AlbumService,
 ){
     @GetMapping("/")
-    fun getAlbum():List<AlbumDataDto>{
+    fun getAll():List<AlbumDataDto>{
         return albumService.getAll()
+    }
+
+    @GetMapping("/id/{id}")
+    fun getAlbumById(@PathVariable id:Int):Album{
+        return albumService.getById(id)
+    }
+
+    //WIKI ALBUM PAGE 1/1
+    @GetMapping("wiki/{id}")
+    fun getAlbumByIdWiki(@PathVariable id:Int):AlbumWikiDto{
+        return albumService.getByIdWiki(id)
     }
 
     @GetMapping("/inDate")
@@ -23,6 +36,7 @@ class AlbumController (
         return albumService.getAlbumAnniversariesByDate(month,day)
     }
 
+    //WIKI BAND PAGE 3/4
     @GetMapping("/band/{bandId}")
     fun getAlbumsByBandId(@PathVariable bandId:Int):List<AlbumDataDto>{
         if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("Band doesn't exist")

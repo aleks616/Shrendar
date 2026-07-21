@@ -4,12 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="removed old todo">
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/album/controller/AlbumControllerTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/artist/controller/ArtistControllerTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" afterDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="fixed errors, adjusted unit tests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/Band.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/Band.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandsMembersDataDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/model/BandsMembersDataDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandsMemberService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/service/BandsMemberService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +25,7 @@
     <option name="myAddOrReplace" value="1" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="120" />
+    <option name="cachedIndexableFilesCount" value="132" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="ExternalProjectsData">
@@ -57,10 +62,10 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="com.intellij.jpb.JpaRepository" />
-        <option value="Kotlin Enum" />
         <option value="Kotlin Script" />
         <option value="Spring Service" />
         <option value="com.intellij.jpb.NewDataClass" />
+        <option value="Kotlin Enum" />
       </list>
     </option>
   </component>
@@ -82,61 +87,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0061961372044113" />
-      <entry key="MS500" value="1.6716357338676024" />
-      <entry key="S2" value="3.024264772273079" />
-      <entry key="S5" value="3.5592346913700568" />
-      <entry key="S10" value="3.8033678816912375" />
-      <entry key="S30" value="6.087268777503642" />
-      <entry key="S60" value="10.212657823909367" />
-      <entry key="M2" value="15.394807335278648" />
-      <entry key="M5" value="28.486781164199886" />
-      <entry key="M10" value="55.57380857267223" />
-      <entry key="M15" value="86.03921534278966" />
-      <entry key="M30" value="164.9706678546602" />
-      <entry key="H1" value="270.69149806903175" />
-      <entry key="H2" value="463.949656476788" />
-      <entry key="H4" value="860.6596775709655" />
-      <entry key="D1" value="2144.066686768381" />
-      <entry key="W1" value="2635.3762292436795" />
+      <entry key="MS100" value="1.204570684543784" />
+      <entry key="MS500" value="1.9971438814057203" />
+      <entry key="S2" value="3.4982698494834925" />
+      <entry key="S5" value="4.320584559940572" />
+      <entry key="S10" value="5.168165252934309" />
+      <entry key="S30" value="9.516343043190192" />
+      <entry key="S60" value="16.295986506268015" />
+      <entry key="M2" value="31.25839192672562" />
+      <entry key="M5" value="71.51083319189564" />
+      <entry key="M10" value="126.18580777745105" />
+      <entry key="M15" value="177.55374623507362" />
+      <entry key="M30" value="319.48692029164744" />
+      <entry key="H1" value="540.7428042531916" />
+      <entry key="H2" value="847.8587359831828" />
+      <entry key="H4" value="1321.2400124862697" />
+      <entry key="D1" value="2840.0246327995806" />
+      <entry key="W1" value="3452.6704736955057" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="5.757109690174289E-176" />
-      <entry key="S2" value="1.5489989595099E-44" />
-      <entry key="S5" value="2.992405542134596E-18" />
-      <entry key="S10" value="1.7298572087873225E-9" />
-      <entry key="S30" value="0.0012157610533213364" />
-      <entry key="S60" value="0.04786560507669456" />
-      <entry key="M2" value="0.6383592284894225" />
-      <entry key="M5" value="4.97387822347514" />
-      <entry key="M10" value="15.335707736917778" />
-      <entry key="M15" value="28.08316103673643" />
-      <entry key="M30" value="62.02113003504185" />
-      <entry key="H1" value="104.12352179613" />
-      <entry key="H2" value="161.23857999065942" />
-      <entry key="H4" value="255.5696060128793" />
-      <entry key="D1" value="532.756729072032" />
-      <entry key="W1" value="634.2509360056863" />
+      <entry key="MS100" value="2.4625115086352274E-26" />
+      <entry key="MS500" value="7.5557483835086266E-6" />
+      <entry key="S2" value="0.05483233788903856" />
+      <entry key="S5" value="0.41512225643106676" />
+      <entry key="S10" value="1.0649156104004434" />
+      <entry key="S30" value="3.085143151974028" />
+      <entry key="S60" value="4.907799132653821" />
+      <entry key="M2" value="7.2246762983767" />
+      <entry key="M5" value="12.183985658610535" />
+      <entry key="M10" value="20.69130121818893" />
+      <entry key="M15" value="31.40566002373673" />
+      <entry key="M30" value="68.21717532441916" />
+      <entry key="H1" value="133.78578830425496" />
+      <entry key="H2" value="226.14535572236986" />
+      <entry key="H4" value="351.7798203437967" />
+      <entry key="D1" value="701.0414260478695" />
+      <entry key="W1" value="833.0141246828668" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9855309816811165" />
-      <entry key="MS500" value="1.6654643261530084" />
-      <entry key="S2" value="3.0216204660034336" />
-      <entry key="S5" value="3.557997592447467" />
-      <entry key="S10" value="3.8027072658248087" />
-      <entry key="S30" value="6.088094171893127" />
-      <entry key="S60" value="10.259496248801701" />
-      <entry key="M2" value="16.025569509636377" />
-      <entry key="M5" value="33.43221432842046" />
-      <entry key="M10" value="70.85779724498609" />
-      <entry key="M15" value="114.05428333626288" />
-      <entry key="M30" value="226.91099740073614" />
-      <entry key="H1" value="374.74502126950813" />
-      <entry key="H2" value="625.1320879931271" />
-      <entry key="H4" value="1116.1826315995156" />
-      <entry key="D1" value="2676.806499844499" />
-      <entry key="W1" value="3269.624277214658" />
+      <entry key="MS100" value="1.0908020029186052" />
+      <entry key="MS500" value="1.9608481384175833" />
+      <entry key="S2" value="3.511390324446203" />
+      <entry key="S5" value="4.639060502535365" />
+      <entry key="S10" value="6.097715981382453" />
+      <entry key="S30" value="12.417700818926324" />
+      <entry key="S60" value="21.02948526544355" />
+      <entry key="M2" value="38.33306485474149" />
+      <entry key="M5" value="83.58442911400554" />
+      <entry key="M10" value="146.7892080768771" />
+      <entry key="M15" value="208.87830903949606" />
+      <entry key="M30" value="387.6267989043458" />
+      <entry key="H1" value="674.4543218657064" />
+      <entry key="H2" value="1073.9385532806773" />
+      <entry key="H4" value="1672.965014757805" />
+      <entry key="D1" value="3541.045884955025" />
+      <entry key="W1" value="4285.681114532329" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -154,7 +159,10 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Gradle.AlbumControllerTest.executor": "Coverage",
+    "Gradle.AlbumControllerTest.getAlbum should return all albums.executor": "Run",
     "Gradle.ArtistControllerTest.executor": "Run",
+    "Gradle.ArtistControllerTest.getAll should return all artists.executor": "Run",
+    "Gradle.ArtistControllerTest.getById should return artist for existing id.executor": "Run",
     "Gradle.BandControllerTest.executor": "Run",
     "Gradle.Build backend.executor": "Run",
     "Gradle.Tests in 'org.aleks616.shrendar'.executor": "Coverage",
@@ -167,8 +175,16 @@
     "HTTP Request.generated-requests | #11.executor": "Run",
     "HTTP Request.generated-requests | #2.executor": "Run",
     "HTTP Request.generated-requests | #3.executor": "Run",
+    "HTTP Request.generated-requests | #4 (1).executor": "Run",
+    "HTTP Request.generated-requests | #4 (2).executor": "Run",
     "HTTP Request.generated-requests | #4.executor": "Run",
+    "HTTP Request.generated-requests | #5 (1).executor": "Run",
     "HTTP Request.generated-requests | #5.executor": "Run",
+    "HTTP Request.generated-requests | #6 (1).executor": "Run",
+    "HTTP Request.generated-requests | #6 (2).executor": "Run",
+    "HTTP Request.generated-requests | #6 (3).executor": "Run",
+    "HTTP Request.generated-requests | #6 (4).executor": "Run",
+    "HTTP Request.generated-requests | #6 (5).executor": "Run",
     "HTTP Request.generated-requests | #6.executor": "Run",
     "HTTP Request.generated-requests | #7.executor": "Run",
     "HTTP Request.generated-requests | #8.executor": "Run",
@@ -233,23 +249,22 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="generated-requests | #11" value="STOPPED" />
-              <entry key="generated-requests | #8" value="STOPPED" />
-              <entry key="generated-requests | #9" value="STOPPED" />
+              <entry key="generated-requests | #6 (3)" value="STOPPED" />
+              <entry key="generated-requests | #6 (4)" value="STOPPED" />
+              <entry key="generated-requests | #7" value="STOPPED" />
             </map>
           </value>
         </entry>
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.ArtistControllerTest">
-    <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
-      <embedded_app_extension_list />
+  <component name="RunManager" selected="Gradle.BandControllerTest.getBandsByStatus should return bands for valid status">
+    <configuration default="true" type="Application" factoryName="Application">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AlbumControllerTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="AlbumControllerTest.getAlbum should return all albums" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -262,7 +277,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.album.controller.AlbumControllerTest&quot;" />
+            <option value="&quot;org.aleks616.shrendar.album.controller.AlbumControllerTest.getAlbum should return all albums&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -276,7 +291,7 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ArtistControllerTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ArtistControllerTest.getById should return artist for existing id" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -289,7 +304,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.artist.controller.ArtistControllerTest&quot;" />
+            <option value="&quot;org.aleks616.shrendar.artist.controller.ArtistControllerTest.getById should return artist for existing id&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -303,7 +318,7 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="ArtistControllerTest.getAll should return all artists" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="BandControllerTest.getBandsByStatus should return bands for valid status" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -316,7 +331,7 @@
           <list>
             <option value=":test" />
             <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.artist.controller.ArtistControllerTest.getAll should return all artists&quot;" />
+            <option value="&quot;org.aleks616.shrendar.band.controller.BandControllerTest.getBandsByStatus should return bands for valid status&quot;" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -360,7 +375,10 @@
     <configuration default="true" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" environment="&lt;No Environment&gt;" path="">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #11" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#11" index="11" runType="Run single request">
+    <configuration name="generated-requests | #6 (4)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #7" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#7" index="7" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="All tests" type="JUnit" factoryName="JUnit">
@@ -388,35 +406,22 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <module name="shrendar.main" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="org.aleks616.shrendar.BackendApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.aleks616.shrendar.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
-      <item itemvalue="Gradle.ArtistControllerTest" />
-      <item itemvalue="Gradle.ArtistControllerTest.getAll should return all artists" />
-      <item itemvalue="Gradle.AlbumControllerTest" />
-      <item itemvalue="HTTP Request.generated-requests | #11" />
+      <item itemvalue="Gradle.AlbumControllerTest.getAlbum should return all albums" />
+      <item itemvalue="Gradle.BandControllerTest.getBandsByStatus should return bands for valid status" />
+      <item itemvalue="Gradle.ArtistControllerTest.getById should return artist for existing id" />
+      <item itemvalue="HTTP Request.generated-requests | #6 (4)" />
+      <item itemvalue="HTTP Request.generated-requests | #7" />
       <item itemvalue="JUnit.All tests" />
-      <item itemvalue="Spring Boot.BackendApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.ArtistControllerTest" />
-        <item itemvalue="Gradle.ArtistControllerTest.getAll should return all artists" />
-        <item itemvalue="Gradle.AlbumControllerTest" />
-        <item itemvalue="Spring Boot.BackendApplication" />
-        <item itemvalue="HTTP Request.generated-requests | #11" />
+        <item itemvalue="Gradle.BandControllerTest.getBandsByStatus should return bands for valid status" />
+        <item itemvalue="HTTP Request.generated-requests | #7" />
+        <item itemvalue="Gradle.AlbumControllerTest.getAlbum should return all albums" />
+        <item itemvalue="Gradle.ArtistControllerTest.getById should return artist for existing id" />
+        <item itemvalue="HTTP Request.generated-requests | #6 (4)" />
       </list>
     </recent_temporary>
   </component>
@@ -457,7 +462,11 @@
       <workItem from="1784408066707" duration="5125000" />
       <workItem from="1784465297029" duration="21151000" />
       <workItem from="1784546308680" duration="2849000" />
-      <workItem from="1784549757415" duration="21703000" />
+      <workItem from="1784549757415" duration="24416000" />
+      <workItem from="1784589720015" duration="1992000" />
+      <workItem from="1784591741785" duration="1223000" />
+      <workItem from="1784593295318" duration="491000" />
+      <workItem from="1784632937607" duration="6077000" />
     </task>
     <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
       <option name="closed" value="true" />
@@ -523,7 +532,71 @@
       <option name="project" value="LOCAL" />
       <updated>1784585205932</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="added tests">
+      <option name="closed" value="true" />
+      <created>1784586125122</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586125122</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586222621</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586222621</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586268815</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586268816</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic">
+      <option name="closed" value="true" />
+      <created>1784593669024</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593669024</updated>
+    </task>
+    <task id="LOCAL-00015" summary="fixed unit test compilation error">
+      <option name="closed" value="true" />
+      <created>1784593764035</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593764035</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added wiki endpoint for albums, moved common days to anniversary/birthday logic to Utils">
+      <option name="closed" value="true" />
+      <created>1784638156619</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638156619</updated>
+    </task>
+    <task id="LOCAL-00017" summary="fixed errors, adjusted unit tests">
+      <option name="closed" value="true" />
+      <created>1784638736467</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638736467</updated>
+    </task>
+    <task id="LOCAL-00018" summary="fixed errors, adjusted unit tests">
+      <option name="closed" value="true" />
+      <created>1784638774098</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638774098</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -539,7 +612,13 @@
     <MESSAGE value="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller" />
     <MESSAGE value="Added new endpoints and rewrote old ones for Arist Controller, cleanup unused imports" />
     <MESSAGE value="removed old todo" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed old todo" />
+    <MESSAGE value="added tests" />
+    <MESSAGE value="fixed warnings" />
+    <MESSAGE value="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic" />
+    <MESSAGE value="fixed unit test compilation error" />
+    <MESSAGE value="Added wiki endpoint for albums, moved common days to anniversary/birthday logic to Utils" />
+    <MESSAGE value="fixed errors, adjusted unit tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed errors, adjusted unit tests" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
@@ -550,6 +629,7 @@
     <SUITE FILE_PATH="coverage/shrendar$BackendApplication.ic" NAME="BackendApplication Coverage Results" MODIFIED="1784403238362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$Tests_in__org_aleks616_shrendar_.ic" NAME="Tests in 'org.aleks616.shrendar' Coverage Results" MODIFIED="1784585819337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$AlbumControllerTest.ic" NAME="AlbumControllerTest Coverage Results" MODIFIED="1784585668866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$All_tests.ic" NAME="All tests Coverage Results" MODIFIED="1784586291119" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$run_all_tests.ic" NAME="run_all_tests Coverage Results" MODIFIED="1784406254766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>
