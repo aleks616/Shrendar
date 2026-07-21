@@ -1,41 +1,30 @@
 package org.aleks616.shrendar.album.service
 
-import org.aleks616.shrendar.album.model.Album
-import org.aleks616.shrendar.album.model.AlbumByDateDto
-import org.aleks616.shrendar.album.model.AlbumWikiDto
-import org.aleks616.shrendar.album.model.BandDto
+import org.aleks616.shrendar.album.model.*
 import org.aleks616.shrendar.album.repository.AlbumRepository
 import org.aleks616.shrendar.common.Utils
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Service
 class AlbumService(private val albumRepository:AlbumRepository){
-    //region utils
-   /* fun getAlbumData(albums:List<Album>):List<Album>{
-        return albums.map { a->
-            AlbumDataDto(
-                id=a.id,
-                band=a.band?.let {BandDto(it.id,it.name)},
-                title=a.title,
-                releaseDate=a.releaseDate,
-                type=a.type,
-                importance=a.importance,
-                genre=a.genre,
-                artworkUrl=a.artworkUrl
-            )
-        }
-    }*/
-
     fun doesBandExist(bandId:Int):Boolean{
         return albumRepository.existsById(bandId)
     }
     //endregion
 
-    fun getAll():List<Album>{
-        return albumRepository.findAll()
+    fun getAll():List<AlbumDataDto>{
+        return albumRepository.findAll().map { AlbumDataDto(
+            id=it.id,
+            band=BandDto(id=it.band?.id,name=it.band?.name),
+            title=it.title,
+            releaseDate=it.releaseDate,
+            type=it.type,
+            importance=it.importance,
+            genre=it.genre,
+            artworkUrl=it.artworkUrl,
+        ) }
     }
 
     fun getById(id:Int):Album{
@@ -63,29 +52,29 @@ class AlbumService(private val albumRepository:AlbumRepository){
         )
     }
 
-    fun getAlbumsByBandId(bandId:Int):List<Album>{
+    fun getAlbumsByBandId(bandId:Int):List<AlbumDataDto>{
         val albums=albumRepository.findByBandId(bandId)
         return albums
     }
 
-    fun getAlbumsByBandName(name:String):List<Album>{
+    fun getAlbumsByBandName(name:String):List<AlbumDataDto>{
         return albumRepository.findByBandNameContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByYear(year:Int):List<Album>{
+    fun getAlbumsByYear(year:Int):List<AlbumDataDto>{
         return albumRepository.findByYear(year)
     }
 
-    fun getAlbumsByName(name:String):List<Album>{
+    fun getAlbumsByName(name:String):List<AlbumDataDto>{
         return albumRepository.findByTitleContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByNameExact(name:String):List<Album>{
+    fun getAlbumsByNameExact(name:String):List<AlbumDataDto>{
         return albumRepository.findByTitleIgnoreCase((name))
     }
 
     fun getAlbumAnniversariesByDate(month:Int,day:Int):List<AlbumByDateDto>{
-        val albumsInDate=getAll().filter{it.releaseDate?.monthValue==month&&it.releaseDate!!.dayOfMonth==day}
+        val albumsInDate=getAll().filter{it.releaseDate?.monthValue==month&&it.releaseDate.dayOfMonth==day}
         val year=Calendar.getInstance().get(Calendar.YEAR)
 
         return albumsInDate.map{a->

@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name="album",schema="Shrendar")
-open class Album {
+open class Album() {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)

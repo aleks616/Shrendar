@@ -9,7 +9,6 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 @Service
 class ArtistService(private val artistRepository:ArtistRepository, private val countryRepository:CountryRepository) {

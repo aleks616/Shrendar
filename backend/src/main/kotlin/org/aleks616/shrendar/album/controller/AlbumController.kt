@@ -2,6 +2,7 @@ package org.aleks616.shrendar.album.controller
 
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumByDateDto
+import org.aleks616.shrendar.album.model.AlbumDataDto
 import org.aleks616.shrendar.album.model.AlbumWikiDto
 import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.common.Utils
@@ -14,7 +15,7 @@ class AlbumController (
     private val albumService:AlbumService,
 ){
     @GetMapping("/")
-    fun getAlbum():List<Album>{
+    fun getAll():List<AlbumDataDto>{
         return albumService.getAll()
     }
 
@@ -35,29 +36,29 @@ class AlbumController (
     }
 
     @GetMapping("/band/{bandId}")
-    fun getAlbumsByBandId(@PathVariable bandId:Int):List<Album>{
+    fun getAlbumsByBandId(@PathVariable bandId:Int):List<AlbumDataDto>{
         if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("Band doesn't exist")
         return albumService.getAlbumsByBandId(bandId)
     }
 
     @GetMapping("/band/like/{name}")
-    fun getAlbumsByBandNameLike(@PathVariable name:String):List<Album>{
+    fun getAlbumsByBandNameLike(@PathVariable name:String):List<AlbumDataDto>{
         return albumService.getAlbumsByBandName(name)
     }
 
     @GetMapping("/year/{year}")
-    fun getAlbumsByYear(@PathVariable year:Int):List<Album>{
+    fun getAlbumsByYear(@PathVariable year:Int):List<AlbumDataDto>{
         if(year>LocalDate.now().year || year<1918) throw IllegalArgumentException("Invalid year")
         return albumService.getAlbumsByYear(year)
     }
 
     @GetMapping("/like/{name}")
-    fun getAlbumsByNameLike(@PathVariable name:String):List<Album>{
+    fun getAlbumsByNameLike(@PathVariable name:String):List<AlbumDataDto>{
         return albumService.getAlbumsByName(name)
     }
 
     @GetMapping("/exact/{name}")
-    fun getAlbumsByNameExact(@PathVariable name:String):List<Album>{
+    fun getAlbumsByNameExact(@PathVariable name:String):List<AlbumDataDto>{
         return albumService.getAlbumsByNameExact(name)
     }
 

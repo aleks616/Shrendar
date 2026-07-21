@@ -38,3 +38,14 @@ data class AlbumWikiDto(
     val artworkUrl:String?=null,
     val importance:Int?=null,
 )
+
+data class AlbumDataDto(
+    val id:Int?=null,
+    val band:BandDto?=null,
+    val title:String?=null,
+    val releaseDate:LocalDate?=null,
+    val type:AlbumType?=null,
+    val importance:Int?=null,
+    val genre:Genre?=null,
+    val artworkUrl:String?=null,
+)

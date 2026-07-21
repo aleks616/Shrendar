@@ -18,6 +18,7 @@ class AlbumControllerTest {
     private val controller=AlbumController(albumService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
 
+
     @Test
     fun `getAlbum should return all albums`() {
         val albums=listOf(AlbumDataDto(id=1,title="Album 1"))
@@ -29,6 +30,7 @@ class AlbumControllerTest {
                 content {json("[{'id':1,'title':'Album 1'}]")}
             }
     }
+
 
     @Test
     fun `getAlbumAnniversariesByDate should return albums for valid date`() {

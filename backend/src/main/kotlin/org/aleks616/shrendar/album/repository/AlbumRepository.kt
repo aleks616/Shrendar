@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.album.repository
 
 import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.album.model.AlbumDataDto
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -9,35 +10,28 @@ import org.springframework.stereotype.Repository
 interface AlbumRepository :JpaRepository<Album,Int>{
 
     @Query("""
-        SELECT g.name
-        FROM album a JOIN genre g ON a.genre_id=g.genre_id
-        WHERE a.album_id=:albumId
-    """,nativeQuery=true)
-    fun getAlbumGenre(albumId:Int?):String?
-
-    @Query("""
         SELECT a
         FROM Album a
         WHERE a.band.id=:bandId
         ORDER BY a.releaseDate ASC
     """)
-    fun findByBandId(bandId:Int):List<Album>
+    fun findByBandId(bandId:Int):List<AlbumDataDto>
 
     @Query("""
         SELECT * 
         FROM Album a
         WHERE YEAR(a.release_date)=:year
     """, nativeQuery=true)
-    fun findByYear(year:Int):List<Album>
-    fun findByTitleContainingIgnoreCase(title:String):List<Album>
-    fun findByTitleIgnoreCase(title:String):List<Album>
+    fun findByYear(year:Int):List<AlbumDataDto>
+    fun findByTitleContainingIgnoreCase(title:String):List<AlbumDataDto>
+    fun findByTitleIgnoreCase(title:String):List<AlbumDataDto>
 
     @Query("""
         SELECT a
         FROM Album a
         WHERE a.band.name LIKE %:name%
     """)
-    fun findByBandNameContainingIgnoreCase(name:String):MutableList<Album>
+    fun findByBandNameContainingIgnoreCase(name:String):MutableList<AlbumDataDto>
 
     @Query("""
         SELECT a
