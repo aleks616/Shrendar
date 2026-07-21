@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ArtistRepository:JpaRepository<Artist,Int> {
     fun existsArtistById(id:Int):Boolean
-    fun findArtistById(id:Int):MutableList<Artist>
+    fun findArtistById(id:Int):Artist
     fun findArtistByNameContains(name:String):MutableList<Artist>
     fun findArtistByNameStartsWith(name:String):MutableList<Artist>
     fun findArtistByNameEndsWithIgnoreCase(name:String):MutableList<Artist>

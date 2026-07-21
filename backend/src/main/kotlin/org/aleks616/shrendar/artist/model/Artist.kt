@@ -33,4 +33,7 @@ open class Artist {
 
     @Column(name="country")
     open var country:Int?=null
+
+    @Column(name="artist_image_url")
+    open var artistImageUrl:String?=null
 }

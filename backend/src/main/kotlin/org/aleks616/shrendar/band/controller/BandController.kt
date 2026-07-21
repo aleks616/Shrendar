@@ -75,6 +75,7 @@ class BandController (
         return bandService.getBandsByStatus(statusStringToEnum(status))
     }
 
+    //WIKI ARTIST PAGE PART 2
     @GetMapping("/artist/{id}")
     fun getBandsByArtistId(@PathVariable id:Int):List<ArtistBandsHistoryDto>{
         return bandsMemberService.getBandsByArtistId(id)

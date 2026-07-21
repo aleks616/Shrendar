@@ -4,12 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="removed old todo">
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/album/controller/AlbumControllerTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/artist/controller/ArtistControllerTest.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" afterDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="fixed warnings">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ChineseZodiacSign.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ZodiacSign.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +25,7 @@
     <option name="myAddOrReplace" value="1" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="120" />
+    <option name="cachedIndexableFilesCount" value="132" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="ExternalProjectsData">
@@ -57,10 +62,10 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="com.intellij.jpb.JpaRepository" />
-        <option value="Kotlin Enum" />
         <option value="Kotlin Script" />
         <option value="Spring Service" />
         <option value="com.intellij.jpb.NewDataClass" />
+        <option value="Kotlin Enum" />
       </list>
     </option>
   </component>
@@ -82,61 +87,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0061961372044113" />
-      <entry key="MS500" value="1.6716357338676024" />
-      <entry key="S2" value="3.024264772273079" />
-      <entry key="S5" value="3.5592346913700568" />
-      <entry key="S10" value="3.8033678816912375" />
-      <entry key="S30" value="6.087268777503642" />
-      <entry key="S60" value="10.212657823909367" />
-      <entry key="M2" value="15.394807335278648" />
-      <entry key="M5" value="28.486781164199886" />
-      <entry key="M10" value="55.57380857267223" />
-      <entry key="M15" value="86.03921534278966" />
-      <entry key="M30" value="164.9706678546602" />
-      <entry key="H1" value="270.69149806903175" />
-      <entry key="H2" value="463.949656476788" />
-      <entry key="H4" value="860.6596775709655" />
-      <entry key="D1" value="2144.066686768381" />
-      <entry key="W1" value="2635.3762292436795" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0000167265565747" />
+      <entry key="S5" value="1.0122846604877038" />
+      <entry key="S10" value="1.11101902722495" />
+      <entry key="S30" value="1.658278092887974" />
+      <entry key="S60" value="3.4723009258840034" />
+      <entry key="M2" value="10.716604145055493" />
+      <entry key="M5" value="42.06406209873195" />
+      <entry key="M10" value="94.1808686229004" />
+      <entry key="M15" value="141.46286913279752" />
+      <entry key="M30" value="258.3611433677867" />
+      <entry key="H1" value="421.886500914655" />
+      <entry key="H2" value="661.5348622381892" />
+      <entry key="H4" value="1084.505238441266" />
+      <entry key="D1" value="2475.918693105631" />
+      <entry key="W1" value="3026.7227222991787" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="5.757109690174289E-176" />
-      <entry key="S2" value="1.5489989595099E-44" />
-      <entry key="S5" value="2.992405542134596E-18" />
-      <entry key="S10" value="1.7298572087873225E-9" />
-      <entry key="S30" value="0.0012157610533213364" />
-      <entry key="S60" value="0.04786560507669456" />
-      <entry key="M2" value="0.6383592284894225" />
-      <entry key="M5" value="4.97387822347514" />
-      <entry key="M10" value="15.335707736917778" />
-      <entry key="M15" value="28.08316103673643" />
-      <entry key="M30" value="62.02113003504185" />
-      <entry key="H1" value="104.12352179613" />
-      <entry key="H2" value="161.23857999065942" />
-      <entry key="H4" value="255.5696060128793" />
-      <entry key="D1" value="532.756729072032" />
-      <entry key="W1" value="634.2509360056863" />
+      <entry key="MS100" value="9.982109298156061E-176" />
+      <entry key="MS500" value="1.011921562610283E-35" />
+      <entry key="S2" value="2.4694137573895076E-9" />
+      <entry key="S5" value="6.481091509621912E-4" />
+      <entry key="S10" value="0.047675961950587604" />
+      <entry key="S30" value="1.0336482497647264" />
+      <entry key="S60" value="2.7087226648244096" />
+      <entry key="M2" value="5.504440613216247" />
+      <entry key="M5" value="17.298920338801796" />
+      <entry key="M10" value="37.86172994990963" />
+      <entry key="M15" value="53.925495167541555" />
+      <entry key="M30" value="90.34545762258601" />
+      <entry key="H1" value="143.28258504938208" />
+      <entry key="H2" value="215.7802670990485" />
+      <entry key="H4" value="322.9278307731436" />
+      <entry key="D1" value="633.0742232157304" />
+      <entry key="W1" value="749.2350548556702" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9855309816811165" />
-      <entry key="MS500" value="1.6654643261530084" />
-      <entry key="S2" value="3.0216204660034336" />
-      <entry key="S5" value="3.557997592447467" />
-      <entry key="S10" value="3.8027072658248087" />
-      <entry key="S30" value="6.088094171893127" />
-      <entry key="S60" value="10.259496248801701" />
-      <entry key="M2" value="16.025569509636377" />
-      <entry key="M5" value="33.43221432842046" />
-      <entry key="M10" value="70.85779724498609" />
-      <entry key="M15" value="114.05428333626288" />
-      <entry key="M30" value="226.91099740073614" />
-      <entry key="H1" value="374.74502126950813" />
-      <entry key="H2" value="625.1320879931271" />
-      <entry key="H4" value="1116.1826315995156" />
-      <entry key="D1" value="2676.806499844499" />
-      <entry key="W1" value="3269.624277214658" />
+      <entry key="MS100" value="0.07080524283098741" />
+      <entry key="MS500" value="0.5888613947974908" />
+      <entry key="S2" value="0.8760114669362665" />
+      <entry key="S5" value="0.9600528066628388" />
+      <entry key="S10" value="1.120328507217202" />
+      <entry key="S30" value="2.6202556132773935" />
+      <entry key="S60" value="6.096690964364027" />
+      <entry key="M2" value="16.14140553223756" />
+      <entry key="M5" value="59.274088061417515" />
+      <entry key="M10" value="131.94309763097735" />
+      <entry key="M15" value="195.29023039886525" />
+      <entry key="M30" value="348.61647244653903" />
+      <entry key="H1" value="565.0904600519598" />
+      <entry key="H2" value="877.2507448792537" />
+      <entry key="H4" value="1407.3806408700748" />
+      <entry key="D1" value="3108.9740933245394" />
+      <entry key="W1" value="3775.9545513074404" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -155,6 +160,7 @@
   "keyToString": {
     "Gradle.AlbumControllerTest.executor": "Coverage",
     "Gradle.ArtistControllerTest.executor": "Run",
+    "Gradle.ArtistControllerTest.getAll should return all artists.executor": "Run",
     "Gradle.BandControllerTest.executor": "Run",
     "Gradle.Build backend.executor": "Run",
     "Gradle.Tests in 'org.aleks616.shrendar'.executor": "Coverage",
@@ -167,7 +173,10 @@
     "HTTP Request.generated-requests | #11.executor": "Run",
     "HTTP Request.generated-requests | #2.executor": "Run",
     "HTTP Request.generated-requests | #3.executor": "Run",
+    "HTTP Request.generated-requests | #4 (1).executor": "Run",
+    "HTTP Request.generated-requests | #4 (2).executor": "Run",
     "HTTP Request.generated-requests | #4.executor": "Run",
+    "HTTP Request.generated-requests | #5 (1).executor": "Run",
     "HTTP Request.generated-requests | #5.executor": "Run",
     "HTTP Request.generated-requests | #6.executor": "Run",
     "HTTP Request.generated-requests | #7.executor": "Run",
@@ -233,102 +242,22 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="generated-requests | #11" value="STOPPED" />
-              <entry key="generated-requests | #8" value="STOPPED" />
-              <entry key="generated-requests | #9" value="STOPPED" />
+              <entry key="generated-requests | #4 (1)" value="STOPPED" />
+              <entry key="generated-requests | #4 (2)" value="STOPPED" />
+              <entry key="generated-requests | #5" value="STOPPED" />
+              <entry key="generated-requests | #5 (1)" value="STOPPED" />
             </map>
           </value>
         </entry>
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.ArtistControllerTest">
+  <component name="RunManager" selected="HTTP Request.generated-requests | #5 (1)">
     <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
       <embedded_app_extension_list />
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="AlbumControllerTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.album.controller.AlbumControllerTest&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="ArtistControllerTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.artist.controller.ArtistControllerTest&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="ArtistControllerTest.getAll should return all artists" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;org.aleks616.shrendar.artist.controller.ArtistControllerTest.getAll should return all artists&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
     </configuration>
     <configuration name="Tests in 'org.aleks616.shrendar'" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
@@ -360,7 +289,16 @@
     <configuration default="true" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" environment="&lt;No Environment&gt;" path="">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #11" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#11" index="11" runType="Run single request">
+    <configuration name="generated-requests | #4 (1)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#4" index="4" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #4 (2)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#4" index="4" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #5 (1)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #5" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="All tests" type="JUnit" factoryName="JUnit">
@@ -403,20 +341,20 @@
     </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
-      <item itemvalue="Gradle.ArtistControllerTest" />
-      <item itemvalue="Gradle.ArtistControllerTest.getAll should return all artists" />
-      <item itemvalue="Gradle.AlbumControllerTest" />
-      <item itemvalue="HTTP Request.generated-requests | #11" />
+      <item itemvalue="HTTP Request.generated-requests | #4 (2)" />
+      <item itemvalue="HTTP Request.generated-requests | #5 (1)" />
+      <item itemvalue="HTTP Request.generated-requests | #4 (1)" />
+      <item itemvalue="HTTP Request.generated-requests | #5" />
       <item itemvalue="JUnit.All tests" />
       <item itemvalue="Spring Boot.BackendApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.ArtistControllerTest" />
-        <item itemvalue="Gradle.ArtistControllerTest.getAll should return all artists" />
-        <item itemvalue="Gradle.AlbumControllerTest" />
+        <item itemvalue="HTTP Request.generated-requests | #5 (1)" />
+        <item itemvalue="HTTP Request.generated-requests | #4 (2)" />
         <item itemvalue="Spring Boot.BackendApplication" />
-        <item itemvalue="HTTP Request.generated-requests | #11" />
+        <item itemvalue="HTTP Request.generated-requests | #5" />
+        <item itemvalue="HTTP Request.generated-requests | #4 (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -457,7 +395,10 @@
       <workItem from="1784408066707" duration="5125000" />
       <workItem from="1784465297029" duration="21151000" />
       <workItem from="1784546308680" duration="2849000" />
-      <workItem from="1784549757415" duration="21703000" />
+      <workItem from="1784549757415" duration="24416000" />
+      <workItem from="1784589720015" duration="1992000" />
+      <workItem from="1784591741785" duration="1223000" />
+      <workItem from="1784593295318" duration="331000" />
     </task>
     <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
       <option name="closed" value="true" />
@@ -523,7 +464,31 @@
       <option name="project" value="LOCAL" />
       <updated>1784585205932</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="added tests">
+      <option name="closed" value="true" />
+      <created>1784586125122</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586125122</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586222621</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586222621</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586268815</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586268816</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -539,7 +504,9 @@
     <MESSAGE value="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller" />
     <MESSAGE value="Added new endpoints and rewrote old ones for Arist Controller, cleanup unused imports" />
     <MESSAGE value="removed old todo" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed old todo" />
+    <MESSAGE value="added tests" />
+    <MESSAGE value="fixed warnings" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed warnings" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
@@ -550,6 +517,7 @@
     <SUITE FILE_PATH="coverage/shrendar$BackendApplication.ic" NAME="BackendApplication Coverage Results" MODIFIED="1784403238362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$Tests_in__org_aleks616_shrendar_.ic" NAME="Tests in 'org.aleks616.shrendar' Coverage Results" MODIFIED="1784585819337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$AlbumControllerTest.ic" NAME="AlbumControllerTest Coverage Results" MODIFIED="1784585668866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$All_tests.ic" NAME="All tests Coverage Results" MODIFIED="1784586291119" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$run_all_tests.ic" NAME="run_all_tests Coverage Results" MODIFIED="1784406254766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>

@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.artist.controller
 
 import org.aleks616.shrendar.artist.model.Artist
+import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.common.Utils
 import org.springframework.web.bind.annotation.*
@@ -16,8 +17,14 @@ class ArtistController(
     }
 
     @GetMapping("/id")
-    fun getById(@RequestParam id:Int):List<Artist>{
+    fun getById(@RequestParam id:Int):Artist{
         return artistService.getById(id)
+    }
+
+    //WIKI ARTIST PAGE PART 1
+    @GetMapping("/wiki/{id}")
+    fun getByIdWiki(@PathVariable id:Int):ArtistWikiDto{
+        return artistService.getByIdWiki(id)
     }
 
     @GetMapping("/name")
