@@ -10,7 +10,7 @@ interface AlbumRepository :JpaRepository<Album,Int>{
 
     @Query("""
         SELECT g.name
-        FROM album a JOIN genre g ON a.genre_properties=g.properties
+        FROM album a JOIN genre g ON a.genre_id=g.genre_id
         WHERE a.album_id=:albumId
     """,nativeQuery=true)
     fun getAlbumGenre(albumId:Int?):String?
@@ -38,4 +38,11 @@ interface AlbumRepository :JpaRepository<Album,Int>{
         WHERE a.band.name LIKE %:name%
     """)
     fun findByBandNameContainingIgnoreCase(name:String):MutableList<Album>
+
+    @Query("""
+        SELECT a
+        FROM Album a
+        WHERE a.id=:id
+    """)
+    fun findAlbumById(id:Int):Album
 }

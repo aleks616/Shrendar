@@ -2,6 +2,7 @@ package org.aleks616.shrendar.album.model
 
 import jakarta.persistence.*
 import org.aleks616.shrendar.band.model.Band
+import org.aleks616.shrendar.genre.model.Genre
 import java.time.LocalDate
 
 @Entity
@@ -29,11 +30,15 @@ open class Album {
     @Column(name="importance", columnDefinition="TINYINT")
     open var importance:Int?=null
 
-    @Column(name="genre_properties", columnDefinition="VARCHAR(7)")
-    open var genre_properties:String?=null
+    @OneToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="genre_id")
+    open var genre:Genre?=null
 
     @Column(name="artwork_url")
     open var artworkUrl:String?=null
+
+    @Column(name="description", columnDefinition="TEXT")
+    open var description:String?=null
 }
 
 enum class AlbumType{

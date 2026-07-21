@@ -5,6 +5,7 @@ import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.artist.repository.ArtistRepository
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -24,19 +25,12 @@ class ArtistService(private val artistRepository:ArtistRepository, private val c
 
     fun getByIdWiki(id:Int):ArtistWikiDto {
         val dataRaw=getById(id)
-        val thisYearBirthDay=LocalDate.of(LocalDate.now().year,dataRaw.birthDate!!.monthValue,dataRaw.birthDate!!.dayOfMonth)
-        val nextYearBirthday=LocalDate.of(LocalDate.now().year+1,dataRaw.birthDate!!.monthValue,dataRaw.birthDate!!.dayOfMonth)
-        val nextBirthdays=if(thisYearBirthDay.isAfter(LocalDate.now())) thisYearBirthDay else nextYearBirthday
-        val daysTillBirthday=LocalDate.now().until(nextBirthdays,ChronoUnit.DAYS)
-
+        val daysTillBirthday=Utils.getDaysTillNextAnniversary(dataRaw.birthDate!!)
 
         var daysTillDeathAnn:Int?=null
         var age:Int
         if(dataRaw.deathDate!=null){
-            val thisYearDeathAnn=LocalDate.of(LocalDate.now().year,dataRaw.deathDate!!.monthValue,dataRaw.deathDate!!.dayOfMonth)
-            val nextYearDeathAnn=LocalDate.of(LocalDate.now().year+1,dataRaw.deathDate!!.monthValue,dataRaw.deathDate!!.dayOfMonth)
-            val nextDeathAnn=if(thisYearDeathAnn.isAfter(LocalDate.now())) thisYearDeathAnn else nextYearDeathAnn
-            daysTillDeathAnn=LocalDate.now().until(nextDeathAnn,ChronoUnit.DAYS).toInt()
+            daysTillDeathAnn=Utils.getDaysTillNextAnniversary(dataRaw.deathDate!!)
             age=dataRaw.birthDate!!.until(dataRaw.deathDate).years
         }
         else{
@@ -51,7 +45,7 @@ class ArtistService(private val artistRepository:ArtistRepository, private val c
             id=dataRaw.id,
             name=dataRaw.name,
             birthDate=dataRaw.birthDate,
-            daysTillBirthday=daysTillBirthday.toInt(),
+            daysTillBirthday=daysTillBirthday,
             deathDate=dataRaw.deathDate,
             daysTillDeathAnniversary=daysTillDeathAnn,
             age=age,

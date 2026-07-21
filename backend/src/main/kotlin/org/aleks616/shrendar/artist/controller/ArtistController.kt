@@ -16,8 +16,8 @@ class ArtistController(
         return artistService.getAll()
     }
 
-    @GetMapping("/id")
-    fun getById(@RequestParam id:Int):Artist{
+    @GetMapping("/id/{id}")
+    fun getById(@PathVariable id:Int):Artist{
         return artistService.getById(id)
     }
 

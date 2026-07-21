@@ -4,17 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="fixed warnings">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ChineseZodiacSign.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ZodiacSign.kt" afterDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="fixed unit test compilation error">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/controller/AlbumController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/Album.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/Album.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/AlbumDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/model/AlbumDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/repository/AlbumRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/repository/AlbumRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/service/AlbumService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/album/service/AlbumService.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/controller/ArtistController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/Artist.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/model/ArtistDto.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/repository/ArtistRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/artist/service/ArtistService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/band/controller/BandController.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/repository/CountryRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/Utils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/org/aleks616/shrendar/common/Utils.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,61 +86,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0000167265565747" />
-      <entry key="S5" value="1.0122846604877038" />
-      <entry key="S10" value="1.11101902722495" />
-      <entry key="S30" value="1.658278092887974" />
-      <entry key="S60" value="3.4723009258840034" />
-      <entry key="M2" value="10.716604145055493" />
-      <entry key="M5" value="42.06406209873195" />
-      <entry key="M10" value="94.1808686229004" />
-      <entry key="M15" value="141.46286913279752" />
-      <entry key="M30" value="258.3611433677867" />
-      <entry key="H1" value="421.886500914655" />
-      <entry key="H2" value="661.5348622381892" />
-      <entry key="H4" value="1084.505238441266" />
-      <entry key="D1" value="2475.918693105631" />
-      <entry key="W1" value="3026.7227222991787" />
+      <entry key="MS100" value="1.0019941643085515" />
+      <entry key="MS500" value="1.2918799198377267" />
+      <entry key="S2" value="2.024629254414175" />
+      <entry key="S5" value="2.9630786935938342" />
+      <entry key="S10" value="4.3199630495553025" />
+      <entry key="S30" value="8.833449532377088" />
+      <entry key="S60" value="13.850615264966997" />
+      <entry key="M2" value="22.8174065922202" />
+      <entry key="M5" value="54.21494202561721" />
+      <entry key="M10" value="107.97125156423186" />
+      <entry key="M15" value="158.53589170781316" />
+      <entry key="M30" value="292.4628762647323" />
+      <entry key="H1" value="491.1451050880992" />
+      <entry key="H2" value="768.733691295771" />
+      <entry key="H4" value="1218.5703446155333" />
+      <entry key="D1" value="2680.618439028" />
+      <entry key="W1" value="3266.3436506862195" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="9.982109298156061E-176" />
-      <entry key="MS500" value="1.011921562610283E-35" />
-      <entry key="S2" value="2.4694137573895076E-9" />
-      <entry key="S5" value="6.481091509621912E-4" />
-      <entry key="S10" value="0.047675961950587604" />
-      <entry key="S30" value="1.0336482497647264" />
-      <entry key="S60" value="2.7087226648244096" />
-      <entry key="M2" value="5.504440613216247" />
-      <entry key="M5" value="17.298920338801796" />
-      <entry key="M10" value="37.86172994990963" />
-      <entry key="M15" value="53.925495167541555" />
-      <entry key="M30" value="90.34545762258601" />
-      <entry key="H1" value="143.28258504938208" />
-      <entry key="H2" value="215.7802670990485" />
-      <entry key="H4" value="322.9278307731436" />
-      <entry key="D1" value="633.0742232157304" />
-      <entry key="W1" value="749.2350548556702" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="4.2993059523500956E-82" />
+      <entry key="S2" value="4.5535471647308794E-21" />
+      <entry key="S5" value="7.32363726073511E-9" />
+      <entry key="S10" value="9.033721992063418E-5" />
+      <entry key="S30" value="0.0708564635294049" />
+      <entry key="S60" value="0.6265040066632913" />
+      <entry key="M2" value="2.81139612387056" />
+      <entry key="M5" value="10.837221583177762" />
+      <entry key="M10" value="25.543727603699704" />
+      <entry key="M15" value="40.975228401457834" />
+      <entry key="M30" value="83.16112641714396" />
+      <entry key="H1" value="147.38392804538466" />
+      <entry key="H2" value="233.18324278497823" />
+      <entry key="H4" value="351.50195022967597" />
+      <entry key="D1" value="684.213856045765" />
+      <entry key="W1" value="809.3998588715584" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.07080524283098741" />
-      <entry key="MS500" value="0.5888613947974908" />
-      <entry key="S2" value="0.8760114669362665" />
-      <entry key="S5" value="0.9600528066628388" />
-      <entry key="S10" value="1.120328507217202" />
-      <entry key="S30" value="2.6202556132773935" />
-      <entry key="S60" value="6.096690964364027" />
-      <entry key="M2" value="16.14140553223756" />
-      <entry key="M5" value="59.274088061417515" />
-      <entry key="M10" value="131.94309763097735" />
-      <entry key="M15" value="195.29023039886525" />
-      <entry key="M30" value="348.61647244653903" />
-      <entry key="H1" value="565.0904600519598" />
-      <entry key="H2" value="877.2507448792537" />
-      <entry key="H4" value="1407.3806408700748" />
-      <entry key="D1" value="3108.9740933245394" />
-      <entry key="W1" value="3775.9545513074404" />
+      <entry key="MS100" value="0.9544352395495515" />
+      <entry key="MS500" value="1.2762303144675593" />
+      <entry key="S2" value="2.017225941115615" />
+      <entry key="S5" value="2.958671635589555" />
+      <entry key="S10" value="4.316859113246296" />
+      <entry key="S30" value="8.895805407800955" />
+      <entry key="S60" value="14.453450195105551" />
+      <entry key="M2" value="25.586903667330805" />
+      <entry key="M5" value="64.99307530130724" />
+      <entry key="M10" value="133.44775078294424" />
+      <entry key="M15" value="199.4396342850948" />
+      <entry key="M30" value="375.54796436608615" />
+      <entry key="H1" value="638.4552429322346" />
+      <entry key="H2" value="1001.8527182413359" />
+      <entry key="H4" value="1570.0188500630372" />
+      <entry key="D1" value="3364.8127498783365" />
+      <entry key="W1" value="4075.740143241329" />
     </decayedShown>
   </component>
   <component name="ProblemsViewState">
@@ -161,6 +160,7 @@
     "Gradle.AlbumControllerTest.executor": "Coverage",
     "Gradle.ArtistControllerTest.executor": "Run",
     "Gradle.ArtistControllerTest.getAll should return all artists.executor": "Run",
+    "Gradle.ArtistControllerTest.getById should return artist for existing id.executor": "Run",
     "Gradle.BandControllerTest.executor": "Run",
     "Gradle.Build backend.executor": "Run",
     "Gradle.Tests in 'org.aleks616.shrendar'.executor": "Coverage",
@@ -178,6 +178,11 @@
     "HTTP Request.generated-requests | #4.executor": "Run",
     "HTTP Request.generated-requests | #5 (1).executor": "Run",
     "HTTP Request.generated-requests | #5.executor": "Run",
+    "HTTP Request.generated-requests | #6 (1).executor": "Run",
+    "HTTP Request.generated-requests | #6 (2).executor": "Run",
+    "HTTP Request.generated-requests | #6 (3).executor": "Run",
+    "HTTP Request.generated-requests | #6 (4).executor": "Run",
+    "HTTP Request.generated-requests | #6 (5).executor": "Run",
     "HTTP Request.generated-requests | #6.executor": "Run",
     "HTTP Request.generated-requests | #7.executor": "Run",
     "HTTP Request.generated-requests | #8.executor": "Run",
@@ -242,21 +247,21 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="generated-requests | #4 (1)" value="STOPPED" />
-              <entry key="generated-requests | #4 (2)" value="STOPPED" />
-              <entry key="generated-requests | #5" value="STOPPED" />
-              <entry key="generated-requests | #5 (1)" value="STOPPED" />
+              <entry key="generated-requests | #6" value="STOPPED" />
+              <entry key="generated-requests | #6 (1)" value="STOPPED" />
+              <entry key="generated-requests | #6 (2)" value="STOPPED" />
+              <entry key="generated-requests | #6 (3)" value="STOPPED" />
+              <entry key="generated-requests | #6 (4)" value="STOPPED" />
             </map>
           </value>
         </entry>
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="HTTP Request.generated-requests | #5 (1)">
-    <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
-      <embedded_app_extension_list />
+  <component name="RunManager" selected="HTTP Request.generated-requests | #6 (4)">
+    <configuration default="true" type="Application" factoryName="Application">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="Make" enabled="true" />
       </method>
     </configuration>
     <configuration name="Tests in 'org.aleks616.shrendar'" type="GradleRunConfiguration" factoryName="Gradle">
@@ -289,16 +294,19 @@
     <configuration default="true" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" environment="&lt;No Environment&gt;" path="">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #4 (1)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#4" index="4" runType="Run single request">
+    <configuration name="generated-requests | #6 (1)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #4 (2)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#4" index="4" runType="Run single request">
+    <configuration name="generated-requests | #6 (2)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #5 (1)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
+    <configuration name="generated-requests | #6 (3)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="generated-requests | #5" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
+    <configuration name="generated-requests | #6 (4)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #6" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="All tests" type="JUnit" factoryName="JUnit">
@@ -326,35 +334,22 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <module name="shrendar.main" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="org.aleks616.shrendar.BackendApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.aleks616.shrendar.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
-      <item itemvalue="HTTP Request.generated-requests | #4 (2)" />
-      <item itemvalue="HTTP Request.generated-requests | #5 (1)" />
-      <item itemvalue="HTTP Request.generated-requests | #4 (1)" />
-      <item itemvalue="HTTP Request.generated-requests | #5" />
+      <item itemvalue="HTTP Request.generated-requests | #6" />
+      <item itemvalue="HTTP Request.generated-requests | #6 (1)" />
+      <item itemvalue="HTTP Request.generated-requests | #6 (2)" />
+      <item itemvalue="HTTP Request.generated-requests | #6 (3)" />
+      <item itemvalue="HTTP Request.generated-requests | #6 (4)" />
       <item itemvalue="JUnit.All tests" />
-      <item itemvalue="Spring Boot.BackendApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="HTTP Request.generated-requests | #5 (1)" />
-        <item itemvalue="HTTP Request.generated-requests | #4 (2)" />
-        <item itemvalue="Spring Boot.BackendApplication" />
-        <item itemvalue="HTTP Request.generated-requests | #5" />
-        <item itemvalue="HTTP Request.generated-requests | #4 (1)" />
+        <item itemvalue="HTTP Request.generated-requests | #6 (4)" />
+        <item itemvalue="HTTP Request.generated-requests | #6 (3)" />
+        <item itemvalue="HTTP Request.generated-requests | #6 (2)" />
+        <item itemvalue="HTTP Request.generated-requests | #6 (1)" />
+        <item itemvalue="HTTP Request.generated-requests | #6" />
       </list>
     </recent_temporary>
   </component>
@@ -398,7 +393,8 @@
       <workItem from="1784549757415" duration="24416000" />
       <workItem from="1784589720015" duration="1992000" />
       <workItem from="1784591741785" duration="1223000" />
-      <workItem from="1784593295318" duration="331000" />
+      <workItem from="1784593295318" duration="491000" />
+      <workItem from="1784632937607" duration="4642000" />
     </task>
     <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
       <option name="closed" value="true" />
@@ -488,7 +484,23 @@
       <option name="project" value="LOCAL" />
       <updated>1784586268816</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic">
+      <option name="closed" value="true" />
+      <created>1784593669024</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593669024</updated>
+    </task>
+    <task id="LOCAL-00015" summary="fixed unit test compilation error">
+      <option name="closed" value="true" />
+      <created>1784593764035</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593764035</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -506,7 +518,9 @@
     <MESSAGE value="removed old todo" />
     <MESSAGE value="added tests" />
     <MESSAGE value="fixed warnings" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed warnings" />
+    <MESSAGE value="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic" />
+    <MESSAGE value="fixed unit test compilation error" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed unit test compilation error" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
