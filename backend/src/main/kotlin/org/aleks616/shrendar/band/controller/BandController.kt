@@ -2,7 +2,9 @@ package org.aleks616.shrendar.band.controller
 
 import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
 import org.aleks616.shrendar.band.model.BandDto
+import org.aleks616.shrendar.band.model.BandWikiDto
 import org.aleks616.shrendar.band.model.BandsMembersDto
+import org.aleks616.shrendar.band.model.BandsMembersWikiDto
 import org.aleks616.shrendar.band.model.Status
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
@@ -24,6 +26,18 @@ class BandController (
     @GetMapping("/id/{id}")
     fun getBand(@PathVariable id:Int):BandDto{
         return bandService.getBandById(id)
+    }
+
+    //WIKI BAND PAGE 1/4
+    @GetMapping("/wiki/{id}")
+    fun getBandByIdWiki(@PathVariable id:Int):BandWikiDto {
+        return bandService.getBandByIdWiki(id)
+    }
+
+    //WIKI BAND PAGE 2/4
+    @GetMapping("wiki/{bandId}/members")
+    fun getAllBandMembersWiki(@PathVariable bandId:Int):List<BandsMembersWikiDto>{
+        return bandsMemberService.getAllBandMembersWiki(bandId)
     }
 
     @GetMapping("/{bandId}/members")
@@ -75,7 +89,7 @@ class BandController (
         return bandService.getBandsByStatus(statusStringToEnum(status))
     }
 
-    //WIKI ARTIST PAGE PART 2
+    //WIKI ARTIST PAGE 2/2
     @GetMapping("/artist/{id}")
     fun getBandsByArtistId(@PathVariable id:Int):List<ArtistBandsHistoryDto>{
         return bandsMemberService.getBandsByArtistId(id)
@@ -83,11 +97,11 @@ class BandController (
 
     fun statusStringToEnum(statusString:String):Status {
         return when(statusString.lowercase()){
-            "active"->Status.active
-            "disbanded"->Status.disbanded
-            "on_hold"->Status.on_hold
-            "on hold"->Status.on_hold
-            "unknown"->Status.unknown
+            "active"->Status.ACTIVE
+            "disbanded"->Status.DISBANDED
+            "on_hold"->Status.ON_HOLD
+            "on hold"->Status.ON_HOLD
+            "unknown"->Status.UNKNOWN
             else->throw IllegalArgumentException("invalid status")
         }
     }

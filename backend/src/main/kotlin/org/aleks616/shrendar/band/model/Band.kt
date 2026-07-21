@@ -28,10 +28,13 @@ open class Band {
 
     @Column(name="description")
     open var description:String?=null
+
+    @Column(name="image_url")
+    open var imageUrl:String?=null
 }
 enum class Status{
-    active,
-    disbanded,
-    on_hold,
-    unknown
+    ACTIVE,
+    DISBANDED,
+    ON_HOLD,
+    UNKNOWN
 }

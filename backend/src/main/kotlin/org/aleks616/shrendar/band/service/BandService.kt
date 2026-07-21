@@ -2,6 +2,7 @@ package org.aleks616.shrendar.band.service
 
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.model.BandDto
+import org.aleks616.shrendar.band.model.BandWikiDto
 import org.aleks616.shrendar.band.model.CountryDto
 import org.aleks616.shrendar.band.model.Status
 import org.aleks616.shrendar.band.repository.BandRepository
@@ -42,6 +43,21 @@ class BandService(
     fun getBandById(id:Int):BandDto{
         val band=bandRepository.findById(id)
         return getBandData(listOf(band.get())).first()
+    }
+
+    fun getBandByIdWiki(id:Int):BandWikiDto {
+        val dataRaw=bandRepository.findById(id)
+
+        return BandWikiDto(
+            name=dataRaw.get().name,
+            formedYear=dataRaw.get().formedYear,
+            disbandedYear=dataRaw.get().disbandedYear,
+            status=dataRaw.get().status,
+            country=getBandsCountry(dataRaw.get().id!!),
+            description=dataRaw.get().description,
+            imageUrl=dataRaw.get().imageUrl,
+            computedGenre=null //todo later
+        )
     }
 
     fun getCountryByName(name:String):CountryDto?{

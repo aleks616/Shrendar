@@ -24,6 +24,7 @@ class AlbumController (
         return albumService.getById(id)
     }
 
+    //WIKI ALBUM PAGE 1/1
     @GetMapping("wiki/{id}")
     fun getAlbumByIdWiki(@PathVariable id:Int):AlbumWikiDto{
         return albumService.getByIdWiki(id)
@@ -35,6 +36,7 @@ class AlbumController (
         return albumService.getAlbumAnniversariesByDate(month,day)
     }
 
+    //WIKI BAND PAGE 3/4
     @GetMapping("/band/{bandId}")
     fun getAlbumsByBandId(@PathVariable bandId:Int):List<AlbumDataDto>{
         if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("Band doesn't exist")

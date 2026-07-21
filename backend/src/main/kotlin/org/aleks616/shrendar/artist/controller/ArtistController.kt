@@ -21,7 +21,7 @@ class ArtistController(
         return artistService.getById(id)
     }
 
-    //WIKI ARTIST PAGE PART 1
+    //WIKI ARTIST PAGE 1/2
     @GetMapping("/wiki/{id}")
     fun getByIdWiki(@PathVariable id:Int):ArtistWikiDto{
         return artistService.getByIdWiki(id)

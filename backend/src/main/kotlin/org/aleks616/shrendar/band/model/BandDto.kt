@@ -16,3 +16,14 @@ data class BandDto(
 ):Serializable
 
 data class CountryDto(val id:Int?=null,val name:String?=null)
+
+data class BandWikiDto(
+    val name:String?=null,
+    val formedYear:Int?=null,
+    val disbandedYear:Int?=null,
+    val status:Status?=null,
+    val country:CountryDto?=null,
+    val description:String?=null,
+    val imageUrl:String?=null,
+    val computedGenre:String?=null
+):Serializable

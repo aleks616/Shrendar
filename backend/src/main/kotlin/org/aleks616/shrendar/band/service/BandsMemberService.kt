@@ -5,6 +5,7 @@ import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
 import org.aleks616.shrendar.band.model.BandsMembersDataDto
 import org.aleks616.shrendar.band.model.BandsMembersDataExtendedDto
 import org.aleks616.shrendar.band.model.BandsMembersDto
+import org.aleks616.shrendar.band.model.BandsMembersWikiDto
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.springframework.stereotype.Service
 import kotlin.collections.forEach
@@ -66,6 +67,19 @@ class BandsMemberService(
             }
         }
         return result
+    }
+
+    fun getAllBandMembersWiki(id:Int):List<BandsMembersWikiDto>{ //todo type
+        val dataRaw=getAllBandMembers(id)
+        val data=dataRaw.map {BandsMembersWikiDto(
+            id=it.id,
+            artistId=it.artistId,
+            artistName=it.artistName,
+            bandId=it.bandId,
+            nickname=it.nickname,
+            yearRole=it.yearRole
+        )}
+        return data
     }
 
     fun getCurrentBandMembers(band:Int):List<BandsMembersDto> {
