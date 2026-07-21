@@ -39,14 +39,14 @@ class ArtistControllerTest {
 
     @Test
     fun `getById should return artist for existing id`() {
-        val artists=listOf(createArtist(1,"James Hetfield"))
+        val artists=createArtist(1,"James Hetfield")
         `when`(artistService.getById(1)).thenReturn(artists)
 
         mockMvc.get("/api/artist/id") {
             param("id","1")
         }.andExpect {
             status {isOk()}
-            content {json("[{'id':1,'name':'James Hetfield'}]")}
+            content {json("{'id':1,'name':'James Hetfield'}")}
         }
     }
 
