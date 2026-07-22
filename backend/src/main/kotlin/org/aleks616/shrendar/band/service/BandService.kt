@@ -144,7 +144,7 @@ class BandService(
        return data.averageGenre!!
    }
 
-    fun getSimilarBands(bandId:Int,count:Int=5):List<BandGenreDto> {
+    fun getSimilarBands(bandId:Int,count:Int):List<BandGenreDto> {
         val dataRaw=bandRepository.findBandsWithAvgGenre()
         val avgGenre=getBandsGenre(bandId)
         val similarList:MutableList<Pair<Double,Band>> =arrayListOf()
