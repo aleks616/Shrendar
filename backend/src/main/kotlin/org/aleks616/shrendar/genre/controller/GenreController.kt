@@ -22,9 +22,4 @@ class GenreController(private val genreService:GenreService) {
     fun getBandAlbumGenresList(@PathVariable bandId:Int):List<GenreDto>{
         return genreService.getBandAlbumGenresList(bandId)
     }
-
-    @GetMapping("/similar/{bandId}")
-    fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int):List<Any>{
-        return emptyList() //todo
-    }
 }

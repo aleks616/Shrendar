@@ -102,6 +102,11 @@ class BandController (
         return bandService.getSimilarBands(id)
     }
 
+    @GetMapping("/similar/{bandId}")
+    fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int):List<BandGenreDto>{
+        return bandService.getSimilarBands(bandId,quantity)
+    }
+
     fun statusStringToEnum(statusString:String):Status {
         return when(statusString.lowercase()){
             "active"->Status.active

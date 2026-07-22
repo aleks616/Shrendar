@@ -172,7 +172,7 @@ class BandControllerTest {
         mockMvc.get("/api/band/status/active")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'name':'Metallica','status':'ACTIVE'}]")}
+                content {json("[{'id':1,'name':'Metallica','status':'active'}]")}
             }
 
         mockMvc.get("/api/band/status/Active").andExpect {status {isOk()}}

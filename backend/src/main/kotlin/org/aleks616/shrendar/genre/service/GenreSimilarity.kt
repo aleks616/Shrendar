@@ -2,7 +2,6 @@ package org.aleks616.shrendar.genre.service
 
 import org.springframework.stereotype.Component
 import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.math.round
 
 @Component
