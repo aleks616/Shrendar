@@ -28,13 +28,15 @@ open class Band {
 
     @Column(name="description")
     open var description:String?=null
-
     @Column(name="image_url")
     open var imageUrl:String?=null
+
+    @Column(name="average_genre", columnDefinition="char(7)")
+    open var averageGenre:String?=null
 }
 enum class Status{
-    ACTIVE,
-    DISBANDED,
-    ON_HOLD,
-    UNKNOWN
+    active,
+    disbanded,
+    on_hold,
+    unknown
 }
