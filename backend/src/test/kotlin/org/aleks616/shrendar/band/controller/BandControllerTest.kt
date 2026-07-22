@@ -34,7 +34,7 @@ class BandControllerTest {
     @Test
     fun `getBand should return band by id`() {
         val band=BandDto(id=1,name="Metallica")
-        `when`(bandService.getBandById(1)).thenReturn(band)
+        `when`(bandService.getBandDataById(1)).thenReturn(band)
 
         mockMvc.get("/api/band/id/1")
             .andExpect {
@@ -166,13 +166,13 @@ class BandControllerTest {
 
     @Test
     fun `getBandsByStatus should return bands for valid status`() {
-        val bands=listOf(BandDto(id=1,name="Metallica",status=Status.ACTIVE))
-        `when`(bandService.getBandsByStatus(Status.ACTIVE)).thenReturn(bands)
+        val bands=listOf(BandDto(id=1,name="Metallica",status=Status.active))
+        `when`(bandService.getBandsByStatus(Status.active)).thenReturn(bands)
 
         mockMvc.get("/api/band/status/active")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'name':'Metallica','status':'ACTIVE'}]")}
+                content {json("[{'id':1,'name':'Metallica','status':'active'}]")}
             }
 
         mockMvc.get("/api/band/status/Active").andExpect {status {isOk()}}
@@ -180,7 +180,7 @@ class BandControllerTest {
 
     @Test
     fun `getBandsByStatus should handle various status formats`() {
-        `when`(bandService.getBandsByStatus(Status.ON_HOLD)).thenReturn(emptyList())
+        `when`(bandService.getBandsByStatus(Status.on_hold)).thenReturn(emptyList())
 
         mockMvc.get("/api/band/status/on_hold").andExpect {status {isOk()}}
         mockMvc.get("/api/band/status/on hold").andExpect {status {isOk()}}

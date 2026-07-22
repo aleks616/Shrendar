@@ -2,6 +2,7 @@ package org.aleks616.shrendar.band.controller
 
 import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
 import org.aleks616.shrendar.band.model.BandDto
+import org.aleks616.shrendar.band.model.BandGenreDto
 import org.aleks616.shrendar.band.model.BandWikiDto
 import org.aleks616.shrendar.band.model.BandsMembersDto
 import org.aleks616.shrendar.band.model.BandsMembersWikiDto
@@ -25,7 +26,7 @@ class BandController (
 
     @GetMapping("/id/{id}")
     fun getBand(@PathVariable id:Int):BandDto{
-        return bandService.getBandById(id)
+        return bandService.getBandDataById(id)
     }
 
     //WIKI BAND PAGE 1/4
@@ -95,13 +96,19 @@ class BandController (
         return bandsMemberService.getBandsByArtistId(id)
     }
 
+    //WIKI BAND PAGE 4/4
+    @GetMapping("/similar/{bandId}")
+    fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int?):List<BandGenreDto>{
+        return bandService.getSimilarBands(bandId,quantity?:5)
+    }
+
     fun statusStringToEnum(statusString:String):Status {
         return when(statusString.lowercase()){
-            "active"->Status.ACTIVE
-            "disbanded"->Status.DISBANDED
-            "on_hold"->Status.ON_HOLD
-            "on hold"->Status.ON_HOLD
-            "unknown"->Status.UNKNOWN
+            "active"->Status.active
+            "disbanded"->Status.disbanded
+            "on_hold"->Status.on_hold
+            "on hold"->Status.on_hold
+            "unknown"->Status.unknown
             else->throw IllegalArgumentException("invalid status")
         }
     }

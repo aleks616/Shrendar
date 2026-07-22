@@ -1,19 +1,23 @@
 package org.aleks616.shrendar.band.service
 
-import org.aleks616.shrendar.band.model.Band
-import org.aleks616.shrendar.band.model.BandDto
-import org.aleks616.shrendar.band.model.BandWikiDto
-import org.aleks616.shrendar.band.model.CountryDto
-import org.aleks616.shrendar.band.model.Status
+import jakarta.transaction.Transactional
+import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
+import org.aleks616.shrendar.band.repository.BandsGenreRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
+import org.aleks616.shrendar.genre.repository.GenreRepository
+import org.aleks616.shrendar.genre.service.GenreService
+import org.aleks616.shrendar.genre.service.GenreSimilarity
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class BandService(
     private val bandRepository:BandRepository,
-    private val countryRepository:CountryRepository
+    private val countryRepository:CountryRepository,
+    private val genreService:GenreService,
+    private val bandsGenreRepository:BandsGenreRepository,
+    private val genreRepository:GenreRepository
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -40,9 +44,13 @@ class BandService(
         return getBandData(bands)
     }
 
-    fun getBandById(id:Int):BandDto{
+    fun getBandDataById(id:Int):BandDto{
         val band=bandRepository.findById(id)
         return getBandData(listOf(band.get())).first()
+    }
+
+    fun getBandById(id:Int):Band{
+        return bandRepository.findBandById(id)
     }
 
     fun getBandByIdWiki(id:Int):BandWikiDto {
@@ -56,7 +64,7 @@ class BandService(
             country=getBandsCountry(dataRaw.get().id!!),
             description=dataRaw.get().description,
             imageUrl=dataRaw.get().imageUrl,
-            computedGenre=null //todo later
+            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id!!)
         )
     }
 
@@ -99,5 +107,69 @@ class BandService(
         val bands=bandRepository.findByStatus(status)
         return getBandData(bands)
     }
+
+
+    //todo: CALL WHEN ADDING/MODYFING ALBUM DATA
+    @Transactional
+    fun calculateBandsGenre(bandId:Int) {
+        bandsGenreRepository.deleteByBandsId(bandId)
+        val dataRaw=genreService.getBandAlbumGenresList(bandId)
+        val genresList:MutableList<Pair<String,Int>> = arrayListOf()
+
+        dataRaw.forEach {d->
+            val cgenre=genreRepository.findGenreById(d.id!!).firstOrNull()
+            bandsGenreRepository.save(BandsGenres().apply {
+                bands=getBandById(bandId)
+                genre=cgenre
+                importance=d.value
+            })
+            genresList.add(Pair(cgenre?.properties!!,d.value!!))
+        }
+
+        val band=bandRepository.findBandById(bandId)
+        band.averageGenre=GenreSimilarity.getAverageGenre(genresList)
+        bandRepository.save(band)
+    }
+
+    /*@Scheduled(fixedRate=24*60*60*1000)
+    @Transactional
+    fun temp() {
+        val bands=listOf(21,22,24,27,28,29)
+        bands.forEach {calculateBandsGenre(it)}
+    }*/
+
+
+   fun getBandsGenre(id:Int):String{
+       val data=bandRepository.findBandById(id)
+       return data.averageGenre!!
+   }
+
+    fun getSimilarBands(bandId:Int,count:Int):List<BandGenreDto> {
+        val dataRaw=bandRepository.findBandsWithAvgGenre()
+        val avgGenre=getBandsGenre(bandId)
+        val similarList:MutableList<Pair<Double,Band>> =arrayListOf()
+
+        dataRaw.forEach {d->
+            val similarity=GenreSimilarity.getGenreSimilarity(d.averageGenre!!,avgGenre)
+            similarList.add(Pair(similarity,d))
+        }
+
+        similarList.removeIf {it.second.id==bandId}
+        val mostSimilar=similarList.sortedBy {it.first}.take(count)
+
+        return mostSimilar.map {
+            BandGenreDto().apply {
+                id=it.second.id!!
+                name=it.second.name!!
+                formedYear=it.second.formedYear!!
+                country=CountryDto().apply {
+                    id=it.second.country!!
+                    name=countryRepository.getCountryNameById(it.second.country)
+                }
+                similarity=it.first
+            }
+        }
+    }
+
 
 }

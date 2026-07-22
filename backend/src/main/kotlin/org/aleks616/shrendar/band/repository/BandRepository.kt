@@ -21,4 +21,10 @@ interface BandRepository :JpaRepository<Band,Int>{
     fun findByCountry(country:Int):List<Band>
     fun findByFormedYearBetween(formedYearAfter:Int,formedYearBefore:Int):List<Band>
     fun findByStatus(status:Status):List<Band>
+
+    @Query("SELECT b FROM Band b WHERE b.id=:id")
+    fun findBandById(id:Int):Band
+
+    @Query("SELECT b FROM Band b WHERE b.averageGenre IS NOT NULL")
+    fun findBandsWithAvgGenre():List<Band>
 }

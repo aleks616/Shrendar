@@ -27,6 +27,6 @@ open class BandsGenres{
     @JoinColumn(name="genre_id")
     open var genre:Genre?=null
 
-    @Column(name="importance", columnDefinition="BIT(4)")
+    @Column(name="importance")
     open var importance:Int?=null
 }
