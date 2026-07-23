@@ -19,7 +19,7 @@ object Utils{
     fun getDaysTillNextAnniversary(birthDate:LocalDate):Int {
         val thisYearAnn=LocalDate.of(LocalDate.now().year,birthDate.monthValue,birthDate.dayOfMonth)
         val nextYearAnn=LocalDate.of(LocalDate.now().year+1,birthDate.monthValue,birthDate.dayOfMonth)
-        val nextAnn=if(thisYearAnn.isAfter(LocalDate.now())) thisYearAnn else nextYearAnn
+        val nextAnn=if(!thisYearAnn.isBefore(LocalDate.now())) thisYearAnn else nextYearAnn
         return LocalDate.now().until(nextAnn,ChronoUnit.DAYS).toInt()
     }
 }
