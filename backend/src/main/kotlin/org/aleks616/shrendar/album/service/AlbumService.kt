@@ -27,7 +27,7 @@ class AlbumService(
     private val rankRepository:RankRepository
 ){
     fun doesBandExist(bandId:Int):Boolean{
-        return albumRepository.existsById(bandId)
+        return bandRepository.existsById(bandId)
     }
     //region query
     fun getAll():List<AlbumDataDto>{
@@ -68,24 +68,24 @@ class AlbumService(
         )
     }
 
-    fun getAlbumsByBandId(bandId:Int):List<AlbumDataDto>{
+    fun getAlbumsByBandId(bandId:Int):List<Album>{
         val albums=albumRepository.findByBandId(bandId)
         return albums
     }
 
-    fun getAlbumsByBandName(name:String):List<AlbumDataDto>{
+    fun getAlbumsByBandName(name:String):List<Album>{
         return albumRepository.findByBandNameContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByYear(year:Int):List<AlbumDataDto>{
+    fun getAlbumsByYear(year:Int):List<Album>{
         return albumRepository.findByYear(year)
     }
 
-    fun getAlbumsByName(name:String):List<AlbumDataDto>{
+    fun getAlbumsByName(name:String):List<Album>{
         return albumRepository.findByTitleContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByNameExact(name:String):List<AlbumDataDto>{
+    fun getAlbumsByNameExact(name:String):List<Album>{
         return albumRepository.findByTitleIgnoreCase((name))
     }
 

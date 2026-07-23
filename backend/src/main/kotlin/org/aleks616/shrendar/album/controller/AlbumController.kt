@@ -41,29 +41,29 @@ class AlbumController (
 
     //WIKI BAND PAGE 3/4
     @GetMapping("/band/{bandId}")
-    fun getAlbumsByBandId(@PathVariable bandId:Int):List<AlbumDataDto>{
+    fun getAlbumsByBandId(@PathVariable bandId:Int):List<Album>{
         if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("Band doesn't exist")
         return albumService.getAlbumsByBandId(bandId)
     }
 
     @GetMapping("/band/like/{name}")
-    fun getAlbumsByBandNameLike(@PathVariable name:String):List<AlbumDataDto>{
+    fun getAlbumsByBandNameLike(@PathVariable name:String):List<Album>{
         return albumService.getAlbumsByBandName(name)
     }
 
     @GetMapping("/year/{year}")
-    fun getAlbumsByYear(@PathVariable year:Int):List<AlbumDataDto>{
+    fun getAlbumsByYear(@PathVariable year:Int):List<Album>{
         if(year>LocalDate.now().year || year<1918) throw IllegalArgumentException("Invalid year")
         return albumService.getAlbumsByYear(year)
     }
 
     @GetMapping("/like/{name}")
-    fun getAlbumsByNameLike(@PathVariable name:String):List<AlbumDataDto>{
+    fun getAlbumsByNameLike(@PathVariable name:String):List<Album>{
         return albumService.getAlbumsByName(name)
     }
 
     @GetMapping("/exact/{name}")
-    fun getAlbumsByNameExact(@PathVariable name:String):List<AlbumDataDto>{
+    fun getAlbumsByNameExact(@PathVariable name:String):List<Album>{
         return albumService.getAlbumsByNameExact(name)
     }
 
