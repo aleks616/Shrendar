@@ -4,6 +4,10 @@ import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.user.repository.RankRepository
+import org.aleks616.shrendar.user.service.UserService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -13,7 +17,11 @@ class ArtistServiceTest {
 
     private val artistRepository=mock(ArtistRepository::class.java)
     private val countryRepository=mock(CountryRepository::class.java)
-    private val artistService=ArtistService(artistRepository,countryRepository)
+    private val userService=mock(UserService::class.java)
+    private val rankRepository=mock(RankRepository::class.java)
+    private val contributionService=mock(ContributionService::class.java)
+    private val contributionRepository=mock(ContributionRepository::class.java)
+    private val artistService=ArtistService(artistRepository,countryRepository,userService,rankRepository,contributionService,contributionRepository)
 
     @Test
     fun `getZodiacSign should return correct signs`() {
