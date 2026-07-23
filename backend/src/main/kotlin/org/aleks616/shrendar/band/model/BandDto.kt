@@ -37,3 +37,13 @@ data class BandGenreDto(
     var country:CountryDto?=null,
     var similarity:Double?=null
 )
+
+data class BandAddDto(
+    var name:String?=null,
+    var formedYear:Int?=null,
+    var status:Status?=null,
+    var disbandedYear:Int?=null,
+    var country:Int?=null,
+    var description:String?=null,
+    var imageUrl:String?
+):Serializable

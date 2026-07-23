@@ -1,6 +1,9 @@
 package org.aleks616.shrendar.band.controller
 
+import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
+import org.aleks616.shrendar.band.model.BandAddDto
 import org.aleks616.shrendar.band.model.BandDto
 import org.aleks616.shrendar.band.model.BandGenreDto
 import org.aleks616.shrendar.band.model.BandWikiDto
@@ -9,6 +12,10 @@ import org.aleks616.shrendar.band.model.BandsMembersWikiDto
 import org.aleks616.shrendar.band.model.Status
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
+import org.aleks616.shrendar.security.RateLimiter
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
@@ -17,6 +24,7 @@ import java.time.LocalDate
 class BandController (
     private val bandService:BandService,
     private val bandsMemberService:BandsMemberService,
+    private val rateLimiter:RateLimiter
 ){
 
     @GetMapping("/")
@@ -112,4 +120,42 @@ class BandController (
             else->throw IllegalArgumentException("invalid status")
         }
     }
+
+    @PostMapping("/add")
+    fun addBandRequest(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(!bandService.addBandRequest(band,userLogin))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit")
+
+
+        return ResponseEntity.ok("Band addition request received")
+    }
+
+    @PostMapping("/revertAddition")
+    fun revertBabdAddition(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(!bandService.revertBandAddition(changeId,userLogin))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+
+        return ResponseEntity.ok("Band addition revert successful")
+    }
+
 }
