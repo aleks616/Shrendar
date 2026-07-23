@@ -19,7 +19,7 @@ open class Artist {
     @Column(name="name",nullable=false,length=200)
     open var name:String?=null
 
-    @Column(name="birthdate")
+    @Column(name="birth_date")
     open var birthDate:LocalDate?=null
 
     @Column(name="death_date")
@@ -33,4 +33,7 @@ open class Artist {
 
     @Column(name="country")
     open var country:Int?=null
+
+    @Column(name="artist_image_url")
+    open var artistImageUrl:String?=null
 }

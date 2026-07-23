@@ -4,15 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/last-xp-update-date" beforeDir="false" />
+    <list default="true" id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="fixed quantity parameter not working">
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/artist/service/ArtistServiceTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/service/BandServiceTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/genre/controller/GenreControllerTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/album/controller/AlbumControllerTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/album/controller/AlbumControllerTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/artist/controller/ArtistControllerTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/artist/controller/ArtistControllerTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/org/aleks616/shrendar/band/controller/BandControllerTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageOptionsProvider">
+    <option name="myAddOrReplace" value="1" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="132" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
   </component>
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
@@ -39,35 +55,307 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="com.intellij.jpb.JpaRepository" />
+        <option value="Kotlin Script" />
+        <option value="Spring Service" />
+        <option value="com.intellij.jpb.NewDataClass" />
+        <option value="Kotlin Enum" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="743bc188-379b-4ab0-880e-d147c42521fb" />
+  </component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0000000000001057" />
+      <entry key="S60" value="1.0000017164922637" />
+      <entry key="M2" value="1.0101448873556917" />
+      <entry key="M5" value="3.876630474330138" />
+      <entry key="M10" value="26.308513153246345" />
+      <entry key="M15" value="61.83692477291673" />
+      <entry key="M30" value="188.01299670324482" />
+      <entry key="H1" value="414.71389004629515" />
+      <entry key="H2" value="742.6144375264412" />
+      <entry key="H4" value="1236.6886445633777" />
+      <entry key="D1" value="2809.5144537820593" />
+      <entry key="W1" value="3448.1717706487643" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="2.6053890490625E-211" />
+      <entry key="S5" value="7.743019381920732E-85" />
+      <entry key="S10" value="1.4543949480975958E-42" />
+      <entry key="S30" value="3.422927560840005E-14" />
+      <entry key="S60" value="5.169493261250931E-7" />
+      <entry key="M2" value="0.0023447632047156534" />
+      <entry key="M5" value="0.4901190893736156" />
+      <entry key="M10" value="4.149960112486548" />
+      <entry key="M15" value="10.760819283296254" />
+      <entry key="M30" value="39.93120711296863" />
+      <entry key="H1" value="102.35742108247717" />
+      <entry key="H2" value="197.80731584817784" />
+      <entry key="H4" value="329.00179019509665" />
+      <entry key="D1" value="693.2633453304176" />
+      <entry key="W1" value="831.6874712010854" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.10881882041201549" />
+      <entry key="MS500" value="0.6417129487814521" />
+      <entry key="S2" value="0.8950250709279725" />
+      <entry key="S5" value="0.9566081580918743" />
+      <entry key="S10" value="0.9780634734473393" />
+      <entry key="S30" value="0.9926336952751857" />
+      <entry key="S60" value="0.9963122548162886" />
+      <entry key="M2" value="1.010594281824354" />
+      <entry key="M5" value="4.361569887320934" />
+      <entry key="M10" value="30.44047376834869" />
+      <entry key="M15" value="72.56971052451276" />
+      <entry key="M30" value="227.8988346461594" />
+      <entry key="H1" value="517.0144261691222" />
+      <entry key="H2" value="940.3643966956945" />
+      <entry key="H4" value="1565.6391507979292" />
+      <entry key="D1" value="3502.7578464829303" />
+      <entry key="W1" value="4279.855763185415" />
+    </decayedShown>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3GgzaXZM2SMA8GlSzrP8kTHbHmw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.AlbumControllerTest.executor": "Run",
+    "Gradle.AlbumControllerTest.getAlbum should return all albums.executor": "Run",
+    "Gradle.ArtistControllerTest.executor": "Run",
+    "Gradle.ArtistControllerTest.getAll should return all artists.executor": "Run",
+    "Gradle.ArtistControllerTest.getById should return artist for existing id.executor": "Run",
+    "Gradle.ArtistServiceTest.executor": "Run",
+    "Gradle.BandControllerTest.executor": "Run",
+    "Gradle.BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs.executor": "Coverage",
+    "Gradle.BandServiceTest.executor": "Run",
     "Gradle.Build backend.executor": "Run",
-    "Gradle.Tests in 'shrendar.test'.executor": "Run",
+    "Gradle.GenreControllerTest.executor": "Run",
+    "Gradle.Tests in 'org.aleks616.shrendar'.executor": "Coverage",
+    "Gradle.Tests in 'shrendar.test'.executor": "Coverage",
+    "Gradle.UserAccountFlowIT.deleteOldPasswordHistory should keep only 10 latest passwords and delete the oldest.executor": "Run",
+    "Gradle.UserAccountFlowIT.deleteOldPasswordHistory should keep only last 10 entries.executor": "Run",
+    "Gradle.UserAccountFlowIT.executor": "Run",
+    "Gradle.run all tests.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "HTTP Request.generated-requests | #11.executor": "Run",
+    "HTTP Request.generated-requests | #2.executor": "Run",
+    "HTTP Request.generated-requests | #3.executor": "Run",
+    "HTTP Request.generated-requests | #4 (1).executor": "Run",
+    "HTTP Request.generated-requests | #4 (2).executor": "Run",
+    "HTTP Request.generated-requests | #4.executor": "Run",
+    "HTTP Request.generated-requests | #5 (1).executor": "Run",
+    "HTTP Request.generated-requests | #5.executor": "Run",
+    "HTTP Request.generated-requests | #6 (1).executor": "Run",
+    "HTTP Request.generated-requests | #6 (2).executor": "Run",
+    "HTTP Request.generated-requests | #6 (3).executor": "Run",
+    "HTTP Request.generated-requests | #6 (4).executor": "Run",
+    "HTTP Request.generated-requests | #6 (5).executor": "Run",
+    "HTTP Request.generated-requests | #6.executor": "Run",
+    "HTTP Request.generated-requests | #7.executor": "Run",
+    "HTTP Request.generated-requests | #8.executor": "Run",
+    "HTTP Request.generated-requests | #9.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #1.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #2.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #3.executor": "Run",
+    "HTTP Request.shrendar-endpoints_23 | #4.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #1.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #10.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #2.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #3.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #8.executor": "Run",
+    "HTTP Request.shrendar-endpoints_user_account | #9.executor": "Run",
+    "JUnit.All in shrendar.executor": "Run",
+    "JUnit.All tests.executor": "Coverage",
     "JUnit.run all tests.executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.BackendApplication.executor": "Run",
-    "node.js.selected.package.tslint": "(autodetect)"
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "junie.plugin.stays.banner.dismissed": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "",
+    "nodejs.mocha.mocha_node_package_dir": "",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.completion.inline",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT"
+    ]
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.run all tests">
-    <configuration default="true" type="AppleRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
-      <embedded_app_extension_list />
+  <component name="RecentsManager">
+    <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="org.aleks616.shrendar.album.controller" />
+      <recent name="org.aleks616.shrendar" />
+      <recent name="org.aleks616.shrendar.user.model" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Gradle.Tests in 'shrendar.test'">
+    <configuration default="true" type="Application" factoryName="Application">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="run all tests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="BandControllerTest" type="GradleRunConfiguration" factoryName="Gradle" singleton="false" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.band.controller.BandControllerTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.band.controller.BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="BandControllerTest.getBandsByStatus should return bands for valid status" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.band.controller.BandControllerTest.getBandsByStatus should return bands for valid status&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="Tests in 'org.aleks616.shrendar'" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.*&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="Tests in 'shrendar.test'" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -92,43 +380,94 @@
       <GradleCoverageDisabled>false</GradleCoverageDisabled>
       <method v="2" />
     </configuration>
-    <configuration name="run all tests" type="JUnit" factoryName="JUnit">
-      <module name="shrendar" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="24" />
+    <configuration name="UserAccountFlowIT" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;org.aleks616.shrendar.user.controller.UserAccountFlowIT&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" environment="&lt;No Environment&gt;" path="">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #7" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" environment="&lt;No Environment&gt;" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#7" index="7" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="All tests" type="JUnit" factoryName="JUnit">
+      <module name="shrendar.test" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="package" />
-      <dir value="$PROJECT_DIR$/src/test" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <module name="shrendar.main" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="org.aleks616.shrendar.BackendApplication" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="org.aleks616.shrendar.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <module name="shrendar" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <method v="2">
         <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" IS_LOCATION_SIMULATION_SUPPORTED="false" IS_LOCATION_SIMULATION_ALLOWED="true" LOCATION_SCENARIO_ID="com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier" LOCATION_SCENARIO_TYPE="1" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" DEVELOPMENT_TEAM="" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.run all tests" />
-      <item itemvalue="JUnit.run all tests" />
-      <item itemvalue="Spring Boot.BackendApplication" />
+      <item itemvalue="Gradle.Tests in 'shrendar.test'" />
+      <item itemvalue="Gradle.Tests in 'org.aleks616.shrendar'" />
+      <item itemvalue="Gradle.BandControllerTest" />
+      <item itemvalue="Gradle.BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs" />
+      <item itemvalue="Gradle.UserAccountFlowIT" />
+      <item itemvalue="Gradle.BandControllerTest.getBandsByStatus should return bands for valid status" />
+      <item itemvalue="HTTP Request.generated-requests | #7" />
+      <item itemvalue="JUnit.All tests" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.run all tests" />
-        <item itemvalue="Spring Boot.BackendApplication" />
+        <item itemvalue="Gradle.BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs" />
+        <item itemvalue="Gradle.BandControllerTest" />
+        <item itemvalue="Gradle.UserAccountFlowIT" />
+        <item itemvalue="Gradle.BandControllerTest.getBandsByStatus should return bands for valid status" />
+        <item itemvalue="HTTP Request.generated-requests | #7" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.25134.95" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.25134.95" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="StructureViewState">
+    <option name="selectedTab" value="Logical" />
   </component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
@@ -139,16 +478,202 @@
       <option name="project" value="LOCAL" />
       <updated>1784406754275</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Unit and integration tests for user account controller and service.&#10;100% line and method coverage">
+      <option name="closed" value="true" />
+      <created>1784407088053</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1784407088053</updated>
+    </task>
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bda044f5-e6a0-41d8-9efb-aa3d00df5aea" name="Changes" comment="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
+      <created>1784408065906</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784408065906</updated>
+      <workItem from="1784408066707" duration="5125000" />
+      <workItem from="1784465297029" duration="21151000" />
+      <workItem from="1784546308680" duration="2849000" />
+      <workItem from="1784549757415" duration="24416000" />
+      <workItem from="1784589720015" duration="1992000" />
+      <workItem from="1784591741785" duration="1223000" />
+      <workItem from="1784593295318" duration="491000" />
+      <workItem from="1784632937607" duration="6077000" />
+    </task>
+    <task id="LOCAL-00003" summary="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted">
+      <option name="closed" value="true" />
+      <created>1784418759264</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1784418759264</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added tests, fixed bugs">
+      <option name="closed" value="true" />
+      <created>1784419293670</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1784419293670</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum">
+      <option name="closed" value="true" />
+      <created>1784475084777</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1784475084777</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller">
+      <option name="closed" value="true" />
+      <created>1784553100463</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1784553100463</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller">
+      <option name="closed" value="true" />
+      <created>1784565922015</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1784565922015</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added new endpoints and rewrote old ones for Arist Controller, cleanup unused imports">
+      <option name="closed" value="true" />
+      <created>1784585125084</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1784585125084</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added new endpoints and rewrote old ones for Arist Controller, cleanup unused imports">
+      <option name="closed" value="true" />
+      <created>1784585176294</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1784585176294</updated>
+    </task>
+    <task id="LOCAL-00010" summary="removed old todo">
+      <option name="closed" value="true" />
+      <created>1784585205932</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1784585205932</updated>
+    </task>
+    <task id="LOCAL-00011" summary="added tests">
+      <option name="closed" value="true" />
+      <created>1784586125122</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586125122</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586222621</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586222621</updated>
+    </task>
+    <task id="LOCAL-00013" summary="fixed warnings">
+      <option name="closed" value="true" />
+      <created>1784586268815</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1784586268816</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic">
+      <option name="closed" value="true" />
+      <created>1784593669024</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593669024</updated>
+    </task>
+    <task id="LOCAL-00015" summary="fixed unit test compilation error">
+      <option name="closed" value="true" />
+      <created>1784593764035</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1784593764035</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added wiki endpoint for albums, moved common days to anniversary/birthday logic to Utils">
+      <option name="closed" value="true" />
+      <created>1784638156619</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638156619</updated>
+    </task>
+    <task id="LOCAL-00017" summary="fixed errors, adjusted unit tests">
+      <option name="closed" value="true" />
+      <created>1784638736467</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638736467</updated>
+    </task>
+    <task id="LOCAL-00018" summary="fixed errors, adjusted unit tests">
+      <option name="closed" value="true" />
+      <created>1784638774098</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1784638774098</updated>
+    </task>
+    <task id="LOCAL-00019" summary="fixed quantity parameter not working">
+      <option name="closed" value="true" />
+      <created>1784763809392</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1784763809392</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="idk" />
     <MESSAGE value="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unit and integration tests for user account controller and service.&#10;100% line and method coverage" />
+    <MESSAGE value="added saving password to history table logic, with limit being 10 per user, if there's more, oldest gets deleted" />
+    <MESSAGE value="added tests, fixed bugs" />
+    <MESSAGE value="Added a language parameter with the default value set to English for email sending procedures. Added SupportedLanguages Enum" />
+    <MESSAGE value="Added new endpoints for Album Controller, revised old logic. Added new endpoints for Band Controller WIP.&#10;Todo: band controller member endpoints&#10;unit tests&#10;Artis controller" />
+    <MESSAGE value="Added new endpoints for Band Controller member related logic.&#10;Todo: artist controller" />
+    <MESSAGE value="Added new endpoints and rewrote old ones for Arist Controller, cleanup unused imports" />
+    <MESSAGE value="removed old todo" />
+    <MESSAGE value="added tests" />
+    <MESSAGE value="fixed warnings" />
+    <MESSAGE value="Added new endpoint for artis wiki page, zodiac sign logic, age logic, days till birthday logic" />
+    <MESSAGE value="fixed unit test compilation error" />
+    <MESSAGE value="Added wiki endpoint for albums, moved common days to anniversary/birthday logic to Utils" />
+    <MESSAGE value="fixed errors, adjusted unit tests" />
+    <MESSAGE value="fixed quantity parameter not working" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed quantity parameter not working" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/shrendar$BandControllerTest_getBandsByFoundedBetween_should_throw_exception_for_invalid_inputs.ic" NAME="BandControllerTest.getBandsByFoundedBetween should throw exception for invalid inputs Coverage Results" MODIFIED="1784765141309" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$Tests_in__shrendar_test_.ic" NAME="Tests in 'shrendar.test' Coverage Results" MODIFIED="1784765211831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$PasswordResetCodeGeneratorTest_generateVerificationCodeTest.ic" NAME="PasswordResetCodeGeneratorTest.generateVerificationCodeTest Coverage Results" MODIFIED="1783819469570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$BackendApplication.ic" NAME="BackendApplication Coverage Results" MODIFIED="1784403238362" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$Tests_in__org_aleks616_shrendar_.ic" NAME="Tests in 'org.aleks616.shrendar' Coverage Results" MODIFIED="1784765195681" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$AlbumControllerTest.ic" NAME="AlbumControllerTest Coverage Results" MODIFIED="1784585668866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
+    <SUITE FILE_PATH="coverage/shrendar$All_tests.ic" NAME="All tests Coverage Results" MODIFIED="1784764733781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
     <SUITE FILE_PATH="coverage/shrendar$run_all_tests.ic" NAME="run_all_tests Coverage Results" MODIFIED="1784406254766" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>

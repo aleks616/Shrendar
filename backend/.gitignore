@@ -40,3 +40,4 @@ src/main/resources/secrets.properties
 ### Kotlin ###
 .kotlin
 /.junie/
+/.ai/mcp/mcp.json
