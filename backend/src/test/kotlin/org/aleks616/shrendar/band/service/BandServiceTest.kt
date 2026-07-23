@@ -36,7 +36,7 @@ class BandServiceTest {
         val genreDto=GenreDto(id=genreId,value=100)
 
         `when`(genreService.getBandAlbumGenresList(bandId)).thenReturn(listOf(genreDto))
-        `when`(genreRepository.findGenreById(genreId)).thenReturn(mutableListOf(genre))
+        `when`(genreRepository.findGenreById(genreId)).thenReturn(genre)
         `when`(bandRepository.findBandById(bandId)).thenReturn(band)
 
         bandService.calculateBandsGenre(bandId)

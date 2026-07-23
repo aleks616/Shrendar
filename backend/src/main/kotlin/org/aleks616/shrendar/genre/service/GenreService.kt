@@ -19,7 +19,7 @@ class GenreService(
             GenreDto(
                 id=d.id,
                 name=d.name,
-                value=d.value?.toInt()
+                value=d.value?.toInt()?.toByte()
             )
         }
     }

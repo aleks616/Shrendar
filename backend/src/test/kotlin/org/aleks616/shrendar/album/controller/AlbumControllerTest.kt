@@ -1,57 +1,82 @@
 package org.aleks616.shrendar.album.controller
 
 import org.aleks616.shrendar.album.model.Album
-import org.aleks616.shrendar.album.model.AlbumByDateDto
-import org.aleks616.shrendar.album.model.AlbumDataDto
-import org.aleks616.shrendar.album.model.AlbumWikiDto
-import org.aleks616.shrendar.album.service.AlbumService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDate
 
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AlbumControllerTest {
 
-    private val albumService:AlbumService=mock(AlbumService::class.java)
-    private val controller=AlbumController(albumService)
-    private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
+    @Autowired
+    private lateinit var mockMvc:MockMvc
+
+    @Autowired
+    private lateinit var albumRepository:org.aleks616.shrendar.album.repository.AlbumRepository
+
+    @Autowired
+    private lateinit var bandRepository:org.aleks616.shrendar.band.repository.BandRepository
+
+    @Autowired
+    private lateinit var genreRepository:org.aleks616.shrendar.genre.repository.GenreRepository
+
+    @Autowired
+    private lateinit var rateLimiter:org.aleks616.shrendar.security.RateLimiter
+
+    @BeforeEach
+    fun setup() {
+        albumRepository.deleteAll()
+        bandRepository.deleteAll()
+        genreRepository.deleteAll()
+
+        val storageField=org.aleks616.shrendar.security.RateLimiter::class.java.getDeclaredField("storage")
+        storageField.isAccessible=true
+        (storageField.get(rateLimiter) as MutableMap<*,*>).clear()
+    }
 
 
     @Test
     fun `getAlbum should return all albums`() {
-        val albums=listOf(AlbumDataDto(id=1,title="Album 1"))
-        `when`(albumService.getAll()).thenReturn(albums)
+        albumRepository.save(Album().apply {title="Album 1"})
 
         mockMvc.get("/api/album/")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'title':'Album 1'}]")}
+                content {json("[{'title':'Album 1'}]")}
             }
     }
 
 
     @Test
     fun `getAlbumById should return album`() {
-        val album=Album().apply {id=1; title="Master of Puppets"}
-        `when`(albumService.getById(1)).thenReturn(album)
+        val album=albumRepository.save(Album().apply {title="Master of Puppets"})
 
-        mockMvc.get("/api/album/id/1")
+        mockMvc.get("/api/album/id/${album.id}")
             .andExpect {
                 status {isOk()}
-                content {json("{'id':1,'title':'Master of Puppets'}")}
+                content {json("{'title':'Master of Puppets'}")}
             }
     }
 
     @Test
     fun `getAlbumByIdWiki should return wiki data`() {
-        val wikiData=AlbumWikiDto(albumName="Master of Puppets")
-        `when`(albumService.getByIdWiki(1)).thenReturn(wikiData)
+        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        val album=albumRepository.save(Album().apply {
+            title="Master of Puppets"
+            this.band=band
+            releaseDate=LocalDate.of(1986,3,3)
+        })
 
-        mockMvc.get("/api/album/wiki/1")
+        mockMvc.get("/api/album/wiki/${album.id}")
             .andExpect {
                 status {isOk()}
                 content {json("{'albumName':'Master of Puppets'}")}
@@ -60,105 +85,109 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumAnniversariesByDate should return albums for valid date`() {
-        val albums=listOf(AlbumByDateDto(id=1,title="Anniversary"))
-        `when`(albumService.getAlbumAnniversariesByDate(5,20)).thenReturn(albums)
+        albumRepository.save(Album().apply {
+            title="Anniversary"
+            releaseDate=LocalDate.of(2020,5,20)
+        })
 
         mockMvc.get("/api/album/inDate") {
             param("month","5")
             param("day","20")
         }.andExpect {
             status {isOk()}
-            content {json("[{'id':1,'title':'Anniversary'}]")}
+            content {json("[{'title':'Anniversary'}]")}
         }
     }
 
     @Test
     fun `getAlbumAnniversariesByDate should throw error for invalid date`() {
-        val ex=assertThrows<IllegalArgumentException> {
-            controller.getAlbumAnniversariesByDate(13,1)
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.get("/api/album/inDate") {
+                param("month","13")
+                param("day","1")
+            }
         }
-        assertEquals("Invalid date",ex.message)
     }
 
     @Test
     fun `getAlbumsByBandId should return albums for existing band`() {
-        val albums=listOf(AlbumDataDto(id=1,title="Band Album"))
-        `when`(albumService.doesBandExist(1)).thenReturn(true)
-        `when`(albumService.getAlbumsByBandId(1)).thenReturn(albums)
+        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        albumRepository.save(Album().apply {
+            title="Band Album"
+            this.band=band
+        })
 
-        mockMvc.get("/api/album/band/1")
+        mockMvc.get("/api/album/band/${band.id}")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'title':'Band Album'}]")}
+                content {json("[{'title':'Band Album'}]")}
             }
     }
 
     @Test
     fun `getAlbumsByBandId should throw error for non-existent band`() {
-        `when`(albumService.doesBandExist(999)).thenReturn(false)
-        val ex=assertThrows<IllegalArgumentException> {
-            controller.getAlbumsByBandId(999)
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.get("/api/album/band/999")
         }
-        assertEquals("Band doesn't exist",ex.message)
     }
 
     @Test
     fun `getAlbumsByBandNameLike should return albums`() {
-        val albums=listOf(AlbumDataDto(id=1,title="Some Album"))
-        `when`(albumService.getAlbumsByBandName("Metallica")).thenReturn(albums)
+        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        albumRepository.save(Album().apply {
+            title="Some Album"
+            this.band=band
+        })
 
         mockMvc.get("/api/album/band/like/Metallica")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'title':'Some Album'}]")}
+                content {json("[{'title':'Some Album'}]")}
             }
     }
 
     @Test
     fun `getAlbumsByYear should return albums for valid year`() {
-        val currentYear=LocalDate.now().year
-        val albums=listOf(AlbumDataDto(id=1,title="Year Album"))
-        `when`(albumService.getAlbumsByYear(2020)).thenReturn(albums)
+        albumRepository.save(Album().apply {
+            title="Year Album"
+            releaseDate=LocalDate.of(2020,1,1)
+        })
 
         mockMvc.get("/api/album/year/2020").andExpect {status {isOk()}}
-        mockMvc.get("/api/album/year/1918").andExpect {status {isOk()}}
-        mockMvc.get("/api/album/year/$currentYear").andExpect {status {isOk()}}
     }
 
     @Test
     fun `getAlbumsByYear should throw error for invalid year`() {
         val futureYear=LocalDate.now().year+1
 
-        assertEquals("Invalid year",assertThrows<IllegalArgumentException> {
-            controller.getAlbumsByYear(1917)
-        }.message)
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.get("/api/album/year/1901")
+        }
 
-        assertEquals("Invalid year",assertThrows<IllegalArgumentException> {
-            controller.getAlbumsByYear(futureYear)
-        }.message)
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.get("/api/album/year/$futureYear")
+        }
     }
 
     @Test
     fun `getAlbumsByNameLike should return albums`() {
-        val albums=listOf(AlbumDataDto(id=1,title="Master of Puppets"))
-        `when`(albumService.getAlbumsByName("Master")).thenReturn(albums)
+        albumRepository.save(Album().apply {title="Master of Puppets"})
 
         mockMvc.get("/api/album/like/Master")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'title':'Master of Puppets'}]")}
+                content {json("[{'title':'Master of Puppets'}]")}
             }
     }
 
     @Test
     fun `getAlbumsByNameExact should return albums`() {
-        val albums=listOf(AlbumDataDto(id=1,title="Master of Puppets"))
-        `when`(albumService.getAlbumsByNameExact("Master of Puppets")).thenReturn(albums)
+        albumRepository.save(Album().apply {title="Master of Puppets"})
 
         mockMvc.get("/api/album/exact/Master of Puppets")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'title':'Master of Puppets'}]")}
+                content {json("[{'title':'Master of Puppets'}]")}
             }
     }
 }

@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name="album",schema="Shrendar")
-open class Album() {
+open class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)
@@ -28,7 +28,7 @@ open class Album() {
     open var type:AlbumType?=null
 
     @Column(name="importance", columnDefinition="TINYINT")
-    open var importance:Int?=null
+    open var importance:Byte?=null
 
     @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="genre_id")

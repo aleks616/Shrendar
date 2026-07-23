@@ -22,7 +22,10 @@ class SecurityConfig {
         http.authorizeHttpRequests {
             it.requestMatchers(
                 "/api/logout",
-                "/api/users"
+                "/api/users",
+                "/api/album/add",
+                "/api/album/confirmAddition",
+                "/api/album/revertAddition"
             ).authenticated()
             it.anyRequest().permitAll()
         }

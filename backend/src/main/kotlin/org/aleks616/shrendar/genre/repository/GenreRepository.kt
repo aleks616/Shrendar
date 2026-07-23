@@ -18,5 +18,5 @@ interface GenreRepository:JpaRepository<Genre,Int>{
     """,nativeQuery=true)
     fun findBandAlbumGenresList(id:Int):MutableList<GenreDto1>
 
-    fun findGenreById(id:Int):MutableList<Genre>
+    fun findGenreById(id:Int):Genre
 }
