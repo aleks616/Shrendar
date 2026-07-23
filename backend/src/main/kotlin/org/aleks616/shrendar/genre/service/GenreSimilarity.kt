@@ -16,7 +16,7 @@ object GenreSimilarity{
         return "%.2f".format(value).toDouble()
     }
 
-    fun getAverageGenre(genres:List<Pair<String,Int>>):String{
+    fun getAverageGenre(genres:List<Pair<String,Byte>>):String{
         var result=""
         for(i in 0..6){
             var sum=0.0

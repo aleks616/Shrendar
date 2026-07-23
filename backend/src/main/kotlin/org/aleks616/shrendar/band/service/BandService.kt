@@ -114,10 +114,10 @@ class BandService(
     fun calculateBandsGenre(bandId:Int) {
         bandsGenreRepository.deleteByBandsId(bandId)
         val dataRaw=genreService.getBandAlbumGenresList(bandId)
-        val genresList:MutableList<Pair<String,Int>> = arrayListOf()
+        val genresList:MutableList<Pair<String,Byte>> = arrayListOf()
 
         dataRaw.forEach {d->
-            val cgenre=genreRepository.findGenreById(d.id!!).firstOrNull()
+            val cgenre=genreRepository.findGenreById(d.id!!)
             bandsGenreRepository.save(BandsGenres().apply {
                 bands=getBandById(bandId)
                 genre=cgenre

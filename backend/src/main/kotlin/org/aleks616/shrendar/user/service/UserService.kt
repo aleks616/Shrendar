@@ -32,11 +32,20 @@ class UserService(
     private val emailService:EmailService,
     private val encoder:BCryptPasswordEncoder
 ) {
+
+    fun getUserByLogin(login:String):User? {
+        return userRepository.findByLogin(login)
+    }
+
     fun matches(raw:String,encrypted:String):Boolean {
         return encoder.matches(raw,encrypted)
     }
 
     fun getUsers():List<User> =userRepository.findAll()
+
+    fun getUserById(id:Int):User?{
+        return userRepository.findUserById(id)
+    }
 
     fun doesAccountExist(accountKey:String):Boolean {
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}

@@ -13,7 +13,7 @@ data class AlbumByDateDto(
     val title:String?=null,
     val releaseDate:LocalDate?=null,
     val type:AlbumType?=null,
-    val importance:Int?=null,
+    val importance:Byte?=null,
     val yearsSince:Int?=null,
     val genre:Genre?=null,
     val artworkUrl:String?=null,
@@ -36,7 +36,7 @@ data class AlbumWikiDto(
     val genre:Genre?=null,
     val description:String?=null,
     val artworkUrl:String?=null,
-    val importance:Int?=null,
+    val importance:Byte?=null,
 )
 
 data class AlbumDataDto(
@@ -45,7 +45,18 @@ data class AlbumDataDto(
     val title:String?=null,
     val releaseDate:LocalDate?=null,
     val type:AlbumType?=null,
-    val importance:Int?=null,
+    val importance:Byte?=null,
     val genre:Genre?=null,
     val artworkUrl:String?=null,
+)
+
+data class AlbumAddDto(
+    val bandId:Int?=null,
+    val title:String?=null,
+    val releaseDate:LocalDate?=null,
+    val type:AlbumType?=null,
+    val description:String?=null,
+    val mainSubgenre:Int?=null,
+    val importance:Byte?=null,
+    val artworkUrl:String?=null
 )

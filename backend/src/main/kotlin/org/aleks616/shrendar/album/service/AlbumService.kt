@@ -1,19 +1,35 @@
 package org.aleks616.shrendar.album.service
 
+import jakarta.transaction.Transactional
 import org.aleks616.shrendar.album.model.*
 import org.aleks616.shrendar.album.repository.AlbumRepository
+import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.contribution.model.Action
+import org.aleks616.shrendar.contribution.model.Contribution
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.genre.repository.GenreRepository
+import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.repository.RankRepository
+import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
-class AlbumService(private val albumRepository:AlbumRepository){
+class AlbumService(
+    private val albumRepository:AlbumRepository,
+    private val contributionRepository:ContributionRepository,
+    private val userService:UserService,
+    private val bandRepository:BandRepository,
+    private val genreRepository:GenreRepository,
+    private val rankRepository:RankRepository
+){
     fun doesBandExist(bandId:Int):Boolean{
         return albumRepository.existsById(bandId)
     }
-    //endregion
-
+    //region query
     fun getAll():List<AlbumDataDto>{
         return albumRepository.findAll().map { AlbumDataDto(
             id=it.id,
@@ -92,4 +108,97 @@ class AlbumService(private val albumRepository:AlbumRepository){
         }
 
     }
+    //endregion
+
+
+
+    fun getContributionCountByUser(userId:Int):Int{
+        return contributionRepository.getContributionCountByUser(userId)
+    }
+
+    //todo xp
+    @Transactional
+    fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean{
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val changes:List<Pair<String,String?>> =listOf(
+            Pair("bandId",albumAddDto.bandId.toString()),
+            Pair("title",albumAddDto.title),
+            Pair("releaseDate",albumAddDto.releaseDate.toString()),
+            Pair("type",albumAddDto.type.toString()),
+            Pair("description",albumAddDto.description),
+            Pair("mainSubgenre",albumAddDto.mainSubgenre.toString()),
+            Pair("importance",albumAddDto.importance.toString()),
+            Pair("artworkUrl",albumAddDto.artworkUrl),
+        )
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        albumRepository.save(Album().apply {
+            band=bandRepository.findById(albumAddDto.bandId!!).get()
+            title=albumAddDto.title
+            releaseDate=albumAddDto.releaseDate
+            type=albumAddDto.type
+            importance=albumAddDto.importance
+            genre=genreRepository.findGenreById(albumAddDto.mainSubgenre!!)
+            artworkUrl=albumAddDto.artworkUrl
+            description=albumAddDto.description
+        })
+
+        val lastChangeId=contributionRepository.findTopChangeId()
+        changes.forEach {
+          if(it.second!=null){
+              contributionRepository.save(Contribution().apply {
+                  changeId=lastChangeId+1
+                  user=requestingUser
+                  action=Action.create
+                  changedTable="album"
+                  changedColumn=it.first
+                  changedRecordId=null
+                  oldValue=null
+                  newValue=it.second
+                  changedAt=time
+                  confirmed=trusted
+                  confirmedBy=confirmedByUser
+              })
+          }
+        }
+        //todo notify mods or something
+        return true
+    }
+
+
+    @Transactional
+    fun confirmAlbumAddRequest(changeId:Int,confirmedUserLogin:String):Boolean{
+        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        if(confirmingUser.rank!!.id!!<10) return false
+        val contributions=contributionRepository.getByChangeId(changeId)
+        contributions.forEach {
+            it.confirmed=true
+            it.confirmedBy=confirmingUser.id
+            contributionRepository.save(it)
+        }
+
+        return true
+    }
+
+    
+    @Transactional
+    fun revertAlbumRequest(){
+        //todo: revert to previous values
+    }
+
+
+
+
+
 }

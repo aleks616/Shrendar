@@ -2,14 +2,18 @@ package org.aleks616.shrendar.contribution.model
 
 import jakarta.persistence.*
 import org.aleks616.shrendar.user.model.User
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name="contribution",schema="Shrendar")
 open class Contribution {
     @Id
-    @Column(name="contribution_id",nullable=false)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id",nullable=false)
     open var id:Int?=null
+
+    @Column(name="change_id")
+    open var changeId:Int?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
@@ -35,7 +39,13 @@ open class Contribution {
     open var newValue:String?=null
 
     @Column(name="changed_at")
-    open var changedAt:Instant?=null
+    open var changedAt:LocalDateTime?=null
+
+    @Column(name="confirmed")
+    open var confirmed:Boolean?=null
+
+    @Column(name="confirmed_by")
+    open var confirmedBy:Int?=null
 }
 
 

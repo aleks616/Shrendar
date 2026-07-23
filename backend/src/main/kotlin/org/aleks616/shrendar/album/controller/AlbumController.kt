@@ -1,11 +1,13 @@
 package org.aleks616.shrendar.album.controller
 
-import org.aleks616.shrendar.album.model.Album
-import org.aleks616.shrendar.album.model.AlbumByDateDto
-import org.aleks616.shrendar.album.model.AlbumDataDto
-import org.aleks616.shrendar.album.model.AlbumWikiDto
+import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.album.model.*
 import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.security.RateLimiter
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
@@ -13,6 +15,7 @@ import java.time.LocalDate
 @RequestMapping("/api/album")
 class AlbumController (
     private val albumService:AlbumService,
+    private val rateLimiter:RateLimiter
 ){
     @GetMapping("/")
     fun getAll():List<AlbumDataDto>{
@@ -62,6 +65,53 @@ class AlbumController (
     @GetMapping("/exact/{name}")
     fun getAlbumsByNameExact(@PathVariable name:String):List<AlbumDataDto>{
         return albumService.getAlbumsByNameExact(name)
+    }
+
+    @PostMapping("/add")
+    fun addAlbum(@RequestBody album:AlbumAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
+        val user=SecurityContextHolder.getContext().authentication?:
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        val header=servletRequest.getHeader("Authorization")
+        if(header!=null&&header.startsWith("Bearer ")) {
+            val token=header.substringAfter("Bearer ").trim()
+        }
+
+        if(!albumService.addAlbumRequest(album,userLogin))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit")
+
+
+        return ResponseEntity.ok("Album addition request received")
+    }
+
+    @PostMapping("/confirmAddition")
+    fun confirmAlbumAddRequest(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        val header=servletRequest.getHeader("Authorization")
+        if(header!=null&&header.startsWith("Bearer ")) {
+            val token=header.substringAfter("Bearer ").trim()
+        }
+
+        if(!albumService.confirmAlbumAddRequest(changeId,userLogin))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+
+        return ResponseEntity.ok("Album addition confirmation successful")
     }
 
 }
