@@ -57,4 +57,7 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
     """,nativeQuery=true)
     fun findArtistByDeathDateBetween(startMonth:Int,startDay:Int,endMonth:Int,endDay:Int):List<Artist>
     fun findArtistByCountry(country:Int):MutableList<Artist>
+
+    @Query("SELECT a.id FROM Artist a WHERE a.name=:name ORDER BY a.id DESC LIMIT 1")
+    fun findTopIdByName(name:String):Int
 }
