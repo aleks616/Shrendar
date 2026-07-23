@@ -8,6 +8,7 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
@@ -24,7 +25,8 @@ class AlbumService(
     private val userService:UserService,
     private val bandRepository:BandRepository,
     private val genreRepository:GenreRepository,
-    private val rankRepository:RankRepository
+    private val rankRepository:RankRepository,
+    private val contributionService:ContributionService,
 ){
     fun doesBandExist(bandId:Int):Boolean{
         return bandRepository.existsById(bandId)
@@ -111,17 +113,11 @@ class AlbumService(
     //endregion
 
 
-
-    fun getContributionCountByUser(userId:Int):Int{
-        return contributionRepository.getContributionCountByUser(userId)
-    }
-
-    //todo xp
     @Transactional
     fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=getContributionCountByUser(requestingUser.id!!)
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
         if(recentContributionCount>=rankLimit) return false
 
         val changes:List<Pair<String,String?>> =listOf(
@@ -175,22 +171,6 @@ class AlbumService(
         //todo notify mods or something
         return true
     }
-
-
-    @Transactional
-    fun confirmAlbumAddRequest(changeId:Int,confirmedUserLogin:String):Boolean{
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        if(confirmingUser.rank!!.id!!<10) return false
-        val contributions=contributionRepository.getByChangeId(changeId)
-        contributions.forEach {
-            it.confirmed=true
-            it.confirmedBy=confirmingUser.id
-            contributionRepository.save(it)
-        }
-
-        return true
-    }
-
 
     @Transactional
     fun revertAlbumAddition(changeId:Int,confirmedUserLogin:String):Boolean {
