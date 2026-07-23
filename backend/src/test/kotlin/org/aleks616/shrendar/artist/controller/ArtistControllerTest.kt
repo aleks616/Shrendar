@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.artist.controller
 
 import org.aleks616.shrendar.artist.model.Artist
+import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -56,6 +57,18 @@ class ArtistControllerTest {
             controller.getById(999)
         }
         assertEquals("artist with id doesn't exist",ex.message)
+    }
+
+    @Test
+    fun `getByIdWiki should return wiki data`() {
+        val wikiData = ArtistWikiDto(id = 1, name = "James Hetfield")
+        `when`(artistService.getByIdWiki(1)).thenReturn(wikiData)
+
+        mockMvc.get("/api/artist/wiki/1")
+            .andExpect {
+                status { isOk() }
+                content { json("{'id':1,'name':'James Hetfield'}") }
+            }
     }
 
     @Test
