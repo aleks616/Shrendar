@@ -191,14 +191,24 @@ class AlbumService(
         return true
     }
 
-    
+
     @Transactional
-    fun revertAlbumRequest(){
-        //todo: revert to previous values
+    fun revertAlbumAddition(changeId:Int,confirmedUserLogin:String):Boolean {
+        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        val rank=confirmingUser.rank!!.id!!
+        if(rank<10) return false
+        val contributions=contributionRepository.getByChangeId(changeId)
+        if(contributions.find { it.confirmed==true }!=null && rank<12) return false
+
+        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
+        val title=contributions.find {it.changedColumn=="title"}?.newValue
+
+        if(bandId!=null&&title!=null) {
+            val album=albumRepository.findByBandId(bandId).find {it.title==title}
+            if(album!=null) albumRepository.delete(album)
+        }
+        else return false
+
+        return true
     }
-
-
-
-
-
 }
