@@ -5,11 +5,19 @@ import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsGenreRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
+import org.aleks616.shrendar.contribution.model.Action
+import org.aleks616.shrendar.contribution.model.Contribution
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.genre.service.GenreSimilarity
+import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.repository.RankRepository
+import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class BandService(
@@ -17,7 +25,11 @@ class BandService(
     private val countryRepository:CountryRepository,
     private val genreService:GenreService,
     private val bandsGenreRepository:BandsGenreRepository,
-    private val genreRepository:GenreRepository
+    private val genreRepository:GenreRepository,
+    private val contributionService:ContributionService,
+    private val userService:UserService,
+    private val rankRepository:RankRepository,
+    private val contributionRepository:ContributionRepository
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -38,7 +50,7 @@ class BandService(
         }
     }
     //endregion
-
+    //region query
     fun getAll():List<BandDto>{
         val bands=bandRepository.findAll()
         return getBandData(bands)
@@ -123,7 +135,7 @@ class BandService(
                 genre=cgenre
                 importance=d.value
             })
-            genresList.add(Pair(cgenre?.properties!!,d.value!!))
+            genresList.add(Pair(cgenre.properties!!,d.value!!))
         }
 
         val band=bandRepository.findBandById(bandId)
@@ -170,6 +182,87 @@ class BandService(
             }
         }
     }
+    //endregion
 
+    @Transactional
+    fun addBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        bandRepository.save(Band().apply {
+            name=bandAddDto.name
+            formedYear=bandAddDto.formedYear
+            status=bandAddDto.status
+            disbandedYear=bandAddDto.disbandedYear
+            country=bandAddDto.country
+            description=bandAddDto.description
+            imageUrl=bandAddDto.imageUrl
+        })
+
+        val bandId=bandRepository.findTopIdByName(bandAddDto.name!!)
+
+        val lastChangeId=contributionRepository.findTopChangeId()
+
+        val changes:List<Pair<String,String?>> =listOf(
+            Pair("bandId",bandId.toString()),
+            Pair("name",bandAddDto.name),
+            Pair("formedYear",bandAddDto.formedYear.toString()),
+            Pair("status",bandAddDto.status.toString()),
+            Pair("disbandedYear",bandAddDto.disbandedYear.toString()),
+            Pair("country",bandAddDto.country.toString()),
+            Pair("description",bandAddDto.description.toString()),
+            Pair("imageUrl",bandAddDto.imageUrl.toString()),
+        )
+
+        changes.forEach {
+            if(it.second!=null){
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.create
+                    changedTable="band"
+                    changedColumn=it.first
+                    changedRecordId=null
+                    oldValue=null
+                    newValue=it.second
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
+        }
+
+        return true
+    }
+
+    @Transactional
+    fun revertBandAddition(changeId:Int,confirmedUserLogin:String):Boolean {
+        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        val rank=confirmingUser.rank!!.id!!
+        if(rank<10) return false
+        val contributions=contributionRepository.getByChangeId(changeId)
+        if(contributions.find { it.confirmed==true }!=null && rank<12) return false
+
+        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
+        val name=contributions.find {it.changedColumn=="name"}?.newValue
+
+        if(bandId!=null&&name!=null) {
+            val band:Band=bandRepository.findBandById(bandId)
+            bandRepository.delete(band)
+        }
+        else return false
+
+        return true
+    }
 
 }

@@ -27,4 +27,7 @@ interface BandRepository :JpaRepository<Band,Int>{
 
     @Query("SELECT b FROM Band b WHERE b.averageGenre IS NOT NULL")
     fun findBandsWithAvgGenre():List<Band>
+
+    @Query("SELECT b.id FROM Band b WHERE b.name=:name")
+    fun findTopIdByName(name:String):Int?
 }
