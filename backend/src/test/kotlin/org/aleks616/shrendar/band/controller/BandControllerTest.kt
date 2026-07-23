@@ -44,6 +44,30 @@ class BandControllerTest {
     }
 
     @Test
+    fun `getBandByIdWiki should return wiki data`() {
+        val wikiData=BandWikiDto(name="Metallica")
+        `when`(bandService.getBandByIdWiki(1)).thenReturn(wikiData)
+
+        mockMvc.get("/api/band/wiki/1")
+            .andExpect {
+                status {isOk()}
+                content {json("{'name':'Metallica'}")}
+            }
+    }
+
+    @Test
+    fun `getAllBandMembersWiki should return wiki members`() {
+        val members=listOf(BandsMembersWikiDto(id=1,artistName="James Hetfield"))
+        `when`(bandsMemberService.getAllBandMembersWiki(1)).thenReturn(members)
+
+        mockMvc.get("/api/band/wiki/1/members")
+            .andExpect {
+                status {isOk()}
+                content {json("[{'id':1,'artistName':'James Hetfield'}]")}
+            }
+    }
+
+    @Test
     fun `getAllMembersOfBand should return all members`() {
         val members=listOf(BandsMembersDto(id=1,artistName="James Hetfield"))
         `when`(bandsMemberService.getAllBandMembers(1)).thenReturn(members)
@@ -168,6 +192,8 @@ class BandControllerTest {
     fun `getBandsByStatus should return bands for valid status`() {
         val bands=listOf(BandDto(id=1,name="Metallica",status=Status.active))
         `when`(bandService.getBandsByStatus(Status.active)).thenReturn(bands)
+        `when`(bandService.getBandsByStatus(Status.disbanded)).thenReturn(listOf(BandDto(id=2,name="Slayer",status=Status.disbanded)))
+        `when`(bandService.getBandsByStatus(Status.unknown)).thenReturn(emptyList())
 
         mockMvc.get("/api/band/status/active")
             .andExpect {
@@ -176,6 +202,18 @@ class BandControllerTest {
             }
 
         mockMvc.get("/api/band/status/Active").andExpect {status {isOk()}}
+
+        mockMvc.get("/api/band/status/disbanded")
+            .andExpect {
+                status {isOk()}
+                content {json("[{'id':2,'name':'Slayer','status':'disbanded'}]")}
+            }
+
+        mockMvc.get("/api/band/status/unknown")
+            .andExpect {
+                status {isOk()}
+                content {json("[]")}
+            }
     }
 
     @Test
@@ -203,5 +241,30 @@ class BandControllerTest {
                 status {isOk()}
                 content {json("[{'id':1,'artistName':'James Hetfield','bandName':'Metallica'}]")}
             }
+    }
+
+    @Test
+    fun `getSimilarBands should return similar bands`() {
+        val similar=listOf(BandGenreDto(id=2,name="Megadeth",similarity=0.9))
+        `when`(bandService.getSimilarBands(1,5)).thenReturn(similar)
+
+        mockMvc.get("/api/band/similar/1")
+            .andExpect {
+                status {isOk()}
+                content {json("[{'id':2,'name':'Megadeth','similarity':0.9}]")}
+            }
+    }
+
+    @Test
+    fun `getSimilarBands should use default quantity when not provided`() {
+        val similar=listOf(BandGenreDto(id=2,name="Megadeth",similarity=0.9))
+        `when`(bandService.getSimilarBands(1,5)).thenReturn(similar)
+
+        mockMvc.get("/api/band/similar/1")
+            .andExpect {
+                status {isOk()}
+            }
+
+        verify(bandService).getSimilarBands(1,5)
     }
 }

@@ -1,7 +1,9 @@
 package org.aleks616.shrendar.album.controller
 
+import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumByDateDto
 import org.aleks616.shrendar.album.model.AlbumDataDto
+import org.aleks616.shrendar.album.model.AlbumWikiDto
 import org.aleks616.shrendar.album.service.AlbumService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
@@ -31,6 +33,30 @@ class AlbumControllerTest {
             }
     }
 
+
+    @Test
+    fun `getAlbumById should return album`() {
+        val album=Album().apply {id=1; title="Master of Puppets"}
+        `when`(albumService.getById(1)).thenReturn(album)
+
+        mockMvc.get("/api/album/id/1")
+            .andExpect {
+                status {isOk()}
+                content {json("{'id':1,'title':'Master of Puppets'}")}
+            }
+    }
+
+    @Test
+    fun `getAlbumByIdWiki should return wiki data`() {
+        val wikiData=AlbumWikiDto(albumName="Master of Puppets")
+        `when`(albumService.getByIdWiki(1)).thenReturn(wikiData)
+
+        mockMvc.get("/api/album/wiki/1")
+            .andExpect {
+                status {isOk()}
+                content {json("{'albumName':'Master of Puppets'}")}
+            }
+    }
 
     @Test
     fun `getAlbumAnniversariesByDate should return albums for valid date`() {
