@@ -17,6 +17,7 @@ interface ContributionRepository :JpaRepository<Contribution,Int> {
         FROM Contribution c
         WHERE c.user.id=:user
         AND (CURRENT_TIMESTAMP-c.changedAt)<7*24*60*60
+        AND c.changedTable!='bands_members'
     """)
     fun getContributionCountByUser(user:Int):Int
     fun getByChangeId(changeId:Int):List<Contribution>

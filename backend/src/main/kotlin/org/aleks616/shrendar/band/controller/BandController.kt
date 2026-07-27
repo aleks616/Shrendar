@@ -1,15 +1,7 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.aleks616.shrendar.artist.model.ArtistAddDto
-import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
-import org.aleks616.shrendar.band.model.BandAddDto
-import org.aleks616.shrendar.band.model.BandDto
-import org.aleks616.shrendar.band.model.BandGenreDto
-import org.aleks616.shrendar.band.model.BandWikiDto
-import org.aleks616.shrendar.band.model.BandsMembersDto
-import org.aleks616.shrendar.band.model.BandsMembersWikiDto
-import org.aleks616.shrendar.band.model.Status
+import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.security.RateLimiter
@@ -123,8 +115,7 @@ class BandController (
 
     @PostMapping("/add")
     fun addBandRequest(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
-        val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
@@ -141,7 +132,7 @@ class BandController (
     }
 
     @PostMapping("/revertAddition")
-    fun revertBabdAddition(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun revertBandAddition(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -157,5 +148,43 @@ class BandController (
 
         return ResponseEntity.ok("Band addition revert successful")
     }
+
+    @PostMapping("/member-add")
+    fun addBandMembersRequest(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",20,120))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",20,120))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(!bandService.addBandMemberRequest(member,userLogin))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit")
+
+
+        return ResponseEntity.ok("Band member addition request received")
+    }
+
+
+    @PostMapping("/member-revertAddition")
+    fun revertBandMemberAddition(@RequestParam changeId:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(!bandService.revertBandMemberAddition(changeId,userLogin))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+
+        return ResponseEntity.ok("Member addition revert successful")
+    }
+
 
 }

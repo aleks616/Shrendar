@@ -40,3 +40,13 @@ data class ArtistBandsHistoryDto(
     val nickname:String?=null,
     val yearRole:MutableList<String>?=null
 ):Serializable
+
+
+data class ArtistBandAddDto(
+    var bandId:Int?=null,
+    var artistId:Int?=null,
+    var nickname:String?=null,
+    var role:String?=null,
+    var joinedYear:Int?=null,
+    var leftYear:Int?=null
+):Serializable
