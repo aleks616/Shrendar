@@ -42,7 +42,9 @@ class BandsMemberService(
         data.forEach {d->
             found=false
             val left:String=if(d.leftYear==null) "" else d.leftYear.toString()
-            val yearRole:String=if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})") else d.joinedYear.toString()
+            val yearRole:String=
+                if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})")
+                else ("${d.role} (${d.joinedYear})")
 
             result.forEach {r->
                 if(r.artistId==d.artistId) {
