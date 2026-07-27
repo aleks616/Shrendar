@@ -1,9 +1,11 @@
 package org.aleks616.shrendar.band.service
 
 import jakarta.transaction.Transactional
+import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsGenreRepository
+import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
@@ -29,7 +31,9 @@ class BandService(
     private val contributionService:ContributionService,
     private val userService:UserService,
     private val rankRepository:RankRepository,
-    private val contributionRepository:ContributionRepository
+    private val contributionRepository:ContributionRepository,
+    private val bandsMemberRepository:BandsMemberRepository,
+    private val artistService:ArtistService
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -246,12 +250,67 @@ class BandService(
     }
 
     @Transactional
+    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>8) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        bandsMemberRepository.save(BandsMembers().apply {
+            artist=artistService.getById(artistBandAddDto.artistId!!)
+            band=getBandById(artistBandAddDto.bandId!!)
+            role=artistBandAddDto.role
+            joinedYear=artistBandAddDto.joinedYear
+            leftYear=artistBandAddDto.leftYear
+            nickname=artistBandAddDto.nickname
+        })
+
+        val lastChangeId=contributionRepository.findTopChangeId()
+
+        val changes:List<Pair<String,String?>> =listOf(
+            Pair("bandId",artistBandAddDto.bandId.toString()),
+            Pair("artistId",artistBandAddDto.artistId.toString()),
+            Pair("role",artistBandAddDto.role),
+            Pair("joinedYear",artistBandAddDto.joinedYear.toString()),
+            Pair("leftYear",artistBandAddDto.leftYear.toString()),
+            Pair("nickname",artistBandAddDto.nickname)
+        )
+
+        changes.forEach {
+            if(it.second!=null) {
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.create
+                    changedTable="bands_members"
+                    changedColumn=it.first
+                    changedRecordId=null
+                    oldValue=null
+                    newValue=it.second
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
+        }
+        return true
+    }
+
+    @Transactional
     fun revertBandAddition(changeId:Int,confirmedUserLogin:String):Boolean {
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
         val rank=confirmingUser.rank!!.id!!
         if(rank<10) return false
         val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions.find { it.confirmed==true }!=null && rank<12) return false
+        if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
 
         val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
         val name=contributions.find {it.changedColumn=="name"}?.newValue
@@ -264,5 +323,29 @@ class BandService(
 
         return true
     }
+
+    @Transactional
+    fun revertBandMemberAddition(changeId:Int,confirmedUserLogin:String):Boolean{
+        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        val rank=confirmingUser.rank!!.id!!
+        if(rank<10) return false
+        val contributions=contributionRepository.getByChangeId(changeId)
+        if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
+
+        val artistId=contributions.find {it.changedColumn=="artistId"}?.newValue?.toInt()
+        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
+        val role=contributions.find {it.changedColumn=="role"}?.newValue
+        val joinedYear=contributions.find {it.changedColumn=="joinedYear"}?.newValue?.toInt()
+
+        if(artistId!=null&&bandId!=null&&joinedYear!=null&&role!=null) {
+            val bandArtist:BandsMembers=bandsMemberRepository.findBandsMembersByDto(artistId,bandId,role,joinedYear)
+            bandsMemberRepository.delete(bandArtist)
+        }
+        else return false
+
+        return true
+    }
+
+
 
 }
