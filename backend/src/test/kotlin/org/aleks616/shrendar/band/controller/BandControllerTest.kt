@@ -1,10 +1,11 @@
 package org.aleks616.shrendar.band.controller
 
+import jakarta.servlet.ServletException
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.springframework.test.web.servlet.MockMvc
@@ -16,7 +17,9 @@ class BandControllerTest {
 
     private val bandService:BandService=mock(BandService::class.java)
     private val bandsMemberService:BandsMemberService=mock(BandsMemberService::class.java)
-    private val controller=BandController(bandService,bandsMemberService)
+    private val rateLimiter:org.aleks616.shrendar.security.RateLimiter=
+        mock(org.aleks616.shrendar.security.RateLimiter::class.java)
+    private val controller=BandController(bandService,bandsMemberService,rateLimiter)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
 
     @Test
@@ -171,28 +174,46 @@ class BandControllerTest {
     fun `getBandsByFoundedBetween should throw exception for invalid inputs`() {
         val currentYear=LocalDate.now().year
 
-        assertThrows<IllegalArgumentException> {
-            controller.getBandsByFoundedBetween(null,null)
-        }.also {assertEquals("startYear and endYear cannot both be null",it.message)}
+        val ex1=assertThrows<ServletException> {
+            mockMvc.get("/api/band/foundedBetween")
+        }
+        assertEquals(
+            "Request processing failed: java.lang.IllegalArgumentException: startYear and endYear cannot both be null",
+            ex1.message
+        )
 
-        assertThrows<IllegalArgumentException> {
-            controller.getBandsByFoundedBetween(1990,1980)
-        }.also {assertEquals("startYear cannot be greater than endYear",it.message)}
+        val ex2=assertThrows<ServletException> {
+            mockMvc.get("/api/band/foundedBetween?startYear=1990&endYear=1980")
+        }
+        assertEquals(
+            "Request processing failed: java.lang.IllegalArgumentException: startYear cannot be greater than endYear",
+            ex2.message
+        )
 
-        assertThrows<IllegalArgumentException> {
-            controller.getBandsByFoundedBetween(currentYear+1,null)
-        }.also {assertEquals("invalid startYear",it.message)}
+        val ex3=assertThrows<ServletException> {
+            mockMvc.get("/api/band/foundedBetween?startYear=${currentYear+1}")
+        }
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid startYear",ex3.message)
 
-        assertThrows<IllegalArgumentException> {
-            controller.getBandsByFoundedBetween(null,currentYear+1)
-        }.also {assertEquals("invalid endYear",it.message)}
+        val ex4=assertThrows<ServletException> {
+            mockMvc.get("/api/band/foundedBetween?endYear=${currentYear+1}")
+        }
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid endYear",ex4.message)
     }
 
     @Test
     fun `getBandsByStatus should return bands for valid status`() {
         val bands=listOf(BandDto(id=1,name="Metallica",status=Status.active))
         `when`(bandService.getBandsByStatus(Status.active)).thenReturn(bands)
-        `when`(bandService.getBandsByStatus(Status.disbanded)).thenReturn(listOf(BandDto(id=2,name="Slayer",status=Status.disbanded)))
+        `when`(bandService.getBandsByStatus(Status.disbanded)).thenReturn(
+            listOf(
+                BandDto(
+                    id=2,
+                    name="Slayer",
+                    status=Status.disbanded
+                )
+            )
+        )
         `when`(bandService.getBandsByStatus(Status.unknown)).thenReturn(emptyList())
 
         mockMvc.get("/api/band/status/active")
@@ -226,9 +247,10 @@ class BandControllerTest {
 
     @Test
     fun `getBandsByStatus should throw exception for invalid status`() {
-        assertThrows<IllegalArgumentException> {
-            controller.getBandsByStatus("invalid")
-        }.also {assertEquals("invalid status",it.message)}
+        val ex=assertThrows<ServletException> {
+            mockMvc.get("/api/band/status/invalid")
+        }
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid status",ex.message)
     }
 
     @Test

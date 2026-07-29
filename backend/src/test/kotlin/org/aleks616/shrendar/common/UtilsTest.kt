@@ -32,7 +32,6 @@ class UtilsTest {
     fun `getDaysTillNextAnniversary should return positive days for future anniversary this year`() {
         val today=LocalDate.now()
         val future=today.plusDays(10)
-        val days=Utils.getDaysTillNextAnniversary(future)
         assertEquals(10,Utils.getDaysTillNextAnniversary(LocalDate.of(1990,future.month,future.dayOfMonth)))
     }
 
