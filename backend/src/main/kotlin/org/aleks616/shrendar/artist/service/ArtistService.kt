@@ -200,7 +200,7 @@ class ArtistService(
 
         val artistId=artistRepository.findTopIdByName(artistAddDto.name!!)
 
-        val lastChangeId=contributionRepository.findTopChangeId()
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         val changes:List<Pair<String,String?>> =listOf(
             Pair("artistId",artistId.toString()),

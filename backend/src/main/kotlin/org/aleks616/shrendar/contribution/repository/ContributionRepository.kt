@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository
 interface ContributionRepository :JpaRepository<Contribution,Int> {
 
     @Query("""SELECT c.changeId FROM Contribution c ORDER BY c.changeId DESC LIMIT 1""")
-    fun findTopChangeId():Int
+    fun findTopChangeId():Int?
 
 
     @Query("""

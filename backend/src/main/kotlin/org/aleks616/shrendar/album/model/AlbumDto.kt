@@ -51,6 +51,7 @@ data class AlbumDataDto(
 )
 
 data class AlbumAddDto(
+    val id:Int?=null,
     val bandId:Int?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,

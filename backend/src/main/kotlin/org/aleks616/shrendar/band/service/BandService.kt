@@ -215,7 +215,7 @@ class BandService(
 
         val bandId=bandRepository.findTopIdByName(bandAddDto.name!!)
 
-        val lastChangeId=contributionRepository.findTopChangeId()
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         val changes:List<Pair<String,String?>> =listOf(
             Pair("bandId",bandId.toString()),
@@ -273,7 +273,7 @@ class BandService(
             nickname=artistBandAddDto.nickname
         })
 
-        val lastChangeId=contributionRepository.findTopChangeId()
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         val changes:List<Pair<String,String?>> =listOf(
             Pair("bandId",artistBandAddDto.bandId.toString()),
