@@ -234,25 +234,4 @@ class ArtistService(
         return true
     }
 
-    @Transactional
-    fun revertArtistAddition(changeId:Int,confirmedUserLogin:String):Boolean {
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        val rank=confirmingUser.rank!!.id!!
-        if(rank<10) return false
-        val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions.find { it.confirmed==true }!=null && rank<12) return false
-
-        val artistId=contributions.find {it.changedColumn=="artistId"}?.newValue?.toInt()
-        val name=contributions.find {it.changedColumn=="name"}?.newValue
-
-        if(artistId!=null&&name!=null) {
-            val artist:Artist=artistRepository.findArtistById(artistId)
-            artistRepository.delete(artist)
-        }
-        else return false
-
-        return true
-    }
-
-
 }

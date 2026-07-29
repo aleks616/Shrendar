@@ -115,23 +115,4 @@ class ArtistController(
         return ResponseEntity.ok("Artist addition request received")
     }
 
-
-    @PostMapping("/revertAddition")
-    fun revertAlbumAddition(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
-        val userLogin=user.name
-
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-
-        if(!artistService.revertArtistAddition(changeId,userLogin))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
-
-        return ResponseEntity.ok("Artist addition revert successful")
-    }
-
 }
