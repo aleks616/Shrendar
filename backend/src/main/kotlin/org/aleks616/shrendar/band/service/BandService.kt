@@ -303,49 +303,4 @@ class BandService(
         }
         return true
     }
-
-    @Transactional
-    fun revertBandAddition(changeId:Int,confirmedUserLogin:String):Boolean {
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        val rank=confirmingUser.rank!!.id!!
-        if(rank<10) return false
-        val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
-
-        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
-        val name=contributions.find {it.changedColumn=="name"}?.newValue
-
-        if(bandId!=null&&name!=null) {
-            val band:Band=bandRepository.findBandById(bandId)
-            bandRepository.delete(band)
-        }
-        else return false
-
-        return true
-    }
-
-    @Transactional
-    fun revertBandMemberAddition(changeId:Int,confirmedUserLogin:String):Boolean{
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        val rank=confirmingUser.rank!!.id!!
-        if(rank<10) return false
-        val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
-
-        val artistId=contributions.find {it.changedColumn=="artistId"}?.newValue?.toInt()
-        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
-        val role=contributions.find {it.changedColumn=="role"}?.newValue
-        val joinedYear=contributions.find {it.changedColumn=="joinedYear"}?.newValue?.toInt()
-
-        if(artistId!=null&&bandId!=null&&joinedYear!=null&&role!=null) {
-            val bandArtist:BandsMembers=bandsMemberRepository.findBandsMembersByDto(artistId,bandId,role,joinedYear)
-            bandsMemberRepository.delete(bandArtist)
-        }
-        else return false
-
-        return true
-    }
-
-
-
 }

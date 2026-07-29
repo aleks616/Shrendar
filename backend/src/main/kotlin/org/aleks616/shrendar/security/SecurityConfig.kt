@@ -24,8 +24,11 @@ class SecurityConfig {
                 "/api/logout",
                 "/api/users",
                 "/api/album/add",
-                "/api/album/confirmAddition",
-                "/api/album/revertAddition"
+                "/api/artist/add",
+                "/api/band/add",
+                "/api/band/member-add",
+                "/api/contribution/revert",
+                "/api/contribution/confirmAddition"
             ).authenticated()
             it.anyRequest().permitAll()
         }
