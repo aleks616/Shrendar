@@ -124,14 +124,14 @@ class AlbumService(
         if(recentContributionCount>=rankLimit) return false
 
         val changes:List<Pair<String,String?>> =listOf(
-        Pair("bandId",albumAddDto.bandId.toString()),
-        Pair("title",albumAddDto.title),
-        Pair("releaseDate",albumAddDto.releaseDate.toString()),
-        Pair("type",albumAddDto.type.toString()),
-        Pair("description",albumAddDto.description),
-        Pair("mainSubgenre",albumAddDto.mainSubgenre.toString()),
-        Pair("importance",albumAddDto.importance.toString()),
-        Pair("artworkUrl",albumAddDto.artworkUrl),
+            Pair("band_id",albumAddDto.bandId.toString()),
+            Pair("title",albumAddDto.title),
+            Pair("release_date",albumAddDto.releaseDate.toString()),
+            Pair("type",albumAddDto.type.toString()),
+            Pair("description",albumAddDto.description),
+            Pair("genre_id",albumAddDto.mainSubgenre.toString()),
+            Pair("importance",albumAddDto.importance.toString()),
+            Pair("artwork_url",albumAddDto.artworkUrl),
         )
 
         val time=LocalDateTime.now()
@@ -183,41 +183,29 @@ class AlbumService(
         if(recentContributionCount>=rankLimit) return false
 
         val album=albumRepository.findAlbumById(albumAddDto.id!!)
+        val changes=mutableListOf<Triple<String,String?,String?>>()
 
-        val changes:MutableList<Triple<String,String?,String?>> =mutableListOf()
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
 
-        if(albumAddDto.bandId!=null&&albumAddDto.bandId!=album.band?.id) {
-            changes.add(Triple("bandId",album.band?.id?.toString(),albumAddDto.bandId.toString()))
-            album.band=bandRepository.findById(albumAddDto.bandId).get()
-        }
-        if(albumAddDto.title!=null&&albumAddDto.title!=album.title) {
-            changes.add(Triple("title",album.title,albumAddDto.title))
-            album.title=albumAddDto.title
-        }
-        if(albumAddDto.releaseDate!=null&&albumAddDto.releaseDate!=album.releaseDate) {
-            changes.add(Triple("releaseDate",album.releaseDate?.toString(),albumAddDto.releaseDate.toString()))
-            album.releaseDate=albumAddDto.releaseDate
-        }
-        if(albumAddDto.type!=null&&albumAddDto.type!=album.type) {
-            changes.add(Triple("type",album.type?.toString(),albumAddDto.type.toString()))
-            album.type=albumAddDto.type
-        }
-        if(albumAddDto.description!=null&&albumAddDto.description!=album.description) {
-            changes.add(Triple("description",album.description,albumAddDto.description))
-            album.description=albumAddDto.description
-        }
-        if(albumAddDto.mainSubgenre!=null&&albumAddDto.mainSubgenre!=album.genre?.id) {
-            changes.add(Triple("mainSubgenre",album.genre?.id?.toString(),albumAddDto.mainSubgenre.toString()))
-            album.genre=genreRepository.findGenreById(albumAddDto.mainSubgenre)
-        }
-        if(albumAddDto.importance!=null&&albumAddDto.importance!=album.importance) {
-            changes.add(Triple("importance",album.importance?.toString(),albumAddDto.importance.toString()))
-            album.importance=albumAddDto.importance
-        }
-        if(albumAddDto.artworkUrl!=null&&albumAddDto.artworkUrl!=album.artworkUrl) {
-            changes.add(Triple("artworkUrl",album.artworkUrl,albumAddDto.artworkUrl))
-            album.artworkUrl=albumAddDto.artworkUrl
-        }
+        updateIfChanged("band_id",album.band?.id,albumAddDto.bandId,{album.band=bandRepository.findById(it).get()})
+        updateIfChanged("title",album.title,albumAddDto.title,{album.title=it})
+        updateIfChanged("release_date",album.releaseDate,albumAddDto.releaseDate,{album.releaseDate=it})
+        updateIfChanged("type",album.type,albumAddDto.type,{album.type=it})
+        updateIfChanged("description",album.description,albumAddDto.description,{album.description=it})
+        updateIfChanged("main_subgenre",album.genre?.id,albumAddDto.mainSubgenre,{album.genre=genreRepository.findGenreById(it)})
+        updateIfChanged("importance",album.importance,albumAddDto.importance,{album.importance=it})
+        updateIfChanged("artwork_url",album.artworkUrl,albumAddDto.artworkUrl,{album.artworkUrl=it})
 
         if(changes.isEmpty()) return false
 
