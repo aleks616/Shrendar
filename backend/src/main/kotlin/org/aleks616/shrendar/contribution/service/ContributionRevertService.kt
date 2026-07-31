@@ -50,7 +50,9 @@ class ContributionRevertService(
         val title=contributions.find {it.changedColumn=="title"}?.newValue
 
         if(bandId!=null&&title!=null) {
-            val album=albumRepository.findByBandId(bandId).find {it.title==title}
+            val album=
+                if(contributions[0].changedRecordId!=null) albumRepository.findAlbumById(contributions[0].changedRecordId!!)
+                else albumRepository.findByBandId(bandId).find {it.title==title}
             if(album!=null) albumRepository.delete(album)
         }
         else return false

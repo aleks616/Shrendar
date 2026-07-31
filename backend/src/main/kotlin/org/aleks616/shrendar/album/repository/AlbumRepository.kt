@@ -44,4 +44,13 @@ interface AlbumRepository :JpaRepository<Album,Int>{
         WHERE a.id=:id
     """)
     fun findAlbumById(id:Int):Album
+
+    @Query("""
+        SELECT a.id
+        FROM Album a
+        WHERE a.band.id=:bandId AND a.title=:title
+        ORDER BY a.id DESC
+        LIMIT 1
+    """)
+    fun findIdByData(bandId:Int,title:String):Int?
 }

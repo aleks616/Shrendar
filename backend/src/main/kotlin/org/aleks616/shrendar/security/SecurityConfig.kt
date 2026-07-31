@@ -26,6 +26,8 @@ class SecurityConfig {
                 "/api/album/add",
                 "/api/artist/add",
                 "/api/band/add",
+                "/api/album/edit",
+                "/api/artist/edit",
                 "/api/band/member-add",
                 "/api/contribution/revert",
                 "/api/contribution/confirmAddition"

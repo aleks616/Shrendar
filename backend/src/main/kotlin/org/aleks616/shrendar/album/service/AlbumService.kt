@@ -152,17 +152,19 @@ class AlbumService(
             artworkUrl=albumAddDto.artworkUrl
             description=albumAddDto.description
         })
+        val albumRecordId=albumRepository.findIdByData(albumAddDto.bandId!!,albumAddDto.title!!)
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
+
         changes.forEach {
             if(it.second!=null) {
                 contributionRepository.save(Contribution().apply {
+                    changedRecordId=albumRecordId
                     changeId=lastChangeId+1
                     user=requestingUser
                     action=Action.create
                     changedTable="album"
                     changedColumn=it.first
-                    changedRecordId=null
                     oldValue=null
                     newValue=it.second
                     changedAt=time
@@ -203,7 +205,7 @@ class AlbumService(
         updateIfChanged("release_date",album.releaseDate,albumAddDto.releaseDate,{album.releaseDate=it})
         updateIfChanged("type",album.type,albumAddDto.type,{album.type=it})
         updateIfChanged("description",album.description,albumAddDto.description,{album.description=it})
-        updateIfChanged("main_subgenre",album.genre?.id,albumAddDto.mainSubgenre,{album.genre=genreRepository.findGenreById(it)})
+        updateIfChanged("genre_id",album.genre?.id,albumAddDto.mainSubgenre,{album.genre=genreRepository.findGenreById(it)})
         updateIfChanged("importance",album.importance,albumAddDto.importance,{album.importance=it})
         updateIfChanged("artwork_url",album.artworkUrl,albumAddDto.artworkUrl,{album.artworkUrl=it})
 
