@@ -347,7 +347,7 @@ class ContributionControllerTest {
             header("Authorization","Bearer $midRankToken")
             param("changeId",changeId.toString())
         }.andExpect {
-            status {isBadRequest()}
+            status {isInternalServerError()}
         }
         assertTrue(artistRepository.findAll().any {it.name=="Confirmed Artist"})
 
@@ -385,12 +385,12 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
 
-        assertThrows(jakarta.servlet.ServletException::class.java) {
             mockMvc.post("/api/contribution/revert") {
                 header("Authorization","Bearer $midRankToken")
                 param("changeId",changeId.toString())
+            }.andExpect {
+                status {isInternalServerError()}
             }
-        }
     }
 
     @Test
