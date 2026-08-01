@@ -200,10 +200,9 @@ class ArtistService(
 
         val artistId=artistRepository.findTopIdByName(artistAddDto.name!!)
 
-        val lastChangeId=contributionRepository.findTopChangeId()
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         val changes:List<Pair<String,String?>> =listOf(
-            Pair("artistId",artistId.toString()),
             Pair("name",artistAddDto.name),
             Pair("birth_date",artistAddDto.birthDate.toString()),
             Pair("death_date",artistAddDto.deathDate.toString()),
@@ -216,12 +215,12 @@ class ArtistService(
         changes.forEach {
             if(it.second!=null){
                 contributionRepository.save(Contribution().apply {
+                    changedRecordId=artistId
                     changeId=lastChangeId+1
                     user=requestingUser
                     action=Action.create
                     changedTable="artist"
                     changedColumn=it.first
-                    changedRecordId=null
                     oldValue=null
                     newValue=it.second
                     changedAt=time
@@ -229,6 +228,68 @@ class ArtistService(
                     confirmedBy=confirmedByUser
                 })
             }
+        }
+
+        return true
+    }
+
+    @Transactional
+    fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val artist=getById(artistAddDto.id!!)
+        val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
+
+        updateIfChanged("name",artist.name,artistAddDto.name,{artist.name=it})
+        updateIfChanged("birth_date",artist.birthDate,artistAddDto.birthDate,{artist.birthDate=it})
+        updateIfChanged("death_date",artist.deathDate,artistAddDto.deathDate,{artist.deathDate=it})
+        updateIfChanged("gender",artist.gender,artistAddDto.gender,{artist.gender=it})
+        updateIfChanged("country",artist.country,artistAddDto.country,{artist.country=it})
+        updateIfChanged("description",artist.description,artistAddDto.description,{artist.description=it})
+        updateIfChanged("artist_image_url",artist.artistImageUrl,artistAddDto.artistImageUrl,{artist.artistImageUrl=it})
+
+        if(changes.isEmpty()) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        artistRepository.save(artist)
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach { (column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.update
+                changedTable="artist"
+                changedColumn=column
+                changedRecordId=artistAddDto.id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
 
         return true

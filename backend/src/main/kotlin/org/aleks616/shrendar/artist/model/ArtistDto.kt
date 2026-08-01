@@ -22,6 +22,7 @@ data class ArtistWikiDto(
 
 
 data class ArtistAddDto(
+    val id:Int?=null,
     val name:String?=null,
     val birthDate:LocalDate?=null,
     val deathDate:LocalDate?=null,

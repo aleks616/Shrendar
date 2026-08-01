@@ -115,7 +115,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmAddition should succeed for rank 10 or higher`() {
+    fun `confirm should succeed for rank 10 or higher`() {
         val changeId=100
         val newbieUser=userRepository.findByLogin("newbie")!!
         contributionRepository.save(Contribution().apply {
@@ -129,7 +129,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
 
-        mockMvc.post("/api/contribution/confirmAddition") {
+        mockMvc.post("/api/contribution/confirm") {
             header("Authorization","Bearer $midRankToken")
             param("changeId",changeId.toString())
         }.andExpect {
@@ -142,7 +142,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmAddition should fail for rank below 10`() {
+    fun `confirm should fail for rank below 10`() {
         val changeId=101
         val newbieUser=userRepository.findByLogin("newbie")!!
         contributionRepository.save(Contribution().apply {
@@ -156,7 +156,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
 
-        mockMvc.post("/api/contribution/confirmAddition") {
+        mockMvc.post("/api/contribution/confirm") {
             header("Authorization","Bearer $newbieToken")
             param("changeId",changeId.toString())
         }.andExpect {
@@ -394,8 +394,8 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmAddition should return ok even for invalid changeId due to current implementation`() {
-        mockMvc.post("/api/contribution/confirmAddition") {
+    fun `confirm should return ok even for invalid changeId due to current implementation`() {
+        mockMvc.post("/api/contribution/confirm") {
             header("Authorization","Bearer $trustedToken")
             param("changeId","9999")
         }.andExpect {

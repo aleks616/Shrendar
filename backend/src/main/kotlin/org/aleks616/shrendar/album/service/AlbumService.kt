@@ -27,25 +27,28 @@ class AlbumService(
     private val genreRepository:GenreRepository,
     private val rankRepository:RankRepository,
     private val contributionService:ContributionService,
-){
-    fun doesBandExist(bandId:Int):Boolean{
+) {
+    fun doesBandExist(bandId:Int):Boolean {
         return bandRepository.existsById(bandId)
     }
+
     //region query
-    fun getAll():List<AlbumDataDto>{
-        return albumRepository.findAll().map { AlbumDataDto(
-            id=it.id,
-            band=BandDto(id=it.band?.id,name=it.band?.name),
-            title=it.title,
-            releaseDate=it.releaseDate,
-            type=it.type,
-            importance=it.importance,
-            genre=it.genre,
-            artworkUrl=it.artworkUrl,
-        ) }
+    fun getAll():List<AlbumDataDto> {
+        return albumRepository.findAll().map {
+            AlbumDataDto(
+                id=it.id,
+                band=BandDto(id=it.band?.id,name=it.band?.name),
+                title=it.title,
+                releaseDate=it.releaseDate,
+                type=it.type,
+                importance=it.importance,
+                genre=it.genre,
+                artworkUrl=it.artworkUrl,
+            )
+        }
     }
 
-    fun getById(id:Int):Album{
+    fun getById(id:Int):Album {
         return albumRepository.findAlbumById(id)
     }
 
@@ -70,32 +73,32 @@ class AlbumService(
         )
     }
 
-    fun getAlbumsByBandId(bandId:Int):List<Album>{
+    fun getAlbumsByBandId(bandId:Int):List<Album> {
         val albums=albumRepository.findByBandId(bandId)
         return albums
     }
 
-    fun getAlbumsByBandName(name:String):List<Album>{
+    fun getAlbumsByBandName(name:String):List<Album> {
         return albumRepository.findByBandNameContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByYear(year:Int):List<Album>{
+    fun getAlbumsByYear(year:Int):List<Album> {
         return albumRepository.findByYear(year)
     }
 
-    fun getAlbumsByName(name:String):List<Album>{
+    fun getAlbumsByName(name:String):List<Album> {
         return albumRepository.findByTitleContainingIgnoreCase((name))
     }
 
-    fun getAlbumsByNameExact(name:String):List<Album>{
+    fun getAlbumsByNameExact(name:String):List<Album> {
         return albumRepository.findByTitleIgnoreCase((name))
     }
 
-    fun getAlbumAnniversariesByDate(month:Int,day:Int):List<AlbumByDateDto>{
-        val albumsInDate=getAll().filter{it.releaseDate?.monthValue==month&&it.releaseDate.dayOfMonth==day}
+    fun getAlbumAnniversariesByDate(month:Int,day:Int):List<AlbumByDateDto> {
+        val albumsInDate=getAll().filter {it.releaseDate?.monthValue==month&&it.releaseDate.dayOfMonth==day}
         val year=Calendar.getInstance().get(Calendar.YEAR)
 
-        return albumsInDate.map{a->
+        return albumsInDate.map {a->
             AlbumByDateDto(
                 id=a.id,
                 band=a.band?.let {BandDto(it.id,it.name)},
@@ -114,21 +117,21 @@ class AlbumService(
 
 
     @Transactional
-    fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean{
+    fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
         val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
         if(recentContributionCount>=rankLimit) return false
 
         val changes:List<Pair<String,String?>> =listOf(
-            Pair("bandId",albumAddDto.bandId.toString()),
+            Pair("band_id",albumAddDto.bandId.toString()),
             Pair("title",albumAddDto.title),
-            Pair("releaseDate",albumAddDto.releaseDate.toString()),
+            Pair("release_date",albumAddDto.releaseDate.toString()),
             Pair("type",albumAddDto.type.toString()),
             Pair("description",albumAddDto.description),
-            Pair("mainSubgenre",albumAddDto.mainSubgenre.toString()),
+            Pair("genre_id",albumAddDto.mainSubgenre.toString()),
             Pair("importance",albumAddDto.importance.toString()),
-            Pair("artworkUrl",albumAddDto.artworkUrl),
+            Pair("artwork_url",albumAddDto.artworkUrl),
         )
 
         val time=LocalDateTime.now()
@@ -149,26 +152,91 @@ class AlbumService(
             artworkUrl=albumAddDto.artworkUrl
             description=albumAddDto.description
         })
+        val albumRecordId=albumRepository.findIdByData(albumAddDto.bandId!!,albumAddDto.title!!)
 
-        val lastChangeId=contributionRepository.findTopChangeId()
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+
         changes.forEach {
-          if(it.second!=null){
-              contributionRepository.save(Contribution().apply {
-                  changeId=lastChangeId+1
-                  user=requestingUser
-                  action=Action.create
-                  changedTable="album"
-                  changedColumn=it.first
-                  changedRecordId=null
-                  oldValue=null
-                  newValue=it.second
-                  changedAt=time
-                  confirmed=trusted
-                  confirmedBy=confirmedByUser
-              })
-          }
+            if(it.second!=null) {
+                contributionRepository.save(Contribution().apply {
+                    changedRecordId=albumRecordId
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.create
+                    changedTable="album"
+                    changedColumn=it.first
+                    oldValue=null
+                    newValue=it.second
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
         }
         //todo notify mods or something
+        return true
+    }
+
+    @Transactional
+    fun editAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val album=albumRepository.findAlbumById(albumAddDto.id!!)
+        val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
+
+        updateIfChanged("band_id",album.band?.id,albumAddDto.bandId,{album.band=bandRepository.findById(it).get()})
+        updateIfChanged("title",album.title,albumAddDto.title,{album.title=it})
+        updateIfChanged("release_date",album.releaseDate,albumAddDto.releaseDate,{album.releaseDate=it})
+        updateIfChanged("type",album.type,albumAddDto.type,{album.type=it})
+        updateIfChanged("description",album.description,albumAddDto.description,{album.description=it})
+        updateIfChanged("genre_id",album.genre?.id,albumAddDto.mainSubgenre,{album.genre=genreRepository.findGenreById(it)})
+        updateIfChanged("importance",album.importance,albumAddDto.importance,{album.importance=it})
+        updateIfChanged("artwork_url",album.artworkUrl,albumAddDto.artworkUrl,{album.artworkUrl=it})
+
+        if(changes.isEmpty()) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        albumRepository.save(album)
+
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach {(column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.update
+                changedTable="album"
+                changedColumn=column
+                changedRecordId=albumAddDto.id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
+        }
         return true
     }
 

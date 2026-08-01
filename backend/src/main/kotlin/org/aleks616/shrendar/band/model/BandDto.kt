@@ -39,6 +39,7 @@ data class BandGenreDto(
 )
 
 data class BandAddDto(
+    var id:Int?=null,
     var name:String?=null,
     var formedYear:Int?=null,
     var status:Status?=null,

@@ -43,6 +43,7 @@ data class ArtistBandsHistoryDto(
 
 
 data class ArtistBandAddDto(
+    var id:Int?=null,
     var bandId:Int?=null,
     var artistId:Int?=null,
     var nickname:String?=null,

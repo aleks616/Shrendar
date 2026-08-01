@@ -23,7 +23,7 @@ class ContributionController (
     @GetMapping("/")
     fun getContributions()=contributionService.getAll()
 
-    @PostMapping("/confirmAddition")
+    @PostMapping("/confirm")
     fun confirmAddRequest(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
@@ -38,7 +38,7 @@ class ContributionController (
         if(!contributionService.confirmDataAddRequest(changeId,userLogin))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
 
-        return ResponseEntity.ok("Album addition confirmation successful")
+        return ResponseEntity.ok("Confirmation successful")
     }
 
     @PostMapping("/revert")
@@ -53,8 +53,12 @@ class ContributionController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(!contributionRevertService.revertAddition(changeId,userLogin))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        try{
+           contributionRevertService.revertAddition(changeId,userLogin)
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. ${e.message}")
+        }
 
         return ResponseEntity.ok("Addition reverted successful")
     }

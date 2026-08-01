@@ -24,11 +24,15 @@ class SecurityConfig {
                 "/api/logout",
                 "/api/users",
                 "/api/album/add",
+                "/api/album/edit",
                 "/api/artist/add",
+                "/api/artist/edit",
                 "/api/band/add",
+                "/api/band/edit",
                 "/api/band/member-add",
+                "api/band/member-edit",
                 "/api/contribution/revert",
-                "/api/contribution/confirmAddition"
+                "/api/contribution/confirm"
             ).authenticated()
             it.anyRequest().permitAll()
         }

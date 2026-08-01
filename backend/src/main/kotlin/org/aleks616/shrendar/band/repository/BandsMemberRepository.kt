@@ -1,6 +1,5 @@
 package org.aleks616.shrendar.band.repository
 
-import org.aleks616.shrendar.band.model.ArtistBandAddDto
 import org.aleks616.shrendar.band.model.ArtistBandsDto
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.model.BandsMembersDataDto
@@ -36,5 +35,16 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         AND bm.joinedYear=:joinedYear
     """)
     fun findBandsMembersByDto(artistId:Int,bandId:Int,role:String,joinedYear:Int):BandsMembers
+
+    @Query("""
+        SELECT bm.id
+        FROM BandsMembers bm
+        WHERE bm.band.id=:bandId
+        AND bm.artist.id=:artistId
+        ORDER BY bm.id DESC
+        LIMIT 1
+    """)
+    fun findTopIdByBandIdAndArtistId(bandId:Int,artistId:Int):Int
+
 
 }

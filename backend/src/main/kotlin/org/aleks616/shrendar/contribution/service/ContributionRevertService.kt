@@ -7,6 +7,7 @@ import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
+import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.user.model.User
@@ -31,14 +32,17 @@ class ContributionRevertService(
         if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
 
         val table=contributions[0].changedTable
-        return when(table) {
-            "album"->revertAlbumAddition(contributions)
-            "artist"->revertArtistAddition(contributions)
-            "band"->revertBandAddition(contributions)
-            "bands_members"->revertBandMemberAddition(contributions)
-            else->false
+        val type=contributions[0].action
+        if(type==Action.create){
+            return when(table) {
+                "album"->revertAlbumAddition(contributions)
+                "artist"->revertArtistAddition(contributions)
+                "band"->revertBandAddition(contributions)
+                "bands_members"->revertBandMemberAddition(contributions)
+                else->throw IllegalArgumentException("table name has to be one of: album, artist, band, bands_members. actual: $table")
+            }
         }
-
+        else throw UnsupportedOperationException("reverting of edits and removal is not supported yet")
     }
 
     fun revertAlbumAddition(contributions:List<Contribution>):Boolean {
@@ -46,7 +50,9 @@ class ContributionRevertService(
         val title=contributions.find {it.changedColumn=="title"}?.newValue
 
         if(bandId!=null&&title!=null) {
-            val album=albumRepository.findByBandId(bandId).find {it.title==title}
+            val album=
+                if(contributions[0].changedRecordId!=null) albumRepository.findAlbumById(contributions[0].changedRecordId!!)
+                else albumRepository.findByBandId(bandId).find {it.title==title}
             if(album!=null) albumRepository.delete(album)
         }
         else return false
