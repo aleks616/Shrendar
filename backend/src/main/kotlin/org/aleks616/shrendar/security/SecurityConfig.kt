@@ -30,7 +30,7 @@ class SecurityConfig {
                 "/api/band/add",
                 "/api/band/edit",
                 "/api/band/member-add",
-                "api/band/member-edit",
+                "/api/band/member-edit",
                 "/api/contribution/revert",
                 "/api/contribution/confirm"
             ).authenticated()
