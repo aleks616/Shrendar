@@ -37,4 +37,15 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
     """)
     fun findBandsMembersByDto(artistId:Int,bandId:Int,role:String,joinedYear:Int):BandsMembers
 
+    @Query("""
+        SELECT bm.id
+        FROM BandsMembers bm
+        WHERE bm.band.id=:bandId
+        AND bm.artist.id=:artistId
+        ORDER BY bm.id DESC
+        LIMIT 1
+    """)
+    fun findTopIdByBandIdAndArtistId(bandId:Int,artistId:Int):Int
+
+
 }

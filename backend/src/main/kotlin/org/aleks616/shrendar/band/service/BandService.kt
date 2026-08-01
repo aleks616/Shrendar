@@ -133,13 +133,13 @@ class BandService(
         val genresList:MutableList<Pair<String,Byte>> = arrayListOf()
 
         dataRaw.forEach {d->
-            val cgenre=genreRepository.findGenreById(d.id!!)
+            val cGenre=genreRepository.findGenreById(d.id!!)
             bandsGenreRepository.save(BandsGenres().apply {
                 bands=getBandById(bandId)
-                genre=cgenre
+                genre=cGenre
                 importance=d.value
             })
-            genresList.add(Pair(cgenre.properties!!,d.value!!))
+            genresList.add(Pair(cGenre.properties!!,d.value!!))
         }
 
         val band=bandRepository.findBandById(bandId)
@@ -218,7 +218,6 @@ class BandService(
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         val changes:List<Pair<String,String?>> =listOf(
-            Pair("bandId",bandId.toString()),
             Pair("name",bandAddDto.name),
             Pair("formedYear",bandAddDto.formedYear.toString()),
             Pair("status",bandAddDto.status.toString()),
@@ -231,12 +230,12 @@ class BandService(
         changes.forEach {
             if(it.second!=null){
                 contributionRepository.save(Contribution().apply {
+                    changedRecordId=bandId
                     changeId=lastChangeId+1
                     user=requestingUser
                     action=Action.create
                     changedTable="band"
                     changedColumn=it.first
-                    changedRecordId=null
                     oldValue=null
                     newValue=it.second
                     changedAt=time
@@ -248,6 +247,71 @@ class BandService(
 
         return true
     }
+
+    @Transactional
+    fun editBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val band=getBandById(bandAddDto.id!!)
+        val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
+
+        updateIfChanged("name",band.name,bandAddDto.name,{band.name=it})
+        updateIfChanged("formed_year",band.formedYear,bandAddDto.formedYear,{band.formedYear=it})
+        updateIfChanged("disbanded_year",band.disbandedYear,bandAddDto.disbandedYear,{band.disbandedYear=it})
+        updateIfChanged("status",band.status,bandAddDto.status,{band.status=it})
+        updateIfChanged("country",band.country,bandAddDto.country,{band.country=it})
+        updateIfChanged("description",band.description,bandAddDto.description,{band.description=it})
+        updateIfChanged("image_url",band.imageUrl,bandAddDto.imageUrl,{band.imageUrl=it})
+        //averageGenre should be updated separately
+
+        if(changes.isEmpty()) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        bandRepository.save(band)
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach { (column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.update
+                changedTable="band"
+                changedColumn=column
+                changedRecordId=bandAddDto.id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
+        }
+        return true
+
+    }
+
+
 
     @Transactional
     fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
@@ -283,6 +347,7 @@ class BandService(
             Pair("leftYear",artistBandAddDto.leftYear.toString()),
             Pair("nickname",artistBandAddDto.nickname)
         )
+        val bandMemberId=bandsMemberRepository.findTopIdByBandIdAndArtistId(artistBandAddDto.bandId!!,artistBandAddDto.artistId!!)
 
         changes.forEach {
             if(it.second!=null) {
@@ -292,7 +357,7 @@ class BandService(
                     action=Action.create
                     changedTable="bands_members"
                     changedColumn=it.first
-                    changedRecordId=null
+                    changedRecordId=bandMemberId
                     oldValue=null
                     newValue=it.second
                     changedAt=time
@@ -300,6 +365,66 @@ class BandService(
                     confirmedBy=confirmedByUser
                 })
             }
+        }
+        return true
+    }
+
+    @Transactional
+    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
+        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return false
+
+        val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!).get()
+        val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
+
+        updateIfChanged("band_id",bandMember.band!!.id,artistBandAddDto.bandId,{bandMember.band=bandRepository.findById(it).get()})
+        updateIfChanged("artist_id",bandMember.artist!!.id,artistBandAddDto.artistId,{bandMember.artist=artistService.getById(it)})
+        updateIfChanged("nickname",bandMember.nickname,artistBandAddDto.nickname,{bandMember.nickname=it})
+        updateIfChanged("role",bandMember.role,artistBandAddDto.role,{bandMember.role=it})
+        updateIfChanged("joined_year",bandMember.joinedYear,artistBandAddDto.joinedYear,{bandMember.joinedYear=it})
+        updateIfChanged("left_year",bandMember.leftYear,artistBandAddDto.leftYear,{bandMember.leftYear=it})
+
+        if(changes.isEmpty()) return false
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        bandsMemberRepository.save(bandMember)
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach { (column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.update
+                changedTable="bands_members"
+                changedColumn=column
+                changedRecordId=artistBandAddDto.id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
         return true
     }

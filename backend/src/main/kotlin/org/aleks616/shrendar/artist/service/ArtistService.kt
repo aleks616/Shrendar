@@ -37,7 +37,7 @@ class ArtistService(
 
     fun getById(id:Int):Artist {
         if(!artistRepository.existsArtistById(id)) throw IllegalArgumentException("artist with id doesn't exist")
-        return artistRepository.findArtistById(id)
+        return artistRepository.findArtistById(id)!!
     }
 
     fun getByIdWiki(id:Int):ArtistWikiDto {
@@ -240,7 +240,7 @@ class ArtistService(
         val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
         if(recentContributionCount>=rankLimit) return false
 
-        val artist=artistRepository.findArtistById(artistAddDto.id!!)
+        val artist=getById(artistAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()
 
         fun <T> updateIfChanged(

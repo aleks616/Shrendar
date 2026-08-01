@@ -118,6 +118,7 @@ class ArtistController(
 
     @PatchMapping("/edit")
     fun editArtist(@RequestBody artist:ArtistAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
+        if(artist.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist ID is required")
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -129,7 +130,7 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         if(!artistService.editArtistRequest(artist,userLogin))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit or something went wrong")
 
         return ResponseEntity.ok("Artist edit request received")
     }

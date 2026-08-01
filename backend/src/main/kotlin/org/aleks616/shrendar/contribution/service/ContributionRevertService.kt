@@ -39,10 +39,10 @@ class ContributionRevertService(
                 "artist"->revertArtistAddition(contributions)
                 "band"->revertBandAddition(contributions)
                 "bands_members"->revertBandMemberAddition(contributions)
-                else->false
+                else->throw IllegalArgumentException("table name has to be one of: album, artist, band, bands_members. actual: $table")
             }
         }
-        else return false
+        else throw UnsupportedOperationException("reverting of edits and removal is not supported yet")
     }
 
     fun revertAlbumAddition(contributions:List<Contribution>):Boolean {
