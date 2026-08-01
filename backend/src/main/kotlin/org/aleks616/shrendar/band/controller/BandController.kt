@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService

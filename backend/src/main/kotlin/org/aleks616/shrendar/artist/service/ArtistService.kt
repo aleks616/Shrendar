@@ -37,7 +37,7 @@ class ArtistService(
 
     fun getById(id:Int):Artist {
         if(!artistRepository.existsArtistById(id)) throw IllegalArgumentException("artist with id doesn't exist")
-        return artistRepository.findArtistById(id)!!
+        return artistRepository.findArtistById(id)
     }
 
     fun getByIdWiki(id:Int):ArtistWikiDto {

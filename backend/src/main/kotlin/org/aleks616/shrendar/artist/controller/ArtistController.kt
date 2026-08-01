@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.artist.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto

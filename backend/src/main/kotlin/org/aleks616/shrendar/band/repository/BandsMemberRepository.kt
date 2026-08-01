@@ -1,6 +1,5 @@
 package org.aleks616.shrendar.band.repository
 
-import org.aleks616.shrendar.band.model.ArtistBandAddDto
 import org.aleks616.shrendar.band.model.ArtistBandsDto
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.model.BandsMembersDataDto
