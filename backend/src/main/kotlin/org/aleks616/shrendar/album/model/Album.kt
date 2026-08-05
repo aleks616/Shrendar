@@ -40,13 +40,3 @@ open class Album {
     @Column(name="description", columnDefinition="TEXT")
     open var description:String?=null
 }
-
-enum class AlbumType{
-    studio,
-    EP,
-    compilation,
-    concert,
-    demo,
-    single,
-    other
-}

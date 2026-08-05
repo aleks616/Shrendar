@@ -1,9 +1,11 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.ServletException
+import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
+import org.aleks616.shrendar.common.service.CountryService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -12,14 +14,17 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDate
+import kotlin.jvm.java
 
 class BandControllerTest {
 
     private val bandService:BandService=mock(BandService::class.java)
     private val bandsMemberService:BandsMemberService=mock(BandsMemberService::class.java)
+    private val countryService:CountryService=mock(CountryService::class.java)
+    private val artistService:ArtistService=mock(ArtistService::class.java)
     private val rateLimiter:org.aleks616.shrendar.security.RateLimiter=
         mock(org.aleks616.shrendar.security.RateLimiter::class.java)
-    private val controller=BandController(bandService,bandsMemberService,rateLimiter)
+    private val controller=BandController(bandService,bandsMemberService,rateLimiter,countryService,artistService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
 
     @Test

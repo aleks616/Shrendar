@@ -6,16 +6,17 @@ import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsGenreRepository
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
+import org.aleks616.shrendar.common.model.CountryDto
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.genre.service.GenreSimilarity
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -30,7 +31,6 @@ class BandService(
     private val genreRepository:GenreRepository,
     private val contributionService:ContributionService,
     private val userService:UserService,
-    private val rankRepository:RankRepository,
     private val contributionRepository:ContributionRepository,
     private val bandsMemberRepository:BandsMemberRepository,
     private val artistService:ArtistService
@@ -187,13 +187,15 @@ class BandService(
         }
     }
     //endregion
+    fun doesBandExist(bandId:Int):Boolean{
+        return bandRepository.existsById(bandId)
+    }
 
     @Transactional
     fun addBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -251,9 +253,8 @@ class BandService(
     @Transactional
     fun editBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val band=getBandById(bandAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()
@@ -316,9 +317,8 @@ class BandService(
     @Transactional
     fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -372,11 +372,15 @@ class BandService(
     @Transactional
     fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!).get()
+        if(artistBandAddDto.leftYear!=null&&bandMember.joinedYear!=null&&bandMember.joinedYear!!>artistBandAddDto.leftYear!!)
+            throw IllegalArgumentException("Left year has to be the same or greater than joined year")
+        if(artistBandAddDto.joinedYear!=null&&bandMember.leftYear!=null&&artistBandAddDto.joinedYear!!>bandMember.leftYear!!)
+            throw IllegalArgumentException("Joined year has to be the same or less than left year")
+
         val changes=mutableListOf<Triple<String,String?,String?>>()
 
         fun <T> updateIfChanged(
@@ -427,5 +431,18 @@ class BandService(
             })
         }
         return true
+    }
+
+    fun doesSameMemberExist(member:ArtistBandAddDto):Boolean{
+        val data=bandsMemberRepository.findArtistInBand(member.artistId!!,member.bandId!!)
+        return data.any {it.artist!!.id==member.artistId&&it.band!!.id==member.bandId&&it.role==member.role&&(it.joinedYear==member.joinedYear||it.leftYear==member.leftYear)}
+    }
+
+    fun getBandMemberById(id:Int):BandsMembers{
+        return bandsMemberRepository.findById(id).get()
+    }
+
+    fun doesBandMemberExist(id:Int):Boolean{
+        return bandsMemberRepository.existsById(id)
     }
 }

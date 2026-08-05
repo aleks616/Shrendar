@@ -6,18 +6,23 @@ import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.service.CountryService
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/artist")
 class ArtistController(
     private val artistService:ArtistService,
-    private val rateLimiter:RateLimiter
+    private val rateLimiter:RateLimiter,
+    private val countryService:CountryService
 ) {
+    val LIMIT=3
     @GetMapping("/")
     fun getAll():List<Artist>{
         return artistService.getAll()
@@ -103,35 +108,74 @@ class ArtistController(
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(!artistService.addArtistRequest(artist,userLogin))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit")
+        if(artist.name.isNullOrEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least artist name is required to add an artist")
 
+        if(artistValidate(artist)!=null)
+            return artistValidate(artist)!!
+
+        try{
+            artistService.addArtistRequest(artist,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
 
         return ResponseEntity.ok("Artist addition request received")
     }
 
     @PatchMapping("/edit")
     fun editArtist(@RequestBody artist:ArtistAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
-        if(artist.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist ID is required")
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",3,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",3,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-
-        if(!artistService.editArtistRequest(artist,userLogin))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("User reached their weekly limit or something went wrong")
+       if(artist.id==null)
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist Id is required")
+        if(!artistService.doesArtistExist(artist.id))
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id ${artist.id} does not exist")
+        
+        try{
+            artistService.editArtistRequest(artist,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
 
         return ResponseEntity.ok("Artist edit request received")
+    }
+
+    fun artistValidate(artist:ArtistAddDto):ResponseEntity<String>?{
+        if(artist.birthDate!=null&&artist.deathDate!=null&&artist.birthDate.plusYears(10)>artist.deathDate)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to be at least 10 years old, and death date cannot be before birth date")
+        if(artist.birthDate!=null&&artist.birthDate.plusYears(10)>LocalDate.now())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to be at least 10 years old")
+        if(artist.deathDate!=null&&artist.deathDate>LocalDate.now())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist death date cannot be in the future")
+        if(artist.gender!=null&&artist.gender !in listOf('M','F','X'))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist gender must be one of: M, F, X or null")
+        if(artist.country!=null&&(artist.country<1||!countryService.doesCountryExist(artist.country)))
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Country with id ${artist.country} does not exist")
+        if(!Utils.isValidUrl(artist.artistImageUrl))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("URL is not valid or too long (maximum length is 255 characters)")
+
+        return null
     }
 
 }

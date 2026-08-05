@@ -13,8 +13,8 @@ import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -25,7 +25,6 @@ class ArtistService(
     private val artistRepository:ArtistRepository,
     private val countryRepository:CountryRepository,
     private val userService:UserService,
-    private val rankRepository:RankRepository,
     private val contributionService:ContributionService,
     private val contributionRepository:ContributionRepository
 ){
@@ -173,12 +172,15 @@ class ArtistService(
 
     }
 
+    fun doesArtistExist(artistId:Int):Boolean{
+        return artistRepository.existsById(artistId)
+    }
+
     @Transactional
     fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -236,9 +238,8 @@ class ArtistService(
     @Transactional
     fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val artist=getById(artistAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()

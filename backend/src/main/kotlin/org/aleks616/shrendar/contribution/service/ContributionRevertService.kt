@@ -29,7 +29,7 @@ class ContributionRevertService(
         val rank=confirmingUser.rank!!.id!!
         if(rank<10) return false
         val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions.find {it.confirmed==true}!=null&&rank<12) return false
+        if(contributions[0].confirmed==true&&rank<12) throw IllegalArgumentException("Rank 12 is required to revert confirmed contribution. User rank: $rank")
 
         val table=contributions[0].changedTable
         val type=contributions[0].action

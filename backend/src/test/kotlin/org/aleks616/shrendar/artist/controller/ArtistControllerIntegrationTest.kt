@@ -165,8 +165,8 @@ class ArtistControllerIntegrationTest{
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(artistAddDto)
         }.andExpect {
-            status {isTooManyRequests()}
-            content {string("User reached their weekly limit")}
+            status {isForbidden()}
+            content {string("ContributionLimitExceededException You have reached your weekly limit. Limit for rank 1 is 0")}
         }
     }
 }

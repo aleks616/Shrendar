@@ -9,9 +9,10 @@ import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -25,11 +26,14 @@ class AlbumService(
     private val userService:UserService,
     private val bandRepository:BandRepository,
     private val genreRepository:GenreRepository,
-    private val rankRepository:RankRepository,
     private val contributionService:ContributionService,
 ) {
     fun doesBandExist(bandId:Int):Boolean {
         return bandRepository.existsById(bandId)
+    }
+
+    fun doesAlbumExist(albumId:Int):Boolean {
+        return albumRepository.existsById(albumId)
     }
 
     //region query
@@ -115,13 +119,31 @@ class AlbumService(
     }
     //endregion
 
+    fun doesAlbumWithNameExistForBand(albumAddDto:AlbumAddDto):Boolean{
+        val albums=getAlbumsByBandId(albumAddDto.bandId!!)
+        return albums.any{it.title==albumAddDto.title}
+    }
+
+    /**
+     * for editing, the only thing required in albumAddDto is record id and title
+     * **/
+    fun doesAlbumWithNameExistForAlbumId(albumAddDto:AlbumAddDto):Boolean{
+        val album=albumRepository.findById(albumAddDto.id!!).get()
+        val albums=getAlbumsByBandId(album.band?.id!!)
+        return albums.any{it.title==albumAddDto.title}
+    }
+
+    fun isReleaseDateValid(album:AlbumAddDto):Boolean{
+        if(album.releaseDate!=null&&album.releaseDate>LocalDate.now().plusYears(1)) return false
+        val band=bandRepository.findById(album.bandId!!).get()
+        return !(band.formedYear!=null&&(band.formedYear!!>album.releaseDate?.year!!))
+    }
 
     @Transactional
     fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val changes:List<Pair<String,String?>> =listOf(
             Pair("band_id",albumAddDto.bandId.toString()),
@@ -142,12 +164,14 @@ class AlbumService(
             confirmedByUser=requestingUser.id
         }
 
+        val albumImportance=if(albumAddDto.type==AlbumType.studio||albumAddDto.type==AlbumType.EP) albumAddDto.importance else null
+
         albumRepository.save(Album().apply {
             band=bandRepository.findById(albumAddDto.bandId!!).get()
             title=albumAddDto.title
             releaseDate=albumAddDto.releaseDate
             type=albumAddDto.type
-            importance=albumAddDto.importance
+            importance=albumImportance
             genre=genreRepository.findGenreById(albumAddDto.mainSubgenre!!)
             artworkUrl=albumAddDto.artworkUrl
             description=albumAddDto.description
@@ -180,12 +204,16 @@ class AlbumService(
     @Transactional
     fun editAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val rankLimit=rankRepository.getRankById(requestingUser.rank!!.id!!).allowedContributions!!
-        val recentContributionCount=contributionService.getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return false
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
 
         val album=albumRepository.findAlbumById(albumAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        if(albumAddDto.importance!=null&&albumAddDto.importance>3&&album.type!=AlbumType.studio&&albumAddDto.type!=AlbumType.studio)
+            throw InvalidAlbumImportanceException("If you're setting album's importance to 4 or 5, its type must be studio")
+        if(albumAddDto.importance!=null&&albumAddDto.importance.toInt()!=0&&album.type!=AlbumType.studio&&albumAddDto.type!=AlbumType.studio&&album.type!=AlbumType.EP&&albumAddDto.type!=AlbumType.EP)
+            throw InvalidAlbumImportanceException("If you're setting album's importance to above 0, its type must be studio or EP")
 
         fun <T> updateIfChanged(
             column:String,

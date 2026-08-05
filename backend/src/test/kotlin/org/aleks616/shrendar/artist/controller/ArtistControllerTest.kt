@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.security.RateLimiter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -18,8 +19,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 class ArtistControllerTest {
 
     private val artistService:ArtistService=mock(ArtistService::class.java)
+    private val countryService:CountryService=mock(CountryService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
-    private val controller=ArtistController(artistService,rateLimiter)
+    private val controller=ArtistController(artistService,rateLimiter,countryService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
 
     @BeforeEach

@@ -2,10 +2,7 @@ package org.aleks616.shrendar.band.model
 
 import java.io.Serializable
 
-/**
- * DTO for {@link org.aleks616.shrendar.band.model.BandsMembers}
- */
-data class BandsMembersDataDto(
+data class BandsMembersDataExtendedDto(
     val id:Int?=null,
     val artistId:Int?=null,
     val artistName:String?=null,
@@ -15,6 +12,5 @@ data class BandsMembersDataDto(
     var joinedYear:Int?=null,
     var leftYear:Int?=null,
     val nickname:String?=null,
+    var yearRole:MutableList<String>?=mutableListOf(),
 ):Serializable
-
-

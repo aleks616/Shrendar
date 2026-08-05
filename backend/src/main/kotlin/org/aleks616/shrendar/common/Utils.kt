@@ -1,7 +1,10 @@
 package org.aleks616.shrendar.common
 
+import java.net.MalformedURLException
+import java.net.URL
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+
 
 object Utils{
     /**
@@ -21,5 +24,18 @@ object Utils{
         val nextYearAnn=LocalDate.of(LocalDate.now().year+1,birthDate.monthValue,birthDate.dayOfMonth)
         val nextAnn=if(!thisYearAnn.isBefore(LocalDate.now())) thisYearAnn else nextYearAnn
         return LocalDate.now().until(nextAnn,ChronoUnit.DAYS).toInt()
+    }
+
+    @Throws(MalformedURLException::class)
+    fun isValidUrl(url:String?):Boolean {
+        if(url==null) return true
+        if(url.length>255) return false
+        try {
+            URL(url)
+            return true
+        }
+        catch(_:MalformedURLException) {
+            return false
+        }
     }
 }

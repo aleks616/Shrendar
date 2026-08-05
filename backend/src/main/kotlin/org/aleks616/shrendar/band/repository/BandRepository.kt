@@ -1,8 +1,8 @@
 package org.aleks616.shrendar.band.repository
 
 import org.aleks616.shrendar.band.model.Band
-import org.aleks616.shrendar.band.model.CountryDto
 import org.aleks616.shrendar.band.model.Status
+import org.aleks616.shrendar.common.model.CountryDto
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -28,6 +28,6 @@ interface BandRepository :JpaRepository<Band,Int>{
     @Query("SELECT b FROM Band b WHERE b.averageGenre IS NOT NULL")
     fun findBandsWithAvgGenre():List<Band>
 
-    @Query("SELECT b.id FROM Band b WHERE b.name=:name")
+    @Query("SELECT b.id FROM Band b WHERE b.name=:name ORDER BY b.id DESC LIMIT 1")
     fun findTopIdByName(name:String):Int?
 }
