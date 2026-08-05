@@ -15,7 +15,6 @@ import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -26,7 +25,6 @@ class ArtistService(
     private val artistRepository:ArtistRepository,
     private val countryRepository:CountryRepository,
     private val userService:UserService,
-    private val rankRepository:RankRepository,
     private val contributionService:ContributionService,
     private val contributionRepository:ContributionRepository
 ){

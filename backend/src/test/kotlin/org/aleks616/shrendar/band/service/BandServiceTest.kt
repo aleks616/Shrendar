@@ -13,7 +13,6 @@ import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.model.GenreDto
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
@@ -27,7 +26,6 @@ class BandServiceTest {
     private val genreRepository=mock(GenreRepository::class.java)
     private val contributionService=mock(ContributionService::class.java)
     private val userService=mock(UserService::class.java)
-    private val rankRepository=mock(RankRepository::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
     private val artistService=mock(ArtistService::class.java)
