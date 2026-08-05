@@ -1,16 +1,21 @@
 package org.aleks616.shrendar.contribution.service
 
 import jakarta.transaction.Transactional
+import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 
 @Service
 class ContributionService(
     private val contributionRepository:ContributionRepository,
-    private val userService:UserService
+    private val userService:UserService,
+    private val rankRepository:RankRepository
 
 ){
     fun getAll():List<Contribution> =contributionRepository.findAll()
@@ -30,5 +35,13 @@ class ContributionService(
             contributionRepository.save(it)
         }
         return true
+    }
+
+    fun checkRank(requestingUser:User):ContributionLimitExceededException?{
+        val rankId:Int=requestingUser.rank!!.id!!
+        val rankLimit=rankRepository.getRankById(rankId).allowedContributions!!
+        val recentContributionCount=getContributionCountByUser(requestingUser.id!!)
+        if(recentContributionCount>=rankLimit) return ContributionLimitExceededException("You have reached your weekly limit. Limit for rank $rankId is $rankLimit")
+        return null
     }
 }

@@ -19,15 +19,3 @@ data class ArtistWikiDto(
     val description:String?=null,
     val artistImageUrl:String?=null
 ):Serializable
-
-
-data class ArtistAddDto(
-    val id:Int?=null,
-    val name:String?=null,
-    val birthDate:LocalDate?=null,
-    val deathDate:LocalDate?=null,
-    val gender:Char?=null,
-    val country:Int?=null,
-    val description:String?=null,
-    val artistImageUrl:String?=null
-):Serializable

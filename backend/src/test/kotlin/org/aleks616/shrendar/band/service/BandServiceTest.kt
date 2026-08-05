@@ -39,7 +39,6 @@ class BandServiceTest {
         genreRepository,
         contributionService,
         userService,
-        rankRepository,
         contributionRepository,
         bandsMemberRepository,
         artistService

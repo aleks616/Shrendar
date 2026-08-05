@@ -24,4 +24,8 @@ class GenreService(
         }
     }
 
+    fun doesGenreExist(id:Int):Boolean{
+        return genreRepository.existsById(id)
+    }
+
 }

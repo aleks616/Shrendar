@@ -34,9 +34,3 @@ open class Band {
     @Column(name="average_genre", columnDefinition="char(7)")
     open var averageGenre:String?=null
 }
-enum class Status{
-    active,
-    disbanded,
-    on_hold,
-    unknown
-}
