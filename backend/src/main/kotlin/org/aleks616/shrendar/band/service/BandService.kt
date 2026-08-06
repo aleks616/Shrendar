@@ -13,6 +13,7 @@ import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.genre.service.GenreSimilarity
 import org.aleks616.shrendar.user.model.User
@@ -32,6 +33,7 @@ class BandService(
     private val countryRepository:CountryRepository,
     private val genreService:GenreService,
     private val userService:UserService,
+    private val genreRepository:GenreRepository,
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -130,7 +132,7 @@ class BandService(
         val dataRaw=genreService.getBandAlbumGenresList(bandId)
         val genresList:MutableList<Pair<String,Byte>> = arrayListOf()
         dataRaw.filter { it.name!=null && it.value!=null }.forEach {d->
-            val cGenre=genreService.getById(d.id!!)
+            val cGenre=genreRepository.findGenreById(d.id!!)
             bandsGenreRepository.save(BandsGenres().apply {
                 bands=getBandById(bandId)
                 genre=cGenre

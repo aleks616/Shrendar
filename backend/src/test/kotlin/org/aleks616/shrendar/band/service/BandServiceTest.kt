@@ -39,6 +39,7 @@ class BandServiceTest {
         countryRepository,
         genreService,
         userService,
+        genreRepository,
     )
 
     @Test
