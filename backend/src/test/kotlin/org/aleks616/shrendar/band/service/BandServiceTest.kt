@@ -30,15 +30,15 @@ class BandServiceTest {
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
     private val artistService=mock(ArtistService::class.java)
     private val bandService=BandService(
+        artistService,
         bandRepository,
+        bandsGenreRepository,
+        bandsMemberRepository,
+        contributionRepository,
+        contributionService,
         countryRepository,
         genreService,
-        bandsGenreRepository,
-        genreRepository,
-        contributionService,
         userService,
-        bandsMemberRepository,
-        artistService
     )
 
     @Test
@@ -47,7 +47,7 @@ class BandServiceTest {
         val genreId=10
         val band=Band().apply {id=bandId; name="Metallica"}
         val genre=Genre().apply {id=genreId; properties="1234567"}
-        val genreDto=GenreDto(id=genreId,value=100)
+        val genreDto=GenreDto(id=genreId,name="rock",value=8)
 
         `when`(genreService.getBandAlbumGenresList(bandId)).thenReturn(listOf(genreDto))
         `when`(genreRepository.findGenreById(genreId)).thenReturn(genre)

@@ -129,8 +129,7 @@ class BandService(
         bandsGenreRepository.deleteByBandsId(bandId)
         val dataRaw=genreService.getBandAlbumGenresList(bandId)
         val genresList:MutableList<Pair<String,Byte>> = arrayListOf()
-
-        dataRaw.forEach {d->
+        dataRaw.filter { it.name!=null && it.value!=null }.forEach {d->
             val cGenre=genreService.getById(d.id!!)
             bandsGenreRepository.save(BandsGenres().apply {
                 bands=getBandById(bandId)

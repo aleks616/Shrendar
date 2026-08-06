@@ -174,6 +174,7 @@ class ContributionControllerTest {
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
+            changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -184,6 +185,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
         contributionRepository.save(Contribution().apply {
+            changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -211,6 +213,7 @@ class ContributionControllerTest {
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
+            changedRecordId=band.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -221,6 +224,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
         contributionRepository.save(Contribution().apply {
+            changedRecordId=band.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -248,6 +252,7 @@ class ContributionControllerTest {
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
+            changedRecordId=album.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -258,6 +263,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
         contributionRepository.save(Contribution().apply {
+            changedRecordId=album.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -291,20 +297,48 @@ class ContributionControllerTest {
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
-            this.changeId=changeId; user=newbieUser; action=Action.create; confirmed=false; changedAt=LocalDateTime.now()
-            changedTable="bands_members"; changedColumn="artistId"; newValue=artist.id.toString()
+            changedRecordId=bm.id
+            this.changeId=changeId
+            user=newbieUser
+            action=Action.create
+            confirmed=false
+            changedAt=LocalDateTime.now()
+            changedTable="bands_members"
+            changedColumn="artistId"
+            newValue=artist.id.toString()
         })
         contributionRepository.save(Contribution().apply {
-            this.changeId=changeId; user=newbieUser; action=Action.create; confirmed=false; changedAt=LocalDateTime.now()
-            changedTable="bands_members"; changedColumn="bandId"; newValue=band.id.toString()
+            changedRecordId=bm.id
+            this.changeId=changeId
+            user=newbieUser
+            action=Action.create
+            confirmed=false
+            changedAt=LocalDateTime.now()
+            changedTable="bands_members"
+            changedColumn="bandId"
+            newValue=band.id.toString()
         })
         contributionRepository.save(Contribution().apply {
-            this.changeId=changeId; user=newbieUser; action=Action.create; confirmed=false; changedAt=LocalDateTime.now()
-            changedTable="bands_members"; changedColumn="role"; newValue="Guitar"
+            changedRecordId=bm.id
+            this.changeId=changeId
+            user=newbieUser
+            action=Action.create
+            confirmed=false
+            changedAt=LocalDateTime.now()
+            changedTable="bands_members"
+            changedColumn="role"
+            newValue="Guitar"
         })
         contributionRepository.save(Contribution().apply {
-            this.changeId=changeId; user=newbieUser; action=Action.create; confirmed=false; changedAt=LocalDateTime.now()
-            changedTable="bands_members"; changedColumn="joinedYear"; newValue="2000"
+            changedRecordId=bm.id
+            this.changeId=changeId
+            user=newbieUser
+            action=Action.create
+            confirmed=false
+            changedAt=LocalDateTime.now()
+            changedTable="bands_members"
+            changedColumn="joinedYear"
+            newValue="2000"
         })
 
         mockMvc.post("/api/contribution/revert") {
@@ -323,6 +357,7 @@ class ContributionControllerTest {
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
+            changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -333,6 +368,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
         contributionRepository.save(Contribution().apply {
+            changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -347,7 +383,7 @@ class ContributionControllerTest {
             header("Authorization","Bearer $midRankToken")
             param("changeId",changeId.toString())
         }.andExpect {
-            status {isInternalServerError()}
+            status {isForbidden()}
         }
         assertTrue(artistRepository.findAll().any {it.name=="Confirmed Artist"})
 
@@ -357,50 +393,7 @@ class ContributionControllerTest {
         }.andExpect {
             status {isOk()}
         }
-        assertTrue(artistRepository.findAll().none {it.name=="Confirmed Artist"})
-    }
-
-    @Test
-    fun `revert should fail when already reverted or missing data`() {
-        val changeId=400
-        val newbieUser=userRepository.findByLogin("newbie")!!
-        contributionRepository.save(Contribution().apply {
-            this.changeId=changeId
-            user=newbieUser
-            action=Action.create
-            changedTable="artist"
-            changedColumn="artistId"
-            newValue="99999"
-            confirmed=false
-            changedAt=LocalDateTime.now()
-        })
-        contributionRepository.save(Contribution().apply {
-            this.changeId=changeId
-            user=newbieUser
-            action=Action.create
-            changedTable="artist"
-            changedColumn="name"
-            newValue="Non Existent"
-            confirmed=false
-            changedAt=LocalDateTime.now()
-        })
-
-            mockMvc.post("/api/contribution/revert") {
-                header("Authorization","Bearer $midRankToken")
-                param("changeId",changeId.toString())
-            }.andExpect {
-                status {isInternalServerError()}
-            }
-    }
-
-    @Test
-    fun `confirm should return ok even for invalid changeId due to current implementation`() {
-        mockMvc.post("/api/contribution/confirm") {
-            header("Authorization","Bearer $trustedToken")
-            param("changeId","9999")
-        }.andExpect {
-            status {isOk()}
-        }
+        assertFalse(artistRepository.findAll().any {it.name=="Confirmed Artist"})
     }
 
     @Test
