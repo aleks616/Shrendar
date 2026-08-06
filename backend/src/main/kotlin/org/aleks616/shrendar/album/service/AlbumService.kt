@@ -3,7 +3,7 @@ package org.aleks616.shrendar.album.service
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.album.model.*
 import org.aleks616.shrendar.album.repository.AlbumRepository
-import org.aleks616.shrendar.band.repository.BandRepository
+import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
@@ -22,14 +22,14 @@ import java.util.*
 @Service
 class AlbumService(
     private val albumRepository:AlbumRepository,
+    private val bandService:BandService,
     private val contributionRepository:ContributionRepository,
-    private val userService:UserService,
-    private val bandRepository:BandRepository,
-    private val genreRepository:GenreRepository,
     private val contributionService:ContributionService,
+    private val genreRepository:GenreRepository,
+    private val userService:UserService,
 ) {
     fun doesBandExist(bandId:Int):Boolean {
-        return bandRepository.existsById(bandId)
+        return bandService.doesBandExist(bandId)
     }
 
     fun doesAlbumExist(albumId:Int):Boolean {
@@ -135,7 +135,7 @@ class AlbumService(
 
     fun isReleaseDateValid(album:AlbumAddDto):Boolean{
         if(album.releaseDate!=null&&album.releaseDate>LocalDate.now().plusYears(1)) return false
-        val band=bandRepository.findById(album.bandId!!).get()
+        val band=bandService.getBandById(album.bandId!!)
         return !(band.formedYear!=null&&(band.formedYear!!>album.releaseDate?.year!!))
     }
 
@@ -167,7 +167,7 @@ class AlbumService(
         val albumImportance=if(albumAddDto.type==AlbumType.studio||albumAddDto.type==AlbumType.EP) albumAddDto.importance else null
 
         albumRepository.save(Album().apply {
-            band=bandRepository.findById(albumAddDto.bandId!!).get()
+            band=bandService.getBandById(albumAddDto.bandId!!)
             title=albumAddDto.title
             releaseDate=albumAddDto.releaseDate
             type=albumAddDto.type
@@ -197,6 +197,8 @@ class AlbumService(
                 })
             }
         }
+        bandService.calculateBandsGenre(albumAddDto.bandId)
+
         //todo notify mods or something
         return true
     }
@@ -228,7 +230,7 @@ class AlbumService(
             }
         }
 
-        updateIfChanged("band_id",album.band?.id,albumAddDto.bandId,{album.band=bandRepository.findById(it).get()})
+        updateIfChanged("band_id",album.band?.id,albumAddDto.bandId,{album.band=bandService.getBandById(it)})
         updateIfChanged("title",album.title,albumAddDto.title,{album.title=it})
         updateIfChanged("release_date",album.releaseDate,albumAddDto.releaseDate,{album.releaseDate=it})
         updateIfChanged("type",album.type,albumAddDto.type,{album.type=it})
@@ -265,6 +267,12 @@ class AlbumService(
                 confirmedBy=confirmedByUser
             })
         }
+
+        if(changes.any{it.first=="genre_id"}){
+            val bandId:Int=albumAddDto.bandId?:getById(albumAddDto.id).band!!.id!!
+            bandService.calculateBandsGenre(bandId)
+        }
+
         return true
     }
 

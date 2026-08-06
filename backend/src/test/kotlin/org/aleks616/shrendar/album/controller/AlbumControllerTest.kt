@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.album.model.AlbumType
+import org.aleks616.shrendar.band.model.Band
+import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.genre.model.Genre
+import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
@@ -34,7 +38,6 @@ class AlbumControllerTest {
 
     @Autowired
     private lateinit var mockMvc:MockMvc
-
     @Autowired
     private lateinit var albumRepository:org.aleks616.shrendar.album.repository.AlbumRepository
 
@@ -56,6 +59,15 @@ class AlbumControllerTest {
     @Autowired
     private lateinit var contributionRepository:ContributionRepository
 
+    @Autowired
+    private lateinit var bandsGenreRepository:org.aleks616.shrendar.band.repository.BandsGenreRepository
+
+    @Autowired
+    private lateinit var genreService:GenreService
+
+    @Autowired
+    private lateinit var bandService:BandService
+
     private val objectMapper=ObjectMapper().findAndRegisterModules()
     private lateinit var userToken:String
 
@@ -63,6 +75,7 @@ class AlbumControllerTest {
     fun setup() {
         contributionRepository.deleteAll()
         albumRepository.deleteAll()
+        bandsGenreRepository.deleteAll()
         bandRepository.deleteAll()
         genreRepository.deleteAll()
         userRepository.deleteAll()
@@ -98,19 +111,17 @@ class AlbumControllerTest {
 
     @Test
     fun `addAlbum should work for authorized user`() {
-        val band=bandRepository.saveAndFlush(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
-        genreRepository.saveAndFlush(
-            org.aleks616.shrendar.genre.model.Genre().apply {id=1; name="Heavy Metal"; properties="1"})
+        val band=bandRepository.saveAndFlush(Band().apply {name="Metallica"; formedYear=1981})
+        val genre=genreRepository.saveAndFlush(Genre().apply {id=1; name="Thrash Metal"; properties="1111111"})
 
         val albumAddDto=AlbumAddDto(
             bandId=band.id,
-            title="Master of Puppets",
-            releaseDate=LocalDate.of(1986,3,3),
+            title="Ride the Lightning",
+            releaseDate=LocalDate.of(1984,7,27),
             type=AlbumType.studio,
-            description="Classic",
-            mainSubgenre=1,
-            importance=1,
-            artworkUrl="https://artwork.com"
+            mainSubgenre=genre.id,
+            importance=5,
+            artworkUrl="https://example.com/artwork.jpg"
         )
 
         mockMvc.post("/api/album/add") {
@@ -122,9 +133,11 @@ class AlbumControllerTest {
             content {string("Album addition request received")}
         }
 
-        val album=albumRepository.findAll().find {it.title=="Master of Puppets"}
+        val album=albumRepository.findAll().find {it.title=="Ride the Lightning"}
         assertNotNull(album)
-        assertEquals(1.toByte(),album?.importance)
+        assertEquals(band.id,album?.band?.id)
+        assertEquals(AlbumType.studio,album?.type)
+        assertEquals(5,album?.importance)
     }
 
     @Test
@@ -139,11 +152,11 @@ class AlbumControllerTest {
 
     @Test
     fun `addAlbum should return too many requests when rate limit reached`() {
-        val band=bandRepository.saveAndFlush(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        val band=bandRepository.saveAndFlush(Band().apply {name="Metallica"})
 
         repeat(10) {i->
             genreRepository.saveAndFlush(
-                org.aleks616.shrendar.genre.model.Genre().apply {id=i+1; name="Genre $i"; properties="1"})
+                Genre().apply {id=i+1; name="Genre $i"; properties="1"})
         }
 
         repeat(3) {i->
@@ -191,7 +204,7 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumByIdWiki should return wiki data`() {
-        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        val band=bandRepository.save(Band().apply {name="Metallica"})
         val album=albumRepository.save(Album().apply {
             title="Master of Puppets"
             this.band=band
@@ -233,7 +246,7 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumsByBandId should return albums for existing band`() {
-        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        val band=bandRepository.save(Band().apply {name="Metallica"})
         albumRepository.save(Album().apply {
             title="Band Album"
             this.band=band
@@ -255,7 +268,7 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumsByBandNameLike should return albums`() {
-        val band=bandRepository.save(org.aleks616.shrendar.band.model.Band().apply {name="Metallica"})
+        val band=bandRepository.save(Band().apply {name="Metallica"})
         albumRepository.save(Album().apply {
             title="Some Album"
             this.band=band

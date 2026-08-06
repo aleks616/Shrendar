@@ -28,4 +28,8 @@ class GenreService(
         return genreRepository.existsById(id)
     }
 
+    fun getById(id:Int):Genre{
+        return genreRepository.findGenreById(id)
+    }
+
 }

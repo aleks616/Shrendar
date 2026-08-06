@@ -7,21 +7,24 @@ import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
+import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContribution
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 
 @Service
 class ContributionRevertService(
-    private val userService:UserService,
-    private val contributionRepository:ContributionRepository,
     private val albumRepository:AlbumRepository,
     private val artistRepository:ArtistRepository,
     private val bandRepository:BandRepository,
+    private val bandService:BandService,
     private val bandsMemberRepository:BandsMemberRepository,
+    private val contributionRepository:ContributionRepository,
+    private val userService:UserService,
 ) {
 
     fun revertAddition(changeId:Int,confirmedUserLogin:String):Boolean {
@@ -29,7 +32,7 @@ class ContributionRevertService(
         val rank=confirmingUser.rank!!.id!!
         if(rank<10) return false
         val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions[0].confirmed==true&&rank<12) throw IllegalArgumentException("Rank 12 is required to revert confirmed contribution. User rank: $rank")
+        if(contributions[0].confirmed==true&&rank<12) throw RankTooLowToRevertConfirmedContribution("Rank 12 is required to revert confirmed contribution. User rank: $rank")
 
         val table=contributions[0].changedTable
         val type=contributions[0].action
@@ -46,14 +49,13 @@ class ContributionRevertService(
     }
 
     fun revertAlbumAddition(contributions:List<Contribution>):Boolean {
-        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
-        val title=contributions.find {it.changedColumn=="title"}?.newValue
+        val albumId=contributions[0].changedRecordId
 
-        if(bandId!=null&&title!=null) {
-            val album=
-                if(contributions[0].changedRecordId!=null) albumRepository.findAlbumById(contributions[0].changedRecordId!!)
-                else albumRepository.findByBandId(bandId).find {it.title==title}
-            if(album!=null) albumRepository.delete(album)
+        if(albumId!=null) {
+            val album=albumRepository.findAlbumById(contributions[0].changedRecordId!!)
+            albumRepository.delete(album)
+            val bandId=contributions.find {it.changedColumn=="band_id"}?.newValue?.toInt()
+            if(bandId!=null) bandService.calculateBandsGenre(bandId)
         }
         else return false
 
@@ -61,10 +63,9 @@ class ContributionRevertService(
     }
 
     fun revertArtistAddition(contributions:List<Contribution>):Boolean {
-        val artistId=contributions.find {it.changedColumn=="artistId"}?.newValue?.toInt()
-        val name=contributions.find {it.changedColumn=="name"}?.newValue
+        val artistId=contributions[0].changedRecordId
 
-        if(artistId!=null&&name!=null) {
+        if(artistId!=null) {
             val artist:Artist=artistRepository.findArtistById(artistId)
             artistRepository.delete(artist)
         }
@@ -74,10 +75,9 @@ class ContributionRevertService(
     }
 
     fun revertBandAddition(contributions:List<Contribution>):Boolean {
-        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
-        val name=contributions.find {it.changedColumn=="name"}?.newValue
+        val bandId=contributions[0].changedRecordId
 
-        if(bandId!=null&&name!=null) {
+        if(bandId!=null) {
             val band:Band=bandRepository.findBandById(bandId)
             bandRepository.delete(band)
         }
@@ -87,13 +87,10 @@ class ContributionRevertService(
     }
 
     fun revertBandMemberAddition(contributions:List<Contribution>):Boolean {
-        val artistId=contributions.find {it.changedColumn=="artistId"}?.newValue?.toInt()
-        val bandId=contributions.find {it.changedColumn=="bandId"}?.newValue?.toInt()
-        val role=contributions.find {it.changedColumn=="role"}?.newValue
-        val joinedYear=contributions.find {it.changedColumn=="joinedYear"}?.newValue?.toInt()
+        val id=contributions[0].changedRecordId
 
-        if(artistId!=null&&bandId!=null&&joinedYear!=null&&role!=null) {
-            val bandArtist:BandsMembers=bandsMemberRepository.findBandsMembersByDto(artistId,bandId,role,joinedYear)
+        if(id!=null) {
+            val bandArtist:BandsMembers=bandsMemberRepository.findBandsMembersById(id)
             bandsMemberRepository.delete(bandArtist)
         }
         else return false

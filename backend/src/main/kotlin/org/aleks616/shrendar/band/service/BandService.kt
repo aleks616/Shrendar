@@ -24,16 +24,16 @@ import java.time.LocalDateTime
 
 @Service
 class BandService(
+    private val artistService:ArtistService,
     private val bandRepository:BandRepository,
+    private val bandsGenreRepository:BandsGenreRepository,
+    private val bandsMemberRepository:BandsMemberRepository,
+    private val contributionRepository:ContributionRepository,
+    private val contributionService:ContributionService,
     private val countryRepository:CountryRepository,
     private val genreService:GenreService,
-    private val bandsGenreRepository:BandsGenreRepository,
-    private val genreRepository:GenreRepository,
-    private val contributionService:ContributionService,
     private val userService:UserService,
-    private val contributionRepository:ContributionRepository,
-    private val bandsMemberRepository:BandsMemberRepository,
-    private val artistService:ArtistService
+    private val genreRepository:GenreRepository,
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -55,6 +55,7 @@ class BandService(
     }
     //endregion
     //region query
+
     fun getAll():List<BandDto>{
         val bands=bandRepository.findAll()
         return getBandData(bands)
@@ -125,14 +126,12 @@ class BandService(
     }
 
 
-    //todo: CALL WHEN ADDING/MODYFING ALBUM DATA
     @Transactional
     fun calculateBandsGenre(bandId:Int) {
         bandsGenreRepository.deleteByBandsId(bandId)
         val dataRaw=genreService.getBandAlbumGenresList(bandId)
         val genresList:MutableList<Pair<String,Byte>> = arrayListOf()
-
-        dataRaw.forEach {d->
+        dataRaw.filter { it.name!=null && it.value!=null }.forEach {d->
             val cGenre=genreRepository.findGenreById(d.id!!)
             bandsGenreRepository.save(BandsGenres().apply {
                 bands=getBandById(bandId)

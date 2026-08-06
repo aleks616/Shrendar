@@ -22,7 +22,6 @@ class ArtistController(
     private val rateLimiter:RateLimiter,
     private val countryService:CountryService
 ) {
-    val LIMIT=3
     @GetMapping("/")
     fun getAll():List<Artist>{
         return artistService.getAll()
@@ -108,9 +107,9 @@ class ArtistController(
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         if(artist.name.isNullOrEmpty())
@@ -139,9 +138,9 @@ class ArtistController(
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
        if(artist.id==null)
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist Id is required")
