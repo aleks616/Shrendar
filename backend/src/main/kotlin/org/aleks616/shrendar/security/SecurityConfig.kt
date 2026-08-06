@@ -21,7 +21,7 @@ class SecurityConfig {
         http.sessionManagement {it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         http.authorizeHttpRequests {
             it.requestMatchers(
-                "/api/logout",
+                "/api/user-account/logout",
                 "/api/users",
                 "/api/album/add",
                 "/api/album/edit",

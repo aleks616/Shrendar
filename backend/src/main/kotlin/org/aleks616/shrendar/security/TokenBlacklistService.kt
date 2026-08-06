@@ -8,17 +8,12 @@ import java.time.Instant
 class TokenBlacklistService {
     private val blacklistedTokens=ConcurrentHashMap<String,Long>()
 
-    fun blacklistToken(token:String,expiryEpochSecond:Long) {
-        blacklistedTokens[token]=expiryEpochSecond
+    fun blacklistToken(token:String) {
+        blacklistedTokens[token]=Instant.now().epochSecond
     }
 
     fun isBlacklisted(token:String):Boolean {
-        val expiry=blacklistedTokens[token]?:return false
-        if(Instant.now().epochSecond>expiry) {
-            blacklistedTokens.remove(token)
-            return false
-        }
-        return true
+        return blacklistedTokens.containsKey(token)
     }
 
     fun cleanup() {
