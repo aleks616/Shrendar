@@ -54,6 +54,7 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         AND bm.band.id=:bandId
     """)
     fun findArtistInBand(artistId:Int,bandId:Int):List<BandsMembers>
+    fun findBandsMembersById(id:Int):BandsMembers
 
 
 }

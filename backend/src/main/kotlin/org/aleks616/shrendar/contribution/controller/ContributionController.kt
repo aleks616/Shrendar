@@ -3,6 +3,7 @@ package org.aleks616.shrendar.contribution.controller
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.contribution.service.ContributionRevertService
 import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContribution
 import org.aleks616.shrendar.security.RateLimiter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -55,6 +56,9 @@ class ContributionController (
 
         try{
            contributionRevertService.revertAddition(changeId,userLogin)
+        }
+        catch(e:RankTooLowToRevertConfirmedContribution){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. ${e.message}")

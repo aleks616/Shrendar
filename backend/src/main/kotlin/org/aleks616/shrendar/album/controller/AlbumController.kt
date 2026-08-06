@@ -21,7 +21,6 @@ class AlbumController (
     private val rateLimiter:RateLimiter,
     private val genreService:GenreService
 ){
-    val LIMIT=3
     //region query
     @GetMapping("/")
     fun getAll():List<AlbumDataDto>{
@@ -84,9 +83,9 @@ class AlbumController (
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         if(album.bandId==null||album.bandId<1||album.title.isNullOrEmpty()||album.type.isNullOrEmpty())
@@ -120,9 +119,9 @@ class AlbumController (
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         if(album.id==null)
