@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.security.core.context.SecurityContextHolder
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -110,11 +111,11 @@ class UserAccountController(
         val header=servletRequest.getHeader("Authorization")
         if(header!=null&&header.startsWith("Bearer ")) {
             val token=header.substringAfter("Bearer ").trim()
-            val expiry=JwtUtil.getExpiration(token)
-            if(expiry!=null) {
-                tokenBlacklistService.blacklistToken(token,expiry)
+            if(token.isNotEmpty()) {
+                tokenBlacklistService.blacklistToken(token)
             }
         }
+        SecurityContextHolder.clearContext()
         return ResponseEntity.ok("Logged out")
     }
 
