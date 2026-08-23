@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.genre.model
 
 import java.io.Serializable
+import java.math.BigDecimal
 
 data class GenreDto(
     val id:Int?=null,
@@ -11,5 +12,5 @@ data class GenreDto(
 data class GenreDto1(
     val id:Int?=null,
     val name:String?=null,
-    var value:Long?=null
+    var value:BigDecimal?=null
 ):Serializable

@@ -111,7 +111,6 @@ class AlbumController (
         return ResponseEntity.ok("Album addition request received")
     }
 
-    //todo SEPARATE ENDPOINTS FOR DELETING, IT'S IMPOSSIBLE TO SET NULL WITH PATCH
     @PatchMapping("/edit")
     fun editAlbum(@RequestBody album:AlbumAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:
@@ -147,6 +146,34 @@ class AlbumController (
         }
 
         return ResponseEntity.ok("Album edit request received")
+    }
+
+    @DeleteMapping("/delete")
+    fun deleteAlbum(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(!albumService.doesAlbumExist(id))
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Album with id $id does not exist")
+
+        try{
+            albumService.deleteAlbumRequest(id,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+
+        return ResponseEntity.ok("Album deletion request received")
     }
 
     fun albumValidate(album:AlbumAddDto):ResponseEntity<String>?{

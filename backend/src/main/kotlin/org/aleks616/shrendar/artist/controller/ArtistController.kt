@@ -160,6 +160,32 @@ class ArtistController(
         return ResponseEntity.ok("Artist edit request received")
     }
 
+    @DeleteMapping("/delete")
+    fun deleteArtist(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+        if(!artistService.doesArtistExist(id))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id $id does not exist")
+
+        try{
+            artistService.deleteArtistRequest(id,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+
+        return ResponseEntity.ok("Artist deletion request received")
+    }
+
     fun artistValidate(artist:ArtistAddDto):ResponseEntity<String>?{
         if(artist.birthDate!=null&&artist.deathDate!=null&&artist.birthDate.plusYears(10)>artist.deathDate)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to be at least 10 years old, and death date cannot be before birth date")

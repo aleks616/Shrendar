@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.Int
 
 @Service
 class AlbumService(
@@ -274,6 +275,58 @@ class AlbumService(
         }
 
         return true
+    }
+
+    @Transactional
+    fun deleteAlbumRequest(albumId:Int,userLogin:String) {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        val album=albumRepository.findAlbumById(albumId)
+        val changes:List<Triple<String,String?,String?>> =listOf(
+            Triple("id",album.id.toString(),null),
+            Triple("band_id",album.band?.id.toString(),null),
+            Triple("title",album.title,null),
+            Triple("release_date",album.releaseDate.toString(),null),
+            Triple("type",album.type.toString(),null),
+            Triple("description",album.description,null),
+            Triple("genre_id",album.genre?.id.toString(),null),
+            Triple("importance",album.importance.toString(),null),
+            Triple("artwork_url",album.artworkUrl,null),
+        )
+
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach {(column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.delete
+                changedTable="album"
+                changedColumn=column
+                changedRecordId=id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
+        }
+
+        if(trusted){
+            val bandId:Int=getById(albumId).band!!.id!!
+            bandService.calculateBandsGenre(bandId)
+            albumRepository.deleteById(albumId)
+        }
+
     }
 
 }

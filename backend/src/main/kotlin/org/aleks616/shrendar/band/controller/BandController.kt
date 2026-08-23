@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.transaction.Transactional
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
@@ -180,6 +181,31 @@ class BandController (
         return ResponseEntity.ok("Band edit request received")
     }
 
+    @DeleteMapping("/delete")
+    fun deleteBand(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+        if(!bandService.doesBandExist(id))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id $id does not exist")
+
+        try{
+            bandService.deleteBandRequest(id,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+
+        return ResponseEntity.ok("Band deletion request received")
+    }
 
     @PostMapping("/member-add")
     fun addBandMembersRequest(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
@@ -200,7 +226,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member with id, role and joined year or left year already exists")
 
         try{
-            bandService.addBandMemberRequest(member,userLogin)
+            bandsMemberService.addBandMemberRequest(member,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -232,7 +258,7 @@ class BandController (
             return memberValidate(member)!!
 
         try{
-            bandService.editBandMemberRequest(member,userLogin)
+            bandsMemberService.editBandMemberRequest(member,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -242,6 +268,33 @@ class BandController (
         }
 
         return ResponseEntity.ok("Band member edit request received")
+    }
+
+
+    @DeleteMapping("/member-delete")
+    fun deleteBandMembersRequest(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+        if(!bandsMemberService.doesBandMemberExist(id))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id $id does not exist")
+
+        try{
+            bandsMemberService.deleteBandMemberRequest(id,userLogin)
+        }
+        catch (e:ContributionLimitExceededException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+
+        return ResponseEntity.ok("Band deletion request received")
     }
 
     fun bandValidate(band:BandAddDto):ResponseEntity<String>?{
@@ -299,7 +352,5 @@ class BandController (
 
         return null
     }
-
-
 
 }
