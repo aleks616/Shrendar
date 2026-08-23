@@ -43,8 +43,8 @@ class UserService(
 
     fun getUsers():List<User> =userRepository.findAll()
 
-    fun getUserById(id:Int):User?{
-        return userRepository.findUserById(id)
+    fun doesUserExist(id:Int):Boolean {
+        return userRepository.existsById(id)
     }
 
     fun doesAccountExist(accountKey:String):Boolean {
