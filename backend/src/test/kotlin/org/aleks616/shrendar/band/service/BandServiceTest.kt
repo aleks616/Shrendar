@@ -30,7 +30,6 @@ class BandServiceTest {
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
     private val artistService=mock(ArtistService::class.java)
     private val bandService=BandService(
-        artistService,
         bandRepository,
         bandsGenreRepository,
         bandsMemberRepository,

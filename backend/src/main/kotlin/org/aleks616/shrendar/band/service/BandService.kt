@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.band.service
 
 import jakarta.transaction.Transactional
-import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsGenreRepository
@@ -24,7 +23,6 @@ import java.time.LocalDateTime
 
 @Service
 class BandService(
-    private val artistService:ArtistService,
     private val bandRepository:BandRepository,
     private val bandsGenreRepository:BandsGenreRepository,
     private val bandsMemberRepository:BandsMemberRepository,
@@ -311,98 +309,11 @@ class BandService(
 
     }
 
-
-
     @Transactional
-    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
+    fun deleteBandRequest(id:Int,userLogin:String){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
         if(exception!=null) throw exception
-
-        val time=LocalDateTime.now()
-        var trusted=false
-        var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>8) {
-            trusted=true
-            confirmedByUser=requestingUser.id
-        }
-
-        bandsMemberRepository.save(BandsMembers().apply {
-            artist=artistService.getById(artistBandAddDto.artistId!!)
-            band=getBandById(artistBandAddDto.bandId!!)
-            role=artistBandAddDto.role
-            joinedYear=artistBandAddDto.joinedYear
-            leftYear=artistBandAddDto.leftYear
-            nickname=artistBandAddDto.nickname
-        })
-
-        val lastChangeId=contributionRepository.findTopChangeId()?:0
-
-        val changes:List<Pair<String,String?>> =listOf(
-            Pair("bandId",artistBandAddDto.bandId.toString()),
-            Pair("artistId",artistBandAddDto.artistId.toString()),
-            Pair("role",artistBandAddDto.role),
-            Pair("joinedYear",artistBandAddDto.joinedYear.toString()),
-            Pair("leftYear",artistBandAddDto.leftYear.toString()),
-            Pair("nickname",artistBandAddDto.nickname)
-        )
-        val bandMemberId=bandsMemberRepository.findTopIdByBandIdAndArtistId(artistBandAddDto.bandId!!,artistBandAddDto.artistId!!)
-
-        changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.create
-                    changedTable="bands_members"
-                    changedColumn=it.first
-                    changedRecordId=bandMemberId
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
-        }
-        return true
-    }
-
-    @Transactional
-    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
-        if(exception!=null) throw exception
-
-        val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!).get()
-        if(artistBandAddDto.leftYear!=null&&bandMember.joinedYear!=null&&bandMember.joinedYear!!>artistBandAddDto.leftYear!!)
-            throw IllegalArgumentException("Left year has to be the same or greater than joined year")
-        if(artistBandAddDto.joinedYear!=null&&bandMember.leftYear!=null&&artistBandAddDto.joinedYear!!>bandMember.leftYear!!)
-            throw IllegalArgumentException("Joined year has to be the same or less than left year")
-
-        val changes=mutableListOf<Triple<String,String?,String?>>()
-
-        fun <T> updateIfChanged(
-            column:String,
-            currentValue:T?,
-            newValue:T?,
-            setter:(T)->Unit,
-            stringMapper:(T?)->String?={it?.toString()}
-        ) {
-            if(newValue!=null&&newValue!=currentValue) {
-                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
-                setter(newValue)
-            }
-        }
-
-        updateIfChanged("band_id",bandMember.band!!.id,artistBandAddDto.bandId,{bandMember.band=bandRepository.findById(it).get()})
-        updateIfChanged("artist_id",bandMember.artist!!.id,artistBandAddDto.artistId,{bandMember.artist=artistService.getById(it)})
-        updateIfChanged("nickname",bandMember.nickname,artistBandAddDto.nickname,{bandMember.nickname=it})
-        updateIfChanged("role",bandMember.role,artistBandAddDto.role,{bandMember.role=it})
-        updateIfChanged("joined_year",bandMember.joinedYear,artistBandAddDto.joinedYear,{bandMember.joinedYear=it})
-        updateIfChanged("left_year",bandMember.leftYear,artistBandAddDto.leftYear,{bandMember.leftYear=it})
-
-        if(changes.isEmpty()) return false
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -412,16 +323,27 @@ class BandService(
             confirmedByUser=requestingUser.id
         }
 
-        bandsMemberRepository.save(bandMember)
+        val band=getBandById(id)
+        val changes:List<Triple<String,String?,String?>> =listOf(
+            Triple("id",band.id.toString(),null),
+            Triple("name",band.name,null),
+            Triple("formed_year",band.formedYear.toString(),null),
+            Triple("disbanded_year",band.disbandedYear.toString(),null),
+            Triple("status",band.status.toString(),null),
+            Triple("country",band.country.toString(),null),
+            Triple("description",band.description,null),
+            Triple("image_url",band.imageUrl,null)
+        )
+
         val lastChangeId=contributionRepository.findTopChangeId()?:0
-        changes.forEach { (column,oldValue,newValue)->
+        changes.forEach {(column,oldValue,newValue)->
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
                 user=requestingUser
-                action=Action.update
-                changedTable="bands_members"
+                action=Action.delete
+                changedTable="band"
                 changedColumn=column
-                changedRecordId=artistBandAddDto.id
+                changedRecordId=id
                 this.oldValue=oldValue
                 this.newValue=newValue
                 changedAt=time
@@ -429,7 +351,11 @@ class BandService(
                 confirmedBy=confirmedByUser
             })
         }
-        return true
+
+        if(trusted){
+            bandRepository.deleteById(id)
+        }
+
     }
 
     fun doesSameMemberExist(member:ArtistBandAddDto):Boolean{

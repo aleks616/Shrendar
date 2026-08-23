@@ -296,4 +296,53 @@ class ArtistService(
         return true
     }
 
+    @Transactional
+    fun deleteArtistRequest(artistId:Int,userLogin:String) {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        if(exception!=null) throw exception
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        val artist=getById(artistId)
+        val changes:List<Triple<String,String?,String?>> =listOf(
+            Triple("id",artist.id.toString(),null),
+            Triple("name",artist.name,null),
+            Triple("birth_date",artist.birthDate.toString(),null),
+            Triple("death_date",artist.deathDate.toString(),null),
+            Triple("gender",artist.gender.toString(),null),
+            Triple("country",artist.country.toString(),null),
+            Triple("description",artist.description.toString(),null),
+            Triple("artist_image_url",artist.artistImageUrl.toString(),null),
+        )
+
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach {(column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.delete
+                changedTable="artist"
+                changedColumn=column
+                changedRecordId=id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
+        }
+
+        if(trusted){
+            artistRepository.deleteById(artistId)
+        }
+
+    }
+
 }

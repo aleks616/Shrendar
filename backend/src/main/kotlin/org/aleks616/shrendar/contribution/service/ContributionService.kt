@@ -5,6 +5,7 @@ import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.model.ContributionDto
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.exception.ContributionIsAlreadyConfirmedException
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
@@ -26,16 +27,19 @@ class ContributionService(
     }
 
     @Transactional
-    fun confirmDataAddRequest(changeId:Int,confirmedUserLogin:String):Boolean{
+    fun confirmDataAddRequest(changeId:Int,confirmedUserLogin:String){
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        if(confirmingUser.rank!!.id!!<10) return false
+        if(confirmingUser.rank!!.id!!<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
+        if(contributions.any{it.confirmed==true}){
+            val previousConfirmingUser=userService.getUserById(contributions.first().confirmedBy!!)
+            throw ContributionIsAlreadyConfirmedException("Contribution with id $changeId has already been confirmed by user $previousConfirmingUser")
+        }
         contributions.forEach {
             it.confirmed=true
             it.confirmedBy=confirmingUser.id
             contributionRepository.save(it)
         }
-        return true
     }
 
     fun checkRank(requestingUser:User):ContributionLimitExceededException?{

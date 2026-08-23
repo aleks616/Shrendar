@@ -7,6 +7,7 @@ import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.ContributionDto
 import org.aleks616.shrendar.contribution.service.ContributionRevertService
 import org.aleks616.shrendar.contribution.service.ContributionService
+import org.aleks616.shrendar.exception.RankTooLowToConfirmContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContribution
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.user.service.UserService
@@ -39,8 +40,15 @@ class ContributionController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(!contributionService.confirmDataAddRequest(changeId,userLogin))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        try{
+            contributionService.confirmDataAddRequest(changeId,userLogin)
+        }
+        catch(e:RankTooLowToConfirmContributionException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. ${e.message}")
+        }
 
         return ResponseEntity.ok("Confirmation successful")
     }

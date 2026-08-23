@@ -37,6 +37,10 @@ class UserService(
         return userRepository.findByLogin(login)
     }
 
+    fun getUserById(id:Int):User? {
+        return userRepository.findUserById(id)
+    }
+
     fun matches(raw:String,encrypted:String):Boolean {
         return encoder.matches(raw,encrypted)
     }
