@@ -1,8 +1,6 @@
 package org.aleks616.shrendar.contribution.model
 
 import java.io.Serializable
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 /**
  * DTO for {@link org.aleks616.shrendar.contribution.model.Contribution}
