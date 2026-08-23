@@ -31,8 +31,7 @@ class SecurityConfig {
                 "/api/band/edit",
                 "/api/band/member-add",
                 "/api/band/member-edit",
-                "/api/contribution/revert",
-                "/api/contribution/confirm"
+                "/api/contribution/*",
             ).authenticated()
             it.anyRequest().permitAll()
         }

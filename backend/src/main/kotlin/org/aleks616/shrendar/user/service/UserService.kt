@@ -47,6 +47,10 @@ class UserService(
         return userRepository.findUserById(id)
     }
 
+    fun doesUserExist(id:Int):Boolean {
+        return userRepository.existsById(id)
+    }
+
     fun doesAccountExist(accountKey:String):Boolean {
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
     }
