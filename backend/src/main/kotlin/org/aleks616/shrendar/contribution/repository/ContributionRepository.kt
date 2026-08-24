@@ -60,6 +60,19 @@ interface ContributionRepository:JpaRepository<Contribution,Int> {
     )
     fun findContributionsByChangedTableAndChangedRecordId(table:String,recordId:Int):MutableList<Contribution>
 
+
+    @Query(
+        """
+        SELECT c1.*
+        FROM contribution AS c1
+        LEFT JOIN contribution AS c2 ON c1.changed_column = c2.changed_column
+        AND c1.change_id < c2.change_id
+        WHERE c2.id IS NULL AND c1.action='update'
+    """,nativeQuery=true
+    )
+    fun findLastContributionsByTableNameAndChangedRecordId(table:String,recordId:Int):MutableList<Contribution>
+
+
     @Query(
         """
        SELECT *

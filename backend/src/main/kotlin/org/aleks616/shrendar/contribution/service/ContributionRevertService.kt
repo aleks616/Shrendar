@@ -57,7 +57,7 @@ class ContributionRevertService(
             val bandId=contributions.find {it.changedColumn=="band_id"}?.newValue?.toInt()
             if(bandId!=null) bandService.calculateBandsGenre(bandId)
         }
-        else return false
+        else throw RuntimeException("album id can't be null")
 
         return true
     }
@@ -69,7 +69,7 @@ class ContributionRevertService(
             val artist:Artist=artistRepository.findArtistById(artistId)
             artistRepository.delete(artist)
         }
-        else return false
+        else throw RuntimeException("artist id can't be null")
 
         return true
     }
@@ -81,7 +81,7 @@ class ContributionRevertService(
             val band:Band=bandRepository.findBandById(bandId)
             bandRepository.delete(band)
         }
-        else return false
+        else throw RuntimeException("band id can't be null")
 
         return true
     }
