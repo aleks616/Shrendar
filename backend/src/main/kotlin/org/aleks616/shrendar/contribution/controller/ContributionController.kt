@@ -5,6 +5,7 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.model.Table
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.ContributionDto
+import org.aleks616.shrendar.contribution.model.ContributionHistoryDto
 import org.aleks616.shrendar.contribution.service.ContributionRevertService
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.RankTooLowToConfirmContributionException
@@ -83,6 +84,8 @@ class ContributionController (
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. ${e.message}")
     }
 
+    //region select
+
     @GetMapping("/requested-by/{id}")
     fun getContributionsByRequestingUser(@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
         if(!userService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
@@ -122,7 +125,7 @@ class ContributionController (
     @GetMapping("/table/{table}")
     fun getContributionsByTableName(@PathVariable table:String,servletRequest:HttpServletRequest):List<ContributionDto>{
         try{
-            val table:Table=Table.valueOf(table.uppercase())
+            Table.valueOf(table.uppercase())
         }
         catch(_:IllegalStateException){
             throw IllegalStateException("table \"$table\" does not exist")
@@ -146,7 +149,7 @@ class ContributionController (
     @GetMapping("/table-record/{table}")
     fun getContributionsByTableNameAndChangedRecordId(@PathVariable table:String, @RequestParam id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
         try{
-            val table:Table=Table.valueOf(table.uppercase())
+            Table.valueOf(table.uppercase())
         }
         catch(_:IllegalStateException){
             throw IllegalStateException("table \"$table\" does not exist")
@@ -161,6 +164,30 @@ class ContributionController (
 
         try{
             return contributionService.getContributionsByTableNameAndChangedRecordId(table,id)
+        }
+        catch(e:Exception){
+            throw IllegalStateException("${e.message}")
+        }
+    }
+
+    @GetMapping("/table-record-last/{table}/{id}")
+    fun getLastChangesByTableAndChangedRecordId(@PathVariable table:String, @PathVariable id:Int,servletRequest:HttpServletRequest):ContributionHistoryDto{
+        try{
+            Table.valueOf(table.uppercase())
+        }
+        catch(_:IllegalStateException){
+            throw IllegalStateException("table \"$table\" does not exist")
+        }
+
+        val user=SecurityContextHolder.getContext().authentication?:
+                 throw IllegalStateException("User not authenticated")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+
+        try{
+            return contributionService.getLastChangesByTableNameAndChangedRecordId(table,id)
         }
         catch(e:Exception){
             throw IllegalStateException("${e.message}")
@@ -223,4 +250,6 @@ class ContributionController (
             throw IllegalStateException("${e.message}")
         }
     }
+
+    //endregion
 }

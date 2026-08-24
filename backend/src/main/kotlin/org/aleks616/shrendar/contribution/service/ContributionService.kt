@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.model.ContributionDto
+import org.aleks616.shrendar.contribution.model.ContributionHistoryDto
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionIsAlreadyConfirmedException
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
@@ -81,6 +82,13 @@ class ContributionService(
 
     fun getContributionsByTableNameAndChangedRecordId(tableName:String,recordId:Int):List<ContributionDto>{
         return mapContributionToContributionDto(contributionRepository.findContributionsByChangedTableAndChangedRecordId(tableName,recordId))
+    }
+
+    fun getLastChangesByTableNameAndChangedRecordId(tableName:String,recordId:Int):ContributionHistoryDto{
+        return ContributionHistoryDto(
+            table=tableName,
+            contributions=mapContributionToContributionDto(contributionRepository.findLastContributionsByTableNameAndChangedRecordId(tableName,recordId))
+        )
     }
 
     fun getContributionsByChangedAtBetween(start:LocalDate,end:LocalDate=LocalDate.now()):List<ContributionDto>{

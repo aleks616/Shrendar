@@ -111,7 +111,7 @@ class AlbumController (
         return ResponseEntity.ok("Album addition request received")
     }
 
-    @PatchMapping("/edit")
+    @PutMapping("/edit")
     fun editAlbum(@RequestBody album:AlbumAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
@@ -123,11 +123,11 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(album.id==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Album id is required to edit album data")
+        if(album.id==null||album.title==null||album.type==null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Album id, title and type are required")
         if(!albumService.doesAlbumExist(album.id))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Album with id ${album.id} does not exist")
-        if(album.title!=null&&albumService.doesAlbumWithNameExistForAlbumId(album))
+        if(albumService.doesAlbumWithNameExistForAlbumId(album))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This band already has an album with title ${album.title}. Do not repeat the same title if you're editing.")
         if(albumValidate(album)!=null)
             return albumValidate(album)!!

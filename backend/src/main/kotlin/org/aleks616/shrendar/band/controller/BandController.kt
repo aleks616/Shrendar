@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.transaction.Transactional
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
@@ -148,7 +147,7 @@ class BandController (
         return ResponseEntity.ok("Band addition request received")
     }
 
-    @PatchMapping("/edit")
+    @PutMapping("/edit")
     fun editBand(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         if(band.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band ID is required")
         val user=SecurityContextHolder.getContext().authentication?:
@@ -161,9 +160,9 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(band.id==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band id is required")
-        if(bandService.doesBandExist(band.id!!))
+        if(band.id==null||band.name.isNullOrEmpty()||band.status==null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band id, name and status are required")
+        if(!bandService.doesBandExist(band.id!!))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id ${band.id} does not exist")
         if(bandValidate(band)!=null)
             return bandValidate(band)!!
@@ -238,7 +237,7 @@ class BandController (
         return ResponseEntity.ok("Band member addition request received")
     }
 
-    @PatchMapping("/member-edit")
+    @PutMapping("/member-edit")
     fun editBandMembersRequest(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
         if(member.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member ID is required")
         val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
@@ -250,8 +249,8 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",20,120))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(member.id==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id is required")
+        if(member.id==null||member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member id, artist id, band id, role and joined year are required")
         if(!bandService.doesBandMemberExist(member.id!!))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id ${member.id} doesn't exists")
         if(memberValidate(member)!=null)

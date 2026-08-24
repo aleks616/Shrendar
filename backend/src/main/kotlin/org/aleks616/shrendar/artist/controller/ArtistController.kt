@@ -131,7 +131,7 @@ class ArtistController(
         return ResponseEntity.ok("Artist addition request received")
     }
 
-    @PatchMapping("/edit")
+    @PutMapping("/edit")
     fun editArtist(@RequestBody artist:ArtistAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
@@ -142,8 +142,8 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-       if(artist.id==null)
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist Id is required")
+       if(artist.id==null||artist.name.isNullOrEmpty()||artist.gender==null)
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist id, name and gender are required")
         if(!artistService.doesArtistExist(artist.id))
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id ${artist.id} does not exist")
         
