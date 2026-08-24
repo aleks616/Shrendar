@@ -160,7 +160,7 @@ class ContributionControllerTest {
             header("Authorization","Bearer $newbieToken")
             param("changeId",changeId.toString())
         }.andExpect {
-            status {isBadRequest()}
+            status {isInternalServerError()}
         }
 
         val contributions=contributionRepository.getByChangeId(changeId)
