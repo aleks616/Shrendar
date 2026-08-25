@@ -25,7 +25,7 @@ class XpService(
         if(date==previousDate) return
         val users=userRepository.findAll()
         users.forEach {user->
-            user.xp=(user.xp?:0)+4
+            user.xp=(user.xp?:0)+1
         }
         userRepository.saveAll(users)
         updateAllUsersRanks()
