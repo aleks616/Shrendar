@@ -15,6 +15,7 @@ import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -25,8 +26,8 @@ class ArtistService(
     private val artistRepository:ArtistRepository,
     private val countryRepository:CountryRepository,
     private val userService:UserService,
-    private val contributionService:ContributionService,
-    private val contributionRepository:ContributionRepository
+    private val contributionRepository:ContributionRepository,
+    private val rankService:RankService
 ){
 
     //region query
@@ -179,7 +180,7 @@ class ArtistService(
     @Transactional
     fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -238,7 +239,7 @@ class ArtistService(
     @Transactional
     fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val artist=getById(artistAddDto.id!!)
@@ -297,9 +298,9 @@ class ArtistService(
     }
 
     @Transactional
-    fun deleteArtistRequest(artistId:Int,userLogin:String) {
+    fun deleteArtistRequest(artistId:Int,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -310,33 +311,35 @@ class ArtistService(
             confirmedByUser=requestingUser.id
         }
 
-        val artist=getById(artistId)
-        val changes:List<Triple<String,String?,String?>> =listOf(
-            Triple("id",artist.id.toString(),null),
-            Triple("name",artist.name,null),
-            Triple("birth_date",artist.birthDate.toString(),null),
-            Triple("death_date",artist.deathDate.toString(),null),
-            Triple("gender",artist.gender.toString(),null),
-            Triple("country",artist.country.toString(),null),
-            Triple("description",artist.description.toString(),null),
-            Triple("artist_image_url",artist.artistImageUrl.toString(),null),
-        )
+        if(log){
+            val artist=getById(artistId)
+            val changes:List<Triple<String,String?,String?>> =listOf(
+                Triple("id",artist.id.toString(),null),
+                Triple("name",artist.name,null),
+                Triple("birth_date",artist.birthDate.toString(),null),
+                Triple("death_date",artist.deathDate.toString(),null),
+                Triple("gender",artist.gender.toString(),null),
+                Triple("country",artist.country.toString(),null),
+                Triple("description",artist.description.toString(),null),
+                Triple("artist_image_url",artist.artistImageUrl.toString(),null),
+            )
 
-        val lastChangeId=contributionRepository.findTopChangeId()?:0
-        changes.forEach {(column,oldValue,newValue)->
-            contributionRepository.save(Contribution().apply {
-                changeId=lastChangeId+1
-                user=requestingUser
-                action=Action.delete
-                changedTable="artist"
-                changedColumn=column
-                changedRecordId=id
-                this.oldValue=oldValue
-                this.newValue=newValue
-                changedAt=time
-                confirmed=trusted
-                confirmedBy=confirmedByUser
-            })
+            val lastChangeId=contributionRepository.findTopChangeId()?:0
+            changes.forEach {(column,oldValue,newValue)->
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.delete
+                    changedTable="artist"
+                    changedColumn=column
+                    changedRecordId=id
+                    this.oldValue=oldValue
+                    this.newValue=newValue
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
         }
 
         if(trusted){

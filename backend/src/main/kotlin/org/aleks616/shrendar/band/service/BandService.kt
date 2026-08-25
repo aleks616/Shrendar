@@ -16,6 +16,7 @@ import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.genre.service.GenreSimilarity
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -27,11 +28,11 @@ class BandService(
     private val bandsGenreRepository:BandsGenreRepository,
     private val bandsMemberRepository:BandsMemberRepository,
     private val contributionRepository:ContributionRepository,
-    private val contributionService:ContributionService,
     private val countryRepository:CountryRepository,
     private val genreService:GenreService,
     private val userService:UserService,
     private val genreRepository:GenreRepository,
+    private val rankService:RankService,
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -191,7 +192,7 @@ class BandService(
     @Transactional
     fun addBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -250,7 +251,7 @@ class BandService(
     @Transactional
     fun editBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val band=getBandById(bandAddDto.id!!)
@@ -310,9 +311,9 @@ class BandService(
     }
 
     @Transactional
-    fun deleteBandRequest(id:Int,userLogin:String){
+    fun deleteBandRequest(id:Int,userLogin:String,log:Boolean=true){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -323,33 +324,35 @@ class BandService(
             confirmedByUser=requestingUser.id
         }
 
-        val band=getBandById(id)
-        val changes:List<Triple<String,String?,String?>> =listOf(
-            Triple("id",band.id.toString(),null),
-            Triple("name",band.name,null),
-            Triple("formed_year",band.formedYear.toString(),null),
-            Triple("disbanded_year",band.disbandedYear.toString(),null),
-            Triple("status",band.status.toString(),null),
-            Triple("country",band.country.toString(),null),
-            Triple("description",band.description,null),
-            Triple("image_url",band.imageUrl,null)
-        )
+        if(log){
+            val band=getBandById(id)
+            val changes:List<Triple<String,String?,String?>> =listOf(
+                Triple("id",band.id.toString(),null),
+                Triple("name",band.name,null),
+                Triple("formed_year",band.formedYear.toString(),null),
+                Triple("disbanded_year",band.disbandedYear.toString(),null),
+                Triple("status",band.status.toString(),null),
+                Triple("country",band.country.toString(),null),
+                Triple("description",band.description,null),
+                Triple("image_url",band.imageUrl,null)
+            )
 
-        val lastChangeId=contributionRepository.findTopChangeId()?:0
-        changes.forEach {(column,oldValue,newValue)->
-            contributionRepository.save(Contribution().apply {
-                changeId=lastChangeId+1
-                user=requestingUser
-                action=Action.delete
-                changedTable="band"
-                changedColumn=column
-                changedRecordId=id
-                this.oldValue=oldValue
-                this.newValue=newValue
-                changedAt=time
-                confirmed=trusted
-                confirmedBy=confirmedByUser
-            })
+            val lastChangeId=contributionRepository.findTopChangeId()?:0
+            changes.forEach {(column,oldValue,newValue)->
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.delete
+                    changedTable="band"
+                    changedColumn=column
+                    changedRecordId=id
+                    this.oldValue=oldValue
+                    this.newValue=newValue
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
         }
 
         if(trusted){

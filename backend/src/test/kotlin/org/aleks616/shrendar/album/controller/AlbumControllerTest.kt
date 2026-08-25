@@ -6,6 +6,7 @@ import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.album.model.AlbumType
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
@@ -160,7 +161,7 @@ class AlbumControllerTest {
                 Genre().apply {id=i+1; name="Genre $i"; properties="1"})
         }
 
-        repeat(3) {i->
+        repeat(Utils.LIMIT) {i->
             val albumAddDto=AlbumAddDto(bandId=band.id,title="Quick Album $i",mainSubgenre=i+1)
             mockMvc.post("/api/album/add") {
                 header("Authorization","Bearer $userToken")

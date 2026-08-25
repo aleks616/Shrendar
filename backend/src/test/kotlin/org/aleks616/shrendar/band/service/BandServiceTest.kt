@@ -1,6 +1,5 @@
 package org.aleks616.shrendar.band.service
 
-import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.model.BandsGenres
 import org.aleks616.shrendar.band.repository.BandRepository
@@ -8,11 +7,11 @@ import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.band.repository.BandsGenreRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.model.GenreDto
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
+import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
@@ -24,21 +23,20 @@ class BandServiceTest {
     private val genreService=mock(GenreService::class.java)
     private val bandsGenreRepository=mock(BandsGenreRepository::class.java)
     private val genreRepository=mock(GenreRepository::class.java)
-    private val contributionService=mock(ContributionService::class.java)
     private val userService=mock(UserService::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
-    private val artistService=mock(ArtistService::class.java)
+    private val rankService=mock(RankService::class.java)
     private val bandService=BandService(
         bandRepository,
         bandsGenreRepository,
         bandsMemberRepository,
         contributionRepository,
-        contributionService,
         countryRepository,
         genreService,
         userService,
         genreRepository,
+        rankService,
     )
 
     @Test
