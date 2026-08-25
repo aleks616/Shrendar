@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 @Service
@@ -30,7 +31,8 @@ class UserService(
     @Qualifier("registrationCodeStorage") private val registrationCodeStorage:CodeStorage,
     @Qualifier("passwordResetCodeStorage") private val passwordResetCodeStorage:CodeStorage,
     private val emailService:EmailService,
-    private val encoder:BCryptPasswordEncoder
+    private val encoder:BCryptPasswordEncoder,
+    private val xpService: XpService
 ) {
 
     fun getUserByLogin(login:String):User? {
@@ -71,6 +73,12 @@ class UserService(
             userLog.lastLoginTime=Instant.now()
             userLogRepository.save(userLog)
         }
+
+        val zone=ZoneId.of("UTC")
+        val lastLoginDate=LocalDate.ofInstant(userLog.lastLoginTime,zone)
+        val hasLoggedInToday:Boolean=lastLoginDate==LocalDate.now(zone)
+        if(!hasLoggedInToday)
+            xpService.increaseUserXp(user.login!!,6)
 
         return if(matches(req.password,user.passwordHash?:"")) user.login else null
     }
@@ -136,9 +144,9 @@ class UserService(
         return true
     }
 
-    fun changePassword(email:String,newpassword:String,resetCode:String):Boolean {
+    fun changePassword(email:String,newPassword:String,resetCode:String):Boolean {
         if(!passwordResetCodeStorage.validateCode(email,resetCode)) return false
-        val encryptedPassword=encoder.encode(newpassword)
+        val encryptedPassword=encoder.encode(newPassword)
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         val userPasswordHistory=UserPasswordHistory()
         val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id!!)
