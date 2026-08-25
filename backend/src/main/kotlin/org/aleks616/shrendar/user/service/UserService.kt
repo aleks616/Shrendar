@@ -93,6 +93,7 @@ class UserService(
     }
 
     fun initiateRegistration(req:UserAccountController.RegisterRequest):Boolean {
+        if(req.login=="anonymousUser") return false
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!registrationCodeStorage.canSendCode(req.email)) return false
         val code=CodeGenerator.generateCode()
