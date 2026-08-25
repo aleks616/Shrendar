@@ -8,7 +8,6 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.repository.GenreRepository
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.Int
 
 @Service
 class AlbumService(

@@ -1,18 +1,13 @@
 package org.aleks616.shrendar.artist.service
 
 import jakarta.transaction.Transactional
-import org.aleks616.shrendar.artist.model.Artist
-import org.aleks616.shrendar.artist.model.ArtistAddDto
-import org.aleks616.shrendar.artist.model.ArtistWikiDto
-import org.aleks616.shrendar.artist.model.ChineseZodiacSign
-import org.aleks616.shrendar.artist.model.ZodiacSign
+import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService

@@ -2,27 +2,17 @@ package org.aleks616.shrendar.band.service
 
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.artist.service.ArtistService
-import org.aleks616.shrendar.band.model.ArtistBandAddDto
-import org.aleks616.shrendar.band.model.ArtistBandsExtendedDto
-import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
-import org.aleks616.shrendar.band.model.BandsMembers
-import org.aleks616.shrendar.band.model.BandsMembersDataDto
-import org.aleks616.shrendar.band.model.BandsMembersDataExtendedDto
-import org.aleks616.shrendar.band.model.BandsMembersDto
-import org.aleks616.shrendar.band.model.BandsMembersWikiDto
+import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import kotlin.collections.forEach
-import kotlin.toString
 
 @Service
 class BandsMemberService(
