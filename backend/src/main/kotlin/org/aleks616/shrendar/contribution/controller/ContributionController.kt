@@ -30,7 +30,7 @@ class ContributionController (
     fun getContributions()=contributionService.getAll()
 
     @PostMapping("/confirm")
-    fun confirmAddRequest(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun confirmContributionRequest(@RequestParam changeId:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -42,7 +42,7 @@ class ContributionController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         try{
-            contributionService.confirmDataAddRequest(changeId,userLogin)
+            contributionService.confirmDataChangeRequest(changeId,userLogin)
         }
         catch(e:RankTooLowToConfirmContributionException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")

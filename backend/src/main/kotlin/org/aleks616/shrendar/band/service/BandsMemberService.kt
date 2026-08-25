@@ -2,35 +2,26 @@ package org.aleks616.shrendar.band.service
 
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.artist.service.ArtistService
-import org.aleks616.shrendar.band.model.ArtistBandAddDto
-import org.aleks616.shrendar.band.model.ArtistBandsExtendedDto
-import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
-import org.aleks616.shrendar.band.model.BandsMembers
-import org.aleks616.shrendar.band.model.BandsMembersDataDto
-import org.aleks616.shrendar.band.model.BandsMembersDataExtendedDto
-import org.aleks616.shrendar.band.model.BandsMembersDto
-import org.aleks616.shrendar.band.model.BandsMembersWikiDto
+import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import kotlin.collections.forEach
-import kotlin.toString
 
 @Service
 class BandsMemberService(
     val artistService:ArtistService,
     val bandService:BandService,
     val bandsMemberRepository:BandsMemberRepository,
-    val contributionService:ContributionService,
     val contributionRepository:ContributionRepository,
     val userService:UserService,
+    val rankService:RankService,
 ) {
     fun doesBandMemberExist(id:Int):Boolean {
         return bandsMemberRepository.existsById(id)
@@ -170,7 +161,7 @@ class BandsMemberService(
     @Transactional
     fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -225,7 +216,7 @@ class BandsMemberService(
     @Transactional
     fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!).get()
@@ -287,9 +278,9 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun deleteBandMemberRequest(id:Int,userLogin:String) {
+    fun deleteBandMemberRequest(id:Int,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
-        val exception:ContributionLimitExceededException?=contributionService.checkRank(requestingUser)
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
@@ -300,32 +291,34 @@ class BandsMemberService(
             confirmedByUser=requestingUser.id
         }
 
-        val bandMember=bandsMemberRepository.findById(id).get()
-        val changes:List<Triple<String,String?,String?>> =listOf(
-            Triple("id",bandMember.id.toString(),null),
-            Triple("band_id",bandMember.band?.id.toString(),null),
-            Triple("artist_id",bandMember.artist?.id.toString(),null),
-            Triple("nickname",bandMember.nickname,null),
-            Triple("role",bandMember.role,null),
-            Triple("joined_year",bandMember.joinedYear.toString(),null),
-            Triple("left_year",bandMember.leftYear.toString(),null),
-        )
+        if(log){
+            val bandMember=bandsMemberRepository.findById(id).get()
+            val changes:List<Triple<String,String?,String?>> =listOf(
+                Triple("id",bandMember.id.toString(),null),
+                Triple("band_id",bandMember.band?.id.toString(),null),
+                Triple("artist_id",bandMember.artist?.id.toString(),null),
+                Triple("nickname",bandMember.nickname,null),
+                Triple("role",bandMember.role,null),
+                Triple("joined_year",bandMember.joinedYear.toString(),null),
+                Triple("left_year",bandMember.leftYear.toString(),null),
+            )
 
-        val lastChangeId=contributionRepository.findTopChangeId()?:0
-        changes.forEach {(column,oldValue,newValue)->
-            contributionRepository.save(Contribution().apply {
-                changeId=lastChangeId+1
-                user=requestingUser
-                action=Action.delete
-                changedTable="bands_members"
-                changedColumn=column
-                changedRecordId=id
-                this.oldValue=oldValue
-                this.newValue=newValue
-                changedAt=time
-                confirmed=trusted
-                confirmedBy=confirmedByUser
-            })
+            val lastChangeId=contributionRepository.findTopChangeId()?:0
+            changes.forEach {(column,oldValue,newValue)->
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.delete
+                    changedTable="bands_members"
+                    changedColumn=column
+                    changedRecordId=id
+                    this.oldValue=oldValue
+                    this.newValue=newValue
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
         }
 
         if(trusted){

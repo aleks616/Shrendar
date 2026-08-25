@@ -3,6 +3,7 @@ package org.aleks616.shrendar.artist.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.repository.ArtistRepository
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.model.Country
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Action
@@ -135,7 +136,7 @@ class ArtistControllerIntegrationTest{
     fun `addArtist should return too many requests when rate limit reached`() {
         val artistAddDto=ArtistAddDto(name="Fast Artist")
 
-        repeat(3) {
+        repeat(Utils.LIMIT) {
             mockMvc.post("/api/artist/add") {
                 header("Authorization","Bearer $userToken")
                 contentType=MediaType.APPLICATION_JSON

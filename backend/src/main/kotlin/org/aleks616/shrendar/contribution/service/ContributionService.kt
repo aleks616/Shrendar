@@ -1,15 +1,17 @@
 package org.aleks616.shrendar.contribution.service
 
 import jakarta.transaction.Transactional
+import org.aleks616.shrendar.album.service.AlbumService
+import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.model.ContributionDto
 import org.aleks616.shrendar.contribution.model.ContributionHistoryDto
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionIsAlreadyConfirmedException
-import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -18,17 +20,20 @@ import java.time.LocalDate
 class ContributionService(
     private val contributionRepository:ContributionRepository,
     private val userService:UserService,
-    private val rankRepository:RankRepository
+    private val albumService:AlbumService,
+    private val artistService:ArtistService,
+    private val bandService:BandService,
+    private val bandsMemberService:BandsMemberService
 
 ){
     fun getAll():List<Contribution> =contributionRepository.findAll()
 
-    fun getContributionCountByUser(userId:Int):Int{
+    /*fun getContributionCountByUser(userId:Int):Int{
         return contributionRepository.getContributionCountByUser(userId)
-    }
+    }*/
 
     @Transactional
-    fun confirmDataAddRequest(changeId:Int,confirmedUserLogin:String){
+    fun confirmDataChangeRequest(changeId:Int,confirmedUserLogin:String){
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
         if(confirmingUser.rank!!.id!!<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
@@ -41,14 +46,17 @@ class ContributionService(
             it.confirmedBy=confirmingUser.id
             contributionRepository.save(it)
         }
-    }
 
-    fun checkRank(requestingUser:User):ContributionLimitExceededException?{
-        val rankId:Int=requestingUser.rank!!.id!!
-        val rankLimit=rankRepository.getRankById(rankId).allowedContributions!!
-        val recentContributionCount=getContributionCountByUser(requestingUser.id!!)
-        if(recentContributionCount>=rankLimit) return ContributionLimitExceededException("You have reached your weekly limit. Limit for rank $rankId is $rankLimit")
-        return null
+        if(contributions.first().action==Action.delete){
+            if(contributions.first().changedTable=="album")
+                albumService.deleteAlbumRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+            if(contributions.first().changedTable=="artist")
+                artistService.deleteArtistRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+            if(contributions.first().changedTable=="band")
+                bandService.deleteBandRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+            if(contributions.first().changedTable=="bands_members")
+                bandsMemberService.deleteBandMemberRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+        }
     }
 
     fun mapContributionToContributionDto(contributions:List<Contribution>):List<ContributionDto>{
