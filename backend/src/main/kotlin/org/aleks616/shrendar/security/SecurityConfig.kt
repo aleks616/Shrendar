@@ -25,13 +25,17 @@ class SecurityConfig {
                 "/api/users",
                 "/api/album/add",
                 "/api/album/edit",
+                "/api/album/delete",
                 "/api/artist/add",
                 "/api/artist/edit",
+                "/api/artist/delete",
                 "/api/band/add",
                 "/api/band/edit",
+                "/api/band/delete",
                 "/api/band/member-add",
                 "/api/band/member-edit",
-                "/api/contribution/*",
+                "/api/band/member-delete",
+                "/api/contribution/**",
             ).authenticated()
             it.anyRequest().permitAll()
         }

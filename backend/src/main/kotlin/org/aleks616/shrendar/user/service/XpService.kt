@@ -66,12 +66,12 @@ class XpService(
             user.rank=newRank
         }
         userRepository.save(user)
+        //todo save notification
     }
 
     @Transactional
     fun manualRankAssign(login:String,rankId:Int){
         val user=userRepository.findByLogin(login)?:return
-        //can't find by id because it gives assignment type error
         val ranks=rankRepository.findAll()
         val rank=ranks.find {it.id==rankId}
         val minRankXp=rank?.minXp
