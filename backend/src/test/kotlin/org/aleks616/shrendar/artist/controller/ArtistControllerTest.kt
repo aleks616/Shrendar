@@ -1,19 +1,29 @@
 package org.aleks616.shrendar.artist.controller
 
 import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.artist.model.Artist
+import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito.*
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import java.time.LocalDate
 
 class ArtistControllerTest {
 
@@ -22,6 +32,17 @@ class ArtistControllerTest {
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
     private val controller=ArtistController(artistService,rateLimiter,countryService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
+    private val request=mock(HttpServletRequest::class.java)
+    private val dto=ArtistAddDto(name="James Hetfield",gender='M')
+
+    @BeforeEach
+    fun setup() {
+        SecurityContextHolder.getContext().authentication=
+            UsernamePasswordAuthenticationToken("user",null,emptyList())
+        `when`(request.remoteAddr).thenReturn("127.0.0.1")
+        `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_BASIC),eq(60))).thenReturn(true)
+        `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_HIGH),eq(60))).thenReturn(true)
+    }
 
     @Test
     fun `getAll should return all artists`() {
@@ -284,5 +305,339 @@ class ArtistControllerTest {
                 status {isOk()}
                 content {json("[{'id':1,'name':'James Hetfield'}]")}
             }
+    }
+
+    @Test
+    fun `addArtist should return success`() {
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).addArtistRequest(dto,"user")
+    }
+
+    @Test
+    fun `addArtist should return bad request when name is missing`() {
+        val result=controller.addArtist(dto.copy(name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `addArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should return too many requests when IP limit is reached`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `addArtist should return too many requests when login limit is reached`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should return validation error for invalid gender`() {
+        val result=controller.addArtist(dto.copy(gender='Z'),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `addArtist should return validation error for invalid country`() {
+        `when`(countryService.doesCountryExist(99)).thenReturn(false)
+
+        val result=controller.addArtist(dto.copy(country=99),request)
+
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `addArtist should handle contribution limit exception`() {
+        doAnswer {throw ContributionLimitExceededException("limit")}
+            .`when`(artistService).addArtistRequest(dto,"user")
+
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should handle unexpected exception`() {
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).addArtistRequest(dto,"user")
+
+        val result=controller.addArtist(dto,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should reject death date before artist is ten years old`() {
+        val result=controller.addArtist(
+            dto.copy(
+                birthDate=LocalDate.of(2000,1,1),
+                deathDate=LocalDate.of(2005,1,1)
+            ),
+            request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should reject artist younger than ten years`() {
+        val result=controller.addArtist(
+            dto.copy(birthDate=LocalDate.now().minusYears(5)),
+            request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should reject death date in the future`() {
+        val result=controller.addArtist(
+            dto.copy(deathDate=LocalDate.now().plusDays(1)),
+            request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should accept death date that is not in the future`() {
+        val result=controller.addArtist(
+            dto.copy(
+                birthDate=LocalDate.of(1980,1,1),
+                deathDate=LocalDate.of(2020,1,1)
+            ),
+            request
+        )
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).addArtistRequest(
+            dto.copy(
+                birthDate=LocalDate.of(1980,1,1),
+                deathDate=LocalDate.of(2020,1,1)
+            ),
+            "user"
+        )
+    }
+
+    @Test
+    fun `addArtist should accept artist who is at least ten years old`() {
+        val validDto=dto.copy(birthDate=LocalDate.of(1980,1,1))
+
+        val result=controller.addArtist(validDto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).addArtistRequest(validDto,"user")
+    }
+
+    @Test
+    fun `addArtist should reject invalid image URL`() {
+        val result=controller.addArtist(dto.copy(artistImageUrl="not a url"),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should reject country id below one`() {
+        val result=controller.addArtist(dto.copy(country=0),request)
+
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        verifyNoInteractions(countryService)
+    }
+
+    @Test
+    fun `editArtist should return success`() {
+        val editDto=dto.copy(id=1)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+
+        val result=controller.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).editArtistRequest(editDto,"user")
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing required fields`() {
+        val result=controller.editArtist(dto.copy(id=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing artist`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(false)
+
+        val result=controller.editArtist(dto.copy(id=1),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editArtist should return too many requests when IP limit is reached`() {
+        val editDto=dto.copy(id=1)
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `editArtist should return too many requests when login limit is reached`() {
+        val editDto=dto.copy(id=1)
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `editArtist should handle contribution limit exception`() {
+        val editDto=dto.copy(id=1)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doAnswer {throw ContributionLimitExceededException("limit")}
+            .`when`(artistService).editArtistRequest(editDto,"user")
+
+        val result=controller.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+    }
+
+    @Test
+    fun `editArtist should handle unexpected exception`() {
+        val editDto=dto.copy(id=1)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).editArtistRequest(editDto,"user")
+
+        val result=controller.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `deleteArtist should return success`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).deleteArtistRequest(1,"user")
+    }
+
+    @Test
+    fun `deleteArtist should return bad request for missing artist`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(false)
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `deleteArtist should return too many requests when IP limit is reached`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `deleteArtist should return too many requests when login limit is reached`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `deleteArtist should handle contribution limit exception`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doAnswer {throw ContributionLimitExceededException("limit")}
+            .`when`(artistService).deleteArtistRequest(1,"user")
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+    }
+
+    @Test
+    fun `deleteArtist should handle unexpected exception`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).deleteArtistRequest(1,"user")
+
+        val result=controller.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteArtist should return success`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+
+        val result=controller.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).toggleFavoriteArtist(1,"user")
+    }
+
+    @Test
+    fun `favoriteArtist should return bad request for missing artist`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(false)
+
+        val result=controller.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteArtist should return too many requests when IP limit is reached`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=controller.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `favoriteArtist should return too many requests when login limit is reached`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=controller.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(artistService,never()).doesArtistExist(anyLong())
     }
 }

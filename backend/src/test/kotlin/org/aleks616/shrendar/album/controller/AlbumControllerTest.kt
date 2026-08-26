@@ -609,7 +609,7 @@ class AlbumControllerTest {
 
         repeat(10) {i->
             genreRepository.saveAndFlush(
-                Genre().apply {id=i+1; name="Genre $i"; properties="1"})
+                Genre().apply {id=i+1; name="Genre $i"; properties="1253420"})
         }
 
         repeat(Utils.LIMIT_BASIC) {i->

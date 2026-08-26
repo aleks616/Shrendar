@@ -123,29 +123,29 @@ class ArtistService(
     //endregion
 
     fun getZodiacSign(month:Int,day:Int):ZodiacSign {
-        if((month==12&&day>=22&&day<=31)||(month==1&&day>=1&&day<=19))
+        if((month==12&&day>=22)||(month==1&&day<=19))
             return ZodiacSign.CAPRICORN
-        else if((month==1&&day>=20&&day<=31)||(month==2&&day>=1&&day<=17))
+        else if((month==1)||(month==2&&day<=17))
             return ZodiacSign.AQUARIUS
-        else if((month==2&&day>=18&&day<=29)||(month==3&&day>=1&&day<=19))
+        else if((month==2)||(month==3&&day<=19))
             return ZodiacSign.PISCES
-        else if((month==3&&day>=20&&day<=31)||(month==4&&day>=1&&day<=19))
+        else if((month==3)||(month==4&&day<=19))
             return ZodiacSign.ARIES
-        else if((month==4&&day>=20&&day<=30)||(month==5&&day>=1&&day<=20))
+        else if((month==4)||(month==5&&day<=20))
             return ZodiacSign.TAURUS
-        else if((month==5&&day>=21&&day<=31)||(month==6&&day>=1&&day<=20))
+        else if((month==5)||(month==6&&day<=20))
             return ZodiacSign.GEMINI
-        else if((month==6&&day>=21&&day<=30)||(month==7&&day>=1&&day<=22))
+        else if((month==6)||(month==7&&day<=22))
             return ZodiacSign.CANCER
-        else if((month==7&&day>=23&&day<=31)||(month==8&&day>=1&&day<=22))
+        else if((month==7)||(month==8&&day<=22))
             return ZodiacSign.LEO
-        else if((month==8&&day>=23&&day<=31)||(month==9&&day>=1&&day<=22))
+        else if((month==8)||(month==9&&day<=22))
             return ZodiacSign.VIRGO
-        else if((month==9&&day>=23&&day<=30)||(month==10&&day>=1&&day<=22))
+        else if((month==9)||(month==10&&day<=22))
             return ZodiacSign.LIBRA
-        else if((month==10&&day>=23&&day<=31)||(month==11&&day>=1&&day<=21))
+        else if((month==10)||(month==11&&day<=21))
             return ZodiacSign.SCORPIO
-        else if((month==11&&day>=22&&day<=30)||(month==12&&day>=1&&day<=21))
+        else if((month==11)||(month==12))
             return ZodiacSign.SAGITTARIUS
         else
             throw IllegalArgumentException("Illegal date")
@@ -348,8 +348,8 @@ class ArtistService(
     fun toggleFavoriteArtist(artistId:Long,login:String){
         val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
         val artist=artistRepository.findArtistById(artistId)
-        val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id?:-1
-        if(recordId==-1L){
+        val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id
+        if(recordId==null){
             userArtistRepository.saveAndFlush(UsersArtists().apply {
                 this.user=user
                 this.artist=artist
