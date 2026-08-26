@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 
 data class AlbumDataDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val band:BandDto?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,

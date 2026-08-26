@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 
 data class ArtistWikiDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val name:String?=null,
     val birthDate:LocalDate?=null,
     val daysTillBirthday:Int?=null,

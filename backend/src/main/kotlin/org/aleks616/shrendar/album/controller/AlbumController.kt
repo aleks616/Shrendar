@@ -28,13 +28,13 @@ class AlbumController (
     }
 
     @GetMapping("/id/{id}")
-    fun getAlbumById(@PathVariable id:Int):Album{
+    fun getAlbumById(@PathVariable id:Long):Album{
         return albumService.getById(id)
     }
 
     //WIKI ALBUM PAGE 1/1
     @GetMapping("wiki/{id}")
-    fun getAlbumByIdWiki(@PathVariable id:Int):AlbumWikiDto{
+    fun getAlbumByIdWiki(@PathVariable id:Long):AlbumWikiDto{
         return albumService.getByIdWiki(id)
     }
 
@@ -149,7 +149,7 @@ class AlbumController (
     }
 
     @DeleteMapping("/delete")
-    fun deleteAlbum(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun deleteAlbum(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name

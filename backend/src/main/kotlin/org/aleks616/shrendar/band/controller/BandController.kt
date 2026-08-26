@@ -271,7 +271,7 @@ class BandController (
 
 
     @DeleteMapping("/member-delete")
-    fun deleteBandMembersRequest(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun deleteBandMembersRequest(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -356,7 +356,7 @@ class BandController (
         if(member.bandId!=null&&!bandService.doesBandExist(member.bandId!!)){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id ${member.bandId} does not exist")
         }
-        val artistId:Int=if(member.artistId!=null) member.artistId!!
+        val artistId:Long=if(member.artistId!=null) member.artistId!!
             else bandService.getBandMemberById(member.bandId!!).artist!!.id!!
 
         val artist=artistService.getById(artistId)

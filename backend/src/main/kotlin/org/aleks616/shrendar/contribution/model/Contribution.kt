@@ -10,10 +10,10 @@ open class Contribution {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
-    open var id:Int?=null
+    open var id:Long?=null
 
     @Column(name="change_id")
-    open var changeId:Int?=null
+    open var changeId:Long?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
@@ -30,7 +30,7 @@ open class Contribution {
     open var changedColumn:String?=null
 
     @Column(name="changed_record_id")
-    open var changedRecordId:Int?=null
+    open var changedRecordId:Long?=null
 
     @Column(name="old_value",length=50)
     open var oldValue:String?=null

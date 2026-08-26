@@ -3,7 +3,7 @@ package org.aleks616.shrendar.album.model
 import java.time.LocalDate
 
 data class AlbumAddDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val bandId:Int?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,

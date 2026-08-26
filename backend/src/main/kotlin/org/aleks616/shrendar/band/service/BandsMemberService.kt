@@ -23,7 +23,7 @@ class BandsMemberService(
     val userService:UserService,
     val rankService:RankService,
 ) {
-    fun doesBandMemberExist(id:Int):Boolean {
+    fun doesBandMemberExist(id:Long):Boolean {
         return bandsMemberRepository.existsById(id)
     }
     fun getBandMembersRaw(band:Int):List<BandsMembersDataDto> {
@@ -219,7 +219,7 @@ class BandsMemberService(
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
-        val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!).get()
+        val bandMember=bandsMemberRepository.findById(artistBandAddDto.id!!)
         if(artistBandAddDto.leftYear!=null&&bandMember.joinedYear!=null&&bandMember.joinedYear!!>artistBandAddDto.leftYear!!)
             throw IllegalArgumentException("Left year has to be the same or greater than joined year")
         if(artistBandAddDto.joinedYear!=null&&bandMember.leftYear!=null&&artistBandAddDto.joinedYear!!>bandMember.leftYear!!)
@@ -278,7 +278,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun deleteBandMemberRequest(id:Int,userLogin:String,log:Boolean=true) {
+    fun deleteBandMemberRequest(id:Long,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -292,7 +292,7 @@ class BandsMemberService(
         }
 
         if(log){
-            val bandMember=bandsMemberRepository.findById(id).get()
+            val bandMember=bandsMemberRepository.findById(id)
             val changes:List<Triple<String,String?,String?>> =listOf(
                 Triple("id",bandMember.id.toString(),null),
                 Triple("band_id",bandMember.band?.id.toString(),null),

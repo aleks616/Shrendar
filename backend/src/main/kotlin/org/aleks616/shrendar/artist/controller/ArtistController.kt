@@ -28,13 +28,13 @@ class ArtistController(
     }
 
     @GetMapping("/id/{id}")
-    fun getById(@PathVariable id:Int):Artist{
+    fun getById(@PathVariable id:Long):Artist{
         return artistService.getById(id)
     }
 
     //WIKI ARTIST PAGE 1/2
     @GetMapping("/wiki/{id}")
-    fun getByIdWiki(@PathVariable id:Int):ArtistWikiDto{
+    fun getByIdWiki(@PathVariable id:Long):ArtistWikiDto{
         return artistService.getByIdWiki(id)
     }
 
@@ -161,7 +161,7 @@ class ArtistController(
     }
 
     @DeleteMapping("/delete")
-    fun deleteArtist(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun deleteArtist(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -187,7 +187,7 @@ class ArtistController(
     }
 
     @PostMapping("/favorite")
-    fun favoriteArtist(@RequestBody artistId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun favoriteArtist(@RequestBody artistId:Long, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name

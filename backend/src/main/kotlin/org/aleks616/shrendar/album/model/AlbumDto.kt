@@ -8,7 +8,7 @@ import java.time.LocalDate
  * DTO for {@link org.aleks616.shrendar.entities.Albums}
  */
 data class AlbumByDateDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val band:BandDto?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,

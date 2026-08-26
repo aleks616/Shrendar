@@ -34,7 +34,7 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         AND bm.role=:role
         AND bm.joinedYear=:joinedYear
     """)
-    fun findBandsMembersByDto(artistId:Int,bandId:Int,role:String,joinedYear:Int):BandsMembers
+    fun findBandsMembersByDto(artistId:Long,bandId:Int,role:String,joinedYear:Int):BandsMembers
 
     @Query("""
         SELECT bm.id
@@ -44,7 +44,7 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         ORDER BY bm.id DESC
         LIMIT 1
     """)
-    fun findTopIdByBandIdAndArtistId(bandId:Int,artistId:Int):Int
+    fun findTopIdByBandIdAndArtistId(bandId:Int,artistId:Long):Long
 
 
     @Query("""
@@ -53,8 +53,11 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
         WHERE bm.artist.id=:artistId
         AND bm.band.id=:bandId
     """)
-    fun findArtistInBand(artistId:Int,bandId:Int):List<BandsMembers>
-    fun findBandsMembersById(id:Int):BandsMembers
+    fun findArtistInBand(artistId:Long,bandId:Int):List<BandsMembers>
+    fun findBandsMembersById(id:Long):BandsMembers
+    fun existsById(id:Long):Boolean
+    fun findById(id:Long):BandsMembers
+    fun deleteById(id:Long)
 
 
 }

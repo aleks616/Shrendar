@@ -27,7 +27,7 @@ class ContributionRevertService(
     private val userService:UserService,
 ) {
 
-    fun revertAddition(changeId:Int,confirmedUserLogin:String):Boolean {
+    fun revertAddition(changeId:Long,confirmedUserLogin:String):Boolean {
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
         val rank=confirmingUser.rank!!.id!!
         if(rank<10) return false
@@ -78,7 +78,7 @@ class ContributionRevertService(
         val bandId=contributions[0].changedRecordId
 
         if(bandId!=null) {
-            val band:Band=bandRepository.findBandById(bandId)
+            val band:Band=bandRepository.findBandById(bandId.toInt())
             bandRepository.delete(band)
         }
         else throw RuntimeException("band id can't be null")
