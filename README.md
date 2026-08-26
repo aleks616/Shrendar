@@ -7,8 +7,7 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 
 **Backend**: Spring Boot, kotlin  
 **Frontend/Web** - react.js  
-**Mobile - android** - jetpack compose  
-**Mobile - ios**  - swift
+**Mobile** - jetpack compose multiplatform with swift ui for ios
 
 
 ## Roadmap
