@@ -176,7 +176,7 @@ class ArtistService(
     }
 
     @Transactional
-    fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
+    fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -231,11 +231,10 @@ class ArtistService(
             }
         }
 
-        return true
     }
 
     @Transactional
-    fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String):Boolean{
+    fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -264,7 +263,7 @@ class ArtistService(
         updateIfChanged("description",artist.description,artistAddDto.description,{artist.description=it})
         updateIfChanged("artist_image_url",artist.artistImageUrl,artistAddDto.artistImageUrl,{artist.artistImageUrl=it})
 
-        if(changes.isEmpty()) return false
+        if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -292,7 +291,6 @@ class ArtistService(
             })
         }
 
-        return true
     }
 
     @Transactional

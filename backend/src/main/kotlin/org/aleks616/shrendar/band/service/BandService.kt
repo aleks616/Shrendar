@@ -192,7 +192,7 @@ class BandService(
     }
 
     @Transactional
-    fun addBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
+    fun addBandRequest(bandAddDto:BandAddDto,userLogin:String){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -247,11 +247,10 @@ class BandService(
             }
         }
 
-        return true
     }
 
     @Transactional
-    fun editBandRequest(bandAddDto:BandAddDto,userLogin:String):Boolean{
+    fun editBandRequest(bandAddDto:BandAddDto,userLogin:String){
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -281,7 +280,7 @@ class BandService(
         updateIfChanged("image_url",band.imageUrl,bandAddDto.imageUrl,{band.imageUrl=it})
         //averageGenre should be updated separately
 
-        if(changes.isEmpty()) return false
+        if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -308,8 +307,6 @@ class BandService(
                 confirmedBy=confirmedByUser
             })
         }
-        return true
-
     }
 
     @Transactional

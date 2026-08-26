@@ -9,7 +9,7 @@ import org.aleks616.shrendar.contribution.model.ContributionHistoryDto
 import org.aleks616.shrendar.contribution.service.ContributionRevertService
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.RankTooLowToConfirmContributionException
-import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContribution
+import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.http.HttpStatus
@@ -69,7 +69,7 @@ class ContributionController (
         try{
            contributionRevertService.revertAddition(changeId,userLogin)
         }
-        catch(e:RankTooLowToRevertConfirmedContribution){
+        catch(e:RankTooLowToRevertConfirmedContributionException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
