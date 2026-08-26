@@ -1,15 +1,11 @@
 package org.aleks616.shrendar.genre.controller
 
-import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.repository.AlbumRepository
-import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.genre.model.Genre
-import org.aleks616.shrendar.genre.model.GenreDto
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -17,7 +13,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 @SpringBootTest
 @AutoConfigureMockMvc
