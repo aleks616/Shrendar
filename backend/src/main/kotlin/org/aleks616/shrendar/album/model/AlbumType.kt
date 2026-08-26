@@ -1,13 +1,13 @@
 package org.aleks616.shrendar.album.model
 
 enum class AlbumType {
-    studio,
+    STUDIO,
     EP,
-    compilation,
-    concert,
-    demo,
-    single,
-    other;
+    COMPILATION,
+    CONCERT,
+    DEMO,
+    SINGLE,
+    OTHER;
 
     fun isNullOrEmpty():Boolean {
         return this.toString().isEmpty()

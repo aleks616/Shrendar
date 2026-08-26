@@ -235,7 +235,7 @@ class BandService(
                     changedRecordId=bandId?.toLong()
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.create
+                    action=Action.CREATE
                     changedTable="band"
                     changedColumn=it.first
                     oldValue=null
@@ -296,7 +296,7 @@ class BandService(
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
                 user=requestingUser
-                action=Action.update
+                action=Action.UPDATE
                 changedTable="band"
                 changedColumn=column
                 changedRecordId=bandAddDto.id!!.toLong()
@@ -341,7 +341,7 @@ class BandService(
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.delete
+                    action=Action.DELETE
                     changedTable="band"
                     changedColumn=column
                     changedRecordId=id.toLong()

@@ -37,7 +37,7 @@ class ContributionRevertService(
 
         val table=contributions[0].changedTable
         val type=contributions[0].action
-        if(type==Action.create){
+        if(type==Action.CREATE){
             when(table) {
                 "album"->revertAlbumAddition(contributions)
                 "artist"->revertArtistAddition(contributions)

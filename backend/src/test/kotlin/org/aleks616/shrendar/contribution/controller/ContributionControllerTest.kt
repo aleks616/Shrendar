@@ -121,7 +121,7 @@ class ContributionControllerTest {
         contributionRepository.save(Contribution().apply {
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="name"
             newValue="Test Artist"
@@ -148,7 +148,7 @@ class ContributionControllerTest {
         contributionRepository.save(Contribution().apply {
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="name"
             newValue="Test Artist"
@@ -177,7 +177,7 @@ class ContributionControllerTest {
             changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="artistId"
             newValue=artist.id.toString()
@@ -188,7 +188,7 @@ class ContributionControllerTest {
             changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="name"
             newValue="To Be Reverted"
@@ -216,7 +216,7 @@ class ContributionControllerTest {
             changedRecordId=band.id?.toLong()
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="band"
             changedColumn="bandId"
             newValue=band.id.toString()
@@ -227,7 +227,7 @@ class ContributionControllerTest {
             changedRecordId=band.id?.toLong()
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="band"
             changedColumn="name"
             newValue="Band to Revert"
@@ -255,7 +255,7 @@ class ContributionControllerTest {
             changedRecordId=album.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="album"
             changedColumn="bandId"
             newValue=band.id.toString()
@@ -266,7 +266,7 @@ class ContributionControllerTest {
             changedRecordId=album.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="album"
             changedColumn="title"
             newValue="Album to Revert"
@@ -300,7 +300,7 @@ class ContributionControllerTest {
             changedRecordId=bm.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             confirmed=false
             changedAt=LocalDateTime.now()
             changedTable="bands_members"
@@ -311,7 +311,7 @@ class ContributionControllerTest {
             changedRecordId=bm.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             confirmed=false
             changedAt=LocalDateTime.now()
             changedTable="bands_members"
@@ -322,7 +322,7 @@ class ContributionControllerTest {
             changedRecordId=bm.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             confirmed=false
             changedAt=LocalDateTime.now()
             changedTable="bands_members"
@@ -333,7 +333,7 @@ class ContributionControllerTest {
             changedRecordId=bm.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             confirmed=false
             changedAt=LocalDateTime.now()
             changedTable="bands_members"
@@ -360,7 +360,7 @@ class ContributionControllerTest {
             changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="artistId"
             newValue=artist.id.toString()
@@ -371,7 +371,7 @@ class ContributionControllerTest {
             changedRecordId=artist.id
             this.changeId=changeId
             user=newbieUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="artist"
             changedColumn="name"
             newValue="Confirmed Artist"

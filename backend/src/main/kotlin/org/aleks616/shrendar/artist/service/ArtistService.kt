@@ -219,7 +219,7 @@ class ArtistService(
                     changedRecordId=artistId
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.create
+                    action=Action.CREATE
                     changedTable="artist"
                     changedColumn=it.first
                     oldValue=null
@@ -279,7 +279,7 @@ class ArtistService(
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
                 user=requestingUser
-                action=Action.update
+                action=Action.UPDATE
                 changedTable="artist"
                 changedColumn=column
                 changedRecordId=artistAddDto.id
@@ -325,7 +325,7 @@ class ArtistService(
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.delete
+                    action=Action.DELETE
                     changedTable="artist"
                     changedColumn=column
                     changedRecordId=id

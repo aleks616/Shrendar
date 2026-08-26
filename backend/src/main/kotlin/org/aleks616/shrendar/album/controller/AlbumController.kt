@@ -179,11 +179,11 @@ class AlbumController (
     fun albumValidate(album:AlbumAddDto):ResponseEntity<String>?{
         if(album.bandId!=null&&!albumService.doesBandExist(album.bandId))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Band with id ${album.bandId} does not exist")
-        if(album.type==AlbumType.studio&&(album.importance!=null&&album.importance !in 1..5))
+        if(album.type==AlbumType.STUDIO&&(album.importance!=null&&album.importance !in 1..5))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Importance must be between 1 and 5 for studio albums.")
         if(album.type==AlbumType.EP&&(album.importance!=null&&album.importance !in 1..3))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Importance must be between 1 and 3 for EP albums.")
-        if(album.type!=null&&album.type!=AlbumType.studio&&album.type!=AlbumType.EP&&album.importance!=null&&album.importance.toInt()!=0)
+        if(album.type!=null&&album.type!=AlbumType.STUDIO&&album.type!=AlbumType.EP&&album.importance!=null&&album.importance.toInt()!=0)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Importance must be set to null or 0 for non-studio/EP albums")
         if(album.bandId!=null&&!albumService.isReleaseDateValid(album))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Album release date must be in the past or up to 1 year in the future and it can't be before year of band's formation")

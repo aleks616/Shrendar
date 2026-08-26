@@ -94,7 +94,7 @@ class BandControllerIntegrationTest {
         contributionRepository.saveAndFlush(Contribution().apply {
             changeId=0
             user=adminUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="seed"
             changedColumn="seed"
             newValue="seed"
@@ -113,7 +113,7 @@ class BandControllerIntegrationTest {
         val bandAddDto=BandAddDto(
             name="Metallica",
             formedYear=1981,
-            status=Status.active,
+            status=Status.ACTIVE,
             country=countryId,
             description="Thrash legends",
             imageUrl="https://image.com"
