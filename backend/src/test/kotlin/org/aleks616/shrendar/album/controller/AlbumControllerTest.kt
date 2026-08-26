@@ -110,7 +110,7 @@ class AlbumControllerTest {
         (storageField.get(rateLimiter) as MutableMap<*,*>).clear()
     }
 
-    //test doesn't work because of genre calculating but normally it works
+    //test doesn't work because of genre calculating, but normally it works
     @Test
     fun `addAlbum should work for authorized user`() {
         val band=bandRepository.saveAndFlush(Band().apply {name="Metallica"; formedYear=1981})
@@ -161,7 +161,7 @@ class AlbumControllerTest {
                 Genre().apply {id=i+1; name="Genre $i"; properties="1"})
         }
 
-        repeat(Utils.LIMIT) {i->
+        repeat(Utils.LIMIT_BASIC) {i->
             val albumAddDto=AlbumAddDto(bandId=band.id,title="Quick Album $i",mainSubgenre=i+1)
             mockMvc.post("/api/album/add") {
                 header("Authorization","Bearer $userToken")

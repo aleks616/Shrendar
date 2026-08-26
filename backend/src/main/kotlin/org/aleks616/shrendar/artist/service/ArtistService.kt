@@ -10,6 +10,8 @@ import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.model.UsersArtists
+import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
@@ -22,7 +24,8 @@ class ArtistService(
     private val countryRepository:CountryRepository,
     private val userService:UserService,
     private val contributionRepository:ContributionRepository,
-    private val rankService:RankService
+    private val rankService:RankService,
+    private val userArtistRepository:UserArtistRepository,
 ){
 
     //region query
@@ -343,4 +346,18 @@ class ArtistService(
 
     }
 
+    @Transactional
+    fun toggleFavoriteArtist(artistId:Int,login:String){
+        val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val artist=artistRepository.findArtistById(artistId)
+        val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id?:-1
+        if(recordId==-1){
+            userArtistRepository.saveAndFlush(UsersArtists().apply {
+                this.user=user
+                this.artist=artist
+            })
+        }
+        else
+            userArtistRepository.deleteById(recordId)
+    }
 }

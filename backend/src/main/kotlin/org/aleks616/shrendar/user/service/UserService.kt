@@ -75,7 +75,7 @@ class UserService(
         }
 
         val zone=ZoneId.of("UTC")
-        val lastLoginDate=LocalDate.ofInstant(userLog.lastLoginTime,zone)
+        val lastLoginDate=LocalDate.ofInstant(Instant.now(),zone)
         val hasLoggedInToday:Boolean=lastLoginDate==LocalDate.now(zone)
         if(!hasLoggedInToday)
             xpService.increaseUserXp(user.login!!,6)

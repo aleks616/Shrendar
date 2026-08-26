@@ -7,7 +7,6 @@ import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.security.RateLimiter
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
@@ -23,10 +22,6 @@ class ArtistControllerTest {
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
     private val controller=ArtistController(artistService,rateLimiter,countryService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
-
-    @BeforeEach
-    fun setup() {
-    }
 
     @Test
     fun `getAll should return all artists`() {

@@ -15,6 +15,8 @@ import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.genre.service.GenreSimilarity
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.model.UsersBands
+import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
@@ -32,6 +34,7 @@ class BandService(
     private val userService:UserService,
     private val genreRepository:GenreRepository,
     private val rankService:RankService,
+    private val userBandRepository:UserBandRepository,
 ){
     //region util
     fun getBandsCountry(bandId:Int):CountryDto?{
@@ -358,6 +361,22 @@ class BandService(
             bandRepository.deleteById(id)
         }
 
+    }
+
+    @Transactional
+    fun toggleFavoriteBand(bandId:Int,login:String){
+        val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val band=bandRepository.findBandById(bandId)
+        val recordId=userBandRepository.findByBandAndUser(band,user)?.id?:-1
+
+        if(recordId==-1){
+            userBandRepository.saveAndFlush(UsersBands().apply {
+                this.user=user
+                this.band=band
+            })
+        }
+        else
+            userBandRepository.deleteById(recordId)
     }
 
     fun doesSameMemberExist(member:ArtistBandAddDto):Boolean{

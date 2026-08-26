@@ -136,7 +136,7 @@ class ArtistControllerIntegrationTest{
     fun `addArtist should return too many requests when rate limit reached`() {
         val artistAddDto=ArtistAddDto(name="Fast Artist")
 
-        repeat(Utils.LIMIT) {
+        repeat(Utils.LIMIT_BASIC) {
             mockMvc.post("/api/artist/add") {
                 header("Authorization","Bearer $userToken")
                 contentType=MediaType.APPLICATION_JSON

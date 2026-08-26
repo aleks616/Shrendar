@@ -36,9 +36,9 @@ class ContributionController (
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         try{
@@ -61,9 +61,9 @@ class ContributionController (
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         try{
@@ -93,8 +93,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByRequestingUser(id)
@@ -111,8 +111,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByConfirmingUser(id)
@@ -135,8 +135,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByTableName(table)
@@ -159,8 +159,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByTableNameAndChangedRecordId(table,id)
@@ -183,8 +183,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getLastChangesByTableNameAndChangedRecordId(table,id)
@@ -200,8 +200,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
 
@@ -220,8 +220,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
 
@@ -240,8 +240,8 @@ class ContributionController (
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60)) throw IllegalStateException("Too many requests from this user")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByActionAndRequestingUser(id,action)
