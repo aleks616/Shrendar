@@ -5,6 +5,7 @@ import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,9 +20,10 @@ class ArtistServiceTest {
     private val userService=mock(UserService::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
 
+    private val userArtistRepository=mock(UserArtistRepository::class.java)
     private val rankService=mock(RankService::class.java)
     private val artistService=ArtistService(
-        artistRepository,countryRepository,userService,contributionRepository,rankService
+        artistRepository,countryRepository,userService,contributionRepository,rankService,userArtistRepository
     )
 
     @Test

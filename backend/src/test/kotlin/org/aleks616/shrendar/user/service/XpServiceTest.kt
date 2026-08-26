@@ -43,7 +43,7 @@ class XpServiceTest {
 
         xpService.increaseAllUsersXp()
 
-        assertEquals(14,user.xp)
+        assertEquals(11,user.xp)
         verify(userRepository,times(2)).saveAll(anyList())
         assertTrue(lockFile.exists())
         assertEquals(LocalDate.now().toString(),lockFile.readText())

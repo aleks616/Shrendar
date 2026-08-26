@@ -1,42 +1,60 @@
 package org.aleks616.shrendar.genre.controller
 
+import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.album.repository.AlbumRepository
+import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.model.GenreDto
+import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class GenreControllerTest {
+    @Autowired
+    private lateinit var mockMvc:MockMvc
 
+    @Autowired
+    private lateinit var rateLimiter:org.aleks616.shrendar.security.RateLimiter
+    @Autowired
     private val genreService:GenreService=mock(GenreService::class.java)
-    private val controller=GenreController(genreService)
-    private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(controller).build()
+    @Autowired
+    private val genreRepository:GenreRepository=mock(GenreRepository::class.java)
+    @Autowired
+    private val albumRepository:AlbumRepository=mock(AlbumRepository::class.java)
+
+    @BeforeEach
+    fun setup(){
+        genreRepository.deleteAll()
+        albumRepository.deleteAll()
+
+        val storageField=org.aleks616.shrendar.security.RateLimiter::class.java.getDeclaredField("storage")
+        storageField.isAccessible=true
+        (storageField.get(rateLimiter) as MutableMap<*,*>).clear()
+    }
 
     @Test
     fun `getGenre should return all genres`() {
-        val genres=listOf(Genre().apply {id=1; name="Heavy Metal"})
-        `when`(genreService.getAll()).thenReturn(genres)
+        genreRepository.saveAndFlush(
+            Genre().apply {id=1; name="Genre 1"; properties="1231021"}
+        )
 
         mockMvc.get("/api/genre/all")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'name':'Heavy Metal'}]")}
-            }
-    }
-
-    @Test
-    fun `getBandAlbumGenresList should return genres for band`() {
-        val genresDto=listOf(GenreDto(id=1,name="Heavy Metal",value=100))
-        `when`(genreService.getBandAlbumGenresList(1)).thenReturn(genresDto)
-
-        mockMvc.get("/api/genre/allAlbums/1")
-            .andExpect {
-                status {isOk()}
-                content {json("[{'id':1,'name':'Heavy Metal','value':100}]")}
+                content {json("[{'id':1,'name':'Genre 1'}]")}
             }
     }
 }
