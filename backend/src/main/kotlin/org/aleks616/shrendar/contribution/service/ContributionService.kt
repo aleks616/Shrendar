@@ -47,7 +47,7 @@ class ContributionService(
             contributionRepository.save(it)
         }
 
-        if(contributions.first().action==Action.delete){
+        if(contributions.first().action==Action.DELETE){
             if(contributions.first().changedTable=="album")
                 albumService.deleteAlbumRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
             if(contributions.first().changedTable=="artist")

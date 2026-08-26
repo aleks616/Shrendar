@@ -94,7 +94,7 @@ class BandControllerIntegrationTest {
         contributionRepository.saveAndFlush(Contribution().apply {
             changeId=0
             user=adminUser
-            action=Action.create
+            action=Action.CREATE
             changedTable="seed"
             changedColumn="seed"
             newValue="seed"

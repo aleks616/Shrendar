@@ -198,7 +198,7 @@ class BandsMemberService(
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.create
+                    action=Action.CREATE
                     changedTable="bands_members"
                     changedColumn=it.first
                     changedRecordId=bandMemberId
@@ -262,7 +262,7 @@ class BandsMemberService(
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
                 user=requestingUser
-                action=Action.update
+                action=Action.UPDATE
                 changedTable="bands_members"
                 changedColumn=column
                 changedRecordId=artistBandAddDto.id
@@ -306,7 +306,7 @@ class BandsMemberService(
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.delete
+                    action=Action.DELETE
                     changedTable="bands_members"
                     changedColumn=column
                     changedRecordId=id

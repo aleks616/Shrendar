@@ -186,7 +186,7 @@ class AlbumService(
                     changedRecordId=albumRecordId
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.create
+                    action=Action.CREATE
                     changedTable="album"
                     changedColumn=it.first
                     oldValue=null
@@ -255,7 +255,7 @@ class AlbumService(
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
                 user=requestingUser
-                action=Action.update
+                action=Action.UPDATE
                 changedTable="album"
                 changedColumn=column
                 changedRecordId=albumAddDto.id
@@ -307,7 +307,7 @@ class AlbumService(
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1
                     user=requestingUser
-                    action=Action.delete
+                    action=Action.DELETE
                     changedTable="album"
                     changedColumn=column
                     changedRecordId=id

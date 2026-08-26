@@ -20,7 +20,7 @@ open class Contribution {
     open var user:User?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="action",columnDefinition="ENUM('create', 'update', 'delete')")
+    @Column(name="action",columnDefinition="ENUM('CREATE', 'UPDATE', 'DELETE')")
     open var action:Action?=null
 
     @Column(name="changed_table",length=30)
@@ -47,12 +47,3 @@ open class Contribution {
     @Column(name="confirmed_by")
     open var confirmedBy:Int?=null
 }
-
-
-enum class Action{
-    create,
-    update,
-    delete
-}
-
-
