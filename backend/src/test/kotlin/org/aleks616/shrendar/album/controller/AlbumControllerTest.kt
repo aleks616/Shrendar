@@ -120,7 +120,7 @@ class AlbumControllerTest {
             bandId=band.id,
             title="Ride the Lightning",
             releaseDate=LocalDate.of(1984,7,27),
-            type=AlbumType.compilation,
+            type=AlbumType.COMPILATION,
             mainSubgenre=genre.id,
             importance=0,
             artworkUrl="https://example.com/artwork.jpg"
@@ -138,7 +138,7 @@ class AlbumControllerTest {
         val album=albumRepository.findAll().find {it.title=="Ride the Lightning"}
         assertNotNull(album)
         assertEquals(band.id,album?.band?.id)
-        assertEquals(AlbumType.compilation,album?.type)
+        assertEquals(AlbumType.COMPILATION,album?.type)
         assertEquals(5,album?.importance)
     }
 

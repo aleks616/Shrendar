@@ -24,7 +24,7 @@ open class Album {
     open var releaseDate:LocalDate?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="type", columnDefinition="ENUM('studio','EP','compilation','concert','demo','single','other')")
+    @Column(name="type", columnDefinition="ENUM('STUDIO','EP','COMPILATION','CONCERT','DEMO','SINGLE','OTHER')")
     open var type:AlbumType?=null
 
     @Column(name="importance", columnDefinition="TINYINT")

@@ -164,7 +164,7 @@ class AlbumService(
             confirmedByUser=requestingUser.id
         }
 
-        val albumImportance=if(albumAddDto.type==AlbumType.studio||albumAddDto.type==AlbumType.EP) albumAddDto.importance else null
+        val albumImportance=if(albumAddDto.type==AlbumType.STUDIO||albumAddDto.type==AlbumType.EP) albumAddDto.importance else null
 
         albumRepository.save(Album().apply {
             band=bandService.getBandById(albumAddDto.bandId!!)
@@ -211,9 +211,9 @@ class AlbumService(
         val album=albumRepository.findAlbumById(albumAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()
 
-        if(albumAddDto.importance!=null&&albumAddDto.importance>3&&album.type!=AlbumType.studio&&albumAddDto.type!=AlbumType.studio)
+        if(albumAddDto.importance!=null&&albumAddDto.importance>3&&album.type!=AlbumType.STUDIO&&albumAddDto.type!=AlbumType.STUDIO)
             throw InvalidAlbumImportanceException("If you're setting album's importance to 4 or 5, its type must be studio")
-        if(albumAddDto.importance!=null&&albumAddDto.importance.toInt()!=0&&album.type!=AlbumType.studio&&albumAddDto.type!=AlbumType.studio&&album.type!=AlbumType.EP&&albumAddDto.type!=AlbumType.EP)
+        if(albumAddDto.importance!=null&&albumAddDto.importance.toInt()!=0&&album.type!=AlbumType.STUDIO&&albumAddDto.type!=AlbumType.STUDIO&&album.type!=AlbumType.EP&&albumAddDto.type!=AlbumType.EP)
             throw InvalidAlbumImportanceException("If you're setting album's importance to above 0, its type must be studio or EP")
 
         fun <T> updateIfChanged(
