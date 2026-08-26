@@ -109,11 +109,11 @@ class BandController (
 
     fun statusStringToEnum(statusString:String):Status {
         return when(statusString.lowercase()){
-            "active"->Status.active
-            "disbanded"->Status.disbanded
-            "on_hold"->Status.on_hold
-            "on hold"->Status.on_hold
-            "unknown"->Status.unknown
+            "active"->Status.ACTIVE
+            "disbanded"->Status.DISBANDED
+            "on_hold"->Status.ON_HOLD
+            "on hold"->Status.ON_HOLD
+            "unknown"->Status.UNKNOWN
             else->throw IllegalArgumentException("invalid status")
         }
     }
@@ -330,9 +330,9 @@ class BandController (
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band disbanded year cannot be before 1901")
         if(band.formedYear!=null&&band.disbandedYear!=null&&band.formedYear!!>band.disbandedYear!!)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band disbanded year cannot be before formed year")
-        if(band.disbandedYear!=null&&band.status!=Status.disbanded)
+        if(band.disbandedYear!=null&&band.status!=Status.DISBANDED)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band status must be disbanded if disbanded year is provided")
-        if(band.disbandedYear==null&&band.status==Status.disbanded)
+        if(band.disbandedYear==null&&band.status==Status.DISBANDED)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Disbanded year is required if band status is disbanded")
         if(band.country!=null&&!countryService.doesCountryExist(band.country!!))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Country with id ${band.country} does not exist")

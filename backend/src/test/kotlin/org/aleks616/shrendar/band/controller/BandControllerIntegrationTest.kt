@@ -113,7 +113,7 @@ class BandControllerIntegrationTest {
         val bandAddDto=BandAddDto(
             name="Metallica",
             formedYear=1981,
-            status=Status.active,
+            status=Status.ACTIVE,
             country=countryId,
             description="Thrash legends",
             imageUrl="https://image.com"
