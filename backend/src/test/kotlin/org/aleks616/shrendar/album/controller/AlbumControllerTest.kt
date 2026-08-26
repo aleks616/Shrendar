@@ -1,35 +1,46 @@
 package org.aleks616.shrendar.album.controller
 
+import jakarta.servlet.http.HttpServletRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.album.model.AlbumType
+import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.security.JwtUtil
+import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.mockito.Mockito.*
 import java.time.LocalDate
 
 @SpringBootTest
@@ -39,6 +50,7 @@ class AlbumControllerTest {
 
     @Autowired
     private lateinit var mockMvc:MockMvc
+
     @Autowired
     private lateinit var albumRepository:org.aleks616.shrendar.album.repository.AlbumRepository
 
@@ -49,7 +61,7 @@ class AlbumControllerTest {
     private lateinit var genreRepository:org.aleks616.shrendar.genre.repository.GenreRepository
 
     @Autowired
-    private lateinit var rateLimiter:org.aleks616.shrendar.security.RateLimiter
+    private lateinit var rateLimiter:RateLimiter
 
     @Autowired
     private lateinit var userRepository:UserRepository
@@ -105,12 +117,451 @@ class AlbumControllerTest {
             confirmed=true
         })
 
-        val storageField=org.aleks616.shrendar.security.RateLimiter::class.java.getDeclaredField("storage")
+        val storageField=RateLimiter::class.java.getDeclaredField("storage")
         storageField.isAccessible=true
         (storageField.get(rateLimiter) as MutableMap<*,*>).clear()
     }
 
-    //test doesn't work because of genre calculating, but normally it works
+    @Nested
+    inner class AlbumControllerUnitTest {
+        private val albumService=mock(AlbumService::class.java)
+        private val rateLimiter=mock(RateLimiter::class.java)
+        private val genreService=mock(GenreService::class.java)
+        private val request=mock(HttpServletRequest::class.java)
+        private val controller=AlbumController(albumService,rateLimiter,genreService)
+        private val dto=AlbumAddDto(bandId=1,title="Album",type=AlbumType.STUDIO,importance=3)
+
+        @BeforeEach
+        fun setupUnitTest() {
+            SecurityContextHolder.getContext().authentication=
+                UsernamePasswordAuthenticationToken("user",null,emptyList())
+            `when`(request.remoteAddr).thenReturn("127.0.0.1")
+            `when`(rateLimiter.allowRequest(anyString(),eq(3),eq(60))).thenReturn(true)
+            `when`(albumService.doesBandExist(1)).thenReturn(true)
+            `when`(albumService.isReleaseDateValid(dto)).thenReturn(true)
+        }
+
+        @Test
+        fun `getAll returns albums`() {
+            controller.getAll()
+            verify(albumService).getAll()
+        }
+
+        @Test
+        fun `getAlbumById returns album`() {
+            controller.getAlbumById(1)
+            verify(albumService).getById(1)
+        }
+
+        @Test
+        fun `getAlbumByIdWiki returns wiki data`() {
+            controller.getAlbumByIdWiki(1)
+            verify(albumService).getByIdWiki(1)
+        }
+
+        @Test
+        fun `getAlbumAnniversariesByDate returns albums`() {
+            controller.getAlbumAnniversariesByDate(5,20)
+            verify(albumService).getAlbumAnniversariesByDate(5,20)
+        }
+
+        @Test
+        fun `getAlbumsByBandId returns albums for existing band`() {
+            `when`(albumService.doesBandExist(1)).thenReturn(true)
+            controller.getAlbumsByBandId(1)
+            verify(albumService).getAlbumsByBandId(1)
+        }
+
+        @Test
+        fun `getAlbumsByBandNameLike returns albums`() {
+            controller.getAlbumsByBandNameLike("Metallica")
+            verify(albumService).getAlbumsByBandName("Metallica")
+        }
+
+        @Test
+        fun `getAlbumsByYear returns albums`() {
+            controller.getAlbumsByYear(2020)
+            verify(albumService).getAlbumsByYear(2020)
+        }
+
+        @Test
+        fun `getAlbumsByNameLike returns albums`() {
+            controller.getAlbumsByNameLike("Master")
+            verify(albumService).getAlbumsByName("Master")
+        }
+
+        @Test
+        fun `getAlbumsByNameExact returns albums`() {
+            controller.getAlbumsByNameExact("Master of Puppets")
+            verify(albumService).getAlbumsByNameExact("Master of Puppets")
+        }
+
+        @Test
+        fun `addAlbum returns success`() {
+            `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(albumService).addAlbumRequest(dto,"user")
+        }
+
+        @Test
+        fun `editAlbum returns success`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(albumService).editAlbumRequest(editDto,"user")
+        }
+
+        @Test
+        fun `deleteAlbum returns success`() {
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(albumService).deleteAlbumRequest(1,"user")
+        }
+
+        @Test
+        fun `addAlbum returns bad request when authentication is missing`() {
+            SecurityContextHolder.clearContext()
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `addAlbum returns too many requests when IP rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+            verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
+        fun `addAlbum returns too many requests when login rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+            assertEquals("Too many requests from this user",result.body)
+        }
+
+        @Test
+        fun `addAlbum rejects null bandId`() {
+            val result=controller.addAlbum(dto.copy(bandId=null),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            verifyNoInteractions(albumService)
+        }
+
+        @Test
+        fun `addAlbum rejects null type`() {
+            val result=controller.addAlbum(dto.copy(type=null),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            verifyNoInteractions(albumService)
+        }
+
+        @Test
+        fun `addAlbum rejects duplicate title`() {
+            `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(true)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `addAlbum returns validation error`() {
+            val invalid=dto.copy(bandId=99)
+            `when`(albumService.doesBandExist(99)).thenReturn(false)
+
+            val result=controller.addAlbum(invalid,request)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        }
+
+        @Test
+        fun `addAlbum handles contribution limit exception`() {
+            `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
+            doAnswer {throw ContributionLimitExceededException("limit reached")}
+                .`when`(albumService).addAlbumRequest(dto,"user")
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+            assertEquals("ContributionLimitExceededException limit reached",result.body)
+        }
+
+        @Test
+        fun `addAlbum handles invalid importance exception`() {
+            `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
+            doAnswer {throw InvalidAlbumImportanceException("invalid importance")}
+                .`when`(albumService).addAlbumRequest(dto,"user")
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            assertEquals("invalid importance",result.body)
+        }
+
+        @Test
+        fun `addAlbum handles unexpected exception`() {
+            `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
+            doThrow(IllegalStateException("broken"))
+                .`when`(albumService).addAlbumRequest(dto,"user")
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+            assertEquals("An unexpected error occurred: broken",result.body)
+        }
+
+        @Test
+        fun `editAlbum returns bad request when authentication is missing`() {
+            SecurityContextHolder.clearContext()
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum returns too many requests when login rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum returns too many requests when IP rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+            verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
+        fun `editAlbum rejects missing id`() {
+            val result=controller.editAlbum(dto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum rejects missing title`() {
+            val result=controller.editAlbum(dto.copy(id=1,title=null),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum rejects missing type`() {
+            val result=controller.editAlbum(dto.copy(id=1,type=null),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum rejects nonexistent album`() {
+            `when`(albumService.doesAlbumExist(99)).thenReturn(false)
+
+            val result=controller.editAlbum(dto.copy(id=99),request)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum rejects duplicate title`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(true)
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum returns validation error`() {
+            val invalid=dto.copy(id=1,bandId=99)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(invalid)).thenReturn(false)
+            `when`(albumService.doesBandExist(99)).thenReturn(false)
+
+            val result=controller.editAlbum(invalid,request)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum handles contribution limit exception`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
+            doAnswer {throw ContributionLimitExceededException("limit reached")}
+                .`when`(albumService).editAlbumRequest(editDto,"user")
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum handles invalid importance exception`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
+            doAnswer {throw InvalidAlbumImportanceException("invalid importance")}
+                .`when`(albumService).editAlbumRequest(editDto,"user")
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum handles unexpected exception`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
+            doThrow(IllegalStateException("broken"))
+                .`when`(albumService).editAlbumRequest(editDto,"user")
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum returns too many requests when login rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum returns too many requests when IP rate limit is reached`() {
+            `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+            verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
+        fun `deleteAlbum rejects nonexistent album`() {
+            `when`(albumService.doesAlbumExist(99)).thenReturn(false)
+
+            val result=controller.deleteAlbum(99,request)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum handles contribution limit exception`() {
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            doAnswer {throw ContributionLimitExceededException("limit reached")}
+                .`when`(albumService).deleteAlbumRequest(1,"user")
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum handles unexpected exception`() {
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            doThrow(IllegalStateException("broken"))
+                .`when`(albumService).deleteAlbumRequest(1,"user")
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        }
+
+        @Test
+        fun `albumValidate accepts valid album`() {
+            assertNull(controller.albumValidate(dto))
+        }
+
+        @Test
+        fun `albumValidate rejects missing band`() {
+            val album=dto.copy(bandId=99)
+            `when`(albumService.doesBandExist(99)).thenReturn(false)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects invalid studio importance`() {
+            val album=dto.copy(importance=6)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects invalid EP importance`() {
+            val album=dto.copy(type=AlbumType.EP,importance=4)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects importance for other album types`() {
+            val album=dto.copy(type=AlbumType.COMPILATION,importance=1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects invalid release date`() {
+            val album=dto.copy(releaseDate=LocalDate.of(1900,1,1))
+            `when`(albumService.isReleaseDateValid(album)).thenReturn(false)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects missing genre`() {
+            val album=dto.copy(mainSubgenre=99)
+            `when`(albumService.isReleaseDateValid(album)).thenReturn(true)
+            `when`(genreService.doesGenreExist(99)).thenReturn(false)
+
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate rejects malformed artwork URL`() {
+            val album=dto.copy(artworkUrl="not a url")
+            `when`(albumService.isReleaseDateValid(album)).thenReturn(true)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+    }
+
     @Test
     fun `addAlbum should work for authorized user`() {
         val band=bandRepository.saveAndFlush(Band().apply {name="Metallica"; formedYear=1981})
@@ -139,7 +590,7 @@ class AlbumControllerTest {
         assertNotNull(album)
         assertEquals(band.id,album?.band?.id)
         assertEquals(AlbumType.COMPILATION,album?.type)
-        assertEquals(5,album?.importance)
+        assertNull(album?.importance)
     }
 
     @Test
