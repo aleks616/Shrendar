@@ -11,7 +11,8 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContribution
+import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
+import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
@@ -27,17 +28,17 @@ class ContributionRevertService(
     private val userService:UserService,
 ) {
 
-    fun revertAddition(changeId:Long,confirmedUserLogin:String):Boolean {
+    fun revertAddition(changeId:Long,confirmedUserLogin:String) {
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
         val rank=confirmingUser.rank!!.id!!
-        if(rank<10) return false
+        if(rank<10) throw RankTooLowToRevertContributionException("Rank 10 is required to revert contribution. User rank: $rank")
         val contributions=contributionRepository.getByChangeId(changeId)
-        if(contributions[0].confirmed==true&&rank<12) throw RankTooLowToRevertConfirmedContribution("Rank 12 is required to revert confirmed contribution. User rank: $rank")
+        if(contributions[0].confirmed==true&&rank<12) throw RankTooLowToRevertConfirmedContributionException("Rank 12 is required to revert confirmed contribution. User rank: $rank")
 
         val table=contributions[0].changedTable
         val type=contributions[0].action
         if(type==Action.create){
-            return when(table) {
+            when(table) {
                 "album"->revertAlbumAddition(contributions)
                 "artist"->revertArtistAddition(contributions)
                 "band"->revertBandAddition(contributions)
@@ -48,7 +49,7 @@ class ContributionRevertService(
         else throw UnsupportedOperationException("reverting of edits and removal is not supported yet")
     }
 
-    fun revertAlbumAddition(contributions:List<Contribution>):Boolean {
+    fun revertAlbumAddition(contributions:List<Contribution>) {
         val albumId=contributions[0].changedRecordId
 
         if(albumId!=null) {
@@ -58,11 +59,9 @@ class ContributionRevertService(
             if(bandId!=null) bandService.calculateBandsGenre(bandId)
         }
         else throw RuntimeException("album id can't be null")
-
-        return true
     }
 
-    fun revertArtistAddition(contributions:List<Contribution>):Boolean {
+    fun revertArtistAddition(contributions:List<Contribution>) {
         val artistId=contributions[0].changedRecordId
 
         if(artistId!=null) {
@@ -71,10 +70,9 @@ class ContributionRevertService(
         }
         else throw RuntimeException("artist id can't be null")
 
-        return true
     }
 
-    fun revertBandAddition(contributions:List<Contribution>):Boolean {
+    fun revertBandAddition(contributions:List<Contribution>) {
         val bandId=contributions[0].changedRecordId
 
         if(bandId!=null) {
@@ -83,19 +81,17 @@ class ContributionRevertService(
         }
         else throw RuntimeException("band id can't be null")
 
-        return true
     }
 
-    fun revertBandMemberAddition(contributions:List<Contribution>):Boolean {
+    fun revertBandMemberAddition(contributions:List<Contribution>) {
         val id=contributions[0].changedRecordId
 
         if(id!=null) {
             val bandArtist:BandsMembers=bandsMemberRepository.findBandsMembersById(id)
             bandsMemberRepository.delete(bandArtist)
         }
-        else return false
+        else throw RuntimeException("id can't be null")
 
-        return true
     }
 
 

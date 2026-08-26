@@ -159,7 +159,7 @@ class BandsMemberService(
 
 
     @Transactional
-    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
+    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -210,11 +210,10 @@ class BandsMemberService(
                 })
             }
         }
-        return true
     }
 
     @Transactional
-    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String):Boolean {
+    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -247,7 +246,7 @@ class BandsMemberService(
         updateIfChanged("joined_year",bandMember.joinedYear,artistBandAddDto.joinedYear,{bandMember.joinedYear=it})
         updateIfChanged("left_year",bandMember.leftYear,artistBandAddDto.leftYear,{bandMember.leftYear=it})
 
-        if(changes.isEmpty()) return false
+        if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -274,7 +273,6 @@ class BandsMemberService(
                 confirmedBy=confirmedByUser
             })
         }
-        return true
     }
 
     @Transactional

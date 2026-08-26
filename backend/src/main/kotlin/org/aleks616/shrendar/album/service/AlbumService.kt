@@ -140,7 +140,7 @@ class AlbumService(
     }
 
     @Transactional
-    fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
+    fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -200,11 +200,10 @@ class AlbumService(
         bandService.calculateBandsGenre(albumAddDto.bandId)
 
         //todo notify mods or something
-        return true
     }
 
     @Transactional
-    fun editAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String):Boolean {
+    fun editAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -239,7 +238,7 @@ class AlbumService(
         updateIfChanged("importance",album.importance,albumAddDto.importance,{album.importance=it})
         updateIfChanged("artwork_url",album.artworkUrl,albumAddDto.artworkUrl,{album.artworkUrl=it})
 
-        if(changes.isEmpty()) return false
+        if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
         val time=LocalDateTime.now()
         var trusted=false
@@ -273,7 +272,6 @@ class AlbumService(
             bandService.calculateBandsGenre(bandId)
         }
 
-        return true
     }
 
     @Transactional

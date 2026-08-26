@@ -27,16 +27,6 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
     fun findBandsByArtistId(id:Int):List<ArtistBandsDto>
 
     @Query("""
-        SELECT bm 
-        FROM BandsMembers bm
-        WHERE bm.artist.id=:artistId
-        AND bm.band.id=:bandId
-        AND bm.role=:role
-        AND bm.joinedYear=:joinedYear
-    """)
-    fun findBandsMembersByDto(artistId:Long,bandId:Int,role:String,joinedYear:Int):BandsMembers
-
-    @Query("""
         SELECT bm.id
         FROM BandsMembers bm
         WHERE bm.band.id=:bandId

@@ -16,8 +16,8 @@ class TokenBlacklistService {
         return blacklistedTokens.containsKey(token)
     }
 
-    fun cleanup() {
+    /*fun cleanup() {
         val now=Instant.now().epochSecond
         blacklistedTokens.entries.removeIf {it.value<now}
-    }
+    }*/
 }
