@@ -32,7 +32,7 @@ class AlbumService(
         return bandService.doesBandExist(bandId)
     }
 
-    fun doesAlbumExist(albumId:Int):Boolean {
+    fun doesAlbumExist(albumId:Long):Boolean {
         return albumRepository.existsById(albumId)
     }
 
@@ -52,11 +52,11 @@ class AlbumService(
         }
     }
 
-    fun getById(id:Int):Album {
+    fun getById(id:Long):Album {
         return albumRepository.findAlbumById(id)
     }
 
-    fun getByIdWiki(id:Int):AlbumWikiDto {
+    fun getByIdWiki(id:Long):AlbumWikiDto {
         val dataRaw=getById(id)
         val band=BandDto(dataRaw.band?.id,dataRaw.band?.name)
         val age=dataRaw.releaseDate!!.until(LocalDate.now()).years
@@ -128,7 +128,7 @@ class AlbumService(
      * for editing, the only thing required in albumAddDto is record id and title
      * **/
     fun doesAlbumWithNameExistForAlbumId(albumAddDto:AlbumAddDto):Boolean{
-        val album=albumRepository.findById(albumAddDto.id!!).get()
+        val album=albumRepository.findById(albumAddDto.id!!)
         val albums=getAlbumsByBandId(album.band?.id!!)
         return albums.any{it.title==albumAddDto.title}
     }
@@ -277,7 +277,7 @@ class AlbumService(
     }
 
     @Transactional
-    fun deleteAlbumRequest(albumId:Int,userLogin:String,log:Boolean=true) {
+    fun deleteAlbumRequest(albumId:Long,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception

@@ -33,7 +33,7 @@ class ContributionService(
     }*/
 
     @Transactional
-    fun confirmDataChangeRequest(changeId:Int,confirmedUserLogin:String){
+    fun confirmDataChangeRequest(changeId:Long,confirmedUserLogin:String){
         val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
         if(confirmingUser.rank!!.id!!<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
@@ -53,7 +53,7 @@ class ContributionService(
             if(contributions.first().changedTable=="artist")
                 artistService.deleteArtistRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
             if(contributions.first().changedTable=="band")
-                bandService.deleteBandRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+                bandService.deleteBandRequest(contributions.first().changedRecordId!!.toInt(),confirmedUserLogin,false)
             if(contributions.first().changedTable=="bands_members")
                 bandsMemberService.deleteBandMemberRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
         }

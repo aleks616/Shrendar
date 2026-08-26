@@ -232,7 +232,7 @@ class BandService(
         changes.forEach {
             if(it.second!=null){
                 contributionRepository.save(Contribution().apply {
-                    changedRecordId=bandId
+                    changedRecordId=bandId?.toLong()
                     changeId=lastChangeId+1
                     user=requestingUser
                     action=Action.create
@@ -300,7 +300,7 @@ class BandService(
                 action=Action.update
                 changedTable="band"
                 changedColumn=column
-                changedRecordId=bandAddDto.id
+                changedRecordId=bandAddDto.id!!.toLong()
                 this.oldValue=oldValue
                 this.newValue=newValue
                 changedAt=time
@@ -347,7 +347,7 @@ class BandService(
                     action=Action.delete
                     changedTable="band"
                     changedColumn=column
-                    changedRecordId=id
+                    changedRecordId=id.toLong()
                     this.oldValue=oldValue
                     this.newValue=newValue
                     changedAt=time
@@ -369,7 +369,7 @@ class BandService(
         val band=bandRepository.findBandById(bandId)
         val recordId=userBandRepository.findByBandAndUser(band,user)?.id?:-1
 
-        if(recordId==-1){
+        if(recordId==-1L){
             userBandRepository.saveAndFlush(UsersBands().apply {
                 this.user=user
                 this.band=band
@@ -388,7 +388,7 @@ class BandService(
         return bandsMemberRepository.findById(id).get()
     }
 
-    fun doesBandMemberExist(id:Int):Boolean{
+    fun doesBandMemberExist(id:Long):Boolean{
         return bandsMemberRepository.existsById(id)
     }
 }

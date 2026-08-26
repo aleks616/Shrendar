@@ -4,7 +4,7 @@ import org.aleks616.shrendar.genre.model.Genre
 import java.time.LocalDate
 
 data class AlbumWikiDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val albumName:String?=null,
     val band:BandDto?=null,
     val releaseDate:LocalDate?=null,

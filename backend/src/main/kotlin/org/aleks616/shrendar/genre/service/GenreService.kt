@@ -40,7 +40,7 @@ class GenreService(
         val genre=genreRepository.findGenreById(genreId)
         val recordId=userGenreRepository.findByGenreAndUser(genre,user)?.id?:-1
 
-        if(recordId==-1){
+        if(recordId==-1L){
             userGenreRepository.saveAndFlush(UsersGenres().apply {
                 this.user=user
                 this.genre=genre

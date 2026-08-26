@@ -116,7 +116,7 @@ class ContributionControllerTest {
 
     @Test
     fun `confirm should succeed for rank 10 or higher`() {
-        val changeId=100
+        val changeId=100L
         val newbieUser=userRepository.findByLogin("newbie")!!
         contributionRepository.save(Contribution().apply {
             this.changeId=changeId
@@ -143,7 +143,7 @@ class ContributionControllerTest {
 
     @Test
     fun `confirm should fail for rank below 10`() {
-        val changeId=101
+        val changeId=101L
         val newbieUser=userRepository.findByLogin("newbie")!!
         contributionRepository.save(Contribution().apply {
             this.changeId=changeId
@@ -170,7 +170,7 @@ class ContributionControllerTest {
     @Test
     fun `revert artist addition should work`() {
         val artist=artistRepository.save(Artist().apply {name="To Be Reverted"})
-        val changeId=200
+        val changeId=200L
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
@@ -209,11 +209,11 @@ class ContributionControllerTest {
     @Test
     fun `revert band addition should work`() {
         val band=bandRepository.save(Band().apply {name="Band to Revert"})
-        val changeId=201
+        val changeId=201L
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
-            changedRecordId=band.id
+            changedRecordId=band.id?.toLong()
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -224,7 +224,7 @@ class ContributionControllerTest {
             changedAt=LocalDateTime.now()
         })
         contributionRepository.save(Contribution().apply {
-            changedRecordId=band.id
+            changedRecordId=band.id?.toLong()
             this.changeId=changeId
             user=newbieUser
             action=Action.create
@@ -248,7 +248,7 @@ class ContributionControllerTest {
     fun `revert album addition should work`() {
         val band=bandRepository.save(Band().apply {name="Metallica"})
         val album=albumRepository.save(Album().apply {this.band=band; title="Album to Revert"})
-        val changeId=202
+        val changeId=202L
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
@@ -293,7 +293,7 @@ class ContributionControllerTest {
             role="Guitar"
             joinedYear=2000
         })
-        val changeId=203
+        val changeId=203L
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {
@@ -353,7 +353,7 @@ class ContributionControllerTest {
     @Test
     fun `revert of confirmed contribution should require rank 12 or higher`() {
         val artist=artistRepository.save(Artist().apply {name="Confirmed Artist"})
-        val changeId=300
+        val changeId=300L
         val newbieUser=userRepository.findByLogin("newbie")!!
 
         contributionRepository.save(Contribution().apply {

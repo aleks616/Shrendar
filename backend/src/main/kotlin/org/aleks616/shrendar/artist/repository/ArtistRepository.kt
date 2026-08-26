@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ArtistRepository:JpaRepository<Artist,Int> {
-    fun existsArtistById(id:Int):Boolean
-    fun findArtistById(id:Int):Artist
+    fun existsArtistById(id:Long):Boolean
+    fun findArtistById(id:Long):Artist
     fun findArtistByNameContains(name:String):MutableList<Artist>
     fun findArtistByNameStartsWith(name:String):MutableList<Artist>
     fun findArtistByNameEndsWithIgnoreCase(name:String):MutableList<Artist>
@@ -59,5 +59,7 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
     fun findArtistByCountry(country:Int):MutableList<Artist>
 
     @Query("SELECT a.id FROM Artist a WHERE a.name=:name ORDER BY a.id DESC LIMIT 1")
-    fun findTopIdByName(name:String):Int
+    fun findTopIdByName(name:String):Long
+    fun existsById(id:Long):Boolean
+    fun deleteById(id:Long)
 }

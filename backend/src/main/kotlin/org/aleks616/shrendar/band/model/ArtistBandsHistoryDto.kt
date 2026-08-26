@@ -4,7 +4,7 @@ import java.io.Serializable
 
 data class ArtistBandsHistoryDto(
     val id:Int?=null,
-    val artistId:Int?=null,
+    val artistId:Long?=null,
     val artistName:String?=null,
     val bandId:Int?=null,
     val bandName:String?=null,

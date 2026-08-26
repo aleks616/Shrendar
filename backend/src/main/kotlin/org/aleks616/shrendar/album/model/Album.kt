@@ -11,7 +11,7 @@ open class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)
-    open var id:Int?=null
+    open var id:Long?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")

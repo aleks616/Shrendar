@@ -43,7 +43,7 @@ interface AlbumRepository :JpaRepository<Album,Int>{
         FROM Album a
         WHERE a.id=:id
     """)
-    fun findAlbumById(id:Int):Album
+    fun findAlbumById(id:Long):Album
 
     @Query("""
         SELECT a.id
@@ -52,5 +52,8 @@ interface AlbumRepository :JpaRepository<Album,Int>{
         ORDER BY a.id DESC
         LIMIT 1
     """)
-    fun findIdByData(bandId:Int,title:String):Int?
+    fun findIdByData(bandId:Int,title:String):Long?
+    fun findById(id:Long):Album
+    fun deleteById(id:Long)
+    fun existsById(id:Long):Boolean
 }

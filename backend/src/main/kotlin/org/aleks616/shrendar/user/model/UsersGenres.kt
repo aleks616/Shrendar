@@ -17,7 +17,7 @@ open class UsersGenres {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
-    open var id:Int?=null
+    open var id:Long?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")

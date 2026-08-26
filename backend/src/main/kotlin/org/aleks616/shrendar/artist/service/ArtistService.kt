@@ -33,12 +33,12 @@ class ArtistService(
         return artistRepository.findAll()
     }
 
-    fun getById(id:Int):Artist {
+    fun getById(id:Long):Artist {
         if(!artistRepository.existsArtistById(id)) throw IllegalArgumentException("artist with id doesn't exist")
         return artistRepository.findArtistById(id)
     }
 
-    fun getByIdWiki(id:Int):ArtistWikiDto {
+    fun getByIdWiki(id:Long):ArtistWikiDto {
         val dataRaw=getById(id)
         val daysTillBirthday=Utils.getDaysTillNextAnniversary(dataRaw.birthDate!!)
 
@@ -171,7 +171,7 @@ class ArtistService(
 
     }
 
-    fun doesArtistExist(artistId:Int):Boolean{
+    fun doesArtistExist(artistId:Long):Boolean{
         return artistRepository.existsById(artistId)
     }
 
@@ -296,7 +296,7 @@ class ArtistService(
     }
 
     @Transactional
-    fun deleteArtistRequest(artistId:Int,userLogin:String,log:Boolean=true) {
+    fun deleteArtistRequest(artistId:Long,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -347,11 +347,11 @@ class ArtistService(
     }
 
     @Transactional
-    fun toggleFavoriteArtist(artistId:Int,login:String){
+    fun toggleFavoriteArtist(artistId:Long,login:String){
         val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
         val artist=artistRepository.findArtistById(artistId)
         val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id?:-1
-        if(recordId==-1){
+        if(recordId==-1L){
             userArtistRepository.saveAndFlush(UsersArtists().apply {
                 this.user=user
                 this.artist=artist

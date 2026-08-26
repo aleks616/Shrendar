@@ -10,7 +10,7 @@ import java.time.LocalDate
 interface ContributionRepository:JpaRepository<Contribution,Int> {
 
     @Query("""SELECT c.changeId FROM Contribution c ORDER BY c.changeId DESC LIMIT 1""")
-    fun findTopChangeId():Int?
+    fun findTopChangeId():Long?
 
     @Query(
         """
@@ -22,7 +22,7 @@ interface ContributionRepository:JpaRepository<Contribution,Int> {
     """
     )
     fun getContributionCountByUser(user:Int):Int
-    fun getByChangeId(changeId:Int):List<Contribution>
+    fun getByChangeId(changeId:Long):List<Contribution>
 
     @Query(
         """

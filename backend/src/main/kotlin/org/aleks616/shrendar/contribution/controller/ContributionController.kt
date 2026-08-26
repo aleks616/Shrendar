@@ -30,7 +30,7 @@ class ContributionController (
     fun getContributions()=contributionService.getAll()
 
     @PostMapping("/confirm")
-    fun confirmContributionRequest(@RequestParam changeId:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun confirmContributionRequest(@RequestParam changeId:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -55,7 +55,7 @@ class ContributionController (
     }
 
     @PostMapping("/revert")
-    fun revertAddRequest(@RequestParam changeId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun revertAddRequest(@RequestParam changeId:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
