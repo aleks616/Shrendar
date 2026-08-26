@@ -107,9 +107,9 @@ class ArtistController(
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
         if(artist.name.isNullOrEmpty())
@@ -138,9 +138,9 @@ class ArtistController(
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
        if(artist.id==null||artist.name.isNullOrEmpty()||artist.gender==null)
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist id, name and gender are required")
@@ -166,9 +166,9 @@ class ArtistController(
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT,60))
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
         if(!artistService.doesArtistExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id $id does not exist")
@@ -185,6 +185,29 @@ class ArtistController(
 
         return ResponseEntity.ok("Artist deletion request received")
     }
+
+    @PostMapping("/favorite")
+    fun favoriteArtist(@RequestBody artistId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_HIGH,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_HIGH,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+        if(!artistService.doesArtistExist(artistId))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id $artistId does not exist")
+
+        try{
+            artistService.toggleFavoriteArtist(artistId,userLogin)
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+        return ResponseEntity.ok("Artist favorite toggled successfully")
+    }
+
 
     fun artistValidate(artist:ArtistAddDto):ResponseEntity<String>?{
         if(artist.birthDate!=null&&artist.deathDate!=null&&artist.birthDate.plusYears(10)>artist.deathDate)

@@ -161,7 +161,7 @@ class AlbumControllerTest {
                 Genre().apply {id=i+1; name="Genre $i"; properties="1"})
         }
 
-        repeat(Utils.LIMIT) {i->
+        repeat(Utils.LIMIT_BASIC) {i->
             val albumAddDto=AlbumAddDto(bandId=band.id,title="Quick Album $i",mainSubgenre=i+1)
             mockMvc.post("/api/album/add") {
                 header("Authorization","Bearer $userToken")

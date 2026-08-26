@@ -37,6 +37,7 @@ class BandServiceTest {
         userService,
         genreRepository,
         rankService,
+        userBandRepository,
     )
 
     @Test
