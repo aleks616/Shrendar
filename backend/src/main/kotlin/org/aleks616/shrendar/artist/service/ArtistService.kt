@@ -9,6 +9,9 @@ import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.genre.model.Genre
+import org.aleks616.shrendar.genre.model.GenreDto
+import org.aleks616.shrendar.genre.model.GenreDto1
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersArtists
 import org.aleks616.shrendar.user.repository.UserArtistRepository
@@ -119,6 +122,14 @@ class ArtistService(
         val today=LocalDate.now()
         val recentDate=LocalDate.now().minusDays(30)
         return artistRepository.findArtistByBirthdayBetween(recentDate.monthValue,recentDate.dayOfMonth,today.monthValue,today.dayOfMonth)
+    }
+
+    fun getArtistGenres(artistId:Long):ArtistGenreDto {
+        return ArtistGenreDto(
+            artistId,
+            artistRepository.findArtistById(artistId).name,
+            artistRepository.findArtistGenres(artistId)
+        )
     }
     //endregion
 
