@@ -5,6 +5,8 @@ import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
+import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
@@ -20,7 +22,8 @@ import java.time.LocalDate
 class ArtistController(
     private val artistService:ArtistService,
     private val rateLimiter:RateLimiter,
-    private val countryService:CountryService
+    private val countryService:CountryService,
+    private val bandsMemberService:BandsMemberService,
 ) {
     @GetMapping("/")
     fun getAll():List<Artist>{
@@ -97,6 +100,11 @@ class ArtistController(
     @GetMapping("/country/{country}")
     fun getByCountry(@PathVariable country:Int):List<Artist>{
         return artistService.getByCountry(country)
+    }
+
+    @GetMapping("/{id}/bands-data")
+    fun getArtistBands(@PathVariable id:Long):List<ArtistBandsStatusDto>{
+        return bandsMemberService.getArtistBandsList(id)
     }
 
 

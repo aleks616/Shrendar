@@ -6,20 +6,19 @@ import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -30,7 +29,8 @@ class ArtistControllerTest {
     private val artistService:ArtistService=mock(ArtistService::class.java)
     private val countryService:CountryService=mock(CountryService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
-    private val artistController=ArtistController(artistService,rateLimiter,countryService)
+    private val bandsMemberService=mock(BandsMemberService::class.java)
+    private val artistController=ArtistController(artistService,rateLimiter,countryService,bandsMemberService)
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(artistController).build()
     private val request=mock(HttpServletRequest::class.java)
     private val dto=ArtistAddDto(name="James Hetfield",gender='M')

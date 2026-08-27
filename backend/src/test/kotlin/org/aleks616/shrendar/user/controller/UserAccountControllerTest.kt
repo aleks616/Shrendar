@@ -6,7 +6,7 @@ import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.ResetPassword
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -188,7 +188,7 @@ class UserAccountControllerTest {
     }
 
     @Autowired
-    private lateinit var userService:UserService
+    private lateinit var userAccountService:UserAccountService
 
     @Test
     fun `should update username and handle 90-day restriction`() {
@@ -293,12 +293,12 @@ class UserAccountControllerTest {
         val userLogAfterLogin=userLogRepository.findById(user.id!!).get()
         assertNull(userLogAfterLogin.accountDeletionScheduledTime)
 
-        userService.requestDeletion(email)
+        userAccountService.requestDeletion(email)
         val userLogAfterSecondRequest=userLogRepository.findById(user.id!!).get()
         userLogAfterSecondRequest.accountDeletionScheduledTime=Instant.now().minus(22,ChronoUnit.DAYS)
         userLogRepository.save(userLogAfterSecondRequest)
 
-        userService.checkAccountScheduledToBeDeleted()
+        userAccountService.checkAccountScheduledToBeDeleted()
 
         assertNull(userRepository.findByEmail(email))
     }
@@ -625,7 +625,7 @@ class UserAccountControllerTest {
     fun `doesLoginExist should return true for existing login`() {
         val login="loginexist"
         registerAndConfirm(login,"loginexist@example.com")
-        assertTrue(userService.doesAccountExist(login))
+        assertTrue(userAccountService.doesAccountExist(login))
     }
 
     @Test

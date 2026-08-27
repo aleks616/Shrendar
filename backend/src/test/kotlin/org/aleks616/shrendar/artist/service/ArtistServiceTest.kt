@@ -14,7 +14,7 @@ import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersArtists
 import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +26,7 @@ import java.time.LocalDate
 class ArtistServiceTest {
     private lateinit var artistRepository:ArtistRepository
     private lateinit var countryRepository:CountryRepository
-    private lateinit var userService:UserService
+    private lateinit var userAccountService:UserAccountService
     private lateinit var contributionRepository:ContributionRepository
     private lateinit var rankService:RankService
     private lateinit var userArtistRepository:UserArtistRepository
@@ -38,12 +38,12 @@ class ArtistServiceTest {
     fun setup() {
         artistRepository=mock(ArtistRepository::class.java)
         countryRepository=mock(CountryRepository::class.java)
-        userService=mock(UserService::class.java)
+        userAccountService=mock(UserAccountService::class.java)
         contributionRepository=mock(ContributionRepository::class.java)
         rankService=mock(RankService::class.java)
         userArtistRepository=mock(UserArtistRepository::class.java)
         artistService=ArtistService(
-            artistRepository,countryRepository,userService,contributionRepository,rankService,userArtistRepository
+            artistRepository,countryRepository,userAccountService,contributionRepository,rankService,userArtistRepository
         )
         artist=Artist().apply {
             id=1
@@ -246,7 +246,7 @@ class ArtistServiceTest {
 
     @Test
     fun `addArtistRequest should throw contribution limit exception`() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
             artistService.addArtistRequest(ArtistAddDto(name="Artist"),"tester")
@@ -319,7 +319,7 @@ class ArtistServiceTest {
 
     @Test
     fun `deleteArtistRequest should not delete untrusted user`() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         artistService.deleteArtistRequest(1,"tester",log=false)
         verify(artistRepository,never()).deleteById(1L)
@@ -329,7 +329,7 @@ class ArtistServiceTest {
     @Test
     fun `deleteArtistRequest should log and delete for trusted user`() {
         requestingUser.rank=Rank().apply {id=10}
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
@@ -341,7 +341,7 @@ class ArtistServiceTest {
     @Test
     fun `toggleFavoriteArtist should remove existing favorite`() {
         val favorite=UsersArtists().apply {id=4}
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
         var lookupCount=0
         `when`(userArtistRepository.findByArtistAndUser(artist,requestingUser))
@@ -356,11 +356,11 @@ class ArtistServiceTest {
     }
 
     private fun stubAddDependencies() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
     }
 
     private fun stubEditDependencies() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1)).thenReturn(artist)
     }

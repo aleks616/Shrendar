@@ -4,7 +4,7 @@ import java.io.Serializable
 
 
 data class ArtistBandsExtendedDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val artistId:Long?=null,
     val artistName:String?=null,
     val bandId:Int?=null,

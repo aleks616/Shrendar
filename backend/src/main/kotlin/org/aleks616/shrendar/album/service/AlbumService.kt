@@ -13,7 +13,7 @@ import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,7 +25,7 @@ class AlbumService(
     private val bandService:BandService,
     private val contributionRepository:ContributionRepository,
     private val genreRepository:GenreRepository,
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
     private val rankService:RankService,
 ) {
     fun doesBandExist(bandId:Int):Boolean {
@@ -141,7 +141,7 @@ class AlbumService(
 
     @Transactional
     fun addAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -204,7 +204,7 @@ class AlbumService(
 
     @Transactional
     fun editAlbumRequest(albumAddDto:AlbumAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -276,7 +276,7 @@ class AlbumService(
 
     @Transactional
     fun deleteAlbumRequest(albumId:Long,userLogin:String,log:Boolean=true) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 

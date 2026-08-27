@@ -11,7 +11,7 @@ import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.RankTooLowToConfirmContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.security.RateLimiter
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -24,7 +24,7 @@ class ContributionController (
     private val contributionService:ContributionService,
     private val contributionRevertService:ContributionRevertService,
     private val rateLimiter:RateLimiter,
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
 ){
     @GetMapping("/")
     fun getContributions()=contributionService.getAll()
@@ -88,7 +88,7 @@ class ContributionController (
 
     @GetMapping("/requested-by/{id}")
     fun getContributionsByRequestingUser(@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
-        if(!userService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
         val user=SecurityContextHolder.getContext().authentication?:
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
@@ -106,7 +106,7 @@ class ContributionController (
 
     @GetMapping("/confirmed-by/{id}")
     fun getContributionsByConfirmingUser(@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
-        if(!userService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
         val user=SecurityContextHolder.getContext().authentication?:
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
@@ -215,7 +215,7 @@ class ContributionController (
 
     @GetMapping("/between-dates-by-user/{id}")
     fun getContributionsByRequestingUserAndChangedAtBetween(@RequestParam start:LocalDate,@RequestParam(required=false) end:LocalDate,@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
-        if(!userService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
         val user=SecurityContextHolder.getContext().authentication?:
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name
@@ -235,7 +235,7 @@ class ContributionController (
 
     @GetMapping("/by-action-and-user/{id}/{action}")
     fun getContributionsByRequestingUserAndAction(@PathVariable id:Int,@PathVariable action:Action,servletRequest:HttpServletRequest):List<ContributionDto>{
-        if(!userService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
         val user=SecurityContextHolder.getContext().authentication?:
                  throw IllegalStateException("User not authenticated")
         val userLogin=user.name

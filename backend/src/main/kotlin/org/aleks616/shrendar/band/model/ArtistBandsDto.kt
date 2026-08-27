@@ -6,7 +6,7 @@ import java.io.Serializable
  * DTO for {@link org.aleks616.shrendar.band.model.BandsMembers}
  */
 data class ArtistBandsDto(
-    val id:Int?=null,
+    val id:Long?=null,
     val artistId:Long?=null,
     val artistName:String?=null,
     val bandId:Int?=null,

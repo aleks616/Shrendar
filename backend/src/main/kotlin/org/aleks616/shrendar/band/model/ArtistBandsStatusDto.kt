@@ -2,12 +2,13 @@ package org.aleks616.shrendar.band.model
 
 import java.io.Serializable
 
-data class ArtistBandsHistoryDto(
-    val id:Long?=null,
+/**
+ * DTO for {@link org.aleks616.shrendar.band.model.ArtistBandsDto}
+ */
+data class ArtistBandsStatusDto(
     val artistId:Long?=null,
     val artistName:String?=null,
     val bandId:Int?=null,
     val bandName:String?=null,
-    val nickname:String?=null,
-    val yearRole:MutableList<String>?=null
+    val current:Boolean?=null,
 ):Serializable

@@ -35,4 +35,7 @@ open class User {
 
     @Column(name="verified")
     open var verified:Boolean?=false
+
+    @Column(name="bio")
+    open var bio:String?=null
 }

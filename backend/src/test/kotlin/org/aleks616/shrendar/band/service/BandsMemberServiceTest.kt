@@ -11,7 +11,7 @@ import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ class BandsMemberServiceTest {
     private val bandService=mock(BandService::class.java)
     private val repository=mock(BandsMemberRepository::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
-    private val userService=mock(UserService::class.java)
+    private val userAccountService=mock(UserAccountService::class.java)
     private val rankService=mock(RankService::class.java)
     private lateinit var bandsMemberService:BandsMemberService
     private lateinit var user:User
@@ -32,7 +32,7 @@ class BandsMemberServiceTest {
     @BeforeEach
     fun setup() {
         bandsMemberService=BandsMemberService(
-            artistService,bandService,repository,contributionRepository,userService,rankService
+            artistService,bandService,repository,contributionRepository,userAccountService,rankService
         )
         user=User().apply {id=7; login="user"; rank=Rank().apply {id=1}}
         member=BandsMembers().apply {
@@ -111,7 +111,7 @@ class BandsMemberServiceTest {
     @Test
     fun `addBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {bandsMemberService.addBandMemberRequest(dto,"user")}
         verifyNoInteractions(repository)
@@ -121,7 +121,7 @@ class BandsMemberServiceTest {
     @Test
     fun `addBandMemberRequest should record member contribution`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
@@ -135,7 +135,7 @@ class BandsMemberServiceTest {
     fun `addBandMemberRequest should confirm contributions for rank nine`() {
         user.rank=Rank().apply {id=9}
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
@@ -151,7 +151,7 @@ class BandsMemberServiceTest {
     @Test
     fun `editBandMemberRequest should update changed fields`() {
         val dto=ArtistBandAddDto(10,3,2,"New","Guitar",1982,1989)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
@@ -164,7 +164,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `editBandMemberRequest should throw IllegalStateException when there are no changes`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         assertThrows<IllegalStateException> {
@@ -204,7 +204,7 @@ class BandsMemberServiceTest {
     fun `addBandMemberRequest should omit null member fields from contributions`() {
         user.rank=Rank().apply {id=8}
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role=null,joinedYear=1981,leftYear=null,nickname=null)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
@@ -219,7 +219,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `editBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
             bandsMemberService.editBandMemberRequest(ArtistBandAddDto(10,joinedYear=2000),"user")
@@ -230,7 +230,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `editBandMemberRequest should throw IllegalArgumentException when joined year is after existing left year`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         member.leftYear=1990
         `when`(repository.findById(10L)).thenReturn(member)
@@ -241,7 +241,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `editBandMemberRequest should throw IllegalArgumentException when left year is below existing joined year`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
 
@@ -254,7 +254,7 @@ class BandsMemberServiceTest {
     fun `editBandMemberRequest should update every supported field`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,4,5,"New","Guitar",1982,1989)
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(bandService.getBandById(4)).thenReturn(Band().apply {id=4})
@@ -271,7 +271,7 @@ class BandsMemberServiceTest {
     fun `editBandMemberRequest should mark contributions as trusted for rank ten`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,nickname="New")
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         bandsMemberService.editBandMemberRequest(dto,"user")
@@ -282,7 +282,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `deleteBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
             bandsMemberService.deleteBandMemberRequest(10,"user")
@@ -293,7 +293,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `deleteBandMemberRequest should skip contributions when logging is disabled`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         bandsMemberService.deleteBandMemberRequest(10,"user",log=false)
         verifyNoInteractions(contributionRepository)
@@ -303,7 +303,7 @@ class BandsMemberServiceTest {
     @Test
     fun `deleteBandMemberRequest should remove member for rank ten`() {
         user.rank=Rank().apply {id=10}
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
 
         bandsMemberService.deleteBandMemberRequest(10,"user",log=false)
@@ -313,7 +313,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `deleteBandMemberRequest should log every member field`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(contributionRepository.findTopChangeId()).thenReturn(20)

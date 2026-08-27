@@ -14,7 +14,7 @@ import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,11 +25,11 @@ class ContributionRevertService(
     private val bandService:BandService,
     private val bandsMemberRepository:BandsMemberRepository,
     private val contributionRepository:ContributionRepository,
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
 ) {
 
     fun revertAddition(changeId:Long,confirmedUserLogin:String) {
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        val confirmingUser:User=userAccountService.getUserByLogin(confirmedUserLogin)!!
         val rank=confirmingUser.rank!!.id!!
         if(rank<10) throw RankTooLowToRevertContributionException("Rank 10 is required to revert contribution. User rank: $rank")
         val contributions=contributionRepository.getByChangeId(changeId)
