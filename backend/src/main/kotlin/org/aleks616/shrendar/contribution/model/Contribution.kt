@@ -2,21 +2,25 @@ package org.aleks616.shrendar.contribution.model
 
 import jakarta.persistence.*
 import org.aleks616.shrendar.user.model.User
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name="contribution",schema="Shrendar")
 open class Contribution {
     @Id
-    @Column(name="contribution_id",nullable=false)
-    open var id:Int?=null
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id",nullable=false)
+    open var id:Long?=null
+
+    @Column(name="change_id")
+    open var changeId:Long?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
     open var user:User?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="action",columnDefinition="ENUM('create', 'update', 'delete')")
+    @Column(name="action",columnDefinition="ENUM('CREATE', 'UPDATE', 'DELETE')")
     open var action:Action?=null
 
     @Column(name="changed_table",length=30)
@@ -26,7 +30,7 @@ open class Contribution {
     open var changedColumn:String?=null
 
     @Column(name="changed_record_id")
-    open var changedRecordId:Int?=null
+    open var changedRecordId:Long?=null
 
     @Column(name="old_value",length=50)
     open var oldValue:String?=null
@@ -35,14 +39,11 @@ open class Contribution {
     open var newValue:String?=null
 
     @Column(name="changed_at")
-    open var changedAt:Instant?=null
+    open var changedAt:LocalDateTime?=null
+
+    @Column(name="confirmed")
+    open var confirmed:Boolean?=null
+
+    @Column(name="confirmed_by")
+    open var confirmedBy:Int?=null
 }
-
-
-enum class Action{
-    create,
-    update,
-    delete
-}
-
-

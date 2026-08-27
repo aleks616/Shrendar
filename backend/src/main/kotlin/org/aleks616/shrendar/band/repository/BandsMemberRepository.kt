@@ -26,4 +26,28 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
     """)
     fun findBandsByArtistId(id:Int):List<ArtistBandsDto>
 
+    @Query("""
+        SELECT bm.id
+        FROM BandsMembers bm
+        WHERE bm.band.id=:bandId
+        AND bm.artist.id=:artistId
+        ORDER BY bm.id DESC
+        LIMIT 1
+    """)
+    fun findTopIdByBandIdAndArtistId(bandId:Int,artistId:Long):Long
+
+
+    @Query("""
+        SELECT bm
+        FROM BandsMembers bm
+        WHERE bm.artist.id=:artistId
+        AND bm.band.id=:bandId
+    """)
+    fun findArtistInBand(artistId:Long,bandId:Int):List<BandsMembers>
+    fun findBandsMembersById(id:Long):BandsMembers
+    fun existsById(id:Long):Boolean
+    fun findById(id:Long):BandsMembers
+    fun deleteById(id:Long)
+
+
 }

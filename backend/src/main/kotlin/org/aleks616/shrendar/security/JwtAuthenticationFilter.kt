@@ -13,7 +13,7 @@ class JwtAuthenticationFilter(private val tokenBlacklistService:TokenBlacklistSe
         val header=request.getHeader("Authorization")
         if(header!=null&&header.startsWith("Bearer ")) {
             val token=header.substringAfter("Bearer ").trim()
-            if(!tokenBlacklistService.isBlacklisted(token)) {
+            if(token.isNotEmpty()&&!tokenBlacklistService.isBlacklisted(token)) {
                 val subject=JwtUtil.validateToken(token)
                 if(subject!=null) {
                     val auth=UsernamePasswordAuthenticationToken(subject,null,emptyList())

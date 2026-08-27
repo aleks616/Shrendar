@@ -1,0 +1,3 @@
+package org.aleks616.shrendar.exception
+
+class RankTooLowToRevertConfirmedContributionException(message:String):Exception(message)

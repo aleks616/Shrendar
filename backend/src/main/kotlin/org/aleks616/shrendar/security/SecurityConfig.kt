@@ -21,8 +21,24 @@ class SecurityConfig {
         http.sessionManagement {it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         http.authorizeHttpRequests {
             it.requestMatchers(
-                "/api/logout",
-                "/api/users"
+                "/api/user-account/logout",
+                "/api/users",
+                "/api/album/add",
+                "/api/album/edit",
+                "/api/album/delete",
+                "/api/artist/add",
+                "/api/artist/edit",
+                "/api/artist/delete",
+                "/api/artist/favorite",
+                "/api/band/add",
+                "/api/band/edit",
+                "/api/band/delete",
+                "/api/band/favorite",
+                "/api/band/member-add",
+                "/api/band/member-edit",
+                "/api/band/member-delete",
+                "/api/contribution/**",
+                "/api/genre/favorite"
             ).authenticated()
             it.anyRequest().permitAll()
         }

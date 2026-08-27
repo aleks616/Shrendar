@@ -14,7 +14,7 @@ open class Artist {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="artist_id",nullable=false)
-    open var id:Int?=null
+    open var id:Long?=null
 
     @Column(name="name",nullable=false,length=200)
     open var name:String?=null

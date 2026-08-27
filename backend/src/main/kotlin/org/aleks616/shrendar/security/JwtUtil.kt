@@ -42,7 +42,7 @@ object JwtUtil {
         }
     }
 
-    fun getExpiration(token:String):Long? {
+    /*fun getExpiration(token:String):Long? {
         try {
             val parts=token.split('.')
             if(parts.size!=3) return null
@@ -54,7 +54,7 @@ object JwtUtil {
         catch(_:Exception) {
             return null
         }
-    }
+    }*/
 
     fun createToken(subject:String,validitySeconds:Long=3600L*24*60):String {
         val header=mapper.writeValueAsString(mapOf("alg" to "HS256","typ" to "JWT"))

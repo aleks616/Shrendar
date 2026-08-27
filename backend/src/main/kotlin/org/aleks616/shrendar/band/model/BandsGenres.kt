@@ -28,5 +28,5 @@ open class BandsGenres{
     open var genre:Genre?=null
 
     @Column(name="importance")
-    open var importance:Int?=null
+    open var importance:Byte?=null
 }

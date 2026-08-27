@@ -17,4 +17,7 @@ open class Rank {
 
     @Column(name="min_xp",nullable=false)
     open var minXp:Int?=null
+
+    @Column(name="allowed_contributions")
+    open var allowedContributions:Int?=null
 }

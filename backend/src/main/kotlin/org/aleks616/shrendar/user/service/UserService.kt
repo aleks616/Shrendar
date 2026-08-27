@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 @Service
@@ -30,13 +31,27 @@ class UserService(
     @Qualifier("registrationCodeStorage") private val registrationCodeStorage:CodeStorage,
     @Qualifier("passwordResetCodeStorage") private val passwordResetCodeStorage:CodeStorage,
     private val emailService:EmailService,
-    private val encoder:BCryptPasswordEncoder
+    private val encoder:BCryptPasswordEncoder,
+    private val xpService: XpService
 ) {
+
+    fun getUserByLogin(login:String):User? {
+        return userRepository.findByLogin(login)
+    }
+
+    fun getUserById(id:Int):User? {
+        return userRepository.findUserById(id)
+    }
+
     fun matches(raw:String,encrypted:String):Boolean {
         return encoder.matches(raw,encrypted)
     }
 
     fun getUsers():List<User> =userRepository.findAll()
+
+    fun doesUserExist(id:Int):Boolean {
+        return userRepository.existsById(id)
+    }
 
     fun doesAccountExist(accountKey:String):Boolean {
         return getUsers().any {it.login.equals(accountKey,ignoreCase=true)||it.email.equals(accountKey,ignoreCase=true)}
@@ -59,6 +74,12 @@ class UserService(
             userLogRepository.save(userLog)
         }
 
+        val zone=ZoneId.of("UTC")
+        val lastLoginDate=LocalDate.ofInstant(Instant.now(),zone)
+        val hasLoggedInToday:Boolean=lastLoginDate==LocalDate.now(zone)
+        if(!hasLoggedInToday)
+            xpService.increaseUserXp(user.login!!,6)
+
         return if(matches(req.password,user.passwordHash?:"")) user.login else null
     }
 
@@ -80,6 +101,7 @@ class UserService(
     }
 
     fun initiateRegistration(req:UserAccountController.RegisterRequest):Boolean {
+        if(req.login=="anonymousUser") return false
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!registrationCodeStorage.canSendCode(req.email)) return false
         val code=CodeGenerator.generateCode()
@@ -122,9 +144,9 @@ class UserService(
         return true
     }
 
-    fun changePassword(email:String,newpassword:String,resetCode:String):Boolean {
+    fun changePassword(email:String,newPassword:String,resetCode:String):Boolean {
         if(!passwordResetCodeStorage.validateCode(email,resetCode)) return false
-        val encryptedPassword=encoder.encode(newpassword)
+        val encryptedPassword=encoder.encode(newPassword)
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         val userPasswordHistory=UserPasswordHistory()
         val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id!!)

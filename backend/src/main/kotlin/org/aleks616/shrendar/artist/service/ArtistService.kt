@@ -1,28 +1,44 @@
 package org.aleks616.shrendar.artist.service
 
-import org.aleks616.shrendar.artist.model.Artist
-import org.aleks616.shrendar.artist.model.ArtistWikiDto
-import org.aleks616.shrendar.artist.model.ChineseZodiacSign
-import org.aleks616.shrendar.artist.model.ZodiacSign
+import jakarta.transaction.Transactional
+import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
+import org.aleks616.shrendar.contribution.model.Action
+import org.aleks616.shrendar.contribution.model.Contribution
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.model.UsersArtists
+import org.aleks616.shrendar.user.repository.UserArtistRepository
+import org.aleks616.shrendar.user.service.RankService
+import org.aleks616.shrendar.user.service.UserService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
-class ArtistService(private val artistRepository:ArtistRepository, private val countryRepository:CountryRepository) {
+class ArtistService(
+    private val artistRepository:ArtistRepository,
+    private val countryRepository:CountryRepository,
+    private val userService:UserService,
+    private val contributionRepository:ContributionRepository,
+    private val rankService:RankService,
+    private val userArtistRepository:UserArtistRepository,
+){
 
+    //region query
     fun getAll():List<Artist> {
         return artistRepository.findAll()
     }
 
-    fun getById(id:Int):Artist {
+    fun getById(id:Long):Artist {
         if(!artistRepository.existsArtistById(id)) throw IllegalArgumentException("artist with id doesn't exist")
         return artistRepository.findArtistById(id)
     }
 
-    fun getByIdWiki(id:Int):ArtistWikiDto {
+    fun getByIdWiki(id:Long):ArtistWikiDto {
         val dataRaw=getById(id)
         val daysTillBirthday=Utils.getDaysTillNextAnniversary(dataRaw.birthDate!!)
 
@@ -104,31 +120,32 @@ class ArtistService(private val artistRepository:ArtistRepository, private val c
         val recentDate=LocalDate.now().minusDays(30)
         return artistRepository.findArtistByBirthdayBetween(recentDate.monthValue,recentDate.dayOfMonth,today.monthValue,today.dayOfMonth)
     }
+    //endregion
 
     fun getZodiacSign(month:Int,day:Int):ZodiacSign {
-        if((month==12&&day>=22&&day<=31)||(month==1&&day>=1&&day<=19))
+        if((month==12&&day>=22)||(month==1&&day<=19))
             return ZodiacSign.CAPRICORN
-        else if((month==1&&day>=20&&day<=31)||(month==2&&day>=1&&day<=17))
+        else if((month==1)||(month==2&&day<=17))
             return ZodiacSign.AQUARIUS
-        else if((month==2&&day>=18&&day<=29)||(month==3&&day>=1&&day<=19))
+        else if((month==2)||(month==3&&day<=19))
             return ZodiacSign.PISCES
-        else if((month==3&&day>=20&&day<=31)||(month==4&&day>=1&&day<=19))
+        else if((month==3)||(month==4&&day<=19))
             return ZodiacSign.ARIES
-        else if((month==4&&day>=20&&day<=30)||(month==5&&day>=1&&day<=20))
+        else if((month==4)||(month==5&&day<=20))
             return ZodiacSign.TAURUS
-        else if((month==5&&day>=21&&day<=31)||(month==6&&day>=1&&day<=20))
+        else if((month==5)||(month==6&&day<=20))
             return ZodiacSign.GEMINI
-        else if((month==6&&day>=21&&day<=30)||(month==7&&day>=1&&day<=22))
+        else if((month==6)||(month==7&&day<=22))
             return ZodiacSign.CANCER
-        else if((month==7&&day>=23&&day<=31)||(month==8&&day>=1&&day<=22))
+        else if((month==7)||(month==8&&day<=22))
             return ZodiacSign.LEO
-        else if((month==8&&day>=23&&day<=31)||(month==9&&day>=1&&day<=22))
+        else if((month==8)||(month==9&&day<=22))
             return ZodiacSign.VIRGO
-        else if((month==9&&day>=23&&day<=30)||(month==10&&day>=1&&day<=22))
+        else if((month==9)||(month==10&&day<=22))
             return ZodiacSign.LIBRA
-        else if((month==10&&day>=23&&day<=31)||(month==11&&day>=1&&day<=21))
+        else if((month==10)||(month==11&&day<=21))
             return ZodiacSign.SCORPIO
-        else if((month==11&&day>=22&&day<=30)||(month==12&&day>=1&&day<=21))
+        else if((month==11)||(month==12))
             return ZodiacSign.SAGITTARIUS
         else
             throw IllegalArgumentException("Illegal date")
@@ -154,4 +171,191 @@ class ArtistService(private val artistRepository:ArtistRepository, private val c
 
     }
 
+    fun doesArtistExist(artistId:Long):Boolean{
+        return artistRepository.existsById(artistId)
+    }
+
+    @Transactional
+    fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
+        if(exception!=null) throw exception
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        artistRepository.save(Artist().apply {
+            name=artistAddDto.name
+            birthDate=artistAddDto.birthDate
+            deathDate=artistAddDto.deathDate
+            gender=artistAddDto.gender
+            country=artistAddDto.country
+            description=artistAddDto.description
+            artistImageUrl=artistAddDto.artistImageUrl
+        })
+
+        val artistId=artistRepository.findTopIdByName(artistAddDto.name!!)
+
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+
+        val changes:List<Pair<String,String?>> =listOf(
+            Pair("name",artistAddDto.name),
+            Pair("birth_date",artistAddDto.birthDate.toString()),
+            Pair("death_date",artistAddDto.deathDate.toString()),
+            Pair("gender",artistAddDto.gender.toString()),
+            Pair("country",artistAddDto.country.toString()),
+            Pair("description",artistAddDto.description.toString()),
+            Pair("artist_image_url",artistAddDto.artistImageUrl.toString()),
+        )
+
+        changes.forEach {
+            if(it.second!=null){
+                contributionRepository.save(Contribution().apply {
+                    changedRecordId=artistId
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.CREATE
+                    changedTable="artist"
+                    changedColumn=it.first
+                    oldValue=null
+                    newValue=it.second
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
+        }
+
+    }
+
+    @Transactional
+    fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
+        if(exception!=null) throw exception
+
+        val artist=getById(artistAddDto.id!!)
+        val changes=mutableListOf<Triple<String,String?,String?>>()
+
+        fun <T> updateIfChanged(
+            column:String,
+            currentValue:T?,
+            newValue:T?,
+            setter:(T)->Unit,
+            stringMapper:(T?)->String?={it?.toString()}
+        ) {
+            if(newValue!=null&&newValue!=currentValue) {
+                changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
+                setter(newValue)
+            }
+        }
+
+        updateIfChanged("name",artist.name,artistAddDto.name,{artist.name=it})
+        updateIfChanged("birth_date",artist.birthDate,artistAddDto.birthDate,{artist.birthDate=it})
+        updateIfChanged("death_date",artist.deathDate,artistAddDto.deathDate,{artist.deathDate=it})
+        updateIfChanged("gender",artist.gender,artistAddDto.gender,{artist.gender=it})
+        updateIfChanged("country",artist.country,artistAddDto.country,{artist.country=it})
+        updateIfChanged("description",artist.description,artistAddDto.description,{artist.description=it})
+        updateIfChanged("artist_image_url",artist.artistImageUrl,artistAddDto.artistImageUrl,{artist.artistImageUrl=it})
+
+        if(changes.isEmpty()) throw IllegalStateException("no changes found")
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        artistRepository.save(artist)
+        val lastChangeId=contributionRepository.findTopChangeId()?:0
+        changes.forEach { (column,oldValue,newValue)->
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.UPDATE
+                changedTable="artist"
+                changedColumn=column
+                changedRecordId=artistAddDto.id
+                this.oldValue=oldValue
+                this.newValue=newValue
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
+        }
+
+    }
+
+    @Transactional
+    fun deleteArtistRequest(artistId:Long,userLogin:String,log:Boolean=true) {
+        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
+        if(exception!=null) throw exception
+
+        val time=LocalDateTime.now()
+        var trusted=false
+        var confirmedByUser:Int?=null
+        if(requestingUser.rank!!.id!!>9) {
+            trusted=true
+            confirmedByUser=requestingUser.id
+        }
+
+        if(log){
+            val artist=getById(artistId)
+            val changes:List<Triple<String,String?,String?>> =listOf(
+                Triple("id",artist.id.toString(),null),
+                Triple("name",artist.name,null),
+                Triple("birth_date",artist.birthDate.toString(),null),
+                Triple("death_date",artist.deathDate.toString(),null),
+                Triple("gender",artist.gender.toString(),null),
+                Triple("country",artist.country.toString(),null),
+                Triple("description",artist.description.toString(),null),
+                Triple("artist_image_url",artist.artistImageUrl.toString(),null),
+            )
+
+            val lastChangeId=contributionRepository.findTopChangeId()?:0
+            changes.forEach {(column,oldValue,newValue)->
+                contributionRepository.save(Contribution().apply {
+                    changeId=lastChangeId+1
+                    user=requestingUser
+                    action=Action.DELETE
+                    changedTable="artist"
+                    changedColumn=column
+                    changedRecordId=id
+                    this.oldValue=oldValue
+                    this.newValue=newValue
+                    changedAt=time
+                    confirmed=trusted
+                    confirmedBy=confirmedByUser
+                })
+            }
+        }
+
+        if(trusted){
+            artistRepository.deleteById(artistId)
+        }
+
+    }
+
+    @Transactional
+    fun toggleFavoriteArtist(artistId:Long,login:String){
+        val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val artist=artistRepository.findArtistById(artistId)
+        val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id
+        if(recordId==null){
+            userArtistRepository.saveAndFlush(UsersArtists().apply {
+                this.user=user
+                this.artist=artist
+            })
+        }
+        else
+            userArtistRepository.deleteById(recordId)
+    }
 }

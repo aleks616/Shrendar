@@ -7,11 +7,11 @@ import java.time.LocalDate
 
 @Entity
 @Table(name="album",schema="Shrendar")
-open class Album() {
+open class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)
-    open var id:Int?=null
+    open var id:Long?=null
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
@@ -24,11 +24,11 @@ open class Album() {
     open var releaseDate:LocalDate?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="type", columnDefinition="ENUM('studio','EP','compilation','concert','demo','single','other')")
+    @Column(name="type", columnDefinition="ENUM('STUDIO','EP','COMPILATION','CONCERT','DEMO','SINGLE','OTHER')")
     open var type:AlbumType?=null
 
     @Column(name="importance", columnDefinition="TINYINT")
-    open var importance:Int?=null
+    open var importance:Byte?=null
 
     @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="genre_id")
@@ -39,14 +39,4 @@ open class Album() {
 
     @Column(name="description", columnDefinition="TEXT")
     open var description:String?=null
-}
-
-enum class AlbumType{
-    studio,
-    EP,
-    compilation,
-    concert,
-    demo,
-    single,
-    other
 }

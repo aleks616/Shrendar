@@ -20,7 +20,7 @@ open class Band {
     open var disbandedYear:Int?=null
 
     @Enumerated(EnumType.STRING)
-    @Column(name="status",columnDefinition="ENUM('active', 'disbanded', 'on_hold','unknown')")
+    @Column(name="status",columnDefinition="ENUM('ACTIVE', 'DISBANDED', 'ON_HOLD','UNKNOWN')")
     open var status:Status?=null
 
     @Column(name="country")
@@ -33,10 +33,4 @@ open class Band {
 
     @Column(name="average_genre", columnDefinition="char(7)")
     open var averageGenre:String?=null
-}
-enum class Status{
-    active,
-    disbanded,
-    on_hold,
-    unknown
 }

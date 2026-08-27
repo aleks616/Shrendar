@@ -6,7 +6,7 @@ import java.math.BigDecimal
 data class GenreDto(
     val id:Int?=null,
     val name:String?=null,
-    val value:Int?=null
+    val value:Byte?=null
 ):Serializable
 
 data class GenreDto1(
