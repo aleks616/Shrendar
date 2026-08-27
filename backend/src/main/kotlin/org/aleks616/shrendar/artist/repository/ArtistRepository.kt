@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.artist.repository
 
 import org.aleks616.shrendar.artist.model.Artist
+import org.aleks616.shrendar.common.model.NameValue
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -48,6 +49,19 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
         WHERE FUNCTION('MONTH',a.deathDate)=:month AND FUNCTION('DAYOFMONTH',a.deathDate)=:day
     """)
     fun findArtistByDeathDate(month:Int,day:Int):MutableList<Artist>
+
+    @Query("""
+        SELECT NEW org.aleks616.shrendar.common.model.NameValue(g.name,COUNT(g.id))
+        FROM Artist ar JOIN BandsMembers bm ON ar.id=bm.artist.id 
+        JOIN Band b ON bm.band.id=b.id 
+        JOIN Album al ON al.band.id=b.id 
+        JOIN Genre g ON g.id=al.genre.id
+        WHERE FUNCTION('YEAR',al.releaseDate) BETWEEN bm.joinedYear AND bm.leftYear 
+        AND ar.id=:artistId
+        GROUP BY g.name
+        ORDER BY COUNT(g.id) DESC
+    """)
+    fun findArtistGenres(artistId:Long):List<NameValue>
 
     @Query("""
         SELECT *
