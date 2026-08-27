@@ -2,6 +2,7 @@ package org.aleks616.shrendar.common
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.net.MalformedURLException
 import java.time.LocalDate
 
 class UtilsTest {
@@ -41,5 +42,11 @@ class UtilsTest {
         val past=today.minusDays(10)
         val days=Utils.getDaysTillNextAnniversary(LocalDate.of(1990,past.month,past.dayOfMonth))
         assertTrue(days>350)
+    }
+
+    @Test
+    fun `isValidUrl throws error for too long url`() {
+        val url="ww.ewfjhecrinogvnrtigvneroifgncerfaigncuirewjafnsgvirlsueijfdfmclsridgfhdjoewflmcknghjeromfixwlcsvgoigremsxfcvslhgjhnceroievbhvgnisoceuvbhgyfdns.com"
+        assertEquals(false,Utils.isValidUrl(url))
     }
 }

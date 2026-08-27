@@ -31,11 +31,11 @@ class AlbumServiceTest {
     private lateinit var genreRepository:GenreRepository
     private lateinit var userService:UserService
     private lateinit var rankService:RankService
-    private lateinit var service:AlbumService
+    private lateinit var albumService:AlbumService
     private lateinit var album:Album
     private lateinit var band:Band
     private lateinit var genre:Genre
-    private lateinit var requester:User
+    private lateinit var requestingUser:User
 
     @BeforeEach
     fun setup() {
@@ -45,7 +45,7 @@ class AlbumServiceTest {
         genreRepository=mock(GenreRepository::class.java)
         userService=mock(UserService::class.java)
         rankService=mock(RankService::class.java)
-        service=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userService,rankService)
+        albumService=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userService,rankService)
 
         band=Band().apply {id=2; name="Metallica"; formedYear=1981}
         genre=Genre().apply {id=3; name="Metal"}
@@ -60,7 +60,7 @@ class AlbumServiceTest {
         }
         album.band=band
         album.genre=genre
-        requester=User().apply {
+        requestingUser=User().apply {
             id=7
             login="tester"
             rank=Rank().apply {id=1}
@@ -71,7 +71,7 @@ class AlbumServiceTest {
     fun `doesBandExist delegates to band service`() {
         `when`(bandService.doesBandExist(2)).thenReturn(true)
 
-        assertTrue(service.doesBandExist(2))
+        assertTrue(albumService.doesBandExist(2))
         verify(bandService).doesBandExist(2)
     }
 
@@ -79,7 +79,7 @@ class AlbumServiceTest {
     fun `doesAlbumExist delegates to album repository`() {
         `when`(albumRepository.existsById(1L)).thenReturn(true)
 
-        assertTrue(service.doesAlbumExist(1L))
+        assertTrue(albumService.doesAlbumExist(1L))
         verify(albumRepository).existsById(1L)
     }
 
@@ -87,7 +87,7 @@ class AlbumServiceTest {
     fun `getAll maps albums to album data`() {
         `when`(albumRepository.findAll()).thenReturn(listOf(album))
 
-        val result=service.getAll()
+        val result=albumService.getAll()
 
         assertEquals(1,result.size)
         assertEquals(album.id,result.single().id)
@@ -105,14 +105,14 @@ class AlbumServiceTest {
     fun `getById returns repository album`() {
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
 
-        assertSame(album,service.getById(1L))
+        assertSame(album,albumService.getById(1L))
     }
 
     @Test
     fun `getByIdWiki maps album wiki data`() {
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
 
-        val result=service.getByIdWiki(1L)
+        val result=albumService.getByIdWiki(1L)
 
         assertEquals(album.id,result.id)
         assertEquals(album.title,result.albumName)
@@ -132,35 +132,35 @@ class AlbumServiceTest {
     fun `getAlbumsByBandId returns repository albums`() {
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album))
 
-        assertEquals(listOf(album),service.getAlbumsByBandId(2))
+        assertEquals(listOf(album),albumService.getAlbumsByBandId(2))
     }
 
     @Test
     fun `getAlbumsByBandName returns repository albums`() {
         `when`(albumRepository.findByBandNameContainingIgnoreCase("metal")).thenReturn(mutableListOf(album))
 
-        assertEquals(listOf(album),service.getAlbumsByBandName("metal"))
+        assertEquals(listOf(album),albumService.getAlbumsByBandName("metal"))
     }
 
     @Test
     fun `getAlbumsByYear returns repository albums`() {
         `when`(albumRepository.findByYear(1984)).thenReturn(listOf(album))
 
-        assertEquals(listOf(album),service.getAlbumsByYear(1984))
+        assertEquals(listOf(album),albumService.getAlbumsByYear(1984))
     }
 
     @Test
     fun `getAlbumsByName returns repository albums`() {
         `when`(albumRepository.findByTitleContainingIgnoreCase("Ride")).thenReturn(listOf(album))
 
-        assertEquals(listOf(album),service.getAlbumsByName("Ride"))
+        assertEquals(listOf(album),albumService.getAlbumsByName("Ride"))
     }
 
     @Test
     fun `getAlbumsByNameExact returns repository albums`() {
         `when`(albumRepository.findByTitleIgnoreCase("Ride the Lightning")).thenReturn(listOf(album))
 
-        assertEquals(listOf(album),service.getAlbumsByNameExact("Ride the Lightning"))
+        assertEquals(listOf(album),albumService.getAlbumsByNameExact("Ride the Lightning"))
     }
 
     @Test
@@ -168,7 +168,7 @@ class AlbumServiceTest {
         val other=Album().apply {id=2; title="Other"; releaseDate=LocalDate.of(1984,7,28)}
         `when`(albumRepository.findAll()).thenReturn(listOf(album,other))
 
-        val result=service.getAlbumAnniversariesByDate(7,27)
+        val result=albumService.getAlbumAnniversariesByDate(7,27)
 
         assertEquals(1,result.size)
         assertEquals(album.id,result.single().id)
@@ -183,8 +183,8 @@ class AlbumServiceTest {
         val other=album.copyForTest(title="Other")
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album,other))
 
-        assertTrue(service.doesAlbumWithNameExistForBand(AlbumAddDto(bandId=2,title=album.title)))
-        assertFalse(service.doesAlbumWithNameExistForBand(AlbumAddDto(bandId=2,title="Missing")))
+        assertTrue(albumService.doesAlbumWithNameExistForBand(AlbumAddDto(bandId=2,title=album.title)))
+        assertFalse(albumService.doesAlbumWithNameExistForBand(AlbumAddDto(bandId=2,title="Missing")))
     }
 
     @Test
@@ -193,13 +193,13 @@ class AlbumServiceTest {
         `when`(albumRepository.findById(1L)).thenReturn(album)
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album,other))
 
-        assertTrue(service.doesAlbumWithNameExistForAlbumId(AlbumAddDto(id=1,title=album.title)))
-        assertFalse(service.doesAlbumWithNameExistForAlbumId(AlbumAddDto(id=1,title="Missing")))
+        assertTrue(albumService.doesAlbumWithNameExistForAlbumId(AlbumAddDto(id=1,title=album.title)))
+        assertFalse(albumService.doesAlbumWithNameExistForAlbumId(AlbumAddDto(id=1,title="Missing")))
     }
 
     @Test
     fun `isReleaseDateValid rejects too far future dates`() {
-        assertFalse(service.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.now().plusYears(2))))
+        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.now().plusYears(2))))
         verifyNoInteractions(bandService)
     }
 
@@ -207,27 +207,27 @@ class AlbumServiceTest {
     fun `isReleaseDateValid rejects dates before band formation`() {
         `when`(bandService.getBandById(2)).thenReturn(band)
 
-        assertFalse(service.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1980,1,1))))
+        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1980,1,1))))
     }
 
     @Test
     fun `isReleaseDateValid accepts valid and missing release dates`() {
         `when`(bandService.getBandById(2)).thenReturn(band)
 
-        assertTrue(service.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1981,1,1))))
+        assertTrue(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1981,1,1))))
         assertThrows<NullPointerException> {
-            service.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=null))
+            albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=null))
         }
     }
 
     @Test
     fun `addAlbumRequest throws contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(limit)
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
 
         assertThrows<ContributionLimitExceededException> {
-            service.addAlbumRequest(
+            albumService.addAlbumRequest(
                 AlbumAddDto(
                     bandId=2,
                     title="Album",
@@ -246,7 +246,7 @@ class AlbumServiceTest {
         )
         stubAddDependencies(dto)
 
-        service.addAlbumRequest(dto,"tester")
+        albumService.addAlbumRequest(dto,"tester")
 
         val saved=ArgumentCaptor.forClass(Album::class.java)
         verify(albumRepository).save(saved.capture())
@@ -258,15 +258,15 @@ class AlbumServiceTest {
 
     @Test
     fun `addAlbumRequest marks trusted user changes confirmed`() {
-        requester.rank=Rank().apply {id=10}
+        requestingUser.rank=Rank().apply {id=10}
         val dto=AlbumAddDto(bandId=2,title="Album",type=AlbumType.STUDIO,mainSubgenre=3,importance=4)
         stubAddDependencies(dto)
 
-        service.addAlbumRequest(dto,"tester")
+        albumService.addAlbumRequest(dto,"tester")
 
         val saved=ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(saved.capture())
-        assertTrue(saved.allValues.all {it.confirmed==true&&it.confirmedBy==requester.id})
+        assertTrue(saved.allValues.all {it.confirmed==true&&it.confirmedBy==requestingUser.id})
     }
 
     @Test
@@ -275,10 +275,10 @@ class AlbumServiceTest {
         album.type=AlbumType.OTHER
 
         assertThrows<InvalidAlbumImportanceException> {
-            service.editAlbumRequest(AlbumAddDto(id=1,importance=4),"tester")
+            albumService.editAlbumRequest(AlbumAddDto(id=1,importance=4),"tester")
         }
         assertThrows<InvalidAlbumImportanceException> {
-            service.editAlbumRequest(AlbumAddDto(id=1,importance=1),"tester")
+            albumService.editAlbumRequest(AlbumAddDto(id=1,importance=1),"tester")
         }
     }
 
@@ -286,7 +286,7 @@ class AlbumServiceTest {
     fun `editAlbumRequest throws when there are no changes`() {
         stubEditDependencies()
 
-        assertThrows<IllegalStateException> {service.editAlbumRequest(AlbumAddDto(id=1),"tester")}
+        assertThrows<IllegalStateException> {albumService.editAlbumRequest(AlbumAddDto(id=1),"tester")}
         verify(albumRepository,never()).save(any(Album::class.java))
     }
 
@@ -297,7 +297,7 @@ class AlbumServiceTest {
         `when`(bandService.getBandById(4)).thenReturn(Band().apply {id=4})
         `when`(genreRepository.findGenreById(5)).thenReturn(Genre().apply {id=5})
 
-        service.editAlbumRequest(dto,"tester")
+        albumService.editAlbumRequest(dto,"tester")
 
         assertEquals("New",album.title)
         assertEquals(4,album.band?.id)
@@ -309,33 +309,33 @@ class AlbumServiceTest {
 
     @Test
     fun `editAlbumRequest marks changes confirmed for rank above 9`() {
-        requester.rank=Rank().apply {id=10}
+        requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
         val dto=AlbumAddDto(id=1,title="New")
 
-        service.editAlbumRequest(dto,"tester")
+        albumService.editAlbumRequest(dto,"tester")
 
         val saved=ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository).save(saved.capture())
-        assertTrue(saved.value.confirmed==true&&saved.value.confirmedBy==requester.id)
+        assertTrue(saved.value.confirmed==true&&saved.value.confirmedBy==requestingUser.id)
     }
 
     @Test
     fun `deleteAlbumRequest throws contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(limit)
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
 
-        assertThrows<ContributionLimitExceededException> {service.deleteAlbumRequest(1,"tester")}
+        assertThrows<ContributionLimitExceededException> {albumService.deleteAlbumRequest(1,"tester")}
         verifyNoInteractions(albumRepository,contributionRepository,bandService)
     }
 
     @Test
     fun `deleteAlbumRequest does not delete untrusted users`() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(null)
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
 
-        service.deleteAlbumRequest(1,"tester",log=false)
+        albumService.deleteAlbumRequest(1,"tester",log=false)
 
         verify(albumRepository,never()).deleteById(1L)
         verifyNoInteractions(bandService)
@@ -343,13 +343,13 @@ class AlbumServiceTest {
 
     @Test
     fun `deleteAlbumRequest logs and deletes for trusted users`() {
-        requester.rank=Rank().apply {id=10}
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(null)
+        requestingUser.rank=Rank().apply {id=10}
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
 
-        service.deleteAlbumRequest(1,"tester")
+        albumService.deleteAlbumRequest(1,"tester")
 
         verify(albumRepository).deleteById(1L)
         verify(bandService).calculateBandsGenre(2)
@@ -357,8 +357,8 @@ class AlbumServiceTest {
     }
 
     private fun stubAddDependencies(dto:AlbumAddDto) {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(null)
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(bandService.getBandById(dto.bandId!!)).thenReturn(band)
         `when`(genreRepository.findGenreById(dto.mainSubgenre!!)).thenReturn(genre)
         `when`(albumRepository.findIdByData(dto.bandId,dto.title!!)).thenReturn(9)
@@ -366,8 +366,8 @@ class AlbumServiceTest {
     }
 
     private fun stubEditDependencies() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requester)
-        `when`(rankService.checkRank(requester)).thenReturn(null)
+        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
     }

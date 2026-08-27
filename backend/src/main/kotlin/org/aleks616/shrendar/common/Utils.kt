@@ -28,7 +28,6 @@ object Utils{
         return LocalDate.now().until(nextAnn,ChronoUnit.DAYS).toInt()
     }
 
-    @Throws(MalformedURLException::class)
     fun isValidUrl(url:String?):Boolean {
         if(url==null) return true
         if(url.length>255) return false
