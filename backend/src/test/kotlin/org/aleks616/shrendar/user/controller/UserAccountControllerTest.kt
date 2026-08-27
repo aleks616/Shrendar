@@ -31,7 +31,7 @@ import java.time.temporal.ChronoUnit
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class UserAccountFlowIT {
+class UserAccountControllerTest {
 
     @Autowired
     private lateinit var mockMvc:MockMvc
