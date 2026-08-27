@@ -12,7 +12,6 @@ class RankService(
     private val rankRepository:RankRepository,
     private val contributionRepository:ContributionRepository
 ){
-    fun getAll():List<Rank> =rankRepository.findAll()
 
     fun checkRank(requestingUser:User):ContributionLimitExceededException?{
         val rankId:Int=requestingUser.rank!!.id!!
