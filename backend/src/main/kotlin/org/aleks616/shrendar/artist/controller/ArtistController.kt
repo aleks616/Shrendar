@@ -3,6 +3,7 @@ package org.aleks616.shrendar.artist.controller
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
+import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
@@ -107,6 +108,10 @@ class ArtistController(
         return bandsMemberService.getArtistBandsList(id)
     }
 
+    @GetMapping("/genres/{id}")
+    fun getArtistGenres(@PathVariable id:Long):ArtistGenreDto{
+        return artistService.getArtistGenres(id)
+    }
 
     @PostMapping("/add")
     fun addArtist(@RequestBody artist:ArtistAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {

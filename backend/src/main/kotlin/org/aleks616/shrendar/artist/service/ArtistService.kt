@@ -120,6 +120,14 @@ class ArtistService(
         val recentDate=LocalDate.now().minusDays(30)
         return artistRepository.findArtistByBirthdayBetween(recentDate.monthValue,recentDate.dayOfMonth,today.monthValue,today.dayOfMonth)
     }
+
+    fun getArtistGenres(artistId:Long):ArtistGenreDto {
+        return ArtistGenreDto(
+            artistId,
+            artistRepository.findArtistById(artistId).name,
+            artistRepository.findArtistGenres(artistId)
+        )
+    }
     //endregion
 
     fun getZodiacSign(month:Int,day:Int):ZodiacSign {
