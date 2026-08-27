@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface
 UserArtistRepository:JpaRepository<UsersArtists,Long> {
     fun findByArtistAndUser(artist:Artist,user:User):UsersArtists?
+    fun findByUser(user:User):MutableList<UsersArtists>
 }

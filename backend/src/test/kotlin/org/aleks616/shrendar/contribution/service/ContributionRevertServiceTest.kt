@@ -16,7 +16,7 @@ import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionEx
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,7 +29,7 @@ class ContributionRevertServiceTest {
     private lateinit var bandService:BandService
     private lateinit var bandsMemberRepository:BandsMemberRepository
     private lateinit var contributionRepository:ContributionRepository
-    private lateinit var userService:UserService
+    private lateinit var userAccountService:UserAccountService
     private lateinit var service:ContributionRevertService
     private lateinit var user:User
 
@@ -41,13 +41,13 @@ class ContributionRevertServiceTest {
         bandService=mock(BandService::class.java)
         bandsMemberRepository=mock(BandsMemberRepository::class.java)
         contributionRepository=mock(ContributionRepository::class.java)
-        userService=mock(UserService::class.java)
+        userAccountService=mock(UserAccountService::class.java)
         service=ContributionRevertService(
             albumRepository,artistRepository,bandRepository,bandService,
-            bandsMemberRepository,contributionRepository,userService
+            bandsMemberRepository,contributionRepository,userAccountService
         )
         user=User().apply {login="trusted"; rank=Rank().apply {id=12}}
-        `when`(userService.getUserByLogin("trusted")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("trusted")).thenReturn(user)
     }
 
     @Test

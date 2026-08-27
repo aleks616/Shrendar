@@ -15,7 +15,7 @@ import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ class AlbumServiceTest {
     private lateinit var bandService:BandService
     private lateinit var contributionRepository:ContributionRepository
     private lateinit var genreRepository:GenreRepository
-    private lateinit var userService:UserService
+    private lateinit var userAccountService:UserAccountService
     private lateinit var rankService:RankService
     private lateinit var albumService:AlbumService
     private lateinit var album:Album
@@ -43,9 +43,9 @@ class AlbumServiceTest {
         bandService=mock(BandService::class.java)
         contributionRepository=mock(ContributionRepository::class.java)
         genreRepository=mock(GenreRepository::class.java)
-        userService=mock(UserService::class.java)
+        userAccountService=mock(UserAccountService::class.java)
         rankService=mock(RankService::class.java)
-        albumService=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userService,rankService)
+        albumService=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userAccountService,rankService)
 
         band=Band().apply {id=2; name="Metallica"; formedYear=1981}
         genre=Genre().apply {id=3; name="Metal"}
@@ -223,7 +223,7 @@ class AlbumServiceTest {
     @Test
     fun `addAlbumRequest should throw contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
 
         assertThrows<ContributionLimitExceededException> {
@@ -323,7 +323,7 @@ class AlbumServiceTest {
     @Test
     fun `deleteAlbumRequest should throw contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
 
         assertThrows<ContributionLimitExceededException> {albumService.deleteAlbumRequest(1,"tester")}
@@ -332,7 +332,7 @@ class AlbumServiceTest {
 
     @Test
     fun `deleteAlbumRequest should not delete untrusted users`() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
 
         albumService.deleteAlbumRequest(1,"tester",log=false)
@@ -344,7 +344,7 @@ class AlbumServiceTest {
     @Test
     fun `deleteAlbumRequest should log and delete for trusted users`() {
         requestingUser.rank=Rank().apply {id=10}
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
@@ -357,7 +357,7 @@ class AlbumServiceTest {
     }
 
     private fun stubAddDependencies(dto:AlbumAddDto) {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(bandService.getBandById(dto.bandId!!)).thenReturn(band)
         `when`(genreRepository.findGenreById(dto.mainSubgenre!!)).thenReturn(genre)
@@ -366,7 +366,7 @@ class AlbumServiceTest {
     }
 
     private fun stubEditDependencies() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)

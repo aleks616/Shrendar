@@ -6,7 +6,7 @@ import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.user.model.ResetPassword
 import org.aleks616.shrendar.user.model.UsersDto
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -22,7 +22,7 @@ import java.time.temporal.ChronoUnit
 @Controller
 @RequestMapping("/api/user-account")
 class UserAccountController(
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
     private val rateLimiter:RateLimiter,
     private val tokenBlacklistService:TokenBlacklistService
 ) {
@@ -48,7 +48,7 @@ class UserAccountController(
         else if(!rateLimiter.allowRequest("reg:email:${request.email}",5,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .body("Too many registration attempts for this email")
-        else if(userService.initiateRegistration(request))
+        else if(userAccountService.initiateRegistration(request))
             ResponseEntity.ok("Verification code sent to email if not already registered")
         else
             ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -64,7 +64,7 @@ class UserAccountController(
         val ip=servletRequest.remoteAddr?:"unknown"
         return if(!rateLimiter.allowRequest("regconfirm:ip:$ip",10,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many confirmation attempts from this IP")
-        else if(userService.createUser(request,code))
+        else if(userAccountService.createUser(request,code))
             ResponseEntity.ok("Account created and verified")
         else
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid code or registration could not be completed")
@@ -74,9 +74,9 @@ class UserAccountController(
     fun requestPasswordReset(@RequestParam accountKey:String):ResponseEntity<String> {
         return if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many reset passwords attempts")
-        else if(!userService.doesAccountExist(accountKey))
+        else if(!userAccountService.doesAccountExist(accountKey))
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found")
-        else if(userService.requestPasswordReset(accountKey))
+        else if(userAccountService.requestPasswordReset(accountKey))
             ResponseEntity.ok("Password reset code sent to email")
         else ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Could not send password reset code, try again in 5 minutes")
@@ -86,7 +86,7 @@ class UserAccountController(
     fun resetPassword(@RequestBody request:ResetPassword,@RequestParam code:String):ResponseEntity<String> {
         return if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests")
-        else if(userService.changePassword(request.email,request.newPassword,code))
+        else if(userAccountService.changePassword(request.email,request.newPassword,code))
             ResponseEntity.ok("Password changed successfully")
         else ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not change password, try again later")
     }
@@ -100,7 +100,7 @@ class UserAccountController(
         if(!rateLimiter.allowRequest("login:acct:$accountKey",5,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(mapOf("error" to "Too many login attempts"))
 
-        val subject=userService.authenticate(request)?:return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        val subject=userAccountService.authenticate(request)?:return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(mapOf("error" to "Invalid credentials"))
         val token=JwtUtil.createToken(subject)
         return ResponseEntity.ok(mapOf("token" to token))
@@ -121,11 +121,11 @@ class UserAccountController(
 
     @PostMapping("/updateUsername")
     fun updateUsername(@RequestParam email:String,@RequestParam newUsername:String):ResponseEntity<String> {
-        return if(!userService.doesAccountExist(email))
+        return if(!userAccountService.doesAccountExist(email))
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
-        else if(userService.doesAccountExist(newUsername))
+        else if(userAccountService.doesAccountExist(newUsername))
             ResponseEntity.status(HttpStatus.CONFLICT).body("New username is taken")
-        else if(!userService.changeUsername(email,newUsername))
+        else if(!userAccountService.changeUsername(email,newUsername))
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username has been changed in last 90 days")
         else
             ResponseEntity.ok("Username changed")
@@ -133,11 +133,11 @@ class UserAccountController(
 
     @PostMapping("/updateEmail")
     fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
-        return if(!userService.doesAccountExist(email))
+        return if(!userAccountService.doesAccountExist(email))
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
-        else if(userService.doesAccountExist(newEmail))
+        else if(userAccountService.doesAccountExist(newEmail))
             ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
-        else if(!userService.changeEmail(email,newEmail))
+        else if(!userAccountService.changeEmail(email,newEmail))
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't change email address")
         else
             ResponseEntity.ok("Email changed")
@@ -145,12 +145,12 @@ class UserAccountController(
 
     @PostMapping("/addBirthday")
     fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
-        return if(!userService.doesAccountExist(email))
+        return if(!userAccountService.doesAccountExist(email))
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
         else if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User too young")
         }
-        else if(!userService.addBirthday(email,date))
+        else if(!userAccountService.addBirthday(email,date))
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't add birthday")
         else ResponseEntity.ok("Birthday added")
     }
@@ -158,19 +158,19 @@ class UserAccountController(
     /**requires email**/
     @PostMapping("/deleteAccount")
     fun deleteAccount(@RequestBody request:LoginRequest):ResponseEntity<Any> {
-        userService.authenticate(request,false)
-        userService.requestDeletion(request.email!!)
+        userAccountService.authenticate(request,false)
+        userAccountService.requestDeletion(request.email!!)
 
         return ResponseEntity.ok("Confirmed")
     }
 
 
     @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userService.doesAccountExist(login))
+    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(login))
 
     @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userService.doesAccountExist(email))
+    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
 
     @GetMapping("/users")
-    fun getUsers():ResponseEntity<List<UsersDto>> = ResponseEntity.ok(userService.getUsersDto())
+    fun getUsers():ResponseEntity<List<UsersDto>> = ResponseEntity.ok(userAccountService.getUsersDto())
 }

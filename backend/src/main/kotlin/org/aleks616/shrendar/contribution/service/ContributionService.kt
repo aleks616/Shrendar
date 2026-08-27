@@ -12,14 +12,14 @@ import org.aleks616.shrendar.contribution.model.ContributionHistoryDto
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionIsAlreadyConfirmedException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class ContributionService(
     private val contributionRepository:ContributionRepository,
-    private val userService:UserService,
+    private val userRepository:UserRepository,
     private val albumService:AlbumService,
     private val artistService:ArtistService,
     private val bandService:BandService,
@@ -34,11 +34,11 @@ class ContributionService(
 
     @Transactional
     fun confirmDataChangeRequest(changeId:Long,confirmedUserLogin:String){
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
+        val confirmingUser:User=userRepository.findByLogin(confirmedUserLogin)!!
         if(confirmingUser.rank!!.id!!<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
         if(contributions.any{it.confirmed==true}){
-            val previousConfirmingUser=userService.getUserById(contributions.first().confirmedBy!!)
+            val previousConfirmingUser=userRepository.findUserById(contributions.first().confirmedBy!!)
             throw ContributionIsAlreadyConfirmedException("Contribution with id $changeId has already been confirmed by user $previousConfirmingUser")
         }
         contributions.forEach {

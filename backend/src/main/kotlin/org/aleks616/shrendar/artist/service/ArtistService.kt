@@ -13,7 +13,7 @@ import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersArtists
 import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 class ArtistService(
     private val artistRepository:ArtistRepository,
     private val countryRepository:CountryRepository,
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
     private val contributionRepository:ContributionRepository,
     private val rankService:RankService,
     private val userArtistRepository:UserArtistRepository,
@@ -185,7 +185,7 @@ class ArtistService(
 
     @Transactional
     fun addArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -243,7 +243,7 @@ class ArtistService(
 
     @Transactional
     fun editArtistRequest(artistAddDto:ArtistAddDto,userLogin:String){
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -303,7 +303,7 @@ class ArtistService(
 
     @Transactional
     fun deleteArtistRequest(artistId:Long,userLogin:String,log:Boolean=true) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -354,7 +354,7 @@ class ArtistService(
 
     @Transactional
     fun toggleFavoriteArtist(artistId:Long,login:String){
-        val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val user=userAccountService.getUserByLogin(login)?:throw IllegalStateException("User not found")
         val artist=artistRepository.findArtistById(artistId)
         val recordId=userArtistRepository.findByArtistAndUser(artist,user)?.id
         if(recordId==null){

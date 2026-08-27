@@ -20,7 +20,7 @@ import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersBands
 import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,7 +36,7 @@ class BandServiceTest {
     private val genreService=mock(GenreService::class.java)
     private val bandsGenreRepository=mock(BandsGenreRepository::class.java)
     private val genreRepository=mock(GenreRepository::class.java)
-    private val userService=mock(UserService::class.java)
+    private val userAccountService=mock(UserAccountService::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
     private val rankService=mock(RankService::class.java)
@@ -55,7 +55,7 @@ class BandServiceTest {
             contributionRepository,
             countryRepository,
             genreService,
-            userService,
+            userAccountService,
             genreRepository,
             rankService,
             userBandRepository,
@@ -352,7 +352,7 @@ class BandServiceTest {
 
     @Test
     fun `addBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
 
         assertThrows<ContributionLimitExceededException> {
@@ -372,7 +372,7 @@ class BandServiceTest {
             imageUrl="https://example.com/metallica.jpg"
         )
         requester.rank=Rank().apply {id=11}
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findTopIdByName("Metallica")).thenReturn(5)
         `when`(contributionRepository.findTopChangeId()).thenReturn(7)
@@ -388,7 +388,7 @@ class BandServiceTest {
     @Test
     fun `addBandRequest should create untrusted contributions`() {
         val dto=BandAddDto(name="Metallica",formedYear=null,status=Status.ACTIVE,country=null,description=null,imageUrl=null)
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findTopIdByName("Metallica")).thenReturn(5)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
@@ -410,7 +410,7 @@ class BandServiceTest {
             description="Old"
             imageUrl="https://example.com/old.jpg"
         }
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(openBand)
 
@@ -431,7 +431,7 @@ class BandServiceTest {
 
     @Test
     fun `editBandRequest should throw IllegalStateException for unchanged band`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         assertThrows<IllegalStateException> {
@@ -441,7 +441,7 @@ class BandServiceTest {
 
     @Test
     fun `editBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
             service.editBandRequest(BandAddDto(id=1,name="New",imageUrl=null),"user")
@@ -450,7 +450,7 @@ class BandServiceTest {
 
     @Test
     fun `editBandRequest should update every supported field`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         val dto=BandAddDto(1,"New",1982,Status.DISBANDED,1990,2,"New desc","new.jpg")
@@ -467,7 +467,7 @@ class BandServiceTest {
 
     @Test
     fun `deleteBandRequest should record contributions for untrusted user`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         `when`(contributionRepository.findTopChangeId()).thenReturn(4)
@@ -480,7 +480,7 @@ class BandServiceTest {
     @Test
     fun `deleteBandRequest should remove band for trusted user`() {
         requester.rank=Rank().apply {id=11}
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         service.deleteBandRequest(1,"user",log=false)
         verify(bandRepository).deleteById(1)
@@ -488,14 +488,14 @@ class BandServiceTest {
 
     @Test
     fun `deleteBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {service.deleteBandRequest(1,"user")}
     }
 
     @Test
     fun `deleteBandRequest should skip contributions when logging is disabled`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         service.deleteBandRequest(1,"user",log=false)
         verify(contributionRepository,never()).save(any(Contribution::class.java))
@@ -532,7 +532,7 @@ class BandServiceTest {
 
     @Test
     fun `toggleFavoriteBand should remove existing favorite`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         val favorite=UsersBands().apply {id=4}
         `when`(userBandRepository.findByBandAndUser(band,requester)).thenReturn(favorite)
@@ -542,7 +542,7 @@ class BandServiceTest {
 
     @Test
     fun `toggleFavoriteBand should create missing favorite`() {
-        `when`(userService.getUserByLogin("user")).thenReturn(requester)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         doReturn(UsersBands().apply {id=-1L}).`when`(userBandRepository).findByBandAndUser(band,requester)
         doReturn(UsersBands()).`when`(userBandRepository).saveAndFlush(any(UsersBands::class.java))
@@ -552,7 +552,7 @@ class BandServiceTest {
 
     @Test
     fun `toggleFavoriteBand should throw IllegalStateException for unknown user`() {
-        `when`(userService.getUserByLogin("missing")).thenReturn(null)
+        `when`(userAccountService.getUserByLogin("missing")).thenReturn(null)
         assertThrows<IllegalStateException> {service.toggleFavoriteBand(1,"missing")}
     }
 }

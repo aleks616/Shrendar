@@ -8,7 +8,7 @@ import org.aleks616.shrendar.contribution.service.ContributionRevertService
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.exception.*
 import org.aleks616.shrendar.security.RateLimiter
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -24,8 +24,8 @@ class ContributionControllerTest {
     private val contributionService=mock(ContributionService::class.java)
     private val revertService=mock(ContributionRevertService::class.java)
     private val rateLimiter=mock(RateLimiter::class.java)
-    private val userService=mock(UserService::class.java)
-    private val controller=ContributionController(contributionService,revertService,rateLimiter,userService)
+    private val userAccountService=mock(UserAccountService::class.java)
+    private val controller=ContributionController(contributionService,revertService,rateLimiter,userAccountService)
     private val request=mock(HttpServletRequest::class.java)
 
     @BeforeEach
@@ -34,7 +34,7 @@ class ContributionControllerTest {
             UsernamePasswordAuthenticationToken("user",null,emptyList())
         `when`(request.remoteAddr).thenReturn("127.0.0.1")
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_BASIC),eq(60))).thenReturn(true)
-        `when`(userService.doesUserExist(7)).thenReturn(true)
+        `when`(userAccountService.doesUserExist(7)).thenReturn(true)
     }
 
     @AfterEach
@@ -166,7 +166,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByRequestingUser should throw IllegalStateException for unknown user`() {
-        `when`(userService.doesUserExist(7)).thenReturn(false)
+        `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7,request)}
         assertEquals("user with id 7 doesn't exist",exception.message)
     }
@@ -213,7 +213,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByConfirmingUser should throw IllegalStateException for unknown user`() {
-        `when`(userService.doesUserExist(7)).thenReturn(false)
+        `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7,request)
         }
@@ -532,7 +532,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for unknown user`() {
-        `when`(userService.doesUserExist(7)).thenReturn(false)
+        `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(LocalDate.now(),LocalDate.now(),7,request)
         }
@@ -566,7 +566,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByRequestingUserAndAction should throw IllegalStateException for invalid user`() {
-        `when`(userService.doesUserExist(7)).thenReturn(false)
+        `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request)
         }

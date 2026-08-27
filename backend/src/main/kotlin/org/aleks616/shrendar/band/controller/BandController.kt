@@ -97,7 +97,7 @@ class BandController (
 
     //WIKI ARTIST PAGE 2/2
     @GetMapping("/artist/{id}")
-    fun getBandsByArtistId(@PathVariable id:Int):List<ArtistBandsHistoryDto>{
+    fun getBandsByArtistId(@PathVariable id:Long):List<ArtistBandsHistoryDto>{
         return bandsMemberService.getBandsByArtistId(id)
     }
 

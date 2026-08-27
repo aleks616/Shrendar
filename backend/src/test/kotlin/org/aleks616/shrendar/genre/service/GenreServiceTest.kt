@@ -6,7 +6,7 @@ import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersGenres
 import org.aleks616.shrendar.user.repository.UserGenreRepository
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,7 +17,7 @@ import java.math.BigDecimal
 
 class GenreServiceTest {
     private lateinit var genreRepository:GenreRepository
-    private lateinit var userService:UserService
+    private lateinit var userRepository:UserRepository
     private lateinit var userGenreRepository:UserGenreRepository
     private lateinit var service:GenreService
     private lateinit var genre:Genre
@@ -26,9 +26,9 @@ class GenreServiceTest {
     @BeforeEach
     fun setup() {
         genreRepository=mock(GenreRepository::class.java)
-        userService=mock(UserService::class.java)
+        userRepository=mock(UserRepository::class.java)
         userGenreRepository=mock(UserGenreRepository::class.java)
-        service=GenreService(genreRepository,userService,userGenreRepository)
+        service=GenreService(genreRepository,userRepository,userGenreRepository)
         genre=Genre().apply {id=3; name="Metal"; properties="1010101"}
         user=User().apply {id=7; login="tester"}
     }
@@ -69,7 +69,7 @@ class GenreServiceTest {
 
     @Test
     fun `toggleFavoriteGenre creates missing favorite`() {
-        doReturn(user).`when`(userService).getUserByLogin("tester")
+        doReturn(user).`when`(userRepository).findByLogin("tester")
         doReturn(genre).`when`(genreRepository).findGenreById(3)
         doAnswer {UsersGenres().apply {id=-1L}}.`when`(userGenreRepository)
             .findByGenreAndUser(genre,user)
@@ -87,7 +87,7 @@ class GenreServiceTest {
 
     @Test
     fun `toggleFavoriteGenre deletes existing favorite`() {
-        `when`(userService.getUserByLogin("tester")).thenReturn(user)
+        `when`(userRepository.findByLogin("tester")).thenReturn(user)
         `when`(genreRepository.findGenreById(3)).thenReturn(genre)
         `when`(userGenreRepository.findByGenreAndUser(genre,user))
             .thenReturn(UsersGenres().apply {id=11})
@@ -100,7 +100,7 @@ class GenreServiceTest {
 
     @Test
     fun `toggleFavoriteGenre rejects unknown user`() {
-        `when`(userService.getUserByLogin("missing")).thenReturn(null)
+        `when`(userRepository.findByLogin("missing")).thenReturn(null)
 
         assertThrows<IllegalStateException> {
             service.toggleFavoriteGenre(3,"missing")
