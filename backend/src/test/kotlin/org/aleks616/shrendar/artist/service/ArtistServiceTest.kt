@@ -62,26 +62,26 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getAll returns repository artists`() {
+    fun `getAll should return repository artists`() {
         `when`(artistRepository.findAll()).thenReturn(listOf(artist))
         assertEquals(listOf(artist),artistService.getAll())
     }
 
     @Test
-    fun `getById returns repository artist`() {
+    fun `getById should return repository artist`() {
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
         assertSame(artist,artistService.getById(1))
     }
 
     @Test
-    fun `getById throws when artist does not exist`() {
+    fun `getById should throw IllegalArgumentException when artist does not exist`() {
         `when`(artistRepository.existsArtistById(1)).thenReturn(false)
         assertThrows<IllegalArgumentException> {artistService.getById(1)}
     }
 
     @Test
-    fun `getByIdWiki maps living artist`() {
+    fun `getByIdWiki should map living artist`() {
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1)).thenReturn(artist)
         `when`(countryRepository.getCountryNameById(1)).thenReturn("USA")
@@ -96,7 +96,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByIdWiki calculates deceased artist age`() {
+    fun `getByIdWiki should calculate deceased artist age`() {
         artist.deathDate=LocalDate.of(2020,9,27)
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1)).thenReturn(artist)
@@ -107,61 +107,61 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByNameLike delegates to repository`() {
+    fun `getByNameLike should delegate to repository`() {
         `when`(artistRepository.findArtistByNameContains("James")).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByNameLike("James"))
     }
 
     @Test
-    fun `getByFirstName delegates to repository`() {
+    fun `getByFirstName should delegate to repository`() {
         `when`(artistRepository.findArtistByNameStartsWith("James")).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByFirstName("James"))
     }
 
     @Test
-    fun `getByLastName delegates to repository`() {
+    fun `getByLastName should delegate to repository`() {
         `when`(artistRepository.findArtistByNameEndsWithIgnoreCase("Hetfield")).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByLastName("Hetfield"))
     }
 
     @Test
-    fun `getByBirthday delegates to repository`() {
+    fun `getByBirthday should delegate to repository`() {
         `when`(artistRepository.findArtistByBirthDate(8,3)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByBirthday(8,3))
     }
 
     @Test
-    fun `getByDeathDate delegates to repository`() {
+    fun `getByDeathDate should delegate to repository`() {
         `when`(artistRepository.findArtistByDeathDate(9,27)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByDeathDate(9,27))
     }
 
     @Test
-    fun `getByBirthdayBetween delegates to repository`() {
+    fun `getByBirthdayBetween should delegate to repository`() {
         `when`(artistRepository.findArtistByBirthdayBetween(1,1,12,31)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByBirthdayBetween(1,1,12,31))
     }
 
     @Test
-    fun `getByBirthYear delegates to repository`() {
+    fun `getByBirthYear should delegate to repository`() {
         `when`(artistRepository.findArtistsByBirthYear(1963)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByBirthYear(1963))
     }
 
     @Test
-    fun `getByBirthYearBetween delegates to repository`() {
+    fun `getByBirthYearBetween should delegate to repository`() {
         `when`(artistRepository.findArtistsByBirthYearBetween(1960,1970)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByBirthYearBetween(1960,1970))
     }
 
     @Test
-    fun `getByCountry delegates to repository`() {
+    fun `getByCountry should delegate to repository`() {
         `when`(artistRepository.findArtistByCountry(1)).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByCountry(1))
     }
 
     @Test
-    fun `getRecentDeathsAnniversaries delegates to repository`() {
+    fun `getRecentDeathsAnniversaries should delegate to repository`() {
         `when`(artistRepository.findArtistByDeathDateBetween(anyInt(),anyInt(),anyInt(),anyInt())).thenReturn(
             mutableListOf(artist)
         )
@@ -169,7 +169,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getRecentBirthdays delegates to repository`() {
+    fun `getRecentBirthdays should delegate to repository`() {
         `when`(artistRepository.findArtistByBirthdayBetween(anyInt(),anyInt(),anyInt(),anyInt())).thenReturn(
             mutableListOf(artist)
         )
@@ -177,7 +177,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getZodiacSign returns every zodiac sign`() {
+    fun `getZodiacSign should return every zodiac sign`() {
         val expectedByDate=mapOf(
             (12 to 22) to ZodiacSign.CAPRICORN,
             (1 to 1) to ZodiacSign.CAPRICORN,
@@ -211,12 +211,12 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getZodiacSign throws for invalid date`() {
+    fun `getZodiacSign should throw IllegalArgumentException for invalid date`() {
         assertThrows<IllegalArgumentException> {artistService.getZodiacSign(13,1)}
     }
 
     @Test
-    fun `getChineseZodiacSign returns every zodiac sign`() {
+    fun `getChineseZodiacSign should return every zodiac sign`() {
         val expectedByYear=mapOf(
             1984 to ChineseZodiacSign.RAT,
             1985 to ChineseZodiacSign.OX,
@@ -238,14 +238,14 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getChineseZodiacSign throws Illegal year exception for invalid year`(){
+    fun `getChineseZodiacSign should throw IllegalArgumentException for invalid year`(){
         assertThrows<IllegalArgumentException>{
             artistService.getChineseZodiacSign(-5)
         }
     }
 
     @Test
-    fun `addArtistRequest throws contribution limit exception`() {
+    fun `addArtistRequest should throw contribution limit exception`() {
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
@@ -255,7 +255,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `addArtistRequest saves artist and contributions`() {
+    fun `addArtistRequest should save artist and contributions`() {
         val dto=ArtistAddDto(
             name="New Artist",birthDate=LocalDate.of(1980,1,1),gender='M',country=1,
             description="Description",artistImageUrl="https://example.com/artist.jpg"
@@ -269,7 +269,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `addArtistRequest marks trusted contributions confirmed`() {
+    fun `addArtistRequest should mark trusted contributions confirmed`() {
         requestingUser.rank=Rank().apply {id=10}
         val dto=ArtistAddDto(name="New Artist")
         stubAddDependencies()
@@ -280,14 +280,14 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `editArtistRequest throws when there are no changes`() {
+    fun `editArtistRequest should throw IllegalStateException when there are no changes`() {
         stubEditDependencies()
         assertThrows<IllegalStateException> {artistService.editArtistRequest(ArtistAddDto(id=1),"tester")}
         verify(artistRepository,never()).save(any(Artist::class.java))
     }
 
     @Test
-    fun `editArtistRequest updates changed values and logs changes`() {
+    fun `editArtistRequest should update changed values and log changes`() {
         stubEditDependencies()
         artistService.editArtistRequest(ArtistAddDto(id=1,name="New Name",gender='X'),"tester")
         assertEquals("New Name",artist.name)
@@ -297,7 +297,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `editArtistRequest marks trusted contributions confirmed`() {
+    fun `editArtistRequest should mark trusted contributions confirmed`() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
 
@@ -309,7 +309,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `doesArtistExist delegates to repository`() {
+    fun `doesArtistExist should delegate to repository`() {
         `when`(artistRepository.existsById(1L)).thenReturn(true)
         `when`(artistRepository.existsById(2L)).thenReturn(false)
 
@@ -318,7 +318,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `deleteArtistRequest does not delete untrusted user`() {
+    fun `deleteArtistRequest should not delete untrusted user`() {
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         artistService.deleteArtistRequest(1,"tester",log=false)
@@ -327,7 +327,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `deleteArtistRequest logs and deletes trusted user`() {
+    fun `deleteArtistRequest should log and delete for trusted user`() {
         requestingUser.rank=Rank().apply {id=10}
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
@@ -339,7 +339,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `toggleFavoriteArtist removes existing favorite`() {
+    fun `toggleFavoriteArtist should remove existing favorite`() {
         val favorite=UsersArtists().apply {id=4}
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(artistRepository.findArtistById(1L)).thenReturn(artist)

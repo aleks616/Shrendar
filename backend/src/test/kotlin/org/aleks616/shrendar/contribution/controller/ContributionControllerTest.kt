@@ -41,14 +41,14 @@ class ContributionControllerTest {
     fun tearDown() = SecurityContextHolder.clearContext()
 
     @Test
-    fun `getContributions delegates to service`() {
+    fun `getContributions should delegate to service`() {
         val contributions=listOf(Contribution())
         `when`(contributionService.getAll()).thenReturn(contributions)
         assertSame(contributions,controller.getContributions())
     }
 
     @Test
-    fun `confirmContributionRequest succeeds`() {
+    fun `confirmContributionRequest should succeed`() {
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
         assertEquals("Confirmation successful",result.body)
@@ -56,7 +56,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmContributionRequest rejects unauthenticated request`() {
+    fun `confirmContributionRequest should reject unauthenticated request`() {
         SecurityContextHolder.clearContext()
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -64,7 +64,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmContributionRequest rejects IP timeout`() {
+    fun `confirmContributionRequest should return too many requests for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
@@ -73,7 +73,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmContributionRequest rejects login timeout`() {
+    fun `confirmContributionRequest should return too many requests for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
@@ -82,7 +82,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmContributionRequest maps rank exception`() {
+    fun `confirmContributionRequest should return forbidden for rank exception`() {
         doAnswer {throw RankTooLowToConfirmContributionException("rank")}
             .`when`(contributionService).confirmDataChangeRequest(1,"user")
         val result=controller.confirmContributionRequest(1,request)
@@ -91,7 +91,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `confirmContributionRequest maps unexpected exception`() {
+    fun `confirmContributionRequest should return internal server error for unexpected exception`() {
         doThrow(IllegalStateException("broken"))
             .`when`(contributionService).confirmDataChangeRequest(1,"user")
         val result=controller.confirmContributionRequest(1,request)
@@ -100,7 +100,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest succeeds`() {
+    fun `revertAddRequest should succeed`() {
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
         assertEquals("Addition reverted successful",result.body)
@@ -108,7 +108,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest rejects unauthenticated request`() {
+    fun `revertAddRequest should reject unauthenticated request`() {
         SecurityContextHolder.clearContext()
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -116,7 +116,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest rejects IP timeout`() {
+    fun `revertAddRequest should return too many requests for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
@@ -125,7 +125,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest rejects login timeout`() {
+    fun `revertAddRequest should return too many requests for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
@@ -134,7 +134,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest throws confirmed rank exception`() {
+    fun `revertAddRequest should return forbidden for rank exception`() {
         doAnswer {throw RankTooLowToRevertConfirmedContributionException("rank")}
             .`when`(revertService).revertAddition(1,"user")
         val result=controller.revertAddRequest(1,request)
@@ -143,7 +143,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `revertAddRequest throws unexpected exception`() {
+    fun `revertAddRequest should return internal server error for unexpected exception`() {
         doThrow(IllegalStateException("broken")).`when`(revertService).revertAddition(1,"user")
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
@@ -151,28 +151,28 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `handleLimitExceededException returns bad request`() {
+    fun `handleLimitExceededException should return bad request`() {
         val result=controller.handleLimitExceededException(IllegalStateException("limit"))
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("Something went wrong. limit",result.body)
     }
 
     @Test
-    fun `getContributionsByRequestingUser succeeds`() {
+    fun `getContributionsByRequestingUser should return contributions`() {
         val expected=listOf(ContributionDto(userId=7))
         `when`(contributionService.getContributionsByRequestingUser(7)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByRequestingUser(7,request))
     }
 
     @Test
-    fun `getContributionsByRequestingUser rejects unknown user`() {
+    fun `getContributionsByRequestingUser should throw IllegalStateException for unknown user`() {
         `when`(userService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7,request)}
         assertEquals("user with id 7 doesn't exist",exception.message)
     }
 
     @Test
-    fun `getContributionsByRequestingUser rejects login timeout`() {
+    fun `getContributionsByRequestingUser should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7,request)}
         assertEquals("Too many requests from this user",exception.message)
@@ -180,7 +180,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUser rejects IP timeout`() {
+    fun `getContributionsByRequestingUser should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUser(7,request)
@@ -190,7 +190,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUser rejects missing authentication`() {
+    fun `getContributionsByRequestingUser should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUser(7,request)
@@ -198,21 +198,21 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUser wraps service exception`() {
+    fun `getContributionsByRequestingUser should wrap service exception`() {
         `when`(contributionService.getContributionsByRequestingUser(7)).thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7,request)}
         assertEquals("broken",exception.message)
     }
 
     @Test
-    fun `getContributionsByConfirmingUser delegates to service`() {
+    fun `getContributionsByConfirmingUser should delegate to service`() {
         val expected=listOf(ContributionDto(confirmedBy=7))
         `when`(contributionService.getContributionsByConfirmingUser(7)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByConfirmingUser(7,request))
     }
 
     @Test
-    fun `getContributionsByConfirmingUser rejects unknown user`() {
+    fun `getContributionsByConfirmingUser should throw IllegalStateException for unknown user`() {
         `when`(userService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7,request)
@@ -221,7 +221,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByConfirmingUser rejects IP timeout`() {
+    fun `getContributionsByConfirmingUser should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7,request)
@@ -230,7 +230,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByConfirmingUser rejects login timeout`() {
+    fun `getContributionsByConfirmingUser should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7,request)
@@ -239,7 +239,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByConfirmingUser rejects missing authentication`() {
+    fun `getContributionsByConfirmingUser should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7,request)
@@ -247,7 +247,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName rejects login timeout`() {
+    fun `getContributionsByTableName should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableName("artist",request)
@@ -256,7 +256,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId rejects missing authentication`() {
+    fun `getContributionsByTableNameAndChangedRecordId should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableNameAndChangedRecordId("artist",3,request)
@@ -264,7 +264,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId rejects IP timeout`() {
+    fun `getContributionsByTableNameAndChangedRecordId should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableNameAndChangedRecordId("artist",3,request)
@@ -273,7 +273,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId rejects login timeout`() {
+    fun `getContributionsByTableNameAndChangedRecordId should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableNameAndChangedRecordId("artist",3,request)
@@ -282,7 +282,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId rejects IP timeout`() {
+    fun `getLastChangesByTableAndChangedRecordId should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getLastChangesByTableAndChangedRecordId("artist",3,request)
@@ -291,7 +291,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId rejects login timeout`() {
+    fun `getLastChangesByTableAndChangedRecordId should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getLastChangesByTableAndChangedRecordId("artist",3,request)
@@ -300,7 +300,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId rejects missing authentication`() {
+    fun `getLastChangesByTableAndChangedRecordId should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getLastChangesByTableAndChangedRecordId("artist",3,request)
@@ -308,7 +308,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween rejects IP timeout`() {
+    fun `getContributionsByChangedAtBetween should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.now(),LocalDate.now(),request)
@@ -317,7 +317,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween wraps service exception`() {
+    fun `getContributionsByChangedAtBetween should wrap service exception`() {
         val date=LocalDate.now()
         `when`(contributionService.getContributionsByChangedAtBetween(date,date))
             .thenThrow(IllegalArgumentException("broken"))
@@ -328,7 +328,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween rejects IP timeout`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(
@@ -339,7 +339,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween rejects login timeout`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(
@@ -350,7 +350,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween rejects missing authentication`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(
@@ -360,7 +360,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween wraps service exception`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should wrap service exception`() {
         val date=LocalDate.now()
         `when`(contributionService.getContributionsByRequestingUserAndChangedAtBetween(date,date,7))
             .thenThrow(IllegalArgumentException("broken"))
@@ -373,7 +373,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction rejects IP timeout`() {
+    fun `getContributionsByRequestingUserAndAction should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request)
@@ -382,7 +382,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction rejects login timeout`() {
+    fun `getContributionsByRequestingUserAndAction should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request)
@@ -391,7 +391,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction rejects missing authentication`() {
+    fun `getContributionsByRequestingUserAndAction should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request)
@@ -399,7 +399,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByConfirmingUser wraps service exception`() {
+    fun `getContributionsByConfirmingUser should wrap service exception`() {
         `when`(contributionService.getContributionsByConfirmingUser(7))
             .thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {
@@ -409,12 +409,12 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName rejects invalid table`() {
+    fun `getContributionsByTableName should throw IllegalArgumentException for invalid table`() {
         assertThrows<IllegalArgumentException> {controller.getContributionsByTableName("unknown",request)}
     }
 
     @Test
-    fun `getContributionsByTableName rejects missing authentication`() {
+    fun `getContributionsByTableName should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableName("artist",request)
@@ -422,7 +422,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName rejects IP timeout`() {
+    fun `getContributionsByTableName should throw IllegalStateException for IP rate limit`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByTableName("artist",request)
@@ -431,7 +431,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName wraps service exception`() {
+    fun `getContributionsByTableName should wrap service exception`() {
         `when`(contributionService.getContributionsByTableName("artist"))
             .thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {
@@ -441,7 +441,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName delegates valid table`() {
+    fun `getContributionsByTableName should delegate valid table`() {
         val expected=listOf(ContributionDto(changedTable="artist"))
         `when`(contributionService.getContributionsByTableName("artist")).thenReturn(expected)
         assertSame(expected,controller.getContributionsByTableName("artist",request))
@@ -449,21 +449,21 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId delegates valid table`() {
+    fun `getContributionsByTableNameAndChangedRecordId should delegate valid table`() {
         val expected=listOf(ContributionDto(changedRecordId=3))
         `when`(contributionService.getContributionsByTableNameAndChangedRecordId("artist",3)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByTableNameAndChangedRecordId("artist",3,request))
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId rejects invalid table`() {
+    fun `getContributionsByTableNameAndChangedRecordId should throw IllegalArgumentException for invalid table`() {
         assertThrows<IllegalArgumentException> {
             controller.getContributionsByTableNameAndChangedRecordId("unknown",3,request)
         }
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId wraps service exception`() {
+    fun `getContributionsByTableNameAndChangedRecordId should wrap service exception`() {
         `when`(contributionService.getContributionsByTableNameAndChangedRecordId("artist",3))
             .thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {
@@ -473,21 +473,21 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId delegates valid table`() {
+    fun `getLastChangesByTableAndChangedRecordId should delegate valid table`() {
         val expected=ContributionHistoryDto(table="artist")
         `when`(contributionService.getLastChangesByTableNameAndChangedRecordId("artist",3)).thenReturn(expected)
         assertSame(expected,controller.getLastChangesByTableAndChangedRecordId("artist",3,request))
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId rejects invalid table`() {
+    fun `getLastChangesByTableAndChangedRecordId should throw IllegalArgumentException for invalid table`() {
         assertThrows<IllegalArgumentException> {
             controller.getLastChangesByTableAndChangedRecordId("unknown",3,request)
         }
     }
 
     @Test
-    fun `getLastChangesByTableAndChangedRecordId wraps service exception`() {
+    fun `getLastChangesByTableAndChangedRecordId should wrap service exception`() {
         `when`(contributionService.getLastChangesByTableNameAndChangedRecordId("artist",3))
             .thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {
@@ -497,7 +497,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween rejects reversed dates`() {
+    fun `getContributionsByChangedAtBetween should throw IllegalStateException for reversed dates`() {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.of(2025,2,1),LocalDate.of(2025,1,1),request)
         }
@@ -505,7 +505,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween delegates valid dates`() {
+    fun `getContributionsByChangedAtBetween should delegate valid dates`() {
         val start=LocalDate.of(2025,1,1)
         val end=LocalDate.of(2025,2,1)
         val expected=listOf(ContributionDto())
@@ -514,7 +514,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween rejects missing authentication`() {
+    fun `getContributionsByChangedAtBetween should throw IllegalStateException for missing authentication`() {
         SecurityContextHolder.clearContext()
         assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.now(),LocalDate.now(),request)
@@ -522,7 +522,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween rejects login timeout`() {
+    fun `getContributionsByChangedAtBetween should throw IllegalStateException for login rate limit`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.now(),LocalDate.now(),request)
@@ -531,7 +531,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween rejects unknown user`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for unknown user`() {
         `when`(userService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(LocalDate.now(),LocalDate.now(),7,request)
@@ -540,7 +540,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween delegates valid dates`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should delegate valid dates`() {
         val start=LocalDate.of(2025,1,1)
         val end=LocalDate.of(2025,2,1)
         val expected=listOf(ContributionDto())
@@ -549,7 +549,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween rejects reversed dates`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should throw IllegalStateException for reversed dates`() {
         assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(
                 LocalDate.of(2025,2,1),LocalDate.of(2025,1,1),7,request
@@ -558,14 +558,14 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction delegates valid action`() {
+    fun `getContributionsByRequestingUserAndAction should delegate valid action`() {
         val expected=listOf(ContributionDto(action=Action.CREATE))
         `when`(contributionService.getContributionsByActionAndRequestingUser(7,Action.CREATE)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request))
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction rejects invalid user`() {
+    fun `getContributionsByRequestingUserAndAction should throw IllegalStateException for invalid user`() {
         `when`(userService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndAction(7,Action.CREATE,request)
@@ -574,7 +574,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndAction wraps service exception`() {
+    fun `getContributionsByRequestingUserAndAction should wrap service exception`() {
         `when`(contributionService.getContributionsByActionAndRequestingUser(7,Action.CREATE))
             .thenThrow(IllegalArgumentException("broken"))
         val exception=assertThrows<IllegalStateException> {
@@ -584,7 +584,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByTableName accepts every supported table`() {
+    fun `getContributionsByTableName should accept every supported table`() {
         Table.entries.forEach {table ->
             `when`(contributionService.getContributionsByTableName(table.name.lowercase())).thenReturn(emptyList())
             controller.getContributionsByTableName(table.name,request)

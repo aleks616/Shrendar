@@ -57,13 +57,13 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getAll delegates to repository`() {
+    fun `getAll should delegate to repository`() {
         `when`(repository.findAll()).thenReturn(listOf(contribution))
         assertEquals(listOf(contribution),service.getAll())
     }
 
     @Test
-    fun `mapContributionToContributionDto maps every field`() {
+    fun `mapContributionToContributionDto should map every field`() {
         val result=service.mapContributionToContributionDto(listOf(contribution)).single()
         assertEquals(contribution.id,result.id)
         assertEquals(contribution.changeId,result.changeId)
@@ -80,32 +80,32 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUser maps repository results`() {
+    fun `getContributionsByRequestingUser should map repository results`() {
         `when`(repository.findContributionsByUserId(7)).thenReturn(mutableListOf(contribution))
         assertEquals(1,service.getContributionsByRequestingUser(7).size)
     }
 
     @Test
-    fun `getContributionsByConfirmingUser maps repository results`() {
+    fun `getContributionsByConfirmingUser should map repository results`() {
         `when`(repository.findContributionsByConfirmedBy(7)).thenReturn(mutableListOf(contribution))
         assertEquals(1,service.getContributionsByConfirmingUser(7).size)
     }
 
     @Test
-    fun `getContributionsByTableName maps repository results`() {
+    fun `getContributionsByTableName should map repository results`() {
         `when`(repository.findContributionsByChangedTable("artist")).thenReturn(mutableListOf(contribution))
         assertEquals(1,service.getContributionsByTableName("artist").size)
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId maps repository results`() {
+    fun `getContributionsByTableNameAndChangedRecordId should map repository results`() {
         `when`(repository.findContributionsByChangedTableAndChangedRecordId("artist",3))
             .thenReturn(mutableListOf(contribution))
         assertEquals(1,service.getContributionsByTableNameAndChangedRecordId("artist",3).size)
     }
 
     @Test
-    fun `getLastChangesByTableNameAndChangedRecordId returns table and contributions`() {
+    fun `getLastChangesByTableNameAndChangedRecordId should return table and contributions`() {
         `when`(repository.findLastContributionsByTableNameAndChangedRecordId("artist",3))
             .thenReturn(mutableListOf(contribution))
         val result=service.getLastChangesByTableNameAndChangedRecordId("artist",3)
@@ -114,7 +114,7 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween uses supplied dates`() {
+    fun `getContributionsByChangedAtBetween should use supplied dates`() {
         val start=LocalDate.of(2026,1,1)
         val end=LocalDate.of(2026,1,3)
         `when`(repository.findContributionsByChangedAtBetween(start,end)).thenReturn(mutableListOf(contribution))
@@ -124,7 +124,7 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween uses supplied arguments`() {
+    fun `getContributionsByRequestingUserAndChangedAtBetween should use supplied arguments`() {
         val start=LocalDate.of(2026,1,1)
         val end=LocalDate.of(2026,1,3)
         `when`(repository.findContributionsByChangedAtBetweenAndUser(start,end,7))
@@ -135,13 +135,13 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByActionAndRequestingUser uses action string`() {
+    fun `getContributionsByActionAndRequestingUser should use action string`() {
         `when`(repository.findContributionsByActionAndUserId("CREATE",7)).thenReturn(mutableListOf(contribution))
         assertEquals(1,service.getContributionsByActionAndRequestingUser(7,Action.CREATE).size)
     }
 
     @Test
-    fun `confirm rejects a user below rank 10`() {
+    fun `confirmDataChangeRequest should throw exception for user below rank 10`() {
         user.rank=Rank().apply {id=9}
         `when`(userService.getUserByLogin("trusted")).thenReturn(user)
         assertThrows<Exception> {service.confirmDataChangeRequest(20,"trusted")}
@@ -149,7 +149,7 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `confirm rejects an already confirmed contribution`() {
+    fun `confirmDataChangeRequest should throw ContributionIsAlreadyConfirmedException for already confirmed contribution`() {
         contribution.confirmed=true
         `when`(userService.getUserByLogin("trusted")).thenReturn(user)
         `when`(repository.getByChangeId(20)).thenReturn(listOf(contribution))
@@ -160,7 +160,7 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `confirm marks all contributions and skips deletion for create`() {
+    fun `confirmDataChangeRequest should mark all contributions and skip deletion for create`() {
         val second=Contribution().apply {changeId=20; action=Action.CREATE; changedTable="artist"; confirmed=false}
         `when`(userService.getUserByLogin("trusted")).thenReturn(user)
         `when`(repository.getByChangeId(20)).thenReturn(listOf(contribution,second))
@@ -172,25 +172,25 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `confirm deletes an album contribution`() {
+    fun `confirmDataChangeRequest should delete album contribution`() {
         confirmDelete("album")
         verify(albumService).deleteAlbumRequest(3,"trusted",false)
     }
 
     @Test
-    fun `confirm deletes an artist contribution`() {
+    fun `confirmDataChangeRequest should delete artist contribution`() {
         confirmDelete("artist")
         verify(artistService).deleteArtistRequest(3,"trusted",false)
     }
 
     @Test
-    fun `confirm deletes a band contribution`() {
+    fun `confirmDataChangeRequest should delete band contribution`() {
         confirmDelete("band")
         verify(bandService).deleteBandRequest(3,"trusted",false)
     }
 
     @Test
-    fun `confirm deletes a band member contribution`() {
+    fun `confirmDataChangeRequest should delete band member contribution`() {
         confirmDelete("bands_members")
         verify(bandsMemberService).deleteBandMemberRequest(3,"trusted",false)
     }

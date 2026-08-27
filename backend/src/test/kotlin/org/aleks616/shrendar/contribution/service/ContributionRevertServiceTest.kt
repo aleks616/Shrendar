@@ -51,21 +51,21 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert addition rejects rank below 10`() {
+    fun `revertAddition should throw RankTooLowToRevertContributionException for rank below 10`() {
         user.rank=Rank().apply {id=9}
         assertThrows<RankTooLowToRevertContributionException> {service.revertAddition(1,"trusted")}
         verifyNoInteractions(contributionRepository)
     }
 
     @Test
-    fun `revert confirmed addition rejects rank below 12`() {
+    fun `revertAddition should throw RankTooLowToRevertConfirmedContributionException for rank below 12`() {
         user.rank=Rank().apply {id=10}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("artist",true)))
         assertThrows<RankTooLowToRevertConfirmedContributionException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert confirmed addition fails for rank 11`() {
+    fun `revertAddition should throw RankTooLowToRevertConfirmedContributionException for rank 11`() {
         user.rank=Rank().apply {id=11}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(
             listOf(contribution("artist",true).apply {changedRecordId=1})
@@ -77,19 +77,19 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert addition rejects unsupported action`() {
+    fun `revertAddition should throw UnsupportedOperationException for unsupported action`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("artist",false,Action.UPDATE)))
         assertThrows<UnsupportedOperationException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert addition rejects unsupported table`() {
+    fun `revertAddition should throw IllegalArgumentException for unsupported table`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("unknown",false)))
         assertThrows<IllegalArgumentException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert album addition deletes album and recalculates genre`() {
+    fun `revertAddition should delete album and recalculate genre for album addition`() {
         val album=Album().apply {id=4}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(
             listOf(
@@ -103,7 +103,7 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert album addition skips genre recalculation when band id is missing`() {
+    fun `revertAlbumAddition should skip genre recalculation when band id is missing`() {
         val album=Album().apply {id=4}
         val item=contribution("album",false).apply {changedRecordId=4}
         `when`(albumRepository.findAlbumById(4)).thenReturn(album)
@@ -113,7 +113,7 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert artist addition deletes artist`() {
+    fun `revertAddition should delete artist for artist addition`() {
         val artist=Artist().apply {id=4}
         val item=contribution("artist",false).apply {changedRecordId=4}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(item))
@@ -123,7 +123,7 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert band addition deletes band`() {
+    fun `revertAddition should delete band for band addition`() {
         val band=Band().apply {id=4}
         val item=contribution("band",false).apply {changedRecordId=4}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(item))
@@ -133,7 +133,7 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert band member addition deletes membership`() {
+    fun `revertAddition should delete membership for band member addition`() {
         val member=BandsMembers().apply {id=4}
         val item=contribution("bands_members",false).apply {changedRecordId=4}
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(item))
@@ -143,25 +143,25 @@ class ContributionRevertServiceTest {
     }
 
     @Test
-    fun `revert album addition rejects missing album id`() {
+    fun `revertAddition should throw RuntimeException for missing album id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("album",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert artist addition rejects missing artist id`() {
+    fun `revertAddition should throw RuntimeException for missing artist id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("artist",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert band addition rejects missing band id`() {
+    fun `revertAddition should throw RuntimeException for missing band id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("band",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }
 
     @Test
-    fun `revert band member addition rejects missing membership id`() {
+    fun `revertAddition should throw RuntimeException for missing membership id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("bands_members",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }

@@ -68,7 +68,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `doesBandExist delegates to band service`() {
+    fun `doesBandExist should delegate to band service`() {
         `when`(bandService.doesBandExist(2)).thenReturn(true)
 
         assertTrue(albumService.doesBandExist(2))
@@ -76,7 +76,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `doesAlbumExist delegates to album repository`() {
+    fun `doesAlbumExist should delegate to album repository`() {
         `when`(albumRepository.existsById(1L)).thenReturn(true)
 
         assertTrue(albumService.doesAlbumExist(1L))
@@ -84,7 +84,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `getAll maps albums to album data`() {
+    fun `getAll should map albums to album data`() {
         `when`(albumRepository.findAll()).thenReturn(listOf(album))
 
         val result=albumService.getAll()
@@ -102,14 +102,14 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `getById returns repository album`() {
+    fun `getById should return repository album`() {
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
 
         assertSame(album,albumService.getById(1L))
     }
 
     @Test
-    fun `getByIdWiki maps album wiki data`() {
+    fun `getByIdWiki should map album wiki data`() {
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
 
         val result=albumService.getByIdWiki(1L)
@@ -129,42 +129,42 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `getAlbumsByBandId returns repository albums`() {
+    fun `getAlbumsByBandId should return repository albums`() {
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album))
 
         assertEquals(listOf(album),albumService.getAlbumsByBandId(2))
     }
 
     @Test
-    fun `getAlbumsByBandName returns repository albums`() {
+    fun `getAlbumsByBandName should return repository albums`() {
         `when`(albumRepository.findByBandNameContainingIgnoreCase("metal")).thenReturn(mutableListOf(album))
 
         assertEquals(listOf(album),albumService.getAlbumsByBandName("metal"))
     }
 
     @Test
-    fun `getAlbumsByYear returns repository albums`() {
+    fun `getAlbumsByYear should return repository albums`() {
         `when`(albumRepository.findByYear(1984)).thenReturn(listOf(album))
 
         assertEquals(listOf(album),albumService.getAlbumsByYear(1984))
     }
 
     @Test
-    fun `getAlbumsByName returns repository albums`() {
+    fun `getAlbumsByName should return repository albums`() {
         `when`(albumRepository.findByTitleContainingIgnoreCase("Ride")).thenReturn(listOf(album))
 
         assertEquals(listOf(album),albumService.getAlbumsByName("Ride"))
     }
 
     @Test
-    fun `getAlbumsByNameExact returns repository albums`() {
+    fun `getAlbumsByNameExact should return repository albums`() {
         `when`(albumRepository.findByTitleIgnoreCase("Ride the Lightning")).thenReturn(listOf(album))
 
         assertEquals(listOf(album),albumService.getAlbumsByNameExact("Ride the Lightning"))
     }
 
     @Test
-    fun `getAlbumAnniversariesByDate returns matching mapped albums`() {
+    fun `getAlbumAnniversariesByDate should return matching mapped albums`() {
         val other=Album().apply {id=2; title="Other"; releaseDate=LocalDate.of(1984,7,28)}
         `when`(albumRepository.findAll()).thenReturn(listOf(album,other))
 
@@ -179,7 +179,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `doesAlbumWithNameExistForBand returns true and false`() {
+    fun `doesAlbumWithNameExistForBand should return true and false`() {
         val other=album.copyForTest(title="Other")
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album,other))
 
@@ -188,7 +188,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `doesAlbumWithNameExistForAlbumId returns true and false`() {
+    fun `doesAlbumWithNameExistForAlbumId should return true and false`() {
         val other=album.copyForTest(title="Other")
         `when`(albumRepository.findById(1L)).thenReturn(album)
         `when`(albumRepository.findByBandId(2)).thenReturn(listOf(album,other))
@@ -198,20 +198,20 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `isReleaseDateValid rejects too far future dates`() {
+    fun `isReleaseDateValid should reject too far future dates`() {
         assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.now().plusYears(2))))
         verifyNoInteractions(bandService)
     }
 
     @Test
-    fun `isReleaseDateValid rejects dates before band formation`() {
+    fun `isReleaseDateValid should reject dates before band formation`() {
         `when`(bandService.getBandById(2)).thenReturn(band)
 
         assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1980,1,1))))
     }
 
     @Test
-    fun `isReleaseDateValid accepts valid and missing release dates`() {
+    fun `isReleaseDateValid should accept valid and missing release dates`() {
         `when`(bandService.getBandById(2)).thenReturn(band)
 
         assertTrue(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1981,1,1))))
@@ -221,7 +221,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `addAlbumRequest throws contribution limit exception`() {
+    fun `addAlbumRequest should throw contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
@@ -239,7 +239,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `addAlbumRequest saves untrusted album and changes`() {
+    fun `addAlbumRequest should save untrusted album and changes`() {
         val dto=AlbumAddDto(
             bandId=2,title="Album",releaseDate=LocalDate.of(1984,1,1),type=AlbumType.COMPILATION,
             description="Description",mainSubgenre=3,importance=5,artworkUrl="url"
@@ -257,7 +257,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `addAlbumRequest marks trusted user changes confirmed`() {
+    fun `addAlbumRequest should mark trusted user changes confirmed`() {
         requestingUser.rank=Rank().apply {id=10}
         val dto=AlbumAddDto(bandId=2,title="Album",type=AlbumType.STUDIO,mainSubgenre=3,importance=4)
         stubAddDependencies(dto)
@@ -270,7 +270,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `editAlbumRequest throws invalid importance exceptions`() {
+    fun `editAlbumRequest should throw invalid importance exceptions`() {
         stubEditDependencies()
         album.type=AlbumType.OTHER
 
@@ -283,7 +283,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `editAlbumRequest throws when there are no changes`() {
+    fun `editAlbumRequest should throw when there are no changes`() {
         stubEditDependencies()
 
         assertThrows<IllegalStateException> {albumService.editAlbumRequest(AlbumAddDto(id=1),"tester")}
@@ -291,7 +291,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `editAlbumRequest updates changed values and recalculates genre`() {
+    fun `editAlbumRequest should update changed values and recalculate genre`() {
         stubEditDependencies()
         val dto=AlbumAddDto(id=1,bandId=4,title="New",mainSubgenre=5,importance=4)
         `when`(bandService.getBandById(4)).thenReturn(Band().apply {id=4})
@@ -308,7 +308,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `editAlbumRequest marks changes confirmed for rank above 9`() {
+    fun `editAlbumRequest should mark changes confirmed for rank above 9`() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
         val dto=AlbumAddDto(id=1,title="New")
@@ -321,7 +321,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `deleteAlbumRequest throws contribution limit exception`() {
+    fun `deleteAlbumRequest should throw contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(limit)
@@ -331,7 +331,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `deleteAlbumRequest does not delete untrusted users`() {
+    fun `deleteAlbumRequest should not delete untrusted users`() {
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
 
@@ -342,7 +342,7 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `deleteAlbumRequest logs and deletes for trusted users`() {
+    fun `deleteAlbumRequest should log and delete for trusted users`() {
         requestingUser.rank=Rank().apply {id=10}
         `when`(userService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)

@@ -46,20 +46,20 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `doesBandMemberExist returns true for an existing member`() {
+    fun `doesBandMemberExist should return true for existing member`() {
         `when`(repository.existsById(10L)).thenReturn(true)
         assertTrue(bandsMemberService.doesBandMemberExist(10))
     }
 
     @Test
-    fun `getBandMembersRaw returns the repository rows`() {
+    fun `getBandMembersRaw should return repository rows`() {
         val raw=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(raw))
         assertEquals(listOf(raw),bandsMemberService.getBandMembersRaw(3))
     }
 
     @Test
-    fun `getAllBandMembers groups roles for one artist`() {
+    fun `getAllBandMembers should group roles for one artist`() {
         val first=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
         val second=BandsMembersDataDto(11,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(first,second))
@@ -70,7 +70,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getAllBandMembersWiki maps member data`() {
+    fun `getAllBandMembersWiki should map member data`() {
         val source=BandsMembersDto(10,2,"James",3,"Metallica","Het",mutableListOf("Vocals (1981-)"))
         `when`(repository.findAllByBandName(3)).thenReturn(
             listOf(BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het"))
@@ -82,7 +82,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getCurrentBandMembers returns open ended roles`() {
+    fun `getCurrentBandMembers should return open ended roles`() {
         val current=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,null)
         val past=BandsMembersDataDto(11,4,"Lars",3,"Metallica","Drums",1981,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(current,past))
@@ -90,7 +90,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getPastBandMembers excludes open ended roles`() {
+    fun `getPastBandMembers should exclude open ended roles`() {
         val current=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,null)
         val past=BandsMembersDataDto(11,4,"Lars",3,"Metallica","Drums",1981,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(current,past))
@@ -98,9 +98,9 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `artist history groups roles`() {
-        val first=org.aleks616.shrendar.band.model.ArtistBandsDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
-        val second=org.aleks616.shrendar.band.model.ArtistBandsDto(12,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
+    fun `getBandsByArtistId should group roles`() {
+        val first=ArtistBandsDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
+        val second=ArtistBandsDto(12,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
         `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second))
 
         val result=bandsMemberService.getBandsByArtistId(2)
@@ -109,7 +109,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `add rejects contribution limit`() {
+    fun `addBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
@@ -119,7 +119,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `add records the member contribution`() {
+    fun `addBandMemberRequest should record member contribution`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
@@ -132,7 +132,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `add confirms contributions for rank nine`() {
+    fun `addBandMemberRequest should confirm contributions for rank nine`() {
         user.rank=Rank().apply {id=9}
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
@@ -149,7 +149,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit updates changed fields`() {
+    fun `editBandMemberRequest should update changed fields`() {
         val dto=ArtistBandAddDto(10,3,2,"New","Guitar",1982,1989)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
@@ -163,7 +163,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit rejects no changes`() {
+    fun `editBandMemberRequest should throw IllegalStateException when there are no changes`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
@@ -173,27 +173,27 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getAllBandMembers returns empty for empty repository`() {
+    fun `getAllBandMembers should return empty list for empty repository`() {
         `when`(repository.findAllByBandName(3)).thenReturn(emptyList())
         assertTrue(bandsMemberService.getAllBandMembers(3).isEmpty())
     }
 
     @Test
-    fun `same-year roles are formatted without a range`() {
+    fun `getAllBandMembers should format same-year roles without range`() {
         val sameYear=BandsMembersDataDto(12,4,"Lars",3,"Metallica","Drums",1990,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(sameYear))
         assertEquals(listOf("Drums (1990)"),bandsMemberService.getAllBandMembers(3).first().yearRole)
     }
 
     @Test
-    fun `getBandsByArtistId returns empty for empty repository`() {
+    fun `getBandsByArtistId should return empty list for empty repository`() {
         `when`(repository.findBandsByArtistId(2)).thenReturn(emptyList())
         assertTrue(bandsMemberService.getBandsByArtistId(2).isEmpty())
     }
 
     @Test
-    fun `artist history formats same-year roles`() {
-        val sameYear=org.aleks616.shrendar.band.model.ArtistBandsDto(
+    fun `getBandsByArtistId should format same-year roles`() {
+        val sameYear=ArtistBandsDto(
             10,2,"James",3,"Metallica","Vocals",1981,1981,"Het"
         )
         `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(sameYear))
@@ -201,7 +201,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `add omits null member fields from contributions`() {
+    fun `addBandMemberRequest should omit null member fields from contributions`() {
         user.rank=Rank().apply {id=8}
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role=null,joinedYear=1981,leftYear=null,nickname=null)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
@@ -218,7 +218,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit rejects contribution limit`() {
+    fun `editBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
@@ -229,7 +229,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit rejects a joined year after the existing left year`() {
+    fun `editBandMemberRequest should throw IllegalArgumentException when joined year is after existing left year`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         member.leftYear=1990
@@ -240,7 +240,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit rejects a left year below the existing joined year`() {
+    fun `editBandMemberRequest should throw IllegalArgumentException when left year is below existing joined year`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
@@ -251,7 +251,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit updates every supported field`() {
+    fun `editBandMemberRequest should update every supported field`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,4,5,"New","Guitar",1982,1989)
         `when`(userService.getUserByLogin("user")).thenReturn(user)
@@ -268,7 +268,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `edit marks contributions as trusted for rank ten`() {
+    fun `editBandMemberRequest should mark contributions as trusted for rank ten`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,nickname="New")
         `when`(userService.getUserByLogin("user")).thenReturn(user)
@@ -281,7 +281,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `delete rejects contribution limit`() {
+    fun `deleteBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
@@ -292,7 +292,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `delete skips contributions when logging is disabled`() {
+    fun `deleteBandMemberRequest should skip contributions when logging is disabled`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         bandsMemberService.deleteBandMemberRequest(10,"user",log=false)
@@ -301,7 +301,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `delete removes the member for rank ten`() {
+    fun `deleteBandMemberRequest should remove member for rank ten`() {
         user.rank=Rank().apply {id=10}
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
@@ -312,7 +312,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `delete logs every member field`() {
+    fun `deleteBandMemberRequest should log every member field`() {
         `when`(userService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)

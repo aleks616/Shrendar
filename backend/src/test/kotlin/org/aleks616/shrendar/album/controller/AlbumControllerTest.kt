@@ -142,62 +142,62 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `getAll returns albums`() {
+        fun `getAll should return albums`() {
             controller.getAll()
             verify(albumService).getAll()
         }
 
         @Test
-        fun `getAlbumById returns album`() {
+        fun `getAlbumById should return album`() {
             controller.getAlbumById(1)
             verify(albumService).getById(1)
         }
 
         @Test
-        fun `getAlbumByIdWiki returns wiki data`() {
+        fun `getAlbumByIdWiki should return wiki data`() {
             controller.getAlbumByIdWiki(1)
             verify(albumService).getByIdWiki(1)
         }
 
         @Test
-        fun `getAlbumAnniversariesByDate returns albums`() {
+        fun `getAlbumAnniversariesByDate should return albums`() {
             controller.getAlbumAnniversariesByDate(5,20)
             verify(albumService).getAlbumAnniversariesByDate(5,20)
         }
 
         @Test
-        fun `getAlbumsByBandId returns albums for existing band`() {
+        fun `getAlbumsByBandId should return albums for existing band`() {
             `when`(albumService.doesBandExist(1)).thenReturn(true)
             controller.getAlbumsByBandId(1)
             verify(albumService).getAlbumsByBandId(1)
         }
 
         @Test
-        fun `getAlbumsByBandNameLike returns albums`() {
+        fun `getAlbumsByBandNameLike should return albums`() {
             controller.getAlbumsByBandNameLike("Metallica")
             verify(albumService).getAlbumsByBandName("Metallica")
         }
 
         @Test
-        fun `getAlbumsByYear returns albums`() {
+        fun `getAlbumsByYear should return albums`() {
             controller.getAlbumsByYear(2020)
             verify(albumService).getAlbumsByYear(2020)
         }
 
         @Test
-        fun `getAlbumsByNameLike returns albums`() {
+        fun `getAlbumsByNameLike should return albums`() {
             controller.getAlbumsByNameLike("Master")
             verify(albumService).getAlbumsByName("Master")
         }
 
         @Test
-        fun `getAlbumsByNameExact returns albums`() {
+        fun `getAlbumsByNameExact should return albums`() {
             controller.getAlbumsByNameExact("Master of Puppets")
             verify(albumService).getAlbumsByNameExact("Master of Puppets")
         }
 
         @Test
-        fun `addAlbum returns success`() {
+        fun `addAlbum should return success`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
 
             val result=controller.addAlbum(dto,request)
@@ -207,7 +207,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum returns success`() {
+        fun `editAlbum should return success`() {
             val editDto=dto.copy(id=1)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
@@ -220,7 +220,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum returns success`() {
+        fun `deleteAlbum should return success`() {
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
 
             val result=controller.deleteAlbum(1,request)
@@ -230,7 +230,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum returns bad request when authentication is missing`() {
+        fun `addAlbum should return bad request when authentication is missing`() {
             SecurityContextHolder.clearContext()
 
             val result=controller.addAlbum(dto,request)
@@ -239,7 +239,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum returns too many requests when IP rate limit is reached`() {
+        fun `addAlbum should return too many requests when IP rate limit is reached`() {
             `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.addAlbum(dto,request)
@@ -249,7 +249,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum returns too many requests when login rate limit is reached`() {
+        fun `addAlbum should return too many requests when login rate limit is reached`() {
             `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.addAlbum(dto,request)
@@ -259,7 +259,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum rejects null bandId`() {
+        fun `addAlbum should reject null bandId`() {
             val result=controller.addAlbum(dto.copy(bandId=null),request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -267,7 +267,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum rejects null type`() {
+        fun `addAlbum should reject null type`() {
             val result=controller.addAlbum(dto.copy(type=null),request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -275,7 +275,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum rejects duplicate title`() {
+        fun `addAlbum should reject duplicate title`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(true)
 
             val result=controller.addAlbum(dto,request)
@@ -284,7 +284,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum returns validation error`() {
+        fun `addAlbum should return validation error`() {
             val invalid=dto.copy(bandId=99)
             `when`(albumService.doesBandExist(99)).thenReturn(false)
 
@@ -294,7 +294,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum handles contribution limit exception`() {
+        fun `addAlbum should handle contribution limit exception`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
             doAnswer {throw ContributionLimitExceededException("limit reached")}
                 .`when`(albumService).addAlbumRequest(dto,"user")
@@ -306,7 +306,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum handles invalid importance exception`() {
+        fun `addAlbum should handle invalid importance exception`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
             doAnswer {throw InvalidAlbumImportanceException("invalid importance")}
                 .`when`(albumService).addAlbumRequest(dto,"user")
@@ -318,7 +318,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum handles unexpected exception`() {
+        fun `addAlbum should handle unexpected exception`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
             doThrow(IllegalStateException("broken"))
                 .`when`(albumService).addAlbumRequest(dto,"user")
@@ -330,7 +330,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum returns bad request when authentication is missing`() {
+        fun `editAlbum should return bad request when authentication is missing`() {
             SecurityContextHolder.clearContext()
 
             val result=controller.editAlbum(dto.copy(id=1),request)
@@ -339,7 +339,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum returns too many requests when login rate limit is reached`() {
+        fun `editAlbum should return too many requests when login rate limit is reached`() {
             `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.editAlbum(dto.copy(id=1),request)
@@ -348,7 +348,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum returns too many requests when IP rate limit is reached`() {
+        fun `editAlbum should return too many requests when IP rate limit is reached`() {
             `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.editAlbum(dto.copy(id=1),request)
@@ -358,28 +358,28 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum rejects missing id`() {
+        fun `editAlbum should reject missing id`() {
             val result=controller.editAlbum(dto,request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         }
 
         @Test
-        fun `editAlbum rejects missing title`() {
+        fun `editAlbum should reject missing title`() {
             val result=controller.editAlbum(dto.copy(id=1,title=null),request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         }
 
         @Test
-        fun `editAlbum rejects missing type`() {
+        fun `editAlbum should reject missing type`() {
             val result=controller.editAlbum(dto.copy(id=1,type=null),request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         }
 
         @Test
-        fun `editAlbum rejects nonexistent album`() {
+        fun `editAlbum should reject nonexistent album`() {
             `when`(albumService.doesAlbumExist(99)).thenReturn(false)
 
             val result=controller.editAlbum(dto.copy(id=99),request)
@@ -388,7 +388,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum rejects duplicate title`() {
+        fun `editAlbum should reject duplicate title`() {
             val editDto=dto.copy(id=1)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(true)
@@ -399,7 +399,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum returns validation error`() {
+        fun `editAlbum should return validation error`() {
             val invalid=dto.copy(id=1,bandId=99)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(invalid)).thenReturn(false)
@@ -411,7 +411,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum handles contribution limit exception`() {
+        fun `editAlbum should handle contribution limit exception`() {
             val editDto=dto.copy(id=1)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
@@ -425,7 +425,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum handles invalid importance exception`() {
+        fun `editAlbum should handle invalid importance exception`() {
             val editDto=dto.copy(id=1)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
@@ -439,7 +439,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `editAlbum handles unexpected exception`() {
+        fun `editAlbum should handle unexpected exception`() {
             val editDto=dto.copy(id=1)
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
@@ -453,7 +453,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum returns too many requests when login rate limit is reached`() {
+        fun `deleteAlbum should return too many requests when login rate limit is reached`() {
             `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.deleteAlbum(1,request)
@@ -462,7 +462,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum returns too many requests when IP rate limit is reached`() {
+        fun `deleteAlbum should return too many requests when IP rate limit is reached`() {
             `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
             val result=controller.deleteAlbum(1,request)
@@ -472,7 +472,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum rejects nonexistent album`() {
+        fun `deleteAlbum should reject nonexistent album`() {
             `when`(albumService.doesAlbumExist(99)).thenReturn(false)
 
             val result=controller.deleteAlbum(99,request)
@@ -481,7 +481,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum handles contribution limit exception`() {
+        fun `deleteAlbum should handle contribution limit exception`() {
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             doAnswer {throw ContributionLimitExceededException("limit reached")}
                 .`when`(albumService).deleteAlbumRequest(1,"user")
@@ -492,7 +492,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `deleteAlbum handles unexpected exception`() {
+        fun `deleteAlbum should handle unexpected exception`() {
             `when`(albumService.doesAlbumExist(1)).thenReturn(true)
             doThrow(IllegalStateException("broken"))
                 .`when`(albumService).deleteAlbumRequest(1,"user")
@@ -503,12 +503,12 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `albumValidate accepts valid album`() {
+        fun `albumValidate should accept valid album`() {
             assertNull(controller.albumValidate(dto))
         }
 
         @Test
-        fun `albumValidate rejects missing band`() {
+        fun `albumValidate should reject missing band`() {
             val album=dto.copy(bandId=99)
             `when`(albumService.doesBandExist(99)).thenReturn(false)
 
@@ -516,28 +516,28 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `albumValidate rejects invalid studio importance`() {
+        fun `albumValidate should reject invalid studio importance`() {
             val album=dto.copy(importance=6)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
 
         @Test
-        fun `albumValidate rejects invalid EP importance`() {
+        fun `albumValidate should reject invalid EP importance`() {
             val album=dto.copy(type=AlbumType.EP,importance=4)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
 
         @Test
-        fun `albumValidate rejects importance for other album types`() {
+        fun `albumValidate should reject importance for other album types`() {
             val album=dto.copy(type=AlbumType.COMPILATION,importance=1)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
 
         @Test
-        fun `albumValidate rejects invalid release date`() {
+        fun `albumValidate should reject invalid release date`() {
             val album=dto.copy(releaseDate=LocalDate.of(1900,1,1))
             `when`(albumService.isReleaseDateValid(album)).thenReturn(false)
 
@@ -545,7 +545,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `albumValidate rejects missing genre`() {
+        fun `albumValidate should reject missing genre`() {
             val album=dto.copy(mainSubgenre=99)
             `when`(albumService.isReleaseDateValid(album)).thenReturn(true)
             `when`(genreService.doesGenreExist(99)).thenReturn(false)
@@ -554,7 +554,7 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `albumValidate rejects malformed artwork URL`() {
+        fun `albumValidate should reject malformed artwork URL`() {
             val album=dto.copy(artworkUrl="not a url")
             `when`(albumService.isReleaseDateValid(album)).thenReturn(true)
 
@@ -688,7 +688,7 @@ class AlbumControllerTest {
     }
 
     @Test
-    fun `getAlbumAnniversariesByDate should throw error for invalid date`() {
+    fun `getAlbumAnniversariesByDate should throw exception for invalid date`() {
         assertThrows<jakarta.servlet.ServletException> {
             mockMvc.get("/api/album/inDate") {
                 param("month","13")
@@ -713,7 +713,7 @@ class AlbumControllerTest {
     }
 
     @Test
-    fun `getAlbumsByBandId should throw error for non-existent band`() {
+    fun `getAlbumsByBandId should throw exception for non-existent band`() {
         assertThrows<jakarta.servlet.ServletException> {
             mockMvc.get("/api/album/band/999")
         }
@@ -745,7 +745,7 @@ class AlbumControllerTest {
     }
 
     @Test
-    fun `getAlbumsByYear should throw error for invalid year`() {
+    fun `getAlbumsByYear should throw exception for invalid year`() {
         val futureYear=LocalDate.now().year+1
 
         assertThrows<jakarta.servlet.ServletException> {

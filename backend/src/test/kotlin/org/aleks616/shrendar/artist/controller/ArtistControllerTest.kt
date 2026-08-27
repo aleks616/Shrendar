@@ -69,7 +69,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getById should throw error when service throws error`() {
+    fun `getById should throw exception when service throws error`() {
         `when`(artistService.getById(999)).thenThrow(IllegalArgumentException("artist with id doesn't exist"))
 
         val exception=assertThrows<ServletException> {
@@ -107,7 +107,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByNameLike should throw error for short name`() {
+    fun `getByNameLike should throw exception for short name`() {
         val exception=assertThrows<ServletException> {
             mockMvc.get("/api/artist/name?name=Ja")
         }
@@ -131,7 +131,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByFirstName should throw error for short name`() {
+    fun `getByFirstName should throw exception for short name`() {
         val exception=assertThrows<ServletException> {
             mockMvc.get("/api/artist/first-name") {
                 param("name","H")
@@ -157,7 +157,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByLastName should throw error for short name`() {
+    fun `getByLastName should throw exception for short name`() {
         val exception=assertThrows<ServletException> {
             mockMvc.get("/api/artist/last-name") {
                 param("name","d")
@@ -184,7 +184,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByBirthday should throw error for invalid date`() {
+    fun `getByBirthday should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
             mockMvc.get("/api/artist/birthday?month=13&day=1")
         }
@@ -211,7 +211,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByBirthdayBetween should throw error for invalid dates`() {
+    fun `getByBirthdayBetween should throw exception for invalid dates`() {
         assertThrows<ServletException> {
             mockMvc.get("/api/artist/birthdaybetween?startMonth=13&startDay=1&endMonth=12&endDay=31")
         }
@@ -273,7 +273,7 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `getByDeathDate should throw error for invalid date`() {
+    fun `getByDeathDate should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
             mockMvc.get("/api/artist/death?month=2&day=30")
         }

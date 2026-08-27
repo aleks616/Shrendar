@@ -79,7 +79,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandData maps band fields`() {
+    fun `getBandData should map band fields`() {
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
 
         val result=service.getBandData(listOf(band))
@@ -94,67 +94,67 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandsCountry returns null when no country exists`() {
+    fun `getBandsCountry should return null when no country exists`() {
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(null)
         assertNull(service.getBandsCountry(1))
     }
 
     @Test
-    fun `getBandData returns an empty list for empty input`() {
+    fun `getBandData should return empty list for empty input`() {
         assertTrue(service.getBandData(emptyList()).isEmpty())
     }
 
     @Test
-    fun `getAll returns an empty list when repository is empty`() {
+    fun `getAll should return empty list when repository is empty`() {
         `when`(bandRepository.findAll()).thenReturn(emptyList())
         assertTrue(service.getAll().isEmpty())
     }
 
     @Test
-    fun `getBandsByName returns no bands for an unmatched name`() {
+    fun `getBandsByName should return empty list for unmatched name`() {
         `when`(bandRepository.findByNameContainingIgnoreCase("x")).thenReturn(emptyList())
         assertTrue(service.getBandsByName("x").isEmpty())
     }
 
     @Test
-    fun `getBandsByNameExact returns no bands for an unmatched name`() {
+    fun `getBandsByNameExact should return empty list for unmatched name`() {
         `when`(bandRepository.findByNameIgnoreCase("x")).thenReturn(emptyList())
         assertTrue(service.getBandsByNameExact("x").isEmpty())
     }
 
     @Test
-    fun `getBandsByCountryId returns no bands for an unmatched country`() {
+    fun `getBandsByCountryId should return empty list for unmatched country`() {
         `when`(bandRepository.findByCountry(1)).thenReturn(emptyList())
         assertTrue(service.getBandsByCountryId(1).isEmpty())
     }
 
     @Test
-    fun `founded queries return empty lists when repository is empty`() {
+    fun `getBandsByFoundedBetween should return empty list when repository is empty`() {
         `when`(bandRepository.findByFormedYearBetween(2000,2020)).thenReturn(emptyList())
         assertTrue(service.getBandsByFoundedBetween(2000,2020).isEmpty())
     }
 
     @Test
-    fun `status queries return empty lists when repository is empty`() {
+    fun `getBandsByStatus should return empty list when repository is empty`() {
         `when`(bandRepository.findByStatus(Status.DISBANDED)).thenReturn(emptyList())
         assertTrue(service.getBandsByStatus(Status.DISBANDED).isEmpty())
     }
 
     @Test
-    fun `getAll maps repository bands`() {
+    fun `getAll should map repository bands`() {
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1, "USA"))
         `when`(bandRepository.findAll()).thenReturn(listOf(band))
         assertEquals(1, service.getAll().size)
     }
 
     @Test
-    fun `getBandById returns the requested band`() {
+    fun `getBandById should return requested band`() {
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         assertEquals(band, service.getBandById(1))
     }
 
     @Test
-    fun `getBandDataById returns mapped band details`() {
+    fun `getBandDataById should return mapped band details`() {
         `when`(bandRepository.findById(1)).thenReturn(Optional.of(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
 
@@ -165,19 +165,19 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandDataById fails when the band is missing`() {
+    fun `getBandDataById should throw NoSuchElementException when band is missing`() {
         `when`(bandRepository.findById(1)).thenReturn(Optional.empty())
         assertThrows<NoSuchElementException> {service.getBandDataById(1)}
     }
 
     @Test
-    fun `getBandByIdWiki fails when the band is missing`() {
+    fun `getBandByIdWiki should throw NoSuchElementException when band is missing`() {
         `when`(bandRepository.findById(1)).thenReturn(Optional.empty())
         assertThrows<NoSuchElementException> {service.getBandByIdWiki(1)}
     }
 
     @Test
-    fun `getBandByIdWiki maps wiki data`() {
+    fun `getBandByIdWiki should map wiki data`() {
         `when`(bandRepository.findById(1)).thenReturn(Optional.of(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
         `when`(genreService.getBandAlbumGenresList(1)).thenReturn(listOf(GenreDto(id=10,name="Rock",value=8)))
@@ -193,12 +193,12 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getCountryByName returns null for an unknown country`() {
+    fun `getCountryByName should return null for unknown country`() {
         assertNull(service.getCountryByName("missing"))
     }
 
     @Test
-    fun `country name lookup uses the first matching country`() {
+    fun `getCountryByName should return first matching country`() {
         `when`(countryRepository.getCountryByName("USA")).thenReturn(
             mutableListOf(
                 Country().apply {id=1; name="USA"},
@@ -209,21 +209,21 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandsByName returns matching bands`() {
+    fun `getBandsByName should return matching bands`() {
         `when`(bandRepository.findByNameContainingIgnoreCase("meta")).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
         assertEquals(listOf("Metallica"),service.getBandsByName("meta").map {it.name})
     }
 
     @Test
-    fun `getBandsByNameExact returns exact matches`() {
+    fun `getBandsByNameExact should return exact matches`() {
         `when`(bandRepository.findByNameIgnoreCase("Metallica")).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
         assertEquals(listOf("Metallica"),service.getBandsByNameExact("Metallica").map {it.name})
     }
 
     @Test
-    fun `getBandsByCountry returns bands from the named country`() {
+    fun `getBandsByCountry should return bands from named country`() {
         `when`(countryRepository.getCountryByName("USA")).thenReturn(mutableListOf(Country().apply {id=1; name="USA"}))
         `when`(bandRepository.findByCountry(1)).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
@@ -231,20 +231,20 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandsByCountryId returns bands from the country id`() {
+    fun `getBandsByCountryId should return bands from country id`() {
         `when`(bandRepository.findByCountry(1)).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
         assertEquals(listOf("Metallica"),service.getBandsByCountryId(1).map {it.name})
     }
 
     @Test
-    fun `getBandsByCountry fails when the country name is unknown`() {
+    fun `getBandsByCountry should throw NullPointerException when country name is unknown`() {
         `when`(countryRepository.getCountryByName("missing")).thenReturn(mutableListOf())
         assertThrows<NullPointerException> {service.getBandsByCountry("missing")}
     }
 
     @Test
-    fun `getBandsByFoundedBetween defaults missing years`() {
+    fun `getBandsByFoundedBetween should default missing years`() {
         `when`(bandRepository.findByFormedYearBetween(1900,LocalDate.now().year)).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
 
@@ -255,19 +255,19 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandsByFoundedBetween uses the default start year`() {
+    fun `getBandsByFoundedBetween should use default start year`() {
         `when`(bandRepository.findByFormedYearBetween(1900,2020)).thenReturn(listOf(band))
         assertEquals(1,service.getBandsByFoundedBetween(null,2020).size)
     }
 
     @Test
-    fun `getBandsByFoundedBetween uses the current year as the default end year`() {
+    fun `getBandsByFoundedBetween should use current year as default end year`() {
         `when`(bandRepository.findByFormedYearBetween(1980,LocalDate.now().year)).thenReturn(listOf(band))
         assertEquals(1,service.getBandsByFoundedBetween(1980,null).size)
     }
 
     @Test
-    fun `getBandsByStatus returns bands with the requested status`() {
+    fun `getBandsByStatus should return bands with requested status`() {
         `when`(bandRepository.findByStatus(Status.ACTIVE)).thenReturn(listOf(band))
         `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
 
@@ -275,7 +275,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `calculateBandsGenre updates average genre`() {
+    fun `calculateBandsGenre should update average genre`() {
         val genreId=10
         val genre=Genre().apply {id=genreId; properties="1234567"}
         val genreDto=GenreDto(id=genreId,name="Rock",value=8)
@@ -293,7 +293,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `calculateBandsGenre ignores incomplete genre rows`() {
+    fun `calculateBandsGenre should ignore incomplete genre rows`() {
         val valid=GenreDto(id=10,name="Rock",value=8)
         val missingName=GenreDto(id=11,name=null,value=8)
         val missingValue=GenreDto(id=12,name="Metal",value=null)
@@ -308,14 +308,14 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandsGenre returns the stored average genre`() {
+    fun `getBandsGenre should return stored average genre`() {
         val band=Band().apply {id=2; name="Slayer"; formedYear=1981; country=2; averageGenre="1111111"}
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         assertEquals("1111111",service.getBandsGenre(1))
     }
 
     @Test
-    fun `getSimilarBands returns other bands`() {
+    fun `getSimilarBands should return other bands`() {
         val other=Band().apply {id=2; name="Slayer"; formedYear=1981; country=2; averageGenre="1111111"}
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         `when`(bandRepository.findBandsWithAvgGenre()).thenReturn(listOf(band,other))
@@ -327,7 +327,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `similar bands excludes the requested band`() {
+    fun `getSimilarBands should exclude requested band`() {
         val other=Band().apply {id=2; name="Slayer"; formedYear=1981; country=2; averageGenre="1111111"}
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         `when`(bandRepository.findBandsWithAvgGenre()).thenReturn(listOf(band,other))
@@ -337,7 +337,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `doesBandExist returns true for an existing band`() {
+    fun `doesBandExist should return true for existing band`() {
         `when`(bandRepository.existsById(1)).thenReturn(true)
 
         assertTrue(service.doesBandExist(1))
@@ -345,13 +345,13 @@ class BandServiceTest {
     }
 
     @Test
-    fun `doesBandExist returns false when repository has no band`() {
+    fun `doesBandExist should return false when band does not exist`() {
         `when`(bandRepository.existsById(99)).thenReturn(false)
         assertFalse(service.doesBandExist(99))
     }
 
     @Test
-    fun `addBandRequest throws when user rank is over contribution limit`() {
+    fun `addBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
 
@@ -362,7 +362,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `addBandRequest creates a trusted band contribution`() {
+    fun `addBandRequest should create trusted band contribution`() {
         val dto=BandAddDto(
             name="Metallica",
             formedYear=1981,
@@ -386,7 +386,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `addBandRequest creates untrusted contributions`() {
+    fun `addBandRequest should create untrusted contributions`() {
         val dto=BandAddDto(name="Metallica",formedYear=null,status=Status.ACTIVE,country=null,description=null,imageUrl=null)
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
@@ -400,7 +400,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `editBandRequest updates changed fields`() {
+    fun `editBandRequest should update changed fields`() {
         val openBand=Band().apply {
             id=1
             name="Metallica"
@@ -430,7 +430,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `editBandRequest rejects an unchanged band`() {
+    fun `editBandRequest should throw IllegalStateException for unchanged band`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
@@ -440,7 +440,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `editBandRequest rejects contribution limit`() {
+    fun `editBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
@@ -449,7 +449,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `editBandRequest updates every supported field`() {
+    fun `editBandRequest should update every supported field`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
@@ -466,7 +466,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `deleteBandRequest records contributions for an untrusted user`() {
+    fun `deleteBandRequest should record contributions for untrusted user`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
@@ -478,7 +478,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `deleteBandRequest removes the band for a trusted user`() {
+    fun `deleteBandRequest should remove band for trusted user`() {
         requester.rank=Rank().apply {id=11}
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
@@ -487,14 +487,14 @@ class BandServiceTest {
     }
 
     @Test
-    fun `deleteBandRequest rejects contribution limit`() {
+    fun `deleteBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {service.deleteBandRequest(1,"user")}
     }
 
     @Test
-    fun `deleteBandRequest skips contributions when logging is disabled`() {
+    fun `deleteBandRequest should skip contributions when logging is disabled`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         service.deleteBandRequest(1,"user",log=false)
@@ -503,7 +503,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `doesSameMemberExist identifies a matching member`() {
+    fun `doesSameMemberExist should identify matching member`() {
         val member=ArtistBandAddDto(artistId=10L,bandId=1,role="Vocals",joinedYear=1981)
         val bandMember=BandsMembers().apply {
             id=22
@@ -518,20 +518,20 @@ class BandServiceTest {
     }
 
     @Test
-    fun `doesBandMemberExist returns true for an existing member`() {
+    fun `doesBandMemberExist should return true for existing member`() {
         `when`(bandsMemberRepository.existsById(22L)).thenReturn(true)
         assertTrue(service.doesBandMemberExist(22))
     }
 
     @Test
-    fun `getBandMemberById returns the requested member`() {
+    fun `getBandMemberById should return requested member`() {
         val member=BandsMembers()
         `when`(bandsMemberRepository.findById(22.toInt())).thenReturn(Optional.of(member))
         assertSame(member,service.getBandMemberById(22))
     }
 
     @Test
-    fun `toggleFavoriteBand removes an existing favorite`() {
+    fun `toggleFavoriteBand should remove existing favorite`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         val favorite=UsersBands().apply {id=4}
@@ -541,7 +541,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `toggleFavoriteBand creates a missing favorite`() {
+    fun `toggleFavoriteBand should create missing favorite`() {
         `when`(userService.getUserByLogin("user")).thenReturn(requester)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
         doReturn(UsersBands().apply {id=-1L}).`when`(userBandRepository).findByBandAndUser(band,requester)
@@ -551,7 +551,7 @@ class BandServiceTest {
     }
 
     @Test
-    fun `toggleFavoriteBand rejects an unknown user`() {
+    fun `toggleFavoriteBand should throw IllegalStateException for unknown user`() {
         `when`(userService.getUserByLogin("missing")).thenReturn(null)
         assertThrows<IllegalStateException> {service.toggleFavoriteBand(1,"missing")}
     }
