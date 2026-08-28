@@ -70,7 +70,12 @@ class UserAccountService(
         }
     }
 
-
+    @Transactional
+    fun addBio(bio:String,login:String){
+        val user=userRepository.findByLogin(login)?:throw IllegalStateException("User not found")
+        user.bio=bio
+        userRepository.save(user)
+    }
     //region account
     fun authenticate(req:UserAccountController.LoginRequest,log:Boolean=true):String? {
         val user=if(req.email!=""&&req.email!=null) userRepository.findByEmail(req.email)
