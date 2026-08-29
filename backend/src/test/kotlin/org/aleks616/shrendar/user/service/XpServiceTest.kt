@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
 import java.io.File
 import java.time.LocalDate
@@ -36,9 +37,10 @@ class XpServiceTest {
     @Test
     fun `increaseAllUsersXp should increase xp when date is new`() {
         val user=User().apply {login="user1"; xp=10}
+        val user2=User().apply { login="user2" }
         val rank=Rank().apply {id=1; minXp=0; name="Newbie"}
 
-        `when`(userRepository.findAll()).thenReturn(listOf(user))
+        `when`(userRepository.findAll()).thenReturn(listOf(user,user2))
         `when`(rankRepository.findAll()).thenReturn(listOf(rank))
 
         xpService.increaseAllUsersXp()
@@ -66,8 +68,9 @@ class XpServiceTest {
         val rank2=Rank().apply {id=2; minXp=100; name="Rank 2"}
         val user1=User().apply {xp=50}
         val user2=User().apply {xp=150}
+        val user3=User().apply {xp=100;rank=rank2}
 
-        `when`(userRepository.findAll()).thenReturn(listOf(user1,user2))
+        `when`(userRepository.findAll()).thenReturn(listOf(user1,user2,user3))
         `when`(rankRepository.findAll()).thenReturn(listOf(rank1,rank2))
 
         xpService.updateAllUsersRanks()
@@ -94,10 +97,26 @@ class XpServiceTest {
     }
 
     @Test
-    fun `increaseUserXp with negative amount should decrease xp`() {
-        val user=User().apply {login="testUser"; xp=40}
+    fun `increaseUserXp shouldn't crash for not found xp`(){
+        val rank1=Rank().apply {id=1; minXp=0; name="Rank 1"}
+        val rank2=Rank().apply {id=2; minXp=13; name="Rank 2"}
+        val user=User().apply {login="testUser"; rank=rank1}
+
         `when`(userRepository.findByLogin("testUser")).thenReturn(user)
-        `when`(rankRepository.findAll()).thenReturn(emptyList())
+        `when`(rankRepository.findAll()).thenReturn(listOf(rank1,rank2))
+        xpService.increaseUserXp("testUser",15)
+
+        assertEquals(15,user.xp)
+        assertEquals(rank2,user.rank)
+        verify(userRepository,times(2)).save(user)
+    }
+
+    @Test
+    fun `increaseUserXp with negative amount should decrease xp`() {
+        val rank1=Rank().apply {id=2; minXp=10; name="Rank 1"}
+        val user=User().apply {login="testUser"; xp=40; rank=rank1}
+        `when`(userRepository.findByLogin("testUser")).thenReturn(user)
+        `when`(rankRepository.findAll()).thenReturn(listOf(rank1))
 
         xpService.increaseUserXp("testUser",-10)
 
@@ -120,16 +139,21 @@ class XpServiceTest {
     }
 
     @Test
-    fun `manualRankAssign should handle non-existent rank`() {
+    fun `manualRankAssign should throw RuntimeException if user not found`() {
+        `when`(userRepository.findByLogin("ghost")).thenReturn(null)
+        assertThrows<RuntimeException> {
+            xpService.manualRankAssign("ghost",100)
+        }
+        verifyNoInteractions(rankRepository)
+    }
+
+    @Test
+    fun `manualRankAssign should throw IllegalArgumentException for non-existent rank`() {
         val user=User().apply {login="user1"; xp=100}
         `when`(userRepository.findByLogin("user1")).thenReturn(user)
-        `when`(rankRepository.findAll()).thenReturn(emptyList())
-
-        xpService.manualRankAssign("user1",999)
-
-        assertNull(user.rank)
-        assertNull(user.xp)
-        verify(userRepository).save(user)
+        assertThrows<IllegalArgumentException> {
+            xpService.manualRankAssign("user1",999)
+        }
     }
 
     @Test

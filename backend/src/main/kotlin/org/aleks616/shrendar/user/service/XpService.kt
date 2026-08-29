@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.user.service
 
+import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
@@ -35,9 +36,9 @@ class XpService(
     @Transactional
     fun updateAllUsersRanks() {
         val users=userRepository.findAll()
-        val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
+        val ranks:List<Rank> =rankRepository.findAll().sortedByDescending {it.id}
         users.forEach {user->
-            val newRank=ranks.firstOrNull {(user.xp?:0)>=(it.minXp?:0)}
+            val newRank:Rank=ranks.first {(user.xp!!)>=(it.minXp!!)}
             if(user.rank!=newRank) {
                 user.rank=newRank
             }
@@ -60,8 +61,8 @@ class XpService(
 
     @Transactional
     fun updateUserRank(user:User) {
-        val ranks=rankRepository.findAll().sortedByDescending {it.id?:0}
-        val newRank=ranks.firstOrNull {(user.xp?:0)>=(it.minXp?:0)}
+        val ranks:List<Rank> =rankRepository.findAll().sortedByDescending {it.id}
+        val newRank:Rank=ranks.first {(user.xp!!)>=(it.minXp!!)}
         if(user.rank!=newRank) {
             user.rank=newRank
         }
@@ -71,10 +72,10 @@ class XpService(
 
     @Transactional
     fun manualRankAssign(login:String,rankId:Int){
-        val user=userRepository.findByLogin(login)?:return
+        val user=userRepository.findByLogin(login)?:throw RuntimeException("User with login $login not found")
         val ranks=rankRepository.findAll()
-        val rank=ranks.find {it.id==rankId}
-        val minRankXp=rank?.minXp
+        val rank:Rank=ranks.find {it.id==rankId}?:throw IllegalArgumentException("Rank with id $rankId not found")
+        val minRankXp=rank.minXp
         user.rank=rank
         user.xp=minRankXp
         userRepository.save(user)

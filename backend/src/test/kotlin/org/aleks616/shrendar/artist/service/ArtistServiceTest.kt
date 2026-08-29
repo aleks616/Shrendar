@@ -2,8 +2,10 @@ package org.aleks616.shrendar.artist.service
 
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
+import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
+import org.aleks616.shrendar.common.model.NameValue
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Contribution
@@ -353,6 +355,19 @@ class ArtistServiceTest {
 
         verify(userArtistRepository).deleteById(4)
         verify(userArtistRepository).saveAndFlush(any(UsersArtists::class.java))
+    }
+
+    @Test
+    fun `getArtistGenres should return artist name and all matching genres`() {
+        val expected=ArtistGenreDto(
+            artistId=1,
+            artistName="James Hetfield",
+            genres=listOf(NameValue("Thrash Metal", 7))
+        )
+        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
+        `when`(artistRepository.findArtistGenres(1L)).thenReturn(expected.genres)
+
+        assertEquals(expected, artistService.getArtistGenres(1L))
     }
 
     private fun stubAddDependencies() {

@@ -33,6 +33,8 @@ class AlbumServiceTest {
     private lateinit var rankService:RankService
     private lateinit var albumService:AlbumService
     private lateinit var album:Album
+
+    private lateinit var album1:Album
     private lateinit var band:Band
     private lateinit var genre:Genre
     private lateinit var requestingUser:User
@@ -65,6 +67,17 @@ class AlbumServiceTest {
             login="tester"
             rank=Rank().apply {id=1}
         }
+
+        album1=Album().apply {
+            id=1
+            title="Ride the Lightning"
+            releaseDate=LocalDate.of(1984,7,27)
+            type=AlbumType.STUDIO
+            importance=5
+            artworkUrl="https://example.com/artwork.jpg"
+            description="Description"
+        }
+        album1.genre=genre
     }
 
     @Test
@@ -124,6 +137,26 @@ class AlbumServiceTest {
         assertEquals(album.description,result.description)
         assertEquals(album.artworkUrl,result.artworkUrl)
         assertEquals(album.importance,result.importance)
+        assertTrue(result.albumAge!!>0)
+        assertTrue(result.daysTillAnniversary!! in 0..366)
+    }
+
+    @Test
+    fun `getByIdWiki should not fail when band id is not found`(){
+        `when`(albumRepository.findAlbumById(2L)).thenReturn(album1)
+
+        val result=albumService.getByIdWiki(2L)
+
+        assertEquals(album1.id,result.id)
+        assertEquals(album1.title,result.albumName)
+        assertEquals(null,result.band?.id)
+        assertEquals(null,result.band?.name)
+        assertEquals(album1.releaseDate,result.releaseDate)
+        assertEquals(album1.type,result.type)
+        assertSame(album1.genre,result.genre)
+        assertEquals(album1.description,result.description)
+        assertEquals(album1.artworkUrl,result.artworkUrl)
+        assertEquals(album1.importance,result.importance)
         assertTrue(result.albumAge!!>0)
         assertTrue(result.daysTillAnniversary!! in 0..366)
     }

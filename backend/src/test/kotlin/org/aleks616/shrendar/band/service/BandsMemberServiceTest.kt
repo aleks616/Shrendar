@@ -337,4 +337,20 @@ class BandsMemberServiceTest {
         })
         verify(repository,never()).deleteById(10L)
     }
+
+    @Test
+    fun `getArtistBandsList should return unique current-band data for the artist`() {
+        val first=ArtistBandsDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
+        val second=ArtistBandsDto(11,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
+        val third=ArtistBandsDto(12,2,"James",4,"Covers","Bass",1996,null,"J")
+        `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second,third))
+
+        val result=bandsMemberService.getArtistBandsList(2)
+
+        assertEquals(2,result.size)
+        assertEquals(listOf(3,4),result.map {it.bandId})
+        assertEquals(true,result.first().current)
+        assertEquals(true,result.last().current)
+        assertEquals("James",result.first().artistName)
+    }
 }

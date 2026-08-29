@@ -1,7 +1,7 @@
 package org.aleks616.shrendar.album.controller
 
-import jakarta.servlet.http.HttpServletRequest
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.album.model.AlbumType
@@ -22,25 +22,23 @@ import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.http.MediaType
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.mockito.Mockito.*
 import java.time.LocalDate
 
 @SpringBootTest
@@ -129,7 +127,7 @@ class AlbumControllerTest {
         private val genreService=mock(GenreService::class.java)
         private val request=mock(HttpServletRequest::class.java)
         private val controller=AlbumController(albumService,rateLimiter,genreService)
-        private val dto=AlbumAddDto(bandId=1,title="Album",type=AlbumType.STUDIO,importance=3)
+        private val dto=AlbumAddDto(bandId=1,title="Album",type=AlbumType.STUDIO,importance=3, releaseDate=LocalDate.of(2020,1,1))
 
         @BeforeEach
         fun setupUnitTest() {
@@ -139,8 +137,10 @@ class AlbumControllerTest {
             `when`(rateLimiter.allowRequest(anyString(),eq(3),eq(60))).thenReturn(true)
             `when`(albumService.doesBandExist(1)).thenReturn(true)
             `when`(albumService.isReleaseDateValid(dto)).thenReturn(true)
+            `when`(albumService.isReleaseDateValid(dto.copy(type=AlbumType.EP))).thenReturn(true)
         }
 
+        //region select
         @Test
         fun `getAll should return albums`() {
             controller.getAll()
@@ -195,7 +195,9 @@ class AlbumControllerTest {
             controller.getAlbumsByNameExact("Master of Puppets")
             verify(albumService).getAlbumsByNameExact("Master of Puppets")
         }
+        //endregion
 
+        //region addAlbum
         @Test
         fun `addAlbum should return success`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(false)
@@ -204,29 +206,6 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.OK,result.statusCode)
             verify(albumService).addAlbumRequest(dto,"user")
-        }
-
-        @Test
-        fun `editAlbum should return success`() {
-            val editDto=dto.copy(id=1)
-            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
-            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
-            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
-
-            val result=controller.editAlbum(editDto,request)
-
-            assertEquals(HttpStatus.OK,result.statusCode)
-            verify(albumService).editAlbumRequest(editDto,"user")
-        }
-
-        @Test
-        fun `deleteAlbum should return success`() {
-            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
-
-            val result=controller.deleteAlbum(1,request)
-
-            assertEquals(HttpStatus.OK,result.statusCode)
-            verify(albumService).deleteAlbumRequest(1,"user")
         }
 
         @Test
@@ -249,6 +228,17 @@ class AlbumControllerTest {
         }
 
         @Test
+        fun `addAlbum should work if IP is unknown`() {
+            `when`(request.remoteAddr).thenReturn(null)
+            `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
         fun `addAlbum should return too many requests when login rate limit is reached`() {
             `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
@@ -267,6 +257,14 @@ class AlbumControllerTest {
         }
 
         @Test
+        fun `addAlbum should reject negative bandId`() {
+            val result=controller.addAlbum(dto.copy(bandId=-5),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            verifyNoInteractions(albumService)
+        }
+
+        @Test
         fun `addAlbum should reject null type`() {
             val result=controller.addAlbum(dto.copy(type=null),request)
 
@@ -275,7 +273,15 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum should reject duplicate title`() {
+        fun `addAlbum should reject null title`() {
+            val result=controller.addAlbum(dto.copy(title=null),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            verifyNoInteractions(albumService)
+        }
+
+        @Test
+        fun `addAlbum should reject duplicate album title`() {
             `when`(albumService.doesAlbumWithNameExistForBand(dto)).thenReturn(true)
 
             val result=controller.addAlbum(dto,request)
@@ -328,6 +334,20 @@ class AlbumControllerTest {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
             assertEquals("An unexpected error occurred: broken",result.body)
         }
+        //endregion
+        //region editAlbum
+        @Test
+        fun `editAlbum should return success`() {
+            val editDto=dto.copy(id=1)
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(editDto)).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(editDto)).thenReturn(true)
+
+            val result=controller.editAlbum(editDto,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(albumService).editAlbumRequest(editDto,"user")
+        }
 
         @Test
         fun `editAlbum should return bad request when authentication is missing`() {
@@ -355,6 +375,21 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
             verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
+        fun `editAlbum should work if IP is unknown`() {
+            `when`(request.remoteAddr).thenReturn(null)
+            `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+            `when`(albumService.doesAlbumWithNameExistForAlbumId(dto.copy(id=1))).thenReturn(false)
+            `when`(albumService.isReleaseDateValid(dto.copy(id=1))).thenReturn(true)
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
         }
 
         @Test
@@ -451,6 +486,26 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
         }
+        //endregion
+        //region deleteAlbum
+        @Test
+        fun `deleteAlbum should return success`() {
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(albumService).deleteAlbumRequest(1,"user")
+        }
+
+        @Test
+        fun `deleteAlbum should return bad request when authentication is missing`() {
+            SecurityContextHolder.clearContext()
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        }
 
         @Test
         fun `deleteAlbum should return too many requests when login rate limit is reached`() {
@@ -469,6 +524,19 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
             verify(rateLimiter,never()).allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)
+        }
+
+        @Test
+        fun `deleteAlbum should work if IP is unknown`() {
+            `when`(request.remoteAddr).thenReturn(null)
+            `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+            `when`(albumService.doesAlbumExist(1)).thenReturn(true)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.OK,result.statusCode)
+            verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
         }
 
         @Test
@@ -501,10 +569,16 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
         }
-
+        //endregion
+        //region albumValidate
         @Test
         fun `albumValidate should accept valid album`() {
             assertNull(controller.albumValidate(dto))
+        }
+
+        @Test
+        fun `albumValidate should accept valid EP album`() {
+            assertNull(controller.albumValidate(dto.copy(type=AlbumType.EP)))
         }
 
         @Test
@@ -516,22 +590,99 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `albumValidate should reject invalid studio importance`() {
+        fun `albumValidate should reject invalid importance for a studio album`() {
             val album=dto.copy(importance=6)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
 
         @Test
-        fun `albumValidate should reject invalid EP importance`() {
+        fun `albumValidate should reject negative importance for a studio album`() {
+            val album=dto.copy(importance=-5)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject null importance for a studio album`() {
+            val album=dto.copy(importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject invalid importance for an EP`() {
             val album=dto.copy(type=AlbumType.EP,importance=4)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
 
         @Test
-        fun `albumValidate should reject importance for other album types`() {
+        fun `albumValidate should reject null importance for an EP`() {
+            val album=dto.copy(type=AlbumType.EP,importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject negative importance for an EP`() {
+            val album=dto.copy(type=AlbumType.EP,importance=-1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject importance for compilation album`() {
             val album=dto.copy(type=AlbumType.COMPILATION,importance=1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject null importance for compilation album`() {
+            val album=dto.copy(type=AlbumType.COMPILATION,importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject importance for concert album`() {
+            val album=dto.copy(type=AlbumType.CONCERT,importance=1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject null importance for concert album`() {
+            val album=dto.copy(type=AlbumType.CONCERT,importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject importance for demo album`() {
+            val album=dto.copy(type=AlbumType.DEMO,importance=1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject null importance for demo album`() {
+            val album=dto.copy(type=AlbumType.DEMO,importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject importance for other album`() {
+            val album=dto.copy(type=AlbumType.OTHER,importance=1)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
+        fun `albumValidate should reject null importance for other album`() {
+            val album=dto.copy(type=AlbumType.OTHER,importance=null)
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
@@ -560,8 +711,10 @@ class AlbumControllerTest {
 
             assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
         }
+        //endregion
     }
 
+    //region integration
     @Test
     fun `addAlbum should work for authorized user`() {
         val band=bandRepository.saveAndFlush(Band().apply {name="Metallica"; formedYear=1981})
@@ -778,4 +931,5 @@ class AlbumControllerTest {
                 content {json("[{'title':'Master of Puppets'}]")}
             }
     }
+    //endregion
 }
