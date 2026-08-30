@@ -5,8 +5,11 @@ import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.model.AlbumAddDto
 import org.aleks616.shrendar.album.model.AlbumType
+import org.aleks616.shrendar.album.repository.AlbumRepository
 import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.band.model.Band
+import org.aleks616.shrendar.band.repository.BandRepository
+import org.aleks616.shrendar.band.repository.BandsGenreRepository
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
@@ -15,6 +18,7 @@ import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.model.Genre
+import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
@@ -50,13 +54,13 @@ class AlbumControllerTest {
     private lateinit var mockMvc:MockMvc
 
     @Autowired
-    private lateinit var albumRepository:org.aleks616.shrendar.album.repository.AlbumRepository
+    private lateinit var albumRepository:AlbumRepository
 
     @Autowired
-    private lateinit var bandRepository:org.aleks616.shrendar.band.repository.BandRepository
+    private lateinit var bandRepository:BandRepository
 
     @Autowired
-    private lateinit var genreRepository:org.aleks616.shrendar.genre.repository.GenreRepository
+    private lateinit var genreRepository:GenreRepository
 
     @Autowired
     private lateinit var rateLimiter:RateLimiter
@@ -71,7 +75,7 @@ class AlbumControllerTest {
     private lateinit var contributionRepository:ContributionRepository
 
     @Autowired
-    private lateinit var bandsGenreRepository:org.aleks616.shrendar.band.repository.BandsGenreRepository
+    private lateinit var bandsGenreRepository:BandsGenreRepository
 
     @Autowired
     private lateinit var genreService:GenreService

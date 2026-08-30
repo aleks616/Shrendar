@@ -4,6 +4,8 @@ import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.controller.UserAccountController
+import org.aleks616.shrendar.user.model.LoginRequestDto
+import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UserLog
 import org.aleks616.shrendar.user.model.UserPasswordHistory
@@ -77,7 +79,7 @@ class UserAccountService(
         userRepository.save(user)
     }
     //region account
-    fun authenticate(req:UserAccountController.LoginRequest,log:Boolean=true):String? {
+    fun authenticate(req:LoginRequestDto,log:Boolean=true):String? {
         val user=if(req.email!=""&&req.email!=null) userRepository.findByEmail(req.email)
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
@@ -103,7 +105,7 @@ class UserAccountService(
         return if(matches(req.password,user.passwordHash?:"")) user.login else null
     }
 
-    fun initiateRegistration(req:UserAccountController.RegisterRequest):Boolean {
+    fun initiateRegistration(req:RegisterRequestDto):Boolean {
         if(req.login=="anonymousUser") return false
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!registrationCodeStorage.canSendCode(req.email)) return false
@@ -113,7 +115,7 @@ class UserAccountService(
         return true
     }
 
-    fun createUser(req:UserAccountController.RegisterRequest,code:String):Boolean {
+    fun createUser(req:RegisterRequestDto,code:String):Boolean {
         if(!registrationCodeStorage.validateCode(req.email,code)) return false
         val encryptedPassword=encoder.encode(req.password)
         userRepository.save(User().apply {
