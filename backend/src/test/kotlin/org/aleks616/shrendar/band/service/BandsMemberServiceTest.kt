@@ -201,23 +201,6 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `addBandMemberRequest should omit null member fields from contributions`() {
-        user.rank=Rank().apply {id=8}
-        val dto=ArtistBandAddDto(artistId=2,bandId=3,role=null,joinedYear=1981,leftYear=null,nickname=null)
-        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
-        `when`(rankService.checkRank(user)).thenReturn(null)
-        `when`(artistService.getById(2)).thenReturn(member.artist!!)
-        `when`(bandService.getBandById(3)).thenReturn(member.band!!)
-        `when`(repository.findTopIdByBandIdAndArtistId(3,2)).thenReturn(10)
-        `when`(contributionRepository.findTopChangeId()).thenReturn(5)
-
-        bandsMemberService.addBandMemberRequest(dto,"user")
-        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
-        verify(contributionRepository,atLeastOnce()).save(captor.capture())
-        assertTrue(captor.allValues.none {it.changedColumn=="role"||it.changedColumn=="nickname"})
-    }
-
-    @Test
     fun `editBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))

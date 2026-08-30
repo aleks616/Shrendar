@@ -46,7 +46,7 @@ class UtilsTest {
 
     @Test
     fun `isValidUrl throws error for too long url`() {
-        val url="ww.ewfjhecrinogvnrtigvneroifgncerfaigncuirewjafnsgvirlsueijfdfmclsridgfhdjoewflmcknghjeromfixwlcsvgoigremsxfcvslhgjhnceroievbhvgnisoceuvbhgyfdns.com"
+        val url="www.ewfjewfwfhecflgengelrfwefwfwefwfwfwfnglrengergnlergnegnekgnlsgiregieugiregegeirgheigieghegheghueighegiuehgiegheiugheighxrinogvnrtigvneroifgncerfaigncuirewjafnsgvirlsueijfdfmclsridgfhdjoewflmcknghjeromfixwlcsvgoigremsxfcvslhgjhnceroievbhvgnisoceuvbhgyfdns.com"
         assertEquals(false,Utils.isValidUrl(url))
     }
 }

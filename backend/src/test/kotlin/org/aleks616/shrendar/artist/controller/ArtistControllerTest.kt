@@ -374,11 +374,14 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `addArtist should return bad request when name is missing`() {
-        val result=artistController.addArtist(dto.copy(name=null),request)
+    fun `addArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
 
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        verifyNoInteractions(artistService)
+        val result=artistController.addArtist(dto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
     }
 
     @Test
@@ -388,6 +391,14 @@ class ArtistControllerTest {
         val result=artistController.addArtist(dto,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should return bad request when name is missing`() {
+        val result=artistController.addArtist(dto.copy(name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -537,7 +548,28 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `editArtist should return bad request for missing required fields`() {
+    fun `editArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.editArtist(dto.copy(id=1),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=artistController.editArtist(dto.copy(id=1),request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing id`() {
         val result=artistController.editArtist(dto.copy(id=null),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -545,7 +577,31 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `editArtist should return bad request for missing artist`() {
+    fun `editArtist should return bad request for missing name`() {
+        val result=artistController.editArtist(dto.copy(id=1,name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for empty name`() {
+        val result=artistController.editArtist(dto.copy(id=1,name=""),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing gender`() {
+        val result=artistController.editArtist(dto.copy(id=1,gender=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for non-existent artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
         val result=artistController.editArtist(dto.copy(id=1),request)
@@ -610,6 +666,27 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `deleteArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `deleteArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
     fun `deleteArtist should return bad request for missing artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
@@ -671,6 +748,27 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `favoriteArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
     fun `favoriteArtist should return bad request for missing artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
@@ -697,6 +795,17 @@ class ArtistControllerTest {
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
         verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `favoriteArtist should handle unexpected exception`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).toggleFavoriteArtist(1,"user")
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
     }
 
     @Nested

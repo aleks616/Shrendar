@@ -66,7 +66,7 @@ class BandControllerTest {
             UsernamePasswordAuthenticationToken("user",null,emptyList())
         `when`(request.remoteAddr).thenReturn("127.0.0.1")
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_BASIC),eq(60))).thenReturn(true)
-        `when`(rateLimiter.allowRequest(anyString(),eq(20),eq(120))).thenReturn(true)
+        `when`(rateLimiter.allowRequest(anyString(),eq(10),eq(60))).thenReturn(true)
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_HIGH),eq(60))).thenReturn(true)
         `when`(countryService.doesCountryExist(1)).thenReturn(true)
         `when`(artistService.doesArtistExist(1L)).thenReturn(true)
@@ -75,6 +75,7 @@ class BandControllerTest {
         `when`(bandService.doesBandExist(2)).thenReturn(true)
     }
 
+    //region select
     @Test
     fun `getAll should return all bands`() {
         val bands=listOf(BandDto(id=1,name="Metallica"))
@@ -311,6 +312,13 @@ class BandControllerTest {
     }
 
     @Test
+    fun `getBandsByStatus should handle unknown`() {
+        `when`(bandService.getBandsByStatus(Status.UNKNOWN)).thenReturn(emptyList())
+
+        mockMvc.get("/api/band/status/unknown").andExpect {status {isOk()}}
+    }
+
+    @Test
     fun `getBandsByStatus should reject invalid status`() {
         val ex=assertThrows<ServletException> {
             mockMvc.get("/api/band/status/invalid")
@@ -356,6 +364,68 @@ class BandControllerTest {
     }
 
     @Test
+    fun `getBandsByFoundedBetween should accept null end year`() {
+        `when`(bandService.getBandsByFoundedBetween(1980,null)).thenReturn(emptyList())
+
+        val result=bandController.getBandsByFoundedBetween(1980,null)
+
+        assertEquals(emptyList<BandDto>(),result)
+        verify(bandService).getBandsByFoundedBetween(1980,null)
+    }
+
+    @Test
+    fun `statusStringToEnum should reject unknown status`() {
+        val ex=assertThrows<IllegalArgumentException> {
+            bandController.statusStringToEnum("not-a-status")
+        }
+
+        assertEquals("invalid status",ex.message)
+    }
+
+    @Test
+    fun `getSimilarBands should use default quantity`() {
+        `when`(bandService.getSimilarBands(1,5)).thenReturn(emptyList())
+
+        val result=bandController.getSimilarBands(1,null)
+
+        assertEquals(emptyList<BandGenreDto>(),result)
+        verify(bandService).getSimilarBands(1,5)
+    }
+
+    @Test
+    fun `getSimilarBands should accept quantity`() {
+        `when`(bandService.getSimilarBands(1,3)).thenReturn(emptyList())
+
+        val result=bandController.getSimilarBands(1,3)
+
+        assertEquals(emptyList<BandGenreDto>(),result)
+        verify(bandService).getSimilarBands(1,3)
+    }
+
+    //endregion
+
+    //region addBand
+    @Test
+    fun `addBandRequest should work`() {
+        val result=bandController.addBandRequest(validBandDto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals("Band addition request received",result.body)
+        verify(bandService).addBandRequest(validBandDto,"user")
+    }
+
+    @Test
+    fun `addBandRequest should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.addBandRequest(validBandDto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
     fun `addBandRequest should reject missing authentication`() {
         SecurityContextHolder.clearContext()
 
@@ -385,17 +455,34 @@ class BandControllerTest {
     }
 
     @Test
-    fun `addBandRequest should reject missing required fields`() {
-        val result=bandController.addBandRequest(BandAddDto(name="",status=null,imageUrl=null),request)
+    fun `addBandRequest should throw bad request for missing name`() {
+        val result=bandController.addBandRequest(BandAddDto(name="",status=Status.ACTIVE),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("At least band name and status are required to add a new band",result.body)
     }
 
     @Test
+    fun `addBandRequest should throw bad request for null name`() {
+        val result=bandController.addBandRequest(BandAddDto(name=null,status=Status.ACTIVE),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("At least band name and status are required to add a new band",result.body)
+    }
+
+    @Test
+    fun `addBandRequest should throw bad request for missing status`() {
+        val result=bandController.addBandRequest(BandAddDto(name="dwefww",status=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("At least band name and status are required to add a new band",result.body)
+    }
+
+
+    @Test
     fun `addBandRequest should reject future formed year`() {
         val result=bandController.addBandRequest(
-            BandAddDto(name="Metallica",formedYear=LocalDate.now().year+1,status=Status.ACTIVE,imageUrl=null),
+            BandAddDto(name="Metallica",formedYear=LocalDate.now().year+1,status=Status.ACTIVE),
             request
         )
 
@@ -404,20 +491,58 @@ class BandControllerTest {
     }
 
     @Test
-    fun `addBandRequest should succeed`() {
+    fun `addBandRequest should handle contribution limit exception`() {
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandService).addBandRequest(validBandDto,"user")
+
         val result=bandController.addBandRequest(validBandDto,request)
 
-        assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band addition request received",result.body)
-        verify(bandService).addBandRequest(validBandDto,"user")
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
     }
 
     @Test
-    fun `editBand should reject missing id`() {
-        val result=bandController.editBand(BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl=null),request)
+    fun `addBandRequest should handle unexpected exception`() {
+        `when`(bandService.addBandRequest(validBandDto,"user"))
+            .thenThrow(IllegalStateException("boom"))
+
+        val result=bandController.addBandRequest(validBandDto,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+    //endregion
+
+    //region editBand
+    @Test
+    fun `editBand should succeed`() {
+        val result=bandController.editBand(validBandDto.copy(id=1),request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals("Band edit request received",result.body)
+        verify(bandService).editBandRequest(validBandDto.copy(id=1),"user")
+    }
+
+    @Test
+    fun `editBand should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.editBand(validBandDto.copy(id=1),request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `editBand should reject missing authentication`() {
+        SecurityContextHolder.clearContext()
+
+        val result=bandController.editBand(validBandDto.copy(id=1),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
     }
+
 
     @Test
     fun `editBand should return too many requests for IP rate limit`() {
@@ -438,6 +563,29 @@ class BandControllerTest {
     }
 
     @Test
+    fun `editBand should reject missing id`() {
+        val result=bandController.editBand(BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBand should reject missing name`() {
+        val result=bandController.editBand(validBandDto.copy(id=1,name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("Band name and status are required",result.body)
+    }
+
+    @Test
+    fun `editBand should reject missing status`() {
+        val result=bandController.editBand(validBandDto.copy(id=1,status=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("Band name and status are required",result.body)
+    }
+
+    @Test
     fun `editBand should reject non existing band`() {
         `when`(bandService.doesBandExist(1)).thenReturn(false)
 
@@ -448,13 +596,68 @@ class BandControllerTest {
     }
 
     @Test
-    fun `editBand should succeed`() {
+    fun `editBand should accept valid band`() {
         val result=bandController.editBand(validBandDto.copy(id=1),request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band edit request received",result.body)
         verify(bandService).editBandRequest(validBandDto.copy(id=1),"user")
     }
+
+    @Test
+    fun `editBand should forward bandValidate error`() {
+        val result=bandController.editBand(validBandDto.copy(id=1,status=Status.DISBANDED),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("Disbanded year is required if band status is disbanded",result.body)
+    }
+
+    @Test
+    fun `editBand should handle contribution limit exception`() {
+        val band=validBandDto.copy(id=1)
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandService).editBandRequest(band,"user")
+
+        val result=bandController.editBand(band,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
+    }
+
+    @Test
+    fun `editBand should handle unexpected exception`() {
+        val band=validBandDto.copy(id=1)
+        `when`(bandService.editBandRequest(band,"user"))
+            .thenThrow(IllegalStateException("boom"))
+
+        val result=bandController.editBand(band,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+
+    //endregion
+
+    //region deleteBand
+    @Test
+    fun `deleteBand should succeed`() {
+        val result=bandController.deleteBand(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals("Band deletion request received",result.body)
+        verify(bandService).deleteBandRequest(1,"user")
+    }
+
+    @Test
+    fun `deleteBand should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.deleteBand(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
 
     @Test
     fun `deleteBand should reject missing authentication`() {
@@ -494,256 +697,46 @@ class BandControllerTest {
     }
 
     @Test
-    fun `deleteBand should succeed`() {
+    fun `deleteBand should handle contribution limit exception`() {
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandService).deleteBandRequest(1,"user")
+
         val result=bandController.deleteBand(1,request)
 
-        assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band deletion request received",result.body)
-        verify(bandService).deleteBandRequest(1,"user")
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
     }
 
     @Test
-    fun `addBandMembersRequest should reject missing authentication`() {
-        SecurityContextHolder.clearContext()
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+    fun `deleteBand should handle unexpected exception`() {
+        `when`(bandService.deleteBandRequest(1,"user"))
+            .thenThrow(IllegalStateException("boom"))
 
-        val result=bandController.addBandMembersRequest(member,request)
+        val result=bandController.deleteBand(1,request)
 
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
     }
 
-    @Test
-    fun `addBandMembersRequest should return too many requests for IP rate limit`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",20,120)).thenReturn(false)
+    //endregion
 
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should return too many requests for login rate limit`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(rateLimiter.allowRequest("login:acct:user",20,120)).thenReturn(false)
-
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should reject missing required member info`() {
-        val result=
-            bandController.addBandMembersRequest(ArtistBandAddDto(artistId=1L,bandId=2,role=null,joinedYear=null),request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should reject duplicate member`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesSameMemberExist(member)).thenReturn(true)
-
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Member with id, role and joined year or left year already exists",result.body)
-    }
-
-    @Test
-    fun `addBandMembersRequest should succeed`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesSameMemberExist(member)).thenReturn(false)
-
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        verify(bandsMemberService).addBandMemberRequest(member,"user")
-    }
-
-    @Test
-    fun `memberValidate should reject artist younger than 10 at join`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=2000)
-        `when`(artistService.getById(1L)).thenReturn(Artist().apply {birthDate=LocalDate.of(1999,1,1)})
-
-        val result=bandController.memberValidate(member)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Artist has to be at least 10 years old when joining the band",result?.body)
-    }
-
-    @Test
-    fun `memberValidate should reject invalid left year ordering`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=2005,leftYear=2004)
-        `when`(artistService.getById(1L)).thenReturn(Artist().apply {
-            birthDate=LocalDate.of(1970,1,1)
-            deathDate=LocalDate.of(2000,1,1)
-        })
-
-        val result=bandController.memberValidate(member)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Left year has to be the same or greater than joined year",result?.body)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing id`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981),
-            request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should return too many requests for IP rate limit`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",20,120)).thenReturn(false)
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should return too many requests for login rate limit`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(rateLimiter.allowRequest("login:acct:user",20,120)).thenReturn(false)
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing band member`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesBandMemberExist(10L)).thenReturn(false)
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should succeed`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        verify(bandsMemberService).editBandMemberRequest(member,"user")
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should reject missing authentication`() {
-        SecurityContextHolder.clearContext()
-
-        val result=bandController.deleteBandMembersRequest(1,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should return too many requests for IP rate limit`() {
-        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
-
-        val result=bandController.deleteBandMembersRequest(1,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should return too many requests for login rate limit`() {
-        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
-
-        val result=bandController.deleteBandMembersRequest(1,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should reject non existing band member`() {
-        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(false)
-
-        val result=bandController.deleteBandMembersRequest(1,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should succeed`() {
-        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
-
-        val result=bandController.deleteBandMembersRequest(1,request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        verify(bandsMemberService).deleteBandMemberRequest(1L,"user")
-    }
-
-    @Test
-    fun `favoriteBand should reject missing authentication`() {
-        SecurityContextHolder.clearContext()
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `favoriteBand should return too many requests for IP rate limit`() {
-        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `favoriteBand should return too many requests for login rate limit`() {
-        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-    }
-
-    @Test
-    fun `favoriteBand should reject non existing band`() {
-        `when`(bandService.doesBandExist(1)).thenReturn(false)
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `favoriteBand should succeed`() {
-        `when`(bandService.doesBandExist(1)).thenReturn(true)
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band favorite toggled successfully",result.body)
-        verify(bandService).toggleFavoriteBand(1,"user")
-    }
-
+    //region bandValidate
     @Test
     fun `bandValidate should reject future formed year`() {
-        val result=bandController.bandValidate(
-            BandAddDto(
-                name="Metallica",
-                formedYear=LocalDate.now().year+1,
-                status=Status.ACTIVE,
-                imageUrl=null
-            )
-        )
+        val band=BandAddDto(name="Metallica",formedYear=LocalDate.now().year+1,status=Status.ACTIVE)
+        val result=bandController.bandValidate(band)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
         assertEquals("Band formed year cannot be in the future",result?.body)
+    }
+
+    @Test
+    fun `bandValidate should reject null formed year when disbanded year is present`() {
+        val band=BandAddDto(name="Metallica",formedYear=null, disbandedYear=2015,status=Status.DISBANDED)
+        val result=bandController.bandValidate(band)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
+        assertEquals("Band formed year is required if disbanded year is provided",result?.body)
     }
 
     @Test
@@ -770,302 +763,6 @@ class BandControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
         assertEquals("Image url can't be more than 255 characters and has to be valid URL",result?.body)
-    }
-
-    @Test
-    fun `getBandsByFoundedBetween should accept null end year`() {
-        `when`(bandService.getBandsByFoundedBetween(1980,null)).thenReturn(emptyList())
-
-        val result=bandController.getBandsByFoundedBetween(1980,null)
-
-        assertEquals(emptyList<BandDto>(),result)
-        verify(bandService).getBandsByFoundedBetween(1980,null)
-    }
-
-    @Test
-    fun `statusStringToEnum should reject unknown status`() {
-        val ex=assertThrows<IllegalArgumentException> {
-            bandController.statusStringToEnum("not-a-status")
-        }
-
-        assertEquals("invalid status",ex.message)
-    }
-
-    @Test
-    fun `getSimilarBands should use default quantity for null`() {
-        `when`(bandService.getSimilarBands(1,5)).thenReturn(emptyList())
-
-        val result=bandController.getSimilarBands(1,null)
-
-        assertEquals(emptyList<BandGenreDto>(),result)
-        verify(bandService).getSimilarBands(1,5)
-    }
-
-    @Test
-    fun `addBandRequest should handle contribution limit exception`() {
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandService).addBandRequest(validBandDto,"user")
-
-        val result=bandController.addBandRequest(validBandDto,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `addBandRequest should handle unexpected exception`() {
-        `when`(bandService.addBandRequest(validBandDto,"user"))
-            .thenThrow(IllegalStateException("boom"))
-
-        val result=bandController.addBandRequest(validBandDto,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `editBand should reject missing name`() {
-        val result=bandController.editBand(validBandDto.copy(id=1,name=null),request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band id, name and status are required",result.body)
-    }
-
-    @Test
-    fun `editBand should reject missing status`() {
-        val result=bandController.editBand(validBandDto.copy(id=1,status=null),request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band id, name and status are required",result.body)
-    }
-
-    @Test
-    fun `editBand should accept valid band validation`() {
-        val result=bandController.editBand(validBandDto.copy(id=1),request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        verify(bandService).editBandRequest(validBandDto.copy(id=1),"user")
-    }
-
-    @Test
-    fun `editBand should handle contribution limit exception`() {
-        val band=validBandDto.copy(id=1)
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandService).editBandRequest(band,"user")
-
-        val result=bandController.editBand(band,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `editBand should handle unexpected exception`() {
-        val band=validBandDto.copy(id=1)
-        `when`(bandService.editBandRequest(band,"user"))
-            .thenThrow(IllegalStateException("boom"))
-
-        val result=bandController.editBand(band,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `deleteBand should handle contribution limit exception`() {
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandService).deleteBandRequest(1,"user")
-
-        val result=bandController.deleteBand(1,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `deleteBand should handle unexpected exception`() {
-        `when`(bandService.deleteBandRequest(1,"user"))
-            .thenThrow(IllegalStateException("boom"))
-
-        val result=bandController.deleteBand(1,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `addBandMembersRequest should reject missing artist id`() {
-        val result=bandController.addBandMembersRequest(
-            ArtistBandAddDto(artistId=null,bandId=2,role="Vocals",joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should reject missing band id`() {
-        val result=bandController.addBandMembersRequest(
-            ArtistBandAddDto(artistId=1L,bandId=null,role="Vocals",joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should reject missing joined year`() {
-        val result=bandController.addBandMembersRequest(
-            ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=null),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `addBandMembersRequest should handle contribution limit exception`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandsMemberService).addBandMemberRequest(member,"user")
-
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `addBandMembersRequest should handle unexpected exception`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandsMemberService.addBandMemberRequest(member,"user"))
-            .thenThrow(IllegalStateException("boom"))
-
-        val result=bandController.addBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing member id`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(id=null,artistId=1L,bandId=2,role="Vocals",joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing artist id`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(id=10L,artistId=null,bandId=2,role="Vocals",joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing band id`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(id=10L,artistId=1L,bandId=null,role="Vocals",joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing role`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role=null,joinedYear=1981),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject missing joined year`() {
-        val result=bandController.editBandMembersRequest(
-            ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=null),request
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-    }
-
-    @Test
-    fun `memberValidate should return null for valid member`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-
-        assertNull(bandController.memberValidate(member))
-    }
-
-    @Test
-    fun `editBandMembersRequest should reject invalid member validation`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=LocalDate.now().year+1)
-        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Joined year can't be in the future",result.body)
-    }
-
-    @Test
-    fun `editBandMembersRequest should handle contribution limit exception`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandsMemberService).editBandMemberRequest(member,"user")
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `editBandMembersRequest should handle unexpected exception`() {
-        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
-        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
-        `when`(bandsMemberService.editBandMemberRequest(member,"user"))
-            .thenThrow(IllegalStateException("boom"))
-
-        val result=bandController.editBandMembersRequest(member,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should handle contribution limit exception`() {
-        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
-        doAnswer { throw ContributionLimitExceededException("limit reached") }
-            .`when`(bandsMemberService).deleteBandMemberRequest(1L,"user")
-
-        val result=bandController.deleteBandMembersRequest(1L,request)
-
-        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("ContributionLimitExceededException limit reached",result.body)
-    }
-
-    @Test
-    fun `deleteBandMembersRequest should handle unexpected exception`() {
-        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
-        doAnswer { throw IllegalStateException("boom") }
-            .`when`(bandsMemberService).deleteBandMemberRequest(1L,"user")
-
-        val result=bandController.deleteBandMembersRequest(1L,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
-    }
-
-    @Test
-    fun `favoriteBand should handle unexpected exception`() {
-        doAnswer { throw IllegalStateException("boom") }
-            .`when`(bandService).toggleFavoriteBand(1,"user")
-
-        val result=bandController.favoriteBand(1,request)
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
     }
 
     @Test
@@ -1124,6 +821,511 @@ class BandControllerTest {
     }
 
     @Test
+    fun `bandValidate should accept null formed year`() {
+        val result=bandController.bandValidate(
+            BandAddDto(name="Metallica",formedYear=null,status=Status.ACTIVE,imageUrl=null)
+        )
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `bandValidate should reject image URL longer than 255 characters`() {
+        val result=bandController.bandValidate(
+            BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl="https://${"x".repeat(250)}.com")
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
+        assertEquals("Image url can't be more than 255 characters and has to be valid URL",result?.body)
+    }
+    //endregion
+
+    //region favoriteBand
+
+    @Test
+    fun `favoriteBand should succeed`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals("Band favorite toggled successfully",result.body)
+        verify(bandService).toggleFavoriteBand(1,"user")
+    }
+
+    @Test
+    fun `favoriteBand should work if IP is unknown`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
+    fun `favoriteBand should reject missing authentication`() {
+        SecurityContextHolder.clearContext()
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBand should return too many requests for IP rate limit`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBand should return too many requests for login rate limit`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBand should reject non existing band`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(false)
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBand should handle unexpected exception`() {
+        doAnswer { throw IllegalStateException("boom") }
+            .`when`(bandService).toggleFavoriteBand(1,"user")
+
+        val result=bandController.favoriteBand(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+    //endregion
+
+    //region addBandMember
+    @Test
+    fun `addBandMembersRequest should succeed`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesSameMemberExist(member)).thenReturn(false)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(bandsMemberService).addBandMemberRequest(member,"user")
+    }
+
+    @Test
+    fun `addBandMemberRequest should work if IP is unknown`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesSameMemberExist(member)).thenReturn(false)
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject missing authentication`() {
+        SecurityContextHolder.clearContext()
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should return too many requests for IP rate limit`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should return too many requests for login rate limit`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject missing required member info`() {
+        val result=
+            bandController.addBandMembersRequest(ArtistBandAddDto(artistId=1L,bandId=2,role=null,joinedYear=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject duplicate member`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesSameMemberExist(member)).thenReturn(true)
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("Member with id, role and joined year or left year already exists",result.body)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject missing artist id`() {
+        val result=bandController.addBandMembersRequest(
+            ArtistBandAddDto(artistId=null,bandId=2,role="Vocals",joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject missing band id`() {
+        val result=bandController.addBandMembersRequest(
+            ArtistBandAddDto(artistId=1L,bandId=null,role="Vocals",joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should reject missing joined year`() {
+        val result=bandController.addBandMembersRequest(
+            ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=null),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should return memberValidate result for invalid data`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=LocalDate.now().year+5)
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addBandMembersRequest should handle contribution limit exception`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandsMemberService).addBandMemberRequest(member,"user")
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
+    }
+
+    @Test
+    fun `addBandMembersRequest should handle unexpected exception`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandsMemberService.addBandMemberRequest(member,"user"))
+            .thenThrow(IllegalStateException("boom"))
+
+        val result=bandController.addBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+
+    //endregion
+
+    //region editBandMember
+    @Test
+    fun `editBandMembersRequest should succeed`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(bandsMemberService).editBandMemberRequest(member,"user")
+    }
+
+    @Test
+    fun `editBandMember should reject missing authentication`() {
+        SecurityContextHolder.clearContext()
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should work if IP is unknown`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing id`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should return too many requests for IP rate limit`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should return too many requests for login rate limit`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing band member`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(false)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing member id`() {
+        val result=bandController.editBandMembersRequest(
+            ArtistBandAddDto(id=null,artistId=1L,bandId=2,role="Vocals",joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing artist id`() {
+        val result=bandController.editBandMembersRequest(
+            ArtistBandAddDto(id=10L,artistId=null,bandId=2,role="Vocals",joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing band id`() {
+        val result=bandController.editBandMembersRequest(
+            ArtistBandAddDto(id=10L,artistId=1L,bandId=null,role="Vocals",joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing role`() {
+        val result=bandController.editBandMembersRequest(
+            ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role=null,joinedYear=1981),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject missing joined year`() {
+        val result=bandController.editBandMembersRequest(
+            ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=null),request
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editBandMembersRequest should reject invalid member validation`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=LocalDate.now().year+1)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("Joined year can't be in the future",result.body)
+    }
+
+    @Test
+    fun `editBandMembersRequest should handle contribution limit exception`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandsMemberService).editBandMemberRequest(member,"user")
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
+    }
+
+    @Test
+    fun `editBandMembersRequest should handle unexpected exception`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(bandService.doesBandMemberExist(10L)).thenReturn(true)
+        `when`(bandsMemberService.editBandMemberRequest(member,"user"))
+            .thenThrow(IllegalStateException("boom"))
+
+        val result=bandController.editBandMembersRequest(member,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+    //endregion
+
+    //region deleteBandMember
+    @Test
+    fun `deleteBandMembersRequest should succeed`() {
+        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(bandsMemberService).deleteBandMemberRequest(1L,"user")
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should work if IP is unknown`() {
+        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should reject missing authentication`() {
+        SecurityContextHolder.clearContext()
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should return too many requests for IP rate limit`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should return too many requests for login rate limit`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should reject non existing band member`() {
+        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(false)
+
+        val result=bandController.deleteBandMembersRequest(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should handle contribution limit exception`() {
+        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
+        doAnswer { throw ContributionLimitExceededException("limit reached") }
+            .`when`(bandsMemberService).deleteBandMemberRequest(1L,"user")
+
+        val result=bandController.deleteBandMembersRequest(1L,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("ContributionLimitExceededException limit reached",result.body)
+    }
+
+    @Test
+    fun `deleteBandMembersRequest should handle unexpected exception`() {
+        `when`(bandsMemberService.doesBandMemberExist(1L)).thenReturn(true)
+        doAnswer { throw IllegalStateException("boom") }
+            .`when`(bandsMemberService).deleteBandMemberRequest(1L,"user")
+
+        val result=bandController.deleteBandMembersRequest(1L,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+        assertEquals("An unexpected error occurred: boom",result.body)
+    }
+
+    //endregion
+
+    //region memberValidate
+    @Test
+    fun `memberValidate should reject artist younger than 10 at join time`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=2000)
+        `when`(artistService.getById(1L)).thenReturn(Artist().apply {birthDate=LocalDate.of(1999,1,1)})
+
+        val result=bandController.memberValidate(member)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
+        assertEquals("Artist has to be at least 10 years old when joining the band",result?.body)
+    }
+
+    @Test
+    fun `memberValidate should reject left year that's after member died`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=2005,leftYear=2004)
+        `when`(artistService.getById(1L)).thenReturn(Artist().apply {
+            birthDate=LocalDate.of(1970,1,1)
+            deathDate=LocalDate.of(2000,1,1)
+        })
+
+        val result=bandController.memberValidate(member)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
+        assertEquals("Left year has to be the same or greater than joined year",result?.body)
+    }
+
+    @Test
+    fun `memberValidate should return null for valid member`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+
+        assertNull(bandController.memberValidate(member))
+    }
+
+    @Test
     fun `memberValidate should reject future left year`() {
         val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981,leftYear=LocalDate.now().year+1)
 
@@ -1149,10 +1351,10 @@ class BandControllerTest {
 
     @Test
     fun `memberValidate should reject artist leaving after death`() {
-        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981,leftYear=2000)
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981,leftYear=2005)
         `when`(artistService.getById(1L)).thenReturn(Artist().apply {
             birthDate=LocalDate.of(1950,1,1)
-            deathDate=LocalDate.of(2005,1,1)
+            deathDate=LocalDate.of(2000,1,1)
         })
 
         val result=bandController.memberValidate(member)
@@ -1162,7 +1364,7 @@ class BandControllerTest {
     }
 
     @Test
-    fun `memberValidate should accept an artist death date when left year is null`() {
+    fun `memberValidate should work for an artist who died when left year is null`() {
         val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981,leftYear=null)
         `when`(artistService.getById(1L)).thenReturn(Artist().apply {
             birthDate=LocalDate.of(1950,1,1)
@@ -1172,6 +1374,19 @@ class BandControllerTest {
         val result=bandController.memberValidate(member)
 
         assertNull(result)
+    }
+
+    @Test
+    fun `memberValidate should work for an artist who left before dying`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=2000,leftYear=2016)
+        `when`(artistService.getById(1L)).thenReturn(Artist().apply {
+            birthDate=LocalDate.of(1970,1,1)
+            deathDate=LocalDate.of(2020,4,1)
+        })
+
+        val result=bandController.memberValidate(member)
+
+        assertEquals(null,result)
     }
 
     @Test
@@ -1234,25 +1449,6 @@ class BandControllerTest {
     }
 
     @Test
-    fun `bandValidate should accept null formed year`() {
-        val result=bandController.bandValidate(
-            BandAddDto(name="Metallica",formedYear=null,status=Status.ACTIVE,imageUrl=null)
-        )
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `bandValidate should reject image URL longer than 255 characters`() {
-        val result=bandController.bandValidate(
-            BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl="https://${"x".repeat(250)}.com")
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Image url can't be more than 255 characters and has to be valid URL",result?.body)
-    }
-
-    @Test
     fun `memberValidate should accept null joined year`() {
         val result=bandController.memberValidate(
             ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=null)
@@ -1287,6 +1483,7 @@ class BandControllerTest {
 
         assertNull(result)
     }
+    //endregion
 
     @Nested
     @SpringBootTest

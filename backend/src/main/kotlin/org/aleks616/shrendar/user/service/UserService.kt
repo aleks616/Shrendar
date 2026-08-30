@@ -75,7 +75,7 @@ class UserService(
     }
 
     fun timeSinceAccountCreated(userId:Int):String {
-        val raw=userLogRepository.getUserLogById(userId).accountCreatedTime
+        val raw=userLogRepository.getUserLogById(userId)?.accountCreatedTime?:Instant.now()
         val now=Instant.now()
         val diff=ChronoUnit.DAYS.between(raw,now)
         val years=diff/365
@@ -87,7 +87,7 @@ class UserService(
     }
 
     fun timeSinceLogin(userId:Int):String {
-        val raw=userLogRepository.getUserLogById(userId).lastLoginTime
+        val raw=userLogRepository.getUserLogById(userId).lastLoginTime?:Instant.now()
         val now=Instant.now()
         val diff=ChronoUnit.DAYS.between(raw,now)
 

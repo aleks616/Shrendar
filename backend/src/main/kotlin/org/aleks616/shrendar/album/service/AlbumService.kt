@@ -145,15 +145,15 @@ class AlbumService(
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
-        val changes:List<Pair<String,String?>> =listOf(
+        val changes:List<Pair<String,String>> =listOf(
             Pair("band_id",albumAddDto.bandId.toString()),
-            Pair("title",albumAddDto.title),
+            Pair("title",albumAddDto.title.toString()),
             Pair("release_date",albumAddDto.releaseDate.toString()),
             Pair("type",albumAddDto.type.toString()),
-            Pair("description",albumAddDto.description),
+            Pair("description",albumAddDto.description.toString()),
             Pair("genre_id",albumAddDto.mainSubgenre.toString()),
             Pair("importance",albumAddDto.importance.toString()),
-            Pair("artwork_url",albumAddDto.artworkUrl),
+            Pair("artwork_url",albumAddDto.artworkUrl.toString()),
         )
 
         val time=LocalDateTime.now()
@@ -181,21 +181,19 @@ class AlbumService(
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changedRecordId=albumRecordId
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="album"
-                    changedColumn=it.first
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changedRecordId=albumRecordId
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="album"
+                changedColumn=it.first
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
         bandService.calculateBandsGenre(albumAddDto.bandId)
 

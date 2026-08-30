@@ -99,13 +99,13 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByTableName should map repository results`() {
+    fun `getContributionsByTableName should return repository results`() {
         `when`(contributionRepository.findContributionsByChangedTable("artist")).thenReturn(mutableListOf(contribution))
         assertEquals(1,contributionService.getContributionsByTableName("artist").size)
     }
 
     @Test
-    fun `getContributionsByTableNameAndChangedRecordId should map repository results`() {
+    fun `getContributionsByTableNameAndChangedRecordId should return repository results`() {
         `when`(contributionRepository.findContributionsByChangedTableAndChangedRecordId("artist",3))
             .thenReturn(mutableListOf(contribution))
         assertEquals(1,contributionService.getContributionsByTableNameAndChangedRecordId("artist",3).size)

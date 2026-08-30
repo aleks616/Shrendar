@@ -61,7 +61,30 @@ class GenreControllerTest {
     }
 
     @Test
-    fun `favoriteGenre rejects unauthenticated request`() {
+    fun `favoriteGenre should toggle existing genre successfully`() {
+        `when`(genreService.doesGenreExist(1)).thenReturn(true)
+
+        val result=controller.favoriteGenre(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals("Genre favorite toggled successfully",result.body)
+        verify(genreService).toggleFavoriteGenre(1,"user")
+    }
+
+    @Test
+    fun `favoriteGenre should work if IP is unknown`() {
+        `when`(genreService.doesGenreExist(1)).thenReturn(true)
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=controller.favoriteGenre(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
+    fun `favoriteGenre should reject unauthenticated request`() {
         SecurityContextHolder.clearContext()
 
         val result=controller.favoriteGenre(1,request)
@@ -71,7 +94,7 @@ class GenreControllerTest {
     }
 
     @Test
-    fun `favoriteGenre rejects request when IP rate limit is reached`() {
+    fun `favoriteGenre should reject request when IP rate limit is reached`() {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
 
         val result=controller.favoriteGenre(1,request)
@@ -82,7 +105,7 @@ class GenreControllerTest {
     }
 
     @Test
-    fun `favoriteGenre rejects request when login rate limit is reached`() {
+    fun `favoriteGenre should reject request when login rate limit is reached`() {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
 
         val result=controller.favoriteGenre(1,request)
@@ -93,7 +116,7 @@ class GenreControllerTest {
     }
 
     @Test
-    fun `favoriteGenre rejects unknown genre`() {
+    fun `favoriteGenre should reject unknown genre`() {
         `when`(genreService.doesGenreExist(1)).thenReturn(false)
 
         val result=controller.favoriteGenre(1,request)
@@ -104,7 +127,7 @@ class GenreControllerTest {
     }
 
     @Test
-    fun `favoriteGenre returns internal server error when service fails`() {
+    fun `favoriteGenre should return internal server error when service fails`() {
         `when`(genreService.doesGenreExist(1)).thenReturn(true)
         doThrow(IllegalStateException("broken"))
             .`when`(genreService).toggleFavoriteGenre(1,"user")
@@ -113,16 +136,5 @@ class GenreControllerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
         assertEquals("An unexpected error occurred: broken",result.body)
-    }
-
-    @Test
-    fun `favoriteGenre toggles existing genre successfully`() {
-        `when`(genreService.doesGenreExist(1)).thenReturn(true)
-
-        val result=controller.favoriteGenre(1,request)
-
-        assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Genre favorite toggled successfully",result.body)
-        verify(genreService).toggleFavoriteGenre(1,"user")
     }
 }

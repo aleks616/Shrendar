@@ -36,7 +36,7 @@ class UserAccountController(
     )
 
     @PostMapping("/register")
-    fun registerData(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
+    fun register(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
         return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts from this IP")
@@ -127,14 +127,12 @@ class UserAccountController(
 
     @PostMapping("/updateEmail")
     fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
+        if(!userAccountService.doesAccountExist(email))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
         else if(userAccountService.doesAccountExist(newEmail))
-            ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
-        else if(!userAccountService.changeEmail(email,newEmail))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't change email address")
-        else
-            ResponseEntity.ok("Email changed")
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
+        userAccountService.changeEmail(email,newEmail)
+        return ResponseEntity.ok("Email changed")
     }
 
     @PostMapping("/addBirthday")

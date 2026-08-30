@@ -221,8 +221,8 @@ class BandService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
-            Pair("name",bandAddDto.name),
+        val changes:List<Pair<String,String>> =listOf(
+            Pair("name",bandAddDto.name.toString()),
             Pair("formedYear",bandAddDto.formedYear.toString()),
             Pair("status",bandAddDto.status.toString()),
             Pair("disbandedYear",bandAddDto.disbandedYear.toString()),
@@ -232,21 +232,19 @@ class BandService(
         )
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changedRecordId=bandId?.toLong()
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="band"
-                    changedColumn=it.first
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changedRecordId=bandId?.toLong()
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="band"
+                changedColumn=it.first
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
 
     }

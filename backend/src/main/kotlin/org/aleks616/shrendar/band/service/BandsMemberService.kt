@@ -195,32 +195,30 @@ class BandsMemberService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
+        val changes:List<Pair<String,String>> =listOf(
             Pair("bandId",artistBandAddDto.bandId.toString()),
             Pair("artistId",artistBandAddDto.artistId.toString()),
-            Pair("role",artistBandAddDto.role),
+            Pair("role",artistBandAddDto.role.toString()),
             Pair("joinedYear",artistBandAddDto.joinedYear.toString()),
             Pair("leftYear",artistBandAddDto.leftYear.toString()),
-            Pair("nickname",artistBandAddDto.nickname)
+            Pair("nickname",artistBandAddDto.nickname.toString())
         )
         val bandMemberId=bandsMemberRepository.findTopIdByBandIdAndArtistId(artistBandAddDto.bandId!!,artistBandAddDto.artistId!!)
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="bands_members"
-                    changedColumn=it.first
-                    changedRecordId=bandMemberId
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="bands_members"
+                changedColumn=it.first
+                changedRecordId=bandMemberId
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
     }
 

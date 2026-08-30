@@ -185,11 +185,10 @@ class UserAccountService(
         return true
     }
 
-    fun changeEmail(email:String, newEmail:String):Boolean{
-        val user=userRepository.findByEmail(email)?:return false
+    fun changeEmail(email:String, newEmail:String){
+        val user=userRepository.findByEmail(email)!!
         user.email=newEmail
         userRepository.save(user)
-        return true
     }
 
     fun addBirthday(email:String, date:LocalDate):Boolean{

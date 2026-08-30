@@ -3,13 +3,14 @@ package org.aleks616.shrendar.user.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.ResetPassword
+import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.aleks616.shrendar.user.service.UserAccountService
-import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,8 +18,8 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -63,8 +64,7 @@ class UserAccountControllerTest {
     private lateinit var mailSender:JavaMailSender
 
     @Autowired
-    private lateinit var rateLimiter:org.aleks616.shrendar.security.RateLimiter
-
+    private lateinit var rateLimiter:RateLimiter
     @Autowired
     private lateinit var userLogRepository:org.aleks616.shrendar.user.repository.UserLogRepository
 
@@ -89,7 +89,7 @@ class UserAccountControllerTest {
         clearCodeStorage(registrationCodeStorage)
         clearCodeStorage(passwordResetCodeStorage)
 
-        val storageField=org.aleks616.shrendar.security.RateLimiter::class.java.getDeclaredField("storage")
+        val storageField=RateLimiter::class.java.getDeclaredField("storage")
         storageField.isAccessible=true
         (storageField.get(rateLimiter) as MutableMap<*,*>).clear()
     }
@@ -336,6 +336,31 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `should fail if token doesn't have bearer`() {
+        val email="login@example.com"
+        val password="password123"
+        registerAndConfirm("loginuser",email,password)
+
+        val loginReq=UserAccountController.LoginRequest(null,email,password)
+        val result=mockMvc.post("/api/user-account/login") {
+            contentType=MediaType.APPLICATION_JSON
+            content=objectMapper.writeValueAsString(loginReq)
+        }.andExpect {
+            status {isOk()}
+        }.andReturn()
+
+        val responseMap=objectMapper.readValue(result.response.contentAsString,Map::class.java)
+        val token=responseMap["token"] as String
+        assertNotNull(token)
+
+        mockMvc.post("/api/user-account/logout") {
+            header("Authorization",token)
+        }.andExpect {
+            status {isForbidden()}
+        }
+    }
+
+    @Test
     fun `login check should return true for existing login`() {
         val login="existuser"
         registerAndConfirm(login,"exist@example.com")
@@ -371,6 +396,26 @@ class UserAccountControllerTest {
                 status {isOk()}
             }.andExpect {
                 jsonPath("$[?(@.login == '$login')]") {exists()}
+            }
+    }
+
+
+    @Test
+    fun `getUserProfile should return user profile`() {
+        val login="existuser"
+        registerAndConfirm(login,"exist@example.com")
+
+        mockMvc.get("/api/user/@existuser")
+            .andExpect {
+                status {isOk()}
+            }
+    }
+
+    @Test
+    fun `getUserProfile should return null for not found user`() {
+        mockMvc.get("/api/user/@nope")
+            .andExpect {
+                status {isOk()}
             }
     }
 
@@ -431,6 +476,24 @@ class UserAccountControllerTest {
             status {isTooManyRequests()}
         }
     }
+
+    /*@Test
+    fun `register should work if IP is unknown`() {
+        val email="rate@example.com"
+        val registerRequest=UserAccountController.RegisterRequest("rateuser","Rate User",email,"pass")
+
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        mockMvc.post("/api/user-account/register") {
+            contentType=MediaType.APPLICATION_JSON
+            content=objectMapper.writeValueAsString(registerRequest)
+        }.andExpect {
+            status {isOk()}
+        }
+
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }*/
 
     @Test
     fun `register confirm rate limit should work`() {
@@ -521,7 +584,7 @@ class UserAccountControllerTest {
             status {isOk()}
         }
 
-        val storageField=org.aleks616.shrendar.security.RateLimiter::class.java.getDeclaredField("storage")
+        val storageField=RateLimiter::class.java.getDeclaredField("storage")
         storageField.isAccessible=true
         (storageField.get(rateLimiter) as MutableMap<String,Any>).remove("reset:acct:$email")
 

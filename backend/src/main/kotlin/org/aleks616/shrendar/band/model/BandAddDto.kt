@@ -11,5 +11,5 @@ data class BandAddDto(
     var disbandedYear:Int?=null,
     var country:Int?=null,
     var description:String?=null,
-    var imageUrl:String?
+    var imageUrl:String?=null
 ):Serializable
