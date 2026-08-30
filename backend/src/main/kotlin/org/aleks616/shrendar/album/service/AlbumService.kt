@@ -3,6 +3,7 @@ package org.aleks616.shrendar.album.service
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.album.model.*
 import org.aleks616.shrendar.album.repository.AlbumRepository
+import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
@@ -58,7 +59,7 @@ class AlbumService(
 
     fun getByIdWiki(id:Long):AlbumWikiDto {
         val dataRaw=getById(id)
-        val band=BandDto(dataRaw.band?.id,dataRaw.band?.name)
+        val band=BandDto(dataRaw.band!!.id,dataRaw.band!!.name)
         val age=dataRaw.releaseDate!!.until(LocalDate.now()).years
         val daysTillAnniversary=Utils.getDaysTillNextAnniversary(dataRaw.releaseDate!!)
 
@@ -99,18 +100,18 @@ class AlbumService(
     }
 
     fun getAlbumAnniversariesByDate(month:Int,day:Int):List<AlbumByDateDto> {
-        val albumsInDate=getAll().filter {it.releaseDate?.monthValue==month&&it.releaseDate.dayOfMonth==day}
+        val albumsInDate=getAll().filter {it.releaseDate!!.monthValue==month&&it.releaseDate.dayOfMonth==day}
         val year=Calendar.getInstance().get(Calendar.YEAR)
 
         return albumsInDate.map {a->
             AlbumByDateDto(
                 id=a.id,
-                band=a.band?.let {BandDto(it.id,it.name)},
+                band=BandDto(a.band!!.id,a.band.name),
                 title=a.title,
                 releaseDate=a.releaseDate,
                 type=a.type,
                 importance=a.importance,
-                yearsSince=year-(a.releaseDate?.year!!),
+                yearsSince=year-(a.releaseDate!!.year),
                 genre=a.genre
             )
 
@@ -129,14 +130,17 @@ class AlbumService(
      * **/
     fun doesAlbumWithNameExistForAlbumId(albumAddDto:AlbumAddDto):Boolean{
         val album=albumRepository.findById(albumAddDto.id!!)
-        val albums=getAlbumsByBandId(album.band?.id!!)
+        val albums=getAlbumsByBandId(album.band!!.id!!)
         return albums.any{it.title==albumAddDto.title}
     }
 
     fun isReleaseDateValid(album:AlbumAddDto):Boolean{
-        if(album.releaseDate!=null&&album.releaseDate>LocalDate.now().plusYears(1)) return false
-        val band=bandService.getBandById(album.bandId!!)
-        return !(band.formedYear!=null&&(band.formedYear!!>album.releaseDate?.year!!))
+        if(album.bandId==null||album.releaseDate==null) return false
+        if(album.releaseDate>LocalDate.now().plusYears(1)) return false
+        val band:Band?=bandService.getBandById(album.bandId)
+        if(band?.formedYear==null) return false
+        val isValid=band.formedYear!!<=album.releaseDate.year
+        return isValid
     }
 
     @Transactional
@@ -219,7 +223,7 @@ class AlbumService(
             currentValue:T?,
             newValue:T?,
             setter:(T)->Unit,
-            stringMapper:(T?)->String?={it?.toString()}
+            stringMapper:(T?)->String?={it!!.toString()}
         ) {
             if(newValue!=null&&newValue!=currentValue) {
                 changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
@@ -227,7 +231,7 @@ class AlbumService(
             }
         }
 
-        updateIfChanged("band_id",album.band?.id,albumAddDto.bandId,{album.band=bandService.getBandById(it)})
+        updateIfChanged("band_id",album.band!!.id,albumAddDto.bandId,{album.band=bandService.getBandById(it)})
         updateIfChanged("title",album.title,albumAddDto.title,{album.title=it})
         updateIfChanged("release_date",album.releaseDate,albumAddDto.releaseDate,{album.releaseDate=it})
         updateIfChanged("type",album.type,albumAddDto.type,{album.type=it})
@@ -266,7 +270,7 @@ class AlbumService(
         }
 
         if(changes.any{it.first=="genre_id"}){
-            val bandId:Int=albumAddDto.bandId?:getById(albumAddDto.id).band!!.id!!
+            val bandId:Int=albumAddDto.bandId!!
             bandService.calculateBandsGenre(bandId)
         }
 
@@ -290,14 +294,14 @@ class AlbumService(
             val album=albumRepository.findAlbumById(albumId)
             val changes:List<Triple<String,String?,String?>> =listOf(
                 Triple("id",album.id.toString(),null),
-                Triple("band_id",album.band?.id.toString(),null),
-                Triple("title",album.title,null),
+                Triple("band_id",album.band!!.id.toString(),null),
+                Triple("title",album.title.toString(),null),
                 Triple("release_date",album.releaseDate.toString(),null),
                 Triple("type",album.type.toString(),null),
-                Triple("description",album.description,null),
+                Triple("description",album.description.toString(),null),
                 Triple("genre_id",album.genre?.id.toString(),null),
                 Triple("importance",album.importance.toString(),null),
-                Triple("artwork_url",album.artworkUrl,null),
+                Triple("artwork_url",album.artworkUrl.toString(),null),
             )
 
             val lastChangeId=contributionRepository.findTopChangeId()?:0

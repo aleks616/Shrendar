@@ -3,13 +3,7 @@ package org.aleks616.shrendar.user.service
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
-import org.aleks616.shrendar.user.controller.UserAccountController
-import org.aleks616.shrendar.user.model.LoginRequestDto
-import org.aleks616.shrendar.user.model.RegisterRequestDto
-import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.model.UserLog
-import org.aleks616.shrendar.user.model.UserPasswordHistory
-import org.aleks616.shrendar.user.model.UsersDto
+import org.aleks616.shrendar.user.model.*
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
 import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository

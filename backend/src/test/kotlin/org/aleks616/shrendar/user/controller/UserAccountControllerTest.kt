@@ -6,11 +6,7 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
-import org.aleks616.shrendar.user.model.LoginRequestDto
-import org.aleks616.shrendar.user.model.Rank
-import org.aleks616.shrendar.user.model.RegisterRequestDto
-import org.aleks616.shrendar.user.model.ResetPassword
-import org.aleks616.shrendar.user.model.UserPasswordHistory
+import org.aleks616.shrendar.user.model.*
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
 import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
@@ -20,7 +16,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
