@@ -2,7 +2,6 @@ package org.aleks616.shrendar.common
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.net.MalformedURLException
 import java.time.LocalDate
 
 class UtilsTest {

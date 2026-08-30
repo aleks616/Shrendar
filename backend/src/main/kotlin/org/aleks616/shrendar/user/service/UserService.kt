@@ -87,7 +87,7 @@ class UserService(
     }
 
     fun timeSinceLogin(userId:Int):String {
-        val raw=userLogRepository.getUserLogById(userId).lastLoginTime?:Instant.now()
+        val raw=userLogRepository.getUserLogById(userId)?.lastLoginTime?:Instant.now()
         val now=Instant.now()
         val diff=ChronoUnit.DAYS.between(raw,now)
 
