@@ -9,6 +9,11 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 **Frontend/Web** - react.js  
 **Mobile** - jetpack compose multiplatform with swift ui for ios
 
+## Test Coverage
+- 100% class
+- 99% line
+- 98% method
+- 90% branch 
 
 ## Roadmap
 
