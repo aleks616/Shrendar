@@ -1,11 +1,14 @@
 package org.aleks616.shrendar.event.model
+/*
 
 import java.io.Serializable
 import java.time.LocalDate
 
+*/
 /**
  * DTO for {@link org.aleks616.shrendar.entities.Event}
- */
+ *//*
+
 data class EventBandDto(
     val id:Int?=null,
     val band:BandsDto?=null,
@@ -14,11 +17,13 @@ data class EventBandDto(
     val description:String?=null,
     val yearsSince:Int?=null
 ):Serializable{
-    /**
+    */
+/**
      * DTO for {@link org.aleks616.shrendar.entities.Bands}
-     */
+     *//*
+
     data class BandsDto(
         val id:Int?=null,
         val name:String?=null
     ):Serializable
-}
+}*/

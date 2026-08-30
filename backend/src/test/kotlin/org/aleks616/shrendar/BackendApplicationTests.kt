@@ -8,6 +8,7 @@ class BackendApplicationTests {
 
     @Test
     fun contextLoads() {
+        main(arrayOf())
     }
 
 }

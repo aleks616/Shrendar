@@ -171,7 +171,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+    fun addBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -195,37 +195,35 @@ class BandsMemberService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
+        val changes:List<Pair<String,String>> =listOf(
             Pair("bandId",artistBandAddDto.bandId.toString()),
             Pair("artistId",artistBandAddDto.artistId.toString()),
-            Pair("role",artistBandAddDto.role),
+            Pair("role",artistBandAddDto.role.toString()),
             Pair("joinedYear",artistBandAddDto.joinedYear.toString()),
             Pair("leftYear",artistBandAddDto.leftYear.toString()),
-            Pair("nickname",artistBandAddDto.nickname)
+            Pair("nickname",artistBandAddDto.nickname.toString())
         )
         val bandMemberId=bandsMemberRepository.findTopIdByBandIdAndArtistId(artistBandAddDto.bandId!!,artistBandAddDto.artistId!!)
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="bands_members"
-                    changedColumn=it.first
-                    changedRecordId=bandMemberId
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="bands_members"
+                changedColumn=it.first
+                changedRecordId=bandMemberId
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
     }
 
     @Transactional
-    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+    fun editBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -288,7 +286,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun deleteBandMemberRequest(id:Long,userLogin:String,log:Boolean=true) {
+    fun deleteBandMember(id:Long,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception

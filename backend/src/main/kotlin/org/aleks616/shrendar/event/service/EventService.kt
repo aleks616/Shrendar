@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.event.service
 
+/*
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.event.model.Event
 import org.aleks616.shrendar.event.model.EventBandDto
@@ -28,4 +29,4 @@ class EventService(private val repository:EventRepository){
         }
 
     }
-}
+}*/

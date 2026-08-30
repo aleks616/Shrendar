@@ -51,7 +51,7 @@ class ArtistService(
         else{
             age=dataRaw.birthDate!!.until(LocalDate.now()).years
         }
-        val gender=if(dataRaw.gender=='M') "Male" else "Female"
+        val gender=if(dataRaw.gender=='M') "Male" else if(dataRaw.gender=='F') "Female" else "unknown"
         val country=countryRepository.getCountryNameById(dataRaw.country)
         val zodiacSign=getZodiacSign(dataRaw.birthDate!!.monthValue,dataRaw.birthDate!!.dayOfMonth)
         val chineseZodiacSign=getChineseZodiacSign(dataRaw.birthDate!!.year)
@@ -211,7 +211,7 @@ class ArtistService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
+        val changes:List<Pair<String,String>> =listOf(
             Pair("name",artistAddDto.name),
             Pair("birth_date",artistAddDto.birthDate.toString()),
             Pair("death_date",artistAddDto.deathDate.toString()),
@@ -222,21 +222,19 @@ class ArtistService(
         )
 
         changes.forEach {
-            if(it.second!=null){
-                contributionRepository.save(Contribution().apply {
-                    changedRecordId=artistId
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="artist"
-                    changedColumn=it.first
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changedRecordId=artistId
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="artist"
+                changedColumn=it.first
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
 
     }

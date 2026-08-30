@@ -2,8 +2,10 @@ package org.aleks616.shrendar.artist.service
 
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
+import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
+import org.aleks616.shrendar.common.model.NameValue
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Contribution
@@ -32,6 +34,8 @@ class ArtistServiceTest {
     private lateinit var userArtistRepository:UserArtistRepository
     private lateinit var artistService:ArtistService
     private lateinit var artist:Artist
+
+    private lateinit var artist1:Artist
     private lateinit var requestingUser:User
 
     @BeforeEach
@@ -53,6 +57,15 @@ class ArtistServiceTest {
             country=1
             description="Metallica frontman"
             artistImageUrl="https://example.com/james.jpg"
+        }
+        artist1=Artist().apply {
+            id=2
+            name="Some Woman"
+            birthDate=LocalDate.of(1969,6,9)
+            gender='F'
+            country=1
+            description="idk"
+            artistImageUrl="https://example.com/someone.jpg"
         }
         requestingUser=User().apply {
             id=7
@@ -96,13 +109,13 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByIdWiki should calculate deceased artist age`() {
-        artist.deathDate=LocalDate.of(2020,9,27)
-        `when`(artistRepository.existsArtistById(1)).thenReturn(true)
-        `when`(artistRepository.findArtistById(1)).thenReturn(artist)
-        `when`(countryRepository.getCountryNameById(1)).thenReturn("USA")
-        val result=artistService.getByIdWiki(1)
-        assertEquals(57,result.age)
+    fun `getByIdWiki should calculate dead artist age`() {
+        artist1.deathDate=LocalDate.of(2020,9,27)
+        `when`(artistRepository.existsArtistById(2)).thenReturn(true)
+        `when`(artistRepository.findArtistById(2)).thenReturn(artist1)
+        `when`(countryRepository.getCountryNameById(2)).thenReturn("USA")
+        val result=artistService.getByIdWiki(2)
+        assertEquals(51,result.age)
         assertNotNull(result.daysTillDeathAnniversary)
     }
 
@@ -353,6 +366,19 @@ class ArtistServiceTest {
 
         verify(userArtistRepository).deleteById(4)
         verify(userArtistRepository).saveAndFlush(any(UsersArtists::class.java))
+    }
+
+    @Test
+    fun `getArtistGenres should return artist name and all matching genres`() {
+        val expected=ArtistGenreDto(
+            artistId=1,
+            artistName="James Hetfield",
+            genres=listOf(NameValue("Thrash Metal", 7))
+        )
+        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
+        `when`(artistRepository.findArtistGenres(1L)).thenReturn(expected.genres)
+
+        assertEquals(expected, artistService.getArtistGenres(1L))
     }
 
     private fun stubAddDependencies() {

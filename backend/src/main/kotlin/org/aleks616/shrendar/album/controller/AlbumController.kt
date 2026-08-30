@@ -150,8 +150,7 @@ class AlbumController (
 
     @DeleteMapping("/delete")
     fun deleteAlbum(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"

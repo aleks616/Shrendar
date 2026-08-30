@@ -87,14 +87,8 @@ class ContributionController (
     //region select
 
     @GetMapping("/requested-by/{id}")
-    fun getContributionsByRequestingUser(@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
+    fun getContributionsByRequestingUser(@PathVariable id:Int):List<ContributionDto>{
         if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByRequestingUser(id)
@@ -105,14 +99,8 @@ class ContributionController (
     }
 
     @GetMapping("/confirmed-by/{id}")
-    fun getContributionsByConfirmingUser(@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
+    fun getContributionsByConfirmingUser(@PathVariable id:Int):List<ContributionDto>{
         if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByConfirmingUser(id)
@@ -123,20 +111,13 @@ class ContributionController (
     }
 
     @GetMapping("/table/{table}")
-    fun getContributionsByTableName(@PathVariable table:String,servletRequest:HttpServletRequest):List<ContributionDto>{
+    fun getContributionsByTableName(@PathVariable table:String):List<ContributionDto>{
         try{
             Table.valueOf(table.uppercase())
         }
-        catch(_:IllegalStateException){
-            throw IllegalStateException("table \"$table\" does not exist")
+        catch(_:IllegalArgumentException){
+            throw IllegalArgumentException("table \"$table\" does not exist")
         }
-
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByTableName(table)
@@ -147,20 +128,13 @@ class ContributionController (
     }
 
     @GetMapping("/table-record/{table}")
-    fun getContributionsByTableNameAndChangedRecordId(@PathVariable table:String, @RequestParam id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
+    fun getContributionsByTableNameAndChangedRecordId(@PathVariable table:String, @RequestParam id:Int):List<ContributionDto>{
         try{
             Table.valueOf(table.uppercase())
         }
-        catch(_:IllegalStateException){
-            throw IllegalStateException("table \"$table\" does not exist")
+        catch(_:IllegalArgumentException){
+            throw IllegalArgumentException("table \"$table\" does not exist")
         }
-
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getContributionsByTableNameAndChangedRecordId(table,id)
@@ -171,20 +145,13 @@ class ContributionController (
     }
 
     @GetMapping("/table-record-last/{table}/{id}")
-    fun getLastChangesByTableAndChangedRecordId(@PathVariable table:String, @PathVariable id:Int,servletRequest:HttpServletRequest):ContributionHistoryDto{
+    fun getLastChangesByTableAndChangedRecordId(@PathVariable table:String, @PathVariable id:Int):ContributionHistoryDto{
         try{
             Table.valueOf(table.uppercase())
         }
-        catch(_:IllegalStateException){
-            throw IllegalStateException("table \"$table\" does not exist")
+        catch(_:IllegalArgumentException){
+            throw IllegalArgumentException("table \"$table\" does not exist")
         }
-
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         try{
             return contributionService.getLastChangesByTableNameAndChangedRecordId(table,id)
@@ -195,14 +162,7 @@ class ContributionController (
     }
 
     @GetMapping("/between-dates")
-    fun getContributionsByChangedAtBetween(@RequestParam start:LocalDate, @RequestParam(required=false) end:LocalDate,servletRequest:HttpServletRequest):List<ContributionDto>{
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
-
+    fun getContributionsByChangedAtBetween(@RequestParam start:LocalDate, @RequestParam(required=false) end:LocalDate):List<ContributionDto>{
         if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
 
         try{
@@ -214,14 +174,8 @@ class ContributionController (
     }
 
     @GetMapping("/between-dates-by-user/{id}")
-    fun getContributionsByRequestingUserAndChangedAtBetween(@RequestParam start:LocalDate,@RequestParam(required=false) end:LocalDate,@PathVariable id:Int,servletRequest:HttpServletRequest):List<ContributionDto>{
+    fun getContributionsByRequestingUserAndChangedAtBetween(@RequestParam start:LocalDate,@RequestParam(required=false) end:LocalDate,@PathVariable id:Int):List<ContributionDto>{
         if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
 
         if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
 
@@ -234,15 +188,7 @@ class ContributionController (
     }
 
     @GetMapping("/by-action-and-user/{id}/{action}")
-    fun getContributionsByRequestingUserAndAction(@PathVariable id:Int,@PathVariable action:Action,servletRequest:HttpServletRequest):List<ContributionDto>{
-        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
-        val user=SecurityContextHolder.getContext().authentication?:
-                 throw IllegalStateException("User not authenticated")
-        val userLogin=user.name
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60)) throw IllegalStateException("Too many requests from this user")
-
+    fun getContributionsByRequestingUserAndAction(@PathVariable id:Int,@PathVariable action:Action):List<ContributionDto>{
         try{
             return contributionService.getContributionsByActionAndRequestingUser(id,action)
         }

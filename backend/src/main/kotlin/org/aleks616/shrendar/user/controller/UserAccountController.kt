@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
@@ -10,13 +9,9 @@ import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -41,7 +36,7 @@ class UserAccountController(
     )
 
     @PostMapping("/register")
-    fun registerData(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
+    fun register(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
         return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts from this IP")
@@ -132,14 +127,12 @@ class UserAccountController(
 
     @PostMapping("/updateEmail")
     fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
+        if(!userAccountService.doesAccountExist(email))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
         else if(userAccountService.doesAccountExist(newEmail))
-            ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
-        else if(!userAccountService.changeEmail(email,newEmail))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't change email address")
-        else
-            ResponseEntity.ok("Email changed")
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
+        userAccountService.changeEmail(email,newEmail)
+        return ResponseEntity.ok("Email changed")
     }
 
     @PostMapping("/addBirthday")
@@ -161,28 +154,6 @@ class UserAccountController(
         userAccountService.requestDeletion(request.email!!)
 
         return ResponseEntity.ok("Confirmed")
-    }
-
-    @PostMapping("/bio/add")
-    fun addBio(@RequestBody bio:String, servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
-        val userLogin=user.name
-
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-
-        try{
-            userAccountService.addBio(bio,userLogin)
-        }
-        catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
-        }
-
-        return ResponseEntity.ok("Bio added")
     }
 
     @GetMapping("/loginCheck")
