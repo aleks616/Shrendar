@@ -95,7 +95,7 @@ class AlbumServiceTest {
         album2.band=band
 
         album3=Album().apply {
-            id=2
+            id=3
             title="Ride the Lightning"
             releaseDate=LocalDate.of(1984,7,27)
             type=AlbumType.OTHER
@@ -103,7 +103,7 @@ class AlbumServiceTest {
             artworkUrl="https://example.com/artwork.jpg"
             description="Description"
         }
-        album2.band=band1
+        album3.band=band1
 
     }
 
@@ -363,6 +363,19 @@ class AlbumServiceTest {
     }
 
     @Test
+    fun `editAlbumRequest should work when changing type to ep`() {
+        stubEditDependencies()
+        `when`(albumRepository.findAlbumById(3)).thenReturn(album3)
+        `when`(bandService.getBandById(4)).thenReturn(Band().apply {id=4})
+        `when`(genreRepository.findGenreById(5)).thenReturn(Genre().apply {id=5})
+        val dto=AlbumAddDto(id=3,importance=3,type=AlbumType.EP,bandId=4)
+
+
+        albumService.editAlbumRequest(dto,"tester")
+        verify(albumRepository).save(album3)
+    }
+
+    @Test
     fun `editAlbumRequest should throw contribution limit exception`() {
         val limit=ContributionLimitExceededException("limit")
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
@@ -477,9 +490,10 @@ class AlbumServiceTest {
     fun `deleteAlbumRequest should not delete untrusted users`() {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
-        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
         `when`(albumRepository.findAlbumById(2L)).thenReturn(album1)
-        albumService.deleteAlbumRequest(2,"tester",true)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+
+        albumService.deleteAlbumRequest(2,"tester",false)
 
         verify(albumRepository,never()).deleteById(2L)
         verifyNoInteractions(bandService)
@@ -491,7 +505,7 @@ class AlbumServiceTest {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
         `when`(albumRepository.findAlbumById(1L)).thenReturn(album)
-        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(1)
 
         albumService.deleteAlbumRequest(1,"tester")
 

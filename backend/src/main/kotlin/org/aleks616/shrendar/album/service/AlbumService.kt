@@ -223,7 +223,7 @@ class AlbumService(
             currentValue:T?,
             newValue:T?,
             setter:(T)->Unit,
-            stringMapper:(T?)->String?={it!!.toString()}
+            stringMapper:(T?)->String?={it?.toString()}
         ) {
             if(newValue!=null&&newValue!=currentValue) {
                 changes.add(Triple(column,stringMapper(currentValue),stringMapper(newValue)))
