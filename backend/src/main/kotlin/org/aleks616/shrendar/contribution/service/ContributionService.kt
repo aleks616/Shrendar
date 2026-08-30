@@ -55,7 +55,7 @@ class ContributionService(
             if(contributions.first().changedTable=="band")
                 bandService.deleteBandRequest(contributions.first().changedRecordId!!.toInt(),confirmedUserLogin,false)
             if(contributions.first().changedTable=="bands_members")
-                bandsMemberService.deleteBandMemberRequest(contributions.first().changedRecordId!!,confirmedUserLogin,false)
+                bandsMemberService.deleteBandMember(contributions.first().changedRecordId!!,confirmedUserLogin,false)
         }
     }
 

@@ -119,7 +119,7 @@ class BandController (
     }
 
     @PostMapping("/add")
-    fun addBandRequest(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
+    fun addBand(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
@@ -137,7 +137,7 @@ class BandController (
             return bandValidate(band)!!
 
         try{
-            bandService.addBandRequest(band,userLogin)
+            bandService.addBand(band,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -209,7 +209,7 @@ class BandController (
     }
 
     @PostMapping("/member-add")
-    fun addBandMembersRequest(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun addBandMember(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
@@ -227,7 +227,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member with id, role and joined year or left year already exists")
 
         try{
-            bandsMemberService.addBandMemberRequest(member,userLogin)
+            bandsMemberService.addBandMember(member,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -240,7 +240,7 @@ class BandController (
     }
 
     @PutMapping("/member-edit")
-    fun editBandMembersRequest(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun editBandMember(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
         if(member.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member ID is required")
         val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -259,7 +259,7 @@ class BandController (
             return memberValidate(member)!!
 
         try{
-            bandsMemberService.editBandMemberRequest(member,userLogin)
+            bandsMemberService.editBandMember(member,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -273,7 +273,7 @@ class BandController (
 
 
     @DeleteMapping("/member-delete")
-    fun deleteBandMembersRequest(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun deleteBandMember(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
@@ -286,7 +286,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id $id does not exist")
 
         try{
-            bandsMemberService.deleteBandMemberRequest(id,userLogin)
+            bandsMemberService.deleteBandMember(id,userLogin)
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")

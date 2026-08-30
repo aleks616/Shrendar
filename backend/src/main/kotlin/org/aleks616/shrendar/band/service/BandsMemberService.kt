@@ -171,7 +171,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+    fun addBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -223,7 +223,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+    fun editBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -286,7 +286,7 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun deleteBandMemberRequest(id:Long,userLogin:String,log:Boolean=true) {
+    fun deleteBandMember(id:Long,userLogin:String,log:Boolean=true) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception

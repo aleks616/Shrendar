@@ -82,7 +82,7 @@ class EmailService(
         mailSender.send(mimeMessage)
     }
 
-    fun sendAccountDeletedMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
+    fun sendAccountDeletedMessage(email:String,language:SupportedLanguages=SupportedLanguages.PL) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
         val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeleted-$language.html").readText()

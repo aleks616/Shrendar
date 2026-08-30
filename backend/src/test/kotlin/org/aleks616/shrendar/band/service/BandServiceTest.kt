@@ -351,18 +351,18 @@ class BandServiceTest {
     }
 
     @Test
-    fun `addBandRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
+    fun `addBand should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(ContributionLimitExceededException("limit"))
 
         assertThrows<ContributionLimitExceededException> {
-            service.addBandRequest(BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl=null),"user")
+            service.addBand(BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl=null),"user")
         }
         verifyNoInteractions(contributionRepository,bandRepository)
     }
 
     @Test
-    fun `addBandRequest should create trusted band contribution`() {
+    fun `addBand should create trusted band contribution`() {
         val dto=BandAddDto(
             name="Metallica",
             formedYear=1981,
@@ -377,7 +377,7 @@ class BandServiceTest {
         `when`(bandRepository.findTopIdByName("Metallica")).thenReturn(5)
         `when`(contributionRepository.findTopChangeId()).thenReturn(7)
 
-        service.addBandRequest(dto,"user")
+        service.addBand(dto,"user")
 
         verify(bandRepository).save(any(Band::class.java))
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
@@ -386,14 +386,14 @@ class BandServiceTest {
     }
 
     @Test
-    fun `addBandRequest should create untrusted contributions`() {
+    fun `addBand should create untrusted contributions`() {
         val dto=BandAddDto(name="Metallica",formedYear=null,status=Status.ACTIVE,country=null,description=null,imageUrl=null)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(requester)
         `when`(rankService.checkRank(requester)).thenReturn(null)
         `when`(bandRepository.findTopIdByName("Metallica")).thenReturn(5)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
 
-        service.addBandRequest(dto,"user")
+        service.addBand(dto,"user")
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==false&&it.confirmedBy==null})

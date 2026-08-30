@@ -109,30 +109,30 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `addBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
+    fun `addBandMember should throw ContributionLimitExceededException when user reaches contribution limit`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
-        assertThrows<ContributionLimitExceededException> {bandsMemberService.addBandMemberRequest(dto,"user")}
+        assertThrows<ContributionLimitExceededException> {bandsMemberService.addBandMember(dto,"user")}
         verifyNoInteractions(repository)
 
     }
 
     @Test
-    fun `addBandMemberRequest should record member contribution`() {
+    fun `addBandMember should record member contribution`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
         `when`(repository.findTopIdByBandIdAndArtistId(3,2)).thenReturn(10)
-        bandsMemberService.addBandMemberRequest(dto,"user")
+        bandsMemberService.addBandMember(dto,"user")
         verify(repository).save(any(BandsMembers::class.java))
         verify(contributionRepository,atLeastOnce()).save(any(Contribution::class.java))
     }
 
     @Test
-    fun `addBandMemberRequest should confirm contributions for rank nine`() {
+    fun `addBandMember should confirm contributions for rank nine`() {
         user.rank=Rank().apply {id=9}
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
@@ -141,7 +141,7 @@ class BandsMemberServiceTest {
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
         `when`(repository.findTopIdByBandIdAndArtistId(3,2)).thenReturn(10)
 
-        bandsMemberService.addBandMemberRequest(dto,"user")
+        bandsMemberService.addBandMember(dto,"user")
 
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
@@ -149,26 +149,26 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `editBandMemberRequest should update changed fields`() {
+    fun `editBandMember should update changed fields`() {
         val dto=ArtistBandAddDto(10,3,2,"New","Guitar",1982,1989)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(bandService.getBandById(3)).thenReturn(member.band!!)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
-        bandsMemberService.editBandMemberRequest(dto,"user")
+        bandsMemberService.editBandMember(dto,"user")
         verify(repository).save(member)
         verify(contributionRepository,atLeastOnce()).save(any(Contribution::class.java))
 
     }
 
     @Test
-    fun `editBandMemberRequest should throw IllegalStateException when there are no changes`() {
+    fun `editBandMember should throw IllegalStateException when there are no changes`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         assertThrows<IllegalStateException> {
-            bandsMemberService.editBandMemberRequest(ArtistBandAddDto(10),"user")
+            bandsMemberService.editBandMember(ArtistBandAddDto(10),"user")
         }
     }
 
@@ -201,40 +201,40 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `editBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
+    fun `editBandMember should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
-            bandsMemberService.editBandMemberRequest(ArtistBandAddDto(10,joinedYear=2000),"user")
+            bandsMemberService.editBandMember(ArtistBandAddDto(10,joinedYear=2000),"user")
         }
         verifyNoInteractions(repository)
 
     }
 
     @Test
-    fun `editBandMemberRequest should throw IllegalArgumentException when joined year is after existing left year`() {
+    fun `editBandMember should throw IllegalArgumentException when joined year is after existing left year`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         member.leftYear=1990
         `when`(repository.findById(10L)).thenReturn(member)
         assertThrows<IllegalArgumentException> {
-            bandsMemberService.editBandMemberRequest(ArtistBandAddDto(10,joinedYear=2000,leftYear=2001),"user")
+            bandsMemberService.editBandMember(ArtistBandAddDto(10,joinedYear=2000,leftYear=2001),"user")
         }
     }
 
     @Test
-    fun `editBandMemberRequest should throw IllegalArgumentException when left year is below existing joined year`() {
+    fun `editBandMember should throw IllegalArgumentException when left year is below existing joined year`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
 
         assertThrows<IllegalArgumentException> {
-            bandsMemberService.editBandMemberRequest(ArtistBandAddDto(10,leftYear=1980),"user")
+            bandsMemberService.editBandMember(ArtistBandAddDto(10,leftYear=1980),"user")
         }
     }
 
     @Test
-    fun `editBandMemberRequest should update every supported field`() {
+    fun `editBandMember should update every supported field`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,4,5,"New","Guitar",1982,1989)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
@@ -242,7 +242,7 @@ class BandsMemberServiceTest {
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(bandService.getBandById(4)).thenReturn(Band().apply {id=4})
         `when`(artistService.getById(5)).thenReturn(Artist().apply {id=5})
-        bandsMemberService.editBandMemberRequest(dto,"user")
+        bandsMemberService.editBandMember(dto,"user")
 
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
@@ -251,57 +251,57 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `editBandMemberRequest should mark contributions as trusted for rank ten`() {
+    fun `editBandMember should mark contributions as trusted for rank ten`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,nickname="New")
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
-        bandsMemberService.editBandMemberRequest(dto,"user")
+        bandsMemberService.editBandMember(dto,"user")
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==true&&it.confirmedBy==7})
     }
 
     @Test
-    fun `deleteBandMemberRequest should throw ContributionLimitExceededException when user reaches contribution limit`() {
+    fun `deleteBandMember should throw ContributionLimitExceededException when user reaches contribution limit`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(ContributionLimitExceededException("limit"))
         assertThrows<ContributionLimitExceededException> {
-            bandsMemberService.deleteBandMemberRequest(10,"user")
+            bandsMemberService.deleteBandMember(10,"user")
         }
         verifyNoInteractions(repository,contributionRepository)
 
     }
 
     @Test
-    fun `deleteBandMemberRequest should skip contributions when logging is disabled`() {
+    fun `deleteBandMember should skip contributions when logging is disabled`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
-        bandsMemberService.deleteBandMemberRequest(10,"user",log=false)
+        bandsMemberService.deleteBandMember(10,"user",log=false)
         verifyNoInteractions(contributionRepository)
         verify(repository,never()).deleteById(10L)
     }
 
     @Test
-    fun `deleteBandMemberRequest should remove member for rank ten`() {
+    fun `deleteBandMember should remove member for rank ten`() {
         user.rank=Rank().apply {id=10}
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
 
-        bandsMemberService.deleteBandMemberRequest(10,"user",log=false)
+        bandsMemberService.deleteBandMember(10,"user",log=false)
 
         verify(repository).deleteById(10L)
     }
 
     @Test
-    fun `deleteBandMemberRequest should log every member field`() {
+    fun `deleteBandMember should log every member field`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
         `when`(contributionRepository.findTopChangeId()).thenReturn(20)
 
-        bandsMemberService.deleteBandMemberRequest(10,"user",log=true)
+        bandsMemberService.deleteBandMember(10,"user",log=true)
 
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,times(7)).save(captor.capture())

@@ -199,7 +199,7 @@ class ContributionServiceTest {
     @Test
     fun `confirmDataChangeRequest should delete band member contribution`() {
         confirmDelete("bands_members")
-        verify(bandsMemberService).deleteBandMemberRequest(3,"trusted",false)
+        verify(bandsMemberService).deleteBandMember(3,"trusted",false)
     }
 
     private fun confirmDelete(table:String) {

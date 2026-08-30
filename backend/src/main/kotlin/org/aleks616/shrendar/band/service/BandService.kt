@@ -194,7 +194,7 @@ class BandService(
     }
 
     @Transactional
-    fun addBandRequest(bandAddDto:BandAddDto,userLogin:String) {
+    fun addBand(bandAddDto:BandAddDto,userLogin:String) {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception

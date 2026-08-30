@@ -674,6 +674,13 @@ class AlbumControllerTest {
         }
 
         @Test
+        fun `albumValidate should reject null importance for single album`() {
+            val album=dto.copy(type=AlbumType.SINGLE,importance=null)
+
+            assertEquals(HttpStatus.BAD_REQUEST,controller.albumValidate(album)?.statusCode)
+        }
+
+        @Test
         fun `albumValidate should reject importance for other album`() {
             val album=dto.copy(type=AlbumType.OTHER,importance=1)
 
