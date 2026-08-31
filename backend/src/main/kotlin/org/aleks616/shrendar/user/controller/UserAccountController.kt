@@ -1,9 +1,12 @@
 package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
+import org.aleks616.shrendar.user.model.LoginRequestDto
+import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.ResetPassword
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.service.UserAccountService
@@ -22,21 +25,8 @@ class UserAccountController(
     private val rateLimiter:RateLimiter,
     private val tokenBlacklistService:TokenBlacklistService
 ) {
-    data class RegisterRequest(
-        val login:String,
-        val displayName:String,
-        val email:String,
-        val password:String
-    )
-
-    data class LoginRequest(
-        val login:String?,
-        val email:String?,
-        val password:String
-    )
-
     @PostMapping("/register")
-    fun register(@RequestBody request:RegisterRequest,servletRequest:HttpServletRequest):ResponseEntity<String> {
+    fun register(@RequestBody request:RegisterRequestDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
         return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts from this IP")
@@ -51,7 +41,7 @@ class UserAccountController(
 
     @PostMapping("/register/confirm")
     fun confirmRegistration(
-        @RequestBody request:RegisterRequest,
+        @RequestBody request:RegisterRequestDto,
         @RequestParam code:String,
         servletRequest:HttpServletRequest
     ):ResponseEntity<String> {
@@ -86,7 +76,7 @@ class UserAccountController(
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request:LoginRequest,servletRequest:HttpServletRequest):ResponseEntity<Any> {
+    fun login(@RequestBody request:LoginRequestDto,servletRequest:HttpServletRequest):ResponseEntity<Any> {
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("login:ip:$ip",10,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(mapOf("error" to "Too many login attempts"))
@@ -105,12 +95,12 @@ class UserAccountController(
         val header=servletRequest.getHeader("Authorization")
         if(header!=null&&header.startsWith("Bearer ")) {
             val token=header.substringAfter("Bearer ").trim()
-            if(token.isNotEmpty()) {
-                tokenBlacklistService.blacklistToken(token)
-            }
+            tokenBlacklistService.blacklistToken(token)
+
+            SecurityContextHolder.clearContext()
+            return ResponseEntity.ok("Logged out")
         }
-        SecurityContextHolder.clearContext()
-        return ResponseEntity.ok("Logged out")
+        return ResponseEntity.badRequest().body("No token provided")
     }
 
     @PostMapping("/updateUsername")
@@ -149,11 +139,33 @@ class UserAccountController(
 
     /**requires email**/
     @PostMapping("/deleteAccount")
-    fun deleteAccount(@RequestBody request:LoginRequest):ResponseEntity<Any> {
+    fun deleteAccount(@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
         userAccountService.authenticate(request,false)
         userAccountService.requestDeletion(request.email!!)
 
         return ResponseEntity.ok("Confirmed")
+    }
+
+    @PostMapping("/bio/add")
+    fun addBio(@RequestBody bio:String, servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        try{
+            userAccountService.addBio(bio,userLogin)
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+
+        return ResponseEntity.ok("Bio added")
     }
 
     @GetMapping("/loginCheck")

@@ -358,7 +358,7 @@ class ContributionControllerTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween should delegate valid dates`() {
+    fun `getContributionsByChangedAtBetween should work with valid dates`() {
         val start=LocalDate.of(2025,1,1)
         val end=LocalDate.of(2025,2,1)
         val expected=listOf(ContributionDto())

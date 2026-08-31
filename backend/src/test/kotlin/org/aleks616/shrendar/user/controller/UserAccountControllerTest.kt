@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.security.RateLimiter
+import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
-import org.aleks616.shrendar.user.model.Rank
-import org.aleks616.shrendar.user.model.ResetPassword
-import org.aleks616.shrendar.user.model.UserPasswordHistory
+import org.aleks616.shrendar.user.model.*
 import org.aleks616.shrendar.user.repository.RankRepository
+import org.aleks616.shrendar.user.repository.UserLogRepository
+import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
@@ -66,15 +67,24 @@ class UserAccountControllerTest {
     @Autowired
     private lateinit var rateLimiter:RateLimiter
     @Autowired
-    private lateinit var userLogRepository:org.aleks616.shrendar.user.repository.UserLogRepository
+    private lateinit var userLogRepository:UserLogRepository
 
     @Autowired
-    private lateinit var userPasswordHistoryRepository:org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
+    private lateinit var userPasswordHistoryRepository:UserPasswordHistoryRepository
+
+    @Autowired
+    private var userAccountService:UserAccountService=mock(UserAccountService::class.java)
+
+    @Autowired
+    private var tokenBlacklistService=mock(TokenBlacklistService::class.java)
+
+    private val request=mock(HttpServletRequest::class.java)
 
     @BeforeEach
     fun setup() {
         val mimeMessage=mock(jakarta.mail.internet.MimeMessage::class.java)
         `when`(mailSender.createMimeMessage()).thenReturn(mimeMessage)
+        `when`(request.remoteAddr).thenReturn("127.0.0.1")
         userPasswordHistoryRepository.deleteAll()
         userLogRepository.deleteAll()
         userRepository.deleteAll()
@@ -108,21 +118,23 @@ class UserAccountControllerTest {
         (lastSentField.get(storage) as MutableMap<*,*>).clear()
     }
 
+    private val rateLimiter1=mock(RateLimiter::class.java)
+
+    @Autowired
+    private var userAccountController:UserAccountController=UserAccountController(userAccountService,rateLimiter1,tokenBlacklistService)
+
+
     @Test
     fun `full registration flow should work`() {
-        val registerRequest=UserAccountController.RegisterRequest(
+        val dto=RegisterRequestDto(
             login="testuser",
             displayName="Test User",
             email="test@example.com",
             password="password123"
         )
 
-        mockMvc.post("/api/user-account/register") {
-            contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(registerRequest)
-        }.andExpect {
-            status {isOk()}
-        }
+        val result=userAccountController.register(dto,request)
+        assertEquals(HttpStatus.OK,result.statusCode)
 
         val codesField=CodeStorage::class.java.getDeclaredField("codes")
         codesField.isAccessible=true
@@ -130,13 +142,37 @@ class UserAccountControllerTest {
         val code=codes["test@example.com"]
         assertNotNull(code,"Verification code should be stored")
 
-        mockMvc.post("/api/user-account/register/confirm") {
-            param("code",code!!)
-            contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(registerRequest)
-        }.andExpect {
-            status {isOk()}
-        }
+        val confirmResult=userAccountController.confirmRegistration(dto,code?:"",request)
+       assertEquals(HttpStatus.OK,confirmResult.statusCode)
+
+        val user=userRepository.findByEmail("test@example.com")
+        assertNotNull(user)
+        assertTrue(user?.verified==true)
+        assertEquals("testuser",user?.login)
+    }
+
+    @Test
+    fun `registration should work if IP is unknown`() {
+        val dto=RegisterRequestDto(
+            login="testuser",
+            displayName="Test User",
+            email="test@example.com",
+            password="password123"
+        )
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter1.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=userAccountController.register(dto,request)
+        assertEquals(HttpStatus.OK,result.statusCode)
+
+        val codesField=CodeStorage::class.java.getDeclaredField("codes")
+        codesField.isAccessible=true
+        val codes=codesField.get(registrationCodeStorage) as Map<String,String>
+        val code=codes["test@example.com"]
+        assertNotNull(code,"Verification code should be stored")
+
+        val confirmResult=userAccountController.confirmRegistration(dto,code?:"",request)
+        assertEquals(HttpStatus.OK,confirmResult.statusCode)
 
         val user=userRepository.findByEmail("test@example.com")
         assertNotNull(user)
@@ -150,7 +186,7 @@ class UserAccountControllerTest {
         val login="resetuser"
         val oldPassword="oldPassword"
 
-        val regReq=UserAccountController.RegisterRequest(login,"Reset User",email,oldPassword)
+        val regReq=RegisterRequestDto(login,"Reset User",email,oldPassword)
         mockMvc.post("/api/user-account/register") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(regReq)
@@ -185,7 +221,7 @@ class UserAccountControllerTest {
             status {isOk()}
         }
 
-        val loginReq=UserAccountController.LoginRequest(login,null,newPassword)
+        val loginReq=LoginRequestDto(login,null,newPassword)
         mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginReq)
@@ -193,9 +229,6 @@ class UserAccountControllerTest {
             status {isOk()}
         }
     }
-
-    @Autowired
-    private lateinit var userAccountService:UserAccountService
 
     @Test
     fun `should update username and handle 90-day restriction`() {
@@ -222,7 +255,7 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `should update email`() {
+    fun `updating email should work`() {
         val email="old@example.com"
         val login="emailuser"
         registerAndConfirm(login,email)
@@ -240,7 +273,7 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `should add birthday and handle restrictions`() {
+    fun `adding birthday should work and handle restrictions`() {
         val email="birth@example.com"
         registerAndConfirm("birthuser",email)
 
@@ -272,12 +305,12 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `account deletion flow should work`() {
+    fun `account deletion should work`() {
         val email="delete@example.com"
         val password="password123"
         registerAndConfirm("deleteuser",email,password)
 
-        val loginRequest=UserAccountController.LoginRequest(null,email,password)
+        val loginRequest=LoginRequestDto(null,email,password)
         mockMvc.post("/api/user-account/deleteAccount") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginRequest)
@@ -311,15 +344,15 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `login and logout flow should work`() {
+    fun `login and logout should work`() {
         val email="login@example.com"
         val password="password123"
         registerAndConfirm("loginuser",email,password)
 
-        val loginReq=UserAccountController.LoginRequest(null,email,password)
+        val dto=LoginRequestDto(null,email,password)
         val result=mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(loginReq)
+            content=objectMapper.writeValueAsString(dto)
         }.andExpect {
             status {isOk()}
         }.andReturn()
@@ -336,12 +369,28 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `should fail if token doesn't have bearer`() {
+    fun `login should work if ip is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter1.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
         val email="login@example.com"
         val password="password123"
         registerAndConfirm("loginuser",email,password)
 
-        val loginReq=UserAccountController.LoginRequest(null,email,password)
+        val dto=LoginRequestDto(null,email,password)
+        val result=userAccountController.login(dto,request)
+        assertEquals(HttpStatus.OK,result.statusCode)
+    }
+
+
+    @Test
+    fun `logout should fail if header is null`() {
+        val email="login@example.com"
+        val password="password123"
+        registerAndConfirm("loginuser",email,password)
+        `when`(request.getHeader("Authorization")).thenReturn(null)
+
+        val loginReq=LoginRequestDto(null,email,password)
         val result=mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginReq)
@@ -353,11 +402,32 @@ class UserAccountControllerTest {
         val token=responseMap["token"] as String
         assertNotNull(token)
 
-        mockMvc.post("/api/user-account/logout") {
-            header("Authorization",token)
+        val resultOut=userAccountController.logout(request)
+        assertEquals(HttpStatus.BAD_REQUEST,resultOut.statusCode)
+    }
+
+    @Test
+    fun `logout should fail if token doesn't have bearer`() {
+        val email="login@example.com"
+        val password="password123"
+        registerAndConfirm("loginuser",email,password)
+
+        val loginReq=LoginRequestDto(null,email,password)
+        val result=mockMvc.post("/api/user-account/login") {
+            contentType=MediaType.APPLICATION_JSON
+            content=objectMapper.writeValueAsString(loginReq)
         }.andExpect {
-            status {isForbidden()}
-        }
+            status {isOk()}
+        }.andReturn()
+
+        val servletRequest:HttpServletRequest=request
+        val responseMap=objectMapper.readValue(result.response.contentAsString,Map::class.java)
+        val token=responseMap["token"] as String
+        assertNotNull(token)
+        `when`(servletRequest.getHeader("Authorization")).thenReturn(token)
+
+        val resultOut=userAccountController.logout(request)
+        assertEquals(HttpStatus.BAD_REQUEST,resultOut.statusCode)
     }
 
     @Test
@@ -421,18 +491,18 @@ class UserAccountControllerTest {
 
     @Test
     fun `register IP rate limit should work`() {
-        val registerRequest=UserAccountController.RegisterRequest("rateuser","Rate User","rate@example.com","pass")
+        val registerRequestDto=RegisterRequestDto("rateuser","Rate User","rate@example.com","pass")
 
         repeat(10) {
             mockMvc.post("/api/user-account/register") {
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(registerRequest)
+                content=objectMapper.writeValueAsString(registerRequestDto)
                 with {it.apply {remoteAddr="1.2.3.4"}}
             }
         }
         mockMvc.post("/api/user-account/register") {
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(registerRequest)
+            content=objectMapper.writeValueAsString(registerRequestDto)
             with {it.apply {remoteAddr="1.2.3.4"}}
         }.andExpect {
             status {isTooManyRequests()}
@@ -441,7 +511,7 @@ class UserAccountControllerTest {
 
     @Test
     fun `login IP rate limit should work`() {
-        val loginReq=UserAccountController.LoginRequest(null,"rate@example.com","pass")
+        val loginReq=LoginRequestDto(null,"rate@example.com","pass")
         repeat(10) {
             mockMvc.post("/api/user-account/login") {
                 contentType=MediaType.APPLICATION_JSON
@@ -461,17 +531,17 @@ class UserAccountControllerTest {
     @Test
     fun `register rate limit should work`() {
         val email="rate@example.com"
-        val registerRequest=UserAccountController.RegisterRequest("rateuser","Rate User",email,"pass")
+        val registerRequestDto=RegisterRequestDto("rateuser","Rate User",email,"pass")
 
         repeat(5) {
             mockMvc.post("/api/user-account/register") {
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(registerRequest)
+                content=objectMapper.writeValueAsString(registerRequestDto)
             }
         }
         mockMvc.post("/api/user-account/register") {
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(registerRequest)
+            content=objectMapper.writeValueAsString(registerRequestDto)
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -497,18 +567,18 @@ class UserAccountControllerTest {
 
     @Test
     fun `register confirm rate limit should work`() {
-        val registerRequest=UserAccountController.RegisterRequest("rateuser","Rate User","rate@example.com","pass")
+        val registerRequestDto=RegisterRequestDto("rateuser","Rate User","rate@example.com","pass")
         repeat(10) {
             mockMvc.post("/api/user-account/register/confirm") {
                 param("code","1234")
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(registerRequest)
+                content=objectMapper.writeValueAsString(registerRequestDto)
             }
         }
         mockMvc.post("/api/user-account/register/confirm") {
             param("code","1234")
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(registerRequest)
+            content=objectMapper.writeValueAsString(registerRequestDto)
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -549,7 +619,7 @@ class UserAccountControllerTest {
     @Test
     fun `login rate limit should work`() {
         val email="rate@example.com"
-        val loginReq=UserAccountController.LoginRequest(null,email,"pass")
+        val loginReq=LoginRequestDto(null,email,"pass")
         repeat(5) {
             mockMvc.post("/api/user-account/login") {
                 contentType=MediaType.APPLICATION_JSON
@@ -599,7 +669,7 @@ class UserAccountControllerTest {
     @Test
     fun `login should return unauthorized for invalid credentials`() {
         registerAndConfirm("erroruser","error@example.com")
-        val invalidLogin=UserAccountController.LoginRequest("erroruser",null,"wrongpass")
+        val invalidLogin=LoginRequestDto("erroruser",null,"wrongpass")
         mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(invalidLogin)
@@ -664,7 +734,7 @@ class UserAccountControllerTest {
 
     @Test
     fun `login should return bad request for empty credentials`() {
-        val emptyLogin=UserAccountController.LoginRequest("","","pass")
+        val emptyLogin=LoginRequestDto("","","pass")
         mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(emptyLogin)
@@ -692,15 +762,29 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `doesLoginExist should return true for existing login`() {
+    fun `doesAccountExist should return true for existing login`() {
         val login="loginexist"
         registerAndConfirm(login,"loginexist@example.com")
         assertTrue(userAccountService.doesAccountExist(login))
     }
 
     @Test
+    fun `doesUserExist should return true for existing id`() {
+        userRepository.saveAndFlush(User().apply {
+            login="user"
+            username="User"
+            email="user@example.com"
+            passwordHash="hash"
+            rank=rankRepository.findById(1).get()
+            verified=true
+        })
+
+        assertTrue(userAccountService.doesUserExist(1))
+    }
+
+    @Test
     fun `login should return unauthorized for missing credentials`() {
-        val loginReq=UserAccountController.LoginRequest(null,null,"pass")
+        val loginReq=LoginRequestDto(null,null,"pass")
         mockMvc.post("/api/user-account/login") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginReq)
@@ -746,30 +830,8 @@ class UserAccountControllerTest {
         assertTrue(history.any {it.id==historyIds.last()})
     }
 
-    @PostMapping("/bio/add")
-    fun addBio(@RequestBody bio:String, servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
-        val userLogin=user.name
-
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-
-        try{
-            userAccountService.addBio(bio,userLogin)
-        }
-        catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
-        }
-
-        return ResponseEntity.ok("Bio added")
-    }
-
     private fun registerAndConfirm(login:String,email:String,password:String="password") {
-        val regReq=UserAccountController.RegisterRequest(login,login,email,password)
+        val regReq=RegisterRequestDto(login,login,email,password)
         mockMvc.post("/api/user-account/register") {
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(regReq)

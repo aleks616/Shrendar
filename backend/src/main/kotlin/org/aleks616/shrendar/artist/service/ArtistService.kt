@@ -51,7 +51,12 @@ class ArtistService(
         else{
             age=dataRaw.birthDate!!.until(LocalDate.now()).years
         }
-        val gender=if(dataRaw.gender=='M') "Male" else if(dataRaw.gender=='F') "Female" else "unknown"
+        val gender=when(dataRaw.gender){
+            'M'->"Male"
+            'F'->"Female"
+            else->"Unknown"
+        }
+
         val country=countryRepository.getCountryNameById(dataRaw.country)
         val zodiacSign=getZodiacSign(dataRaw.birthDate!!.monthValue,dataRaw.birthDate!!.dayOfMonth)
         val chineseZodiacSign=getChineseZodiacSign(dataRaw.birthDate!!.year)

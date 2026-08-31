@@ -121,17 +121,28 @@ class ContributionServiceTest {
     }
 
     @Test
-    fun `getContributionsByChangedAtBetween should use supplied dates`() {
+    fun `getContributionsByChangedAtBetween should use work for valid dates`() {
         val start=LocalDate.of(2026,1,1)
         val end=LocalDate.of(2026,1,3)
         `when`(contributionRepository.findContributionsByChangedAtBetween(start,end)).thenReturn(mutableListOf(contribution))
+
         val result=contributionService.getContributionsByChangedAtBetween(start,end)
         assertEquals(1,result.size)
         verify(contributionRepository).findContributionsByChangedAtBetween(start,end)
     }
 
     @Test
-    fun `getContributionsByRequestingUserAndChangedAtBetween should use supplied arguments`() {
+    fun `getContributionsByChangedAtBetween should use work without end date`() {
+        val start=LocalDate.of(2024,1,1)
+        `when`(contributionRepository.findContributionsByChangedAtBetween(start,LocalDate.now())).thenReturn(mutableListOf(contribution))
+
+        val result=contributionService.getContributionsByChangedAtBetween(start)
+        assertEquals(1,result.size)
+        verify(contributionRepository).findContributionsByChangedAtBetween(start,LocalDate.now())
+    }
+
+    @Test
+    fun `getContributionsByRequestingUserAndChangedAtBetween should work for valid arguments`() {
         val start=LocalDate.of(2026,1,1)
         val end=LocalDate.of(2026,1,3)
         `when`(contributionRepository.findContributionsByChangedAtBetweenAndUser(start,end,7))
@@ -139,6 +150,16 @@ class ContributionServiceTest {
         val result=contributionService.getContributionsByRequestingUserAndChangedAtBetween(start,end,7)
         assertEquals(1,result.size)
         verify(contributionRepository).findContributionsByChangedAtBetweenAndUser(start,end,7)
+    }
+
+    @Test
+    fun `getContributionsByRequestingUserAndChangedAtBetween should use work without end date`() {
+        val start=LocalDate.of(2024,1,1)
+        `when`(contributionRepository.findContributionsByChangedAtBetweenAndUser(start,LocalDate.now(),7)).thenReturn(mutableListOf(contribution))
+
+        val result=contributionService.getContributionsByRequestingUserAndChangedAtBetween(start,id=7)
+        assertEquals(1,result.size)
+        verify(contributionRepository).findContributionsByChangedAtBetweenAndUser(start,LocalDate.now(),7)
     }
 
     @Test

@@ -34,8 +34,8 @@ class ArtistServiceTest {
     private lateinit var userArtistRepository:UserArtistRepository
     private lateinit var artistService:ArtistService
     private lateinit var artist:Artist
-
     private lateinit var artist1:Artist
+    private lateinit var artist2:Artist
     private lateinit var requestingUser:User
 
     @BeforeEach
@@ -56,7 +56,6 @@ class ArtistServiceTest {
             gender='M'
             country=1
             description="Metallica frontman"
-            artistImageUrl="https://example.com/james.jpg"
         }
         artist1=Artist().apply {
             id=2
@@ -65,6 +64,15 @@ class ArtistServiceTest {
             gender='F'
             country=1
             description="idk"
+            artistImageUrl="https://example.com/someone.jpg"
+        }
+        artist2=Artist().apply {
+            id=3
+            name="Satan"
+            birthDate=LocalDate.of(1950,9,11)
+            gender=null
+            country=1
+            description="satan"
             artistImageUrl="https://example.com/someone.jpg"
         }
         requestingUser=User().apply {
@@ -94,7 +102,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByIdWiki should map living artist`() {
+    fun `getByIdWiki should work for a living artist (m)`() {
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1)).thenReturn(artist)
         `when`(countryRepository.getCountryNameById(1)).thenReturn("USA")
@@ -109,7 +117,7 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByIdWiki should calculate dead artist age`() {
+    fun `getByIdWiki should calculate dead artist age (f)`() {
         artist1.deathDate=LocalDate.of(2020,9,27)
         `when`(artistRepository.existsArtistById(2)).thenReturn(true)
         `when`(artistRepository.findArtistById(2)).thenReturn(artist1)
@@ -118,6 +126,17 @@ class ArtistServiceTest {
         assertEquals(51,result.age)
         assertNotNull(result.daysTillDeathAnniversary)
     }
+
+    @Test
+    fun `getByIdWiki should work for unknown gender (x)`() {
+        artist2.deathDate=LocalDate.of(2022,9,27)
+        `when`(artistRepository.existsArtistById(3)).thenReturn(true)
+        `when`(artistRepository.findArtistById(3)).thenReturn(artist2)
+        `when`(countryRepository.getCountryNameById(2)).thenReturn("USA")
+        val result=artistService.getByIdWiki(3)
+        assertEquals("Unknown",result.gender)
+    }
+
 
     @Test
     fun `getByNameLike should delegate to repository`() {
@@ -274,6 +293,7 @@ class ArtistServiceTest {
             description="Description",artistImageUrl="https://example.com/artist.jpg"
         )
         stubAddDependencies()
+        `when`(contributionRepository.findTopChangeId()).thenReturn(1)
         artistService.addArtistRequest(dto,"tester")
         val saved=ArgumentCaptor.forClass(Artist::class.java)
         verify(artistRepository).save(saved.capture())
@@ -300,20 +320,31 @@ class ArtistServiceTest {
     }
 
     @Test
+    fun `editArtistRequest should throw contribution limit exception`() {
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(ContributionLimitExceededException("limit"))
+        assertThrows<ContributionLimitExceededException> {
+            artistService.editArtistRequest(ArtistAddDto(name="Artist"),"tester")
+        }
+        verifyNoInteractions(artistRepository,contributionRepository)
+    }
+
+    @Test
     fun `editArtistRequest should update changed values and log changes`() {
         stubEditDependencies()
-        artistService.editArtistRequest(ArtistAddDto(id=1,name="New Name",gender='X'),"tester")
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+        artistService.editArtistRequest(ArtistAddDto(id=1,name="New Name",gender='X',country=1,description=null,artistImageUrl="https://example.org/img.jpg"),"tester")
         assertEquals("New Name",artist.name)
         assertEquals('X',artist.gender)
         verify(artistRepository).save(artist)
-        verify(contributionRepository,times(2)).save(any(Contribution::class.java))
+        verify(contributionRepository,times(3)).save(any(Contribution::class.java))
     }
 
     @Test
     fun `editArtistRequest should mark trusted contributions confirmed`() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-
+        `when`(contributionRepository.findTopChangeId()).thenReturn(1)
         artistService.editArtistRequest(ArtistAddDto(id=1,name="Trusted Name"),"tester")
 
         val saved=ArgumentCaptor.forClass(Contribution::class.java)
@@ -331,6 +362,32 @@ class ArtistServiceTest {
     }
 
     @Test
+    fun `deleteArtistRequest should log and delete for trusted user`() {
+        requestingUser.rank=Rank().apply {id=10}
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
+        `when`(artistRepository.existsArtistById(1)).thenReturn(true)
+        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+        artistService.deleteArtistRequest(1,"tester")
+        verify(artistRepository).deleteById(1L)
+        verify(contributionRepository,times(8)).save(any(Contribution::class.java))
+    }
+
+    @Test
+    fun `deleteArtistRequest should log and delete for trusted user v2`() {
+        requestingUser.rank=Rank().apply {id=10}
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
+        `when`(artistRepository.existsArtistById(1)).thenReturn(true)
+        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(3)
+        artistService.deleteArtistRequest(1,"tester")
+        verify(artistRepository).deleteById(1L)
+        verify(contributionRepository,times(8)).save(any(Contribution::class.java))
+    }
+
+    @Test
     fun `deleteArtistRequest should not delete untrusted user`() {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
@@ -340,15 +397,13 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `deleteArtistRequest should log and delete for trusted user`() {
-        requestingUser.rank=Rank().apply {id=10}
+    fun `deleteArtistRequest should throw contribution limit exception`() {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
-        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
-        `when`(artistRepository.existsArtistById(1)).thenReturn(true)
-        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
-        artistService.deleteArtistRequest(1,"tester")
-        verify(artistRepository).deleteById(1L)
-        verify(contributionRepository,times(8)).save(any(Contribution::class.java))
+        `when`(rankService.checkRank(requestingUser)).thenReturn(ContributionLimitExceededException("limit"))
+        assertThrows<ContributionLimitExceededException> {
+            artistService.deleteArtistRequest(1,"tester",log=false)
+        }
+        verifyNoInteractions(artistRepository,contributionRepository)
     }
 
     @Test
@@ -369,6 +424,14 @@ class ArtistServiceTest {
     }
 
     @Test
+    fun `toggleFavoriteArtist should throw error for user that doesn't exist`() {
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(null)
+        `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
+
+        assertThrows<IllegalStateException>{artistService.toggleFavoriteArtist(1L,"tester")}
+    }
+
+    @Test
     fun `getArtistGenres should return artist name and all matching genres`() {
         val expected=ArtistGenreDto(
             artistId=1,
@@ -383,6 +446,7 @@ class ArtistServiceTest {
 
     private fun stubAddDependencies() {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
     }
 
     private fun stubEditDependencies() {

@@ -99,7 +99,7 @@ class GenreServiceTest {
     }
 
     @Test
-    fun `toggleFavoriteGenre rejects unknown user`() {
+    fun `toggleFavoriteGenre throws error unknown user`() {
         `when`(userRepository.findByLogin("missing")).thenReturn(null)
 
         assertThrows<IllegalStateException> {
