@@ -233,7 +233,7 @@ class BandService(
 
         changes.forEach {
             contributionRepository.save(Contribution().apply {
-                changedRecordId=bandId?.toLong()
+                changedRecordId=bandId!!.toLong()
                 changeId=lastChangeId+1
                 user=requestingUser
                 action=Action.CREATE
@@ -278,7 +278,6 @@ class BandService(
         updateIfChanged("country",band.country,bandAddDto.country,{band.country=it})
         updateIfChanged("description",band.description,bandAddDto.description,{band.description=it})
         updateIfChanged("image_url",band.imageUrl,bandAddDto.imageUrl,{band.imageUrl=it})
-        //averageGenre should be updated separately
 
         if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
@@ -364,9 +363,8 @@ class BandService(
     fun toggleFavoriteBand(bandId:Int,login:String) {
         val user=userAccountService.getUserByLogin(login)?:throw IllegalStateException("User not found")
         val band=bandRepository.findBandById(bandId)
-        val recordId:Long=userBandRepository.findByBandAndUser(band,user)?.id?:-1L
-
-        if(recordId==-1L) {
+        val recordId=userBandRepository.findByBandAndUser(band,user)?.id
+        if(recordId==null) {
             userBandRepository.saveAndFlush(UsersBands().apply {
                 this.user=user
                 this.band=band
