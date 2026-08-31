@@ -1631,7 +1631,7 @@ class BandControllerTest {
                 artistId=artist.id,
                 role="Vocals",
                 joinedYear=1981,
-                nickname="Papa Het"
+                nickname="example"
             )
 
             mockMvc.post("/api/band/member-add") {
@@ -1644,7 +1644,7 @@ class BandControllerTest {
 
             val member = bandsMemberRepository.findAll().find { it.artist?.id == artist.id && it.band?.id == band.id }
             assertNotNull(member)
-            assertEquals("Papa Het", member?.nickname)
+            assertEquals("example", member?.nickname)
         }
 
         @Test

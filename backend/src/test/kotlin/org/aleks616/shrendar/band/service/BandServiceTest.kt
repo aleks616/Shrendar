@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.band.service
 
+import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import java.time.LocalDate
 import java.util.*
@@ -285,8 +287,10 @@ class BandServiceTest {
 
         service.calculateBandsGenre(1)
 
+        val saved=ArgumentCaptor.forClass(BandsGenres::class.java)
+        verify(bandsGenreRepository).save(saved.capture())
+        assertNull(saved.value.id)
         verify(bandsGenreRepository).deleteByBandsId(1)
-        verify(bandsGenreRepository).save(any(BandsGenres::class.java))
         verify(bandRepository).save(band)
         assertNotNull(band.averageGenre)
     }

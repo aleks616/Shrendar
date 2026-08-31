@@ -37,11 +37,11 @@ class BandsMemberServiceTest {
         user=User().apply {id=7; login="user"; rank=Rank().apply {id=1}}
         member=BandsMembers().apply {
             id=10
-            artist=Artist().apply {id=2; name="James"}
+            artist=Artist().apply {id=2; name="James Hetfield"}
             band=Band().apply {id=3; name="Metallica"}
             role="Vocals"
             joinedYear=1981
-            nickname="Het"
+            nickname=null
         }
     }
 
@@ -53,15 +53,15 @@ class BandsMemberServiceTest {
 
     @Test
     fun `getBandMembersRaw should return repository rows`() {
-        val raw=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
+        val raw=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(raw))
         assertEquals(listOf(raw),bandsMemberService.getBandMembersRaw(3))
     }
 
     @Test
     fun `getAllBandMembers should group roles for one artist`() {
-        val first=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
-        val second=BandsMembersDataDto(11,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
+        val first=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
+        val second=BandsMembersDataDto(11,2,"James Hetfield",3,"Metallica","Guitar",1985,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(first,second))
 
         val all=bandsMemberService.getAllBandMembers(3)
@@ -70,10 +70,10 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getAllBandMembersWiki should map member data`() {
-        val source=BandsMembersDto(10,2,"James",3,"Metallica","Het",mutableListOf("Vocals (1981-)"))
+    fun `getAllBandMembersWiki should return member data`() {
+        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,mutableListOf("Vocals (1981-)"))
         `when`(repository.findAllByBandName(3)).thenReturn(
-            listOf(BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het"))
+            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
         )
         assertEquals(
             listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,source.yearRole)),
@@ -82,25 +82,46 @@ class BandsMemberServiceTest {
     }
 
     @Test
+    fun `getAllBandMembersWiki should work for missing yearRole`() {
+        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,null)
+        `when`(repository.findAllByBandName(3)).thenReturn(
+            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
+        )
+        assertEquals(
+            listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,mutableListOf("Vocals (1981-)"))),
+            bandsMemberService.getAllBandMembersWiki(3)
+        )
+    }
+
+    @Test
     fun `getCurrentBandMembers should return open ended roles`() {
-        val current=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,null)
-        val past=BandsMembersDataDto(11,4,"Lars",3,"Metallica","Drums",1981,1990,null)
+        val current=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
+        val past=BandsMembersDataDto(11,4,"Lars Ulrich",3,"Metallica","Drums",1981,1990,null)
+
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(current,past))
         assertEquals(listOf(2L),bandsMemberService.getCurrentBandMembers(3).map {it.artistId})
     }
 
     @Test
+    fun `getAllBandMembers should throw exception`() {
+        val memberData=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica",null,null,null,null)
+
+        `when`(repository.findAllByBandName(3)).thenReturn(listOf(memberData))
+        assertThrows<IllegalStateException> {bandsMemberService.getAllBandMembers(3)}
+    }
+
+    @Test
     fun `getPastBandMembers should exclude open ended roles`() {
-        val current=BandsMembersDataDto(10,2,"James",3,"Metallica","Vocals",1981,null,null)
-        val past=BandsMembersDataDto(11,4,"Lars",3,"Metallica","Drums",1981,1990,null)
+        val current=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
+        val past=BandsMembersDataDto(11,4,"Lars Ulrich",3,"Metallica","Drums",1981,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(current,past))
         assertEquals(listOf(4L),bandsMemberService.getPastBandMembers(3).map {it.artistId})
     }
 
     @Test
     fun `getBandsByArtistId should group roles`() {
-        val first=ArtistBandsDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
-        val second=ArtistBandsDto(12,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
+        val first=ArtistBandsDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
+        val second=ArtistBandsDto(12,2,"James Hetfield",3,"Metallica","Guitar",1985,1990,null)
         `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second))
 
         val result=bandsMemberService.getBandsByArtistId(2)
@@ -121,6 +142,7 @@ class BandsMemberServiceTest {
     @Test
     fun `addBandMember should record member contribution`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(2)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(artistService.getById(2)).thenReturn(member.artist!!)
@@ -151,6 +173,7 @@ class BandsMemberServiceTest {
     @Test
     fun `editBandMember should update changed fields`() {
         val dto=ArtistBandAddDto(10,3,2,"New","Guitar",1982,1989)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(2)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
         `when`(rankService.checkRank(user)).thenReturn(null)
         `when`(repository.findById(10L)).thenReturn(member)
@@ -180,7 +203,7 @@ class BandsMemberServiceTest {
 
     @Test
     fun `getAllBandMembers should format same-year roles without range`() {
-        val sameYear=BandsMembersDataDto(12,4,"Lars",3,"Metallica","Drums",1990,1990,null)
+        val sameYear=BandsMembersDataDto(12,4,"Lars Ulrich",3,"Metallica","Drums",1990,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(sameYear))
         assertEquals(listOf("Drums (1990)"),bandsMemberService.getAllBandMembers(3).first().yearRole)
     }
@@ -194,7 +217,7 @@ class BandsMemberServiceTest {
     @Test
     fun `getBandsByArtistId should format same-year roles`() {
         val sameYear=ArtistBandsDto(
-            10,2,"James",3,"Metallica","Vocals",1981,1981,"Het"
+            10,2,"James Hetfield",3,"Metallica","Vocals",1981,1981,null
         )
         `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(sameYear))
         assertEquals(listOf("1981"),bandsMemberService.getBandsByArtistId(2).first().yearRole)
@@ -251,7 +274,7 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `editBandMember should mark contributions as trusted for rank ten`() {
+    fun `editBandMember should mark contributions as trusted when requesting user has rank 10`() {
         user.rank=Rank().apply {id=10}
         val dto=ArtistBandAddDto(10,nickname="New")
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
@@ -261,6 +284,46 @@ class BandsMemberServiceTest {
         val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==true&&it.confirmedBy==7})
+    }
+
+    @Test
+    fun `deleteBandMember should remove member when requesting user has rank 10`() {
+        user.rank=Rank().apply {id=10}
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
+        `when`(rankService.checkRank(user)).thenReturn(null)
+        `when`(repository.findById(10L)).thenReturn(member)
+
+        bandsMemberService.deleteBandMember(10,"user")
+
+        verify(repository).deleteById(10L)
+    }
+
+    @Test
+    fun `deleteBandMember should log every member field`() {
+        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
+        `when`(rankService.checkRank(user)).thenReturn(null)
+        `when`(repository.findById(10L)).thenReturn(member)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(2)
+
+        bandsMemberService.deleteBandMember(10,"user",log=true)
+
+        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
+        verify(contributionRepository,times(7)).save(captor.capture())
+        val byColumn=captor.allValues.associateBy {it.changedColumn}
+        assertEquals(setOf("id","band_id","artist_id","nickname","role","joined_year","left_year"),byColumn.keys)
+        assertEquals("10",byColumn["id"]?.oldValue)
+        assertEquals("3",byColumn["band_id"]?.oldValue)
+        assertEquals("2",byColumn["artist_id"]?.oldValue)
+        assertEquals(null,byColumn["nickname"]?.oldValue)
+        assertEquals("Vocals",byColumn["role"]?.oldValue)
+        assertEquals("1981",byColumn["joined_year"]?.oldValue)
+        assertEquals("null",byColumn["left_year"]?.oldValue)
+        assertTrue(captor.allValues.all {
+            it.action==Action.DELETE&&it.changedTable=="bands_members"&&
+                it.changedRecordId==10L&&it.newValue==null&&it.confirmed==false&&it.confirmedBy==null
+        })
+        verify(repository,never()).deleteById(10L)
     }
 
     @Test
@@ -283,49 +346,12 @@ class BandsMemberServiceTest {
         verify(repository,never()).deleteById(10L)
     }
 
-    @Test
-    fun `deleteBandMember should remove member for rank ten`() {
-        user.rank=Rank().apply {id=10}
-        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
-        `when`(rankService.checkRank(user)).thenReturn(null)
-
-        bandsMemberService.deleteBandMember(10,"user",log=false)
-
-        verify(repository).deleteById(10L)
-    }
-
-    @Test
-    fun `deleteBandMember should log every member field`() {
-        `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
-        `when`(rankService.checkRank(user)).thenReturn(null)
-        `when`(repository.findById(10L)).thenReturn(member)
-        `when`(contributionRepository.findTopChangeId()).thenReturn(20)
-
-        bandsMemberService.deleteBandMember(10,"user",log=true)
-
-        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
-        verify(contributionRepository,times(7)).save(captor.capture())
-        val byColumn=captor.allValues.associateBy {it.changedColumn}
-        assertEquals(setOf("id","band_id","artist_id","nickname","role","joined_year","left_year"),byColumn.keys)
-        assertEquals("10",byColumn["id"]?.oldValue)
-        assertEquals("3",byColumn["band_id"]?.oldValue)
-        assertEquals("2",byColumn["artist_id"]?.oldValue)
-        assertEquals("Het",byColumn["nickname"]?.oldValue)
-        assertEquals("Vocals",byColumn["role"]?.oldValue)
-        assertEquals("1981",byColumn["joined_year"]?.oldValue)
-        assertEquals("null",byColumn["left_year"]?.oldValue)
-        assertTrue(captor.allValues.all {
-            it.action==Action.DELETE&&it.changedTable=="bands_members"&&
-                it.changedRecordId==10L&&it.newValue==null&&it.confirmed==false&&it.confirmedBy==null
-        })
-        verify(repository,never()).deleteById(10L)
-    }
 
     @Test
     fun `getArtistBandsList should return unique current-band data for the artist`() {
-        val first=ArtistBandsDto(10,2,"James",3,"Metallica","Vocals",1981,null,"Het")
-        val second=ArtistBandsDto(11,2,"James",3,"Metallica","Guitar",1985,1990,"Het")
-        val third=ArtistBandsDto(12,2,"James",4,"Covers","Bass",1996,null,"J")
+        val first=ArtistBandsDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
+        val second=ArtistBandsDto(11,2,"James Hetfield",3,"Metallica","Guitar",1985,1990,null)
+        val third=ArtistBandsDto(12,2,"James Hetfield",4,"Covers","Bass",1996,null,"J")
         `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second,third))
 
         val result=bandsMemberService.getArtistBandsList(2)
@@ -334,6 +360,6 @@ class BandsMemberServiceTest {
         assertEquals(listOf(3,4),result.map {it.bandId})
         assertEquals(true,result.first().current)
         assertEquals(true,result.last().current)
-        assertEquals("James",result.first().artistName)
+        assertEquals("James Hetfield",result.first().artistName)
     }
 }

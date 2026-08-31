@@ -54,7 +54,8 @@ class BandsMemberService(
             found=false
             val left:String=if(d.leftYear==null) "" else d.leftYear.toString()
             val yearRole:String=
-                if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})")
+                if(d.joinedYear==null) throw IllegalStateException("Joined year is required")
+                else if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})")
                 else ("${d.role} (${d.joinedYear})")
 
             result.forEach {r->
@@ -268,6 +269,7 @@ class BandsMemberService(
 
         bandsMemberRepository.save(bandMember)
         val lastChangeId=contributionRepository.findTopChangeId()?:0
+
         changes.forEach { (column,oldValue,newValue)->
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
@@ -303,8 +305,8 @@ class BandsMemberService(
             val bandMember=bandsMemberRepository.findById(id)
             val changes:List<Triple<String,String?,String?>> =listOf(
                 Triple("id",bandMember.id.toString(),null),
-                Triple("band_id",bandMember.band?.id.toString(),null),
-                Triple("artist_id",bandMember.artist?.id.toString(),null),
+                Triple("band_id",bandMember.band!!.id.toString(),null),
+                Triple("artist_id",bandMember.artist!!.id.toString(),null),
                 Triple("nickname",bandMember.nickname,null),
                 Triple("role",bandMember.role,null),
                 Triple("joined_year",bandMember.joinedYear.toString(),null),
@@ -312,6 +314,7 @@ class BandsMemberService(
             )
 
             val lastChangeId=contributionRepository.findTopChangeId()?:0
+
             changes.forEach {(column,oldValue,newValue)->
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1

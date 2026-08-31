@@ -762,10 +762,24 @@ class UserAccountControllerTest {
     }
 
     @Test
-    fun `doesLoginExist should return true for existing login`() {
+    fun `doesAccountExist should return true for existing login`() {
         val login="loginexist"
         registerAndConfirm(login,"loginexist@example.com")
         assertTrue(userAccountService.doesAccountExist(login))
+    }
+
+    @Test
+    fun `doesUserExist should return true for existing id`() {
+        userRepository.saveAndFlush(User().apply {
+            login="user"
+            username="User"
+            email="user@example.com"
+            passwordHash="hash"
+            rank=rankRepository.findById(1).get()
+            verified=true
+        })
+
+        assertTrue(userAccountService.doesUserExist(1))
     }
 
     @Test
@@ -814,28 +828,6 @@ class UserAccountControllerTest {
         assertEquals(10,history.size)
         assertFalse(history.any {it.id==historyIds.first()})
         assertTrue(history.any {it.id==historyIds.last()})
-    }
-
-    @PostMapping("/bio/add")
-    fun addBio(@RequestBody bio:String, servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
-        val userLogin=user.name
-
-        val ip=servletRequest.remoteAddr?:"unknown"
-        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
-        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-
-        try{
-            userAccountService.addBio(bio,userLogin)
-        }
-        catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
-        }
-
-        return ResponseEntity.ok("Bio added")
     }
 
     private fun registerAndConfirm(login:String,email:String,password:String="password") {
