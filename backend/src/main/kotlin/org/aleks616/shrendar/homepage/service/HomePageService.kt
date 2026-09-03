@@ -21,7 +21,6 @@ import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.repository.UserGenreRepository
 import org.aleks616.shrendar.user.service.UserAccountService
-import org.springframework.cglib.core.Local
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
