@@ -230,4 +230,37 @@ class HomePageService(
         }
         return artists
     }
+
+    fun getTodayAnniversariesNoAuth():HomePageMainDto{
+        val month=LocalDate.now().monthValue
+        val day=LocalDate.now().dayOfMonth
+
+        val albumsRaw=albumRepository.findByReleaseDateMonthAndDay(month,day).shuffled().take(6)
+        val albums=albumsRaw.map {
+            AlbumByDateDto(
+                id=it.id,
+                band=BandDto(it.band?.id,it.band?.name),
+                title=it.title,
+                releaseDate=it.releaseDate,
+                type=it.type,
+                importance=it.importance,
+                yearsSince=it.releaseDate!!.until(LocalDate.now()).years,
+                genre=it.genre,
+                artworkUrl=it.artworkUrl
+            )
+        }
+        val artistsBirthdays=artistService.getByBirthday(month,day).shuffled().take(6)
+        val artistsDeathAnniversaries=artistService.getByDeathDate(month,day).shuffled().take(6)
+
+        return HomePageMainDto(
+            albums,
+            artistsBirthdays,
+            artistsDeathAnniversaries,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+    }
 }

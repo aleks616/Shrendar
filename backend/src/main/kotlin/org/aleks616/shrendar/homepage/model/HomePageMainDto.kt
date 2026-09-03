@@ -10,7 +10,7 @@ import java.io.Serializable
 data class HomePageMainDto(
     val favoriteAlbums:List<AlbumByDateDto>?=null,
     val favoriteArtistsBirthdays:List<ArtistAnniversaryDto>?=null,
-    val favoriteArtistsDeathdays:List<ArtistAnniversaryDto>?=null,
+    val favoriteArtistsDeathAnniversaries:List<ArtistAnniversaryDto>?=null,
     val otherBandMembersBirthdays:List<ArtistAnniversaryDto>?=null,
     val otherBandMembersDeathAnniversaries:List<ArtistAnniversaryDto>?=null,
 

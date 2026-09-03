@@ -24,6 +24,14 @@ interface AlbumRepository :JpaRepository<Album,Int>{
     """, nativeQuery=true)
     fun findByYear(year:Int):List<Album>
 
+
+    @Query("""
+        SELECT * 
+        FROM Album a
+        WHERE MONTH(a.release_date)=:month AND DAY(a.release_date)=:day
+    """,nativeQuery=true)
+    fun findByReleaseDateMonthAndDay(month:Int,day:Int):List<Album>
+
     @Query("""
         SELECT a
         FROM Album a

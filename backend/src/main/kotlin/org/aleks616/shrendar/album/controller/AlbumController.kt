@@ -77,7 +77,7 @@ class AlbumController (
 
     //MAIN PAGE 2/X
     @GetMapping("/upcomingFavoriteAnniversaries")
-    fun getUpcomingFavoriteAlbumAnniversaries(servletRequest:HttpServletRequest):List<AlbumAnniversaryDto>{
+    fun getUpcomingFavoriteAlbumAnniversaries():List<AlbumAnniversaryDto>{
         val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=user.name
 
