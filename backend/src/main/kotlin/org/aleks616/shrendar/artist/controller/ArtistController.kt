@@ -1,12 +1,10 @@
 package org.aleks616.shrendar.artist.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.aleks616.shrendar.artist.model.Artist
-import org.aleks616.shrendar.artist.model.ArtistAddDto
-import org.aleks616.shrendar.artist.model.ArtistGenreDto
-import org.aleks616.shrendar.artist.model.ArtistWikiDto
+import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
+import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
@@ -25,6 +23,7 @@ class ArtistController(
     private val rateLimiter:RateLimiter,
     private val countryService:CountryService,
     private val bandsMemberService:BandsMemberService,
+    private val bandService:BandService,
 ) {
     @GetMapping("/")
     fun getAll():List<Artist>{
@@ -60,8 +59,8 @@ class ArtistController(
         return artistService.getByLastName(name)
     }
 
-    @GetMapping("/birthday")
-    fun getByBirthday(@RequestParam month:Int,@RequestParam day:Int):List<Artist>{
+    @GetMapping("/birthdate")
+    fun getByBirthdate(@RequestParam month:Int,@RequestParam day:Int):List<ArtistAnniversaryDto>{
         if(!Utils.doesDateExist(month,day)) throw IllegalArgumentException("invalid month or day")
         return artistService.getByBirthday(month,day)
     }
@@ -87,8 +86,27 @@ class ArtistController(
         return artistService.getRecentBirthdays()
     }
 
-    @GetMapping("/death")
-    fun getByDeathDate(@RequestParam month:Int,@RequestParam day:Int):List<Artist>{
+    //MAIN PAGE 1/X
+    @GetMapping("/upcomingFavoriteBirthdays")
+    fun getUpcomingFavoriteArtistBirthdays():List<ArtistAnniversaryDto>{
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val userLogin=user.name
+
+        return artistService.getUpcomingFavoriteArtistsBirthdays(userLogin)
+    }
+
+    //MAIN PAGE 3/X
+    @GetMapping("/upcomingFavoriteDeathAnns")
+    fun getUpcomingFavoriteArtistDeathAnniversaries():List<ArtistAnniversaryDto>{
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val userLogin=user.name
+
+        return artistService.getUpcomingFavoriteArtistsDeathAnniversaries(userLogin)
+    }
+
+
+    @GetMapping("/deathDate")
+    fun getByDeathDate(@RequestParam month:Int,@RequestParam day:Int):List<ArtistAnniversaryDto>{
         if(!Utils.doesDateExist(month,day)) throw IllegalArgumentException("invalid month or day")
         return artistService.getByDeathDate(month,day)
     }
@@ -218,6 +236,28 @@ class ArtistController(
 
         try{
             artistService.toggleFavoriteArtist(artistId,userLogin)
+        }
+        catch(e:Exception){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+        }
+        return ResponseEntity.ok("Artist favorite toggled successfully")
+    }
+
+    @PostMapping("/favoriteAll")
+    fun favoriteBandsArtists(@RequestBody bandId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+        val user=SecurityContextHolder.getContext().authentication?:
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val userLogin=user.name
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_HIGH,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+        if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_HIGH,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+        if(!bandService.doesBandExist(bandId))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id $bandId does not exist")
+
+        try{
+            artistService.toggleFavoriteArtistByBand(bandId,userLogin)
         }
         catch(e:Exception){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")

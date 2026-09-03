@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.album.repository
 
 import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.genre.model.Genre
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -56,4 +57,5 @@ interface AlbumRepository :JpaRepository<Album,Int>{
     fun findById(id:Long):Album
     fun deleteById(id:Long)
     fun existsById(id:Long):Boolean
+    fun findByGenre(genre:Genre):MutableList<Album>
 }

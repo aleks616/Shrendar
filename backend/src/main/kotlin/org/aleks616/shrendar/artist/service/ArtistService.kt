@@ -3,6 +3,7 @@ package org.aleks616.shrendar.artist.service
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.repository.ArtistRepository
+import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Action
@@ -26,6 +27,7 @@ class ArtistService(
     private val contributionRepository:ContributionRepository,
     private val rankService:RankService,
     private val userArtistRepository:UserArtistRepository,
+    private val bandsMemberRepository:BandsMemberRepository,
 ){
 
     //region query
@@ -77,6 +79,72 @@ class ArtistService(
             artistImageUrl=dataRaw.artistImageUrl
         )
     }
+    fun getUpcomingFavoriteBirthdaysAndDeaths(login:String):List<ArtistBirthdayDeathDateDto>{
+        val user=userAccountService.getUserByLogin(login)?:throw IllegalArgumentException("User not found")
+        val allBirthdays:MutableList<ArtistBirthdayDeathDateDto> = mutableListOf()
+        val favoriteArtistsRaw=userArtistRepository.findByUser(user)
+        val favoriteArtists=favoriteArtistsRaw.map {it.artist!!}
+        if(favoriteArtists.isEmpty()) return emptyList()
+
+        favoriteArtists.filter{it.birthDate!=null}.forEach { artist->
+            val daysTillBirthday=Utils.getDaysTillNextAnniversary(artist.birthDate!!)
+            var daysTillDeathAnn:Int?=null
+            val age=artist.birthDate!!.until(LocalDate.now()).years
+            var ageAtDeath:Int?=null
+            if(artist.deathDate!=null){
+                daysTillDeathAnn=Utils.getDaysTillNextAnniversary(artist.deathDate!!)
+                ageAtDeath=artist.birthDate!!.until(artist.deathDate).years
+            }
+
+            val country:String?=if(artist.country!=null) countryRepository.getCountryNameById(artist.country) else null
+
+            allBirthdays.add(ArtistBirthdayDeathDateDto(
+                artist.id,
+                artist.name,
+                artist.birthDate,
+                daysTillBirthday,
+                artist.deathDate,
+                daysTillDeathAnn,
+                age,
+                ageAtDeath,
+                country
+            ))
+        }
+        if(allBirthdays.isEmpty()) return emptyList()
+        return allBirthdays
+    }
+    fun getUpcomingFavoriteArtistsBirthdays(login:String):List<ArtistAnniversaryDto>{
+        val allBirthdays=getUpcomingFavoriteBirthdaysAndDeaths(login)
+        val showBirthdays:List<ArtistBirthdayDeathDateDto> =allBirthdays.filter {it.daysTillBirthday!!<=7&&it.daysTillBirthday!=0}.sortedBy { it.daysTillBirthday }.take(4)+
+                                                            allBirthdays.filter{it.daysTillBirthday!!>7&&it.daysTillBirthday<60 }.shuffled().take(2).sortedBy { it.daysTillBirthday }
+        return showBirthdays.map{
+            ArtistAnniversaryDto(
+                id=it.id,
+                name=it.name,
+                anniversaryDate=it.birthDate,
+                daysTillAnniversary=it.daysTillBirthday,
+                yearsSince=it.deathDate!!.until(LocalDate.now()).years,
+                country=it.country,
+            )
+        }
+
+    }
+
+    fun getUpcomingFavoriteArtistsDeathAnniversaries(login:String):List<ArtistAnniversaryDto>{
+        val allDeathAnns=getUpcomingFavoriteBirthdaysAndDeaths(login)
+        val showDeathAnns:List<ArtistBirthdayDeathDateDto> =allDeathAnns.filter {it.daysTillDeathAnniversary!!<=7&&it.daysTillDeathAnniversary!=0}.sortedBy { it.daysTillDeathAnniversary }.take(4)+
+                                                            allDeathAnns.filter{it.daysTillDeathAnniversary!!>7&&it.daysTillDeathAnniversary<60 }.shuffled().take(2).sortedBy { it.daysTillDeathAnniversary }
+        return showDeathAnns.map{
+            ArtistAnniversaryDto(
+                id=it.id,
+                name=it.name,
+                anniversaryDate=it.deathDate,
+                daysTillAnniversary=it.daysTillDeathAnniversary,
+                yearsSince=it.ageAtDeath,
+                country=it.country,
+            )
+        }
+    }
 
     fun getByNameLike(name:String):List<Artist> {
         return artistRepository.findArtistByNameContains(name)
@@ -90,12 +158,38 @@ class ArtistService(
         return artistRepository.findArtistByNameEndsWithIgnoreCase(name)
     }
 
-    fun getByBirthday(month:Int,day:Int):List<Artist> {
-        return artistRepository.findArtistByBirthDate(month,day)
+    fun getByBirthday(month:Int,day:Int):List<ArtistAnniversaryDto> {
+        val data=artistRepository.findArtistByBirthDate(month,day)
+        val result:MutableList<ArtistAnniversaryDto> = mutableListOf()
+        data.forEach {
+            val age=it.birthDate!!.until(LocalDate.now()).years
+            result.add(ArtistAnniversaryDto(
+                id=it.id,
+                name=it.name,
+                anniversaryDate=it.birthDate,
+                daysTillAnniversary=0,
+                yearsSince=age,
+                country=countryRepository.getCountryNameById(it.country),
+            ))
+        }
+        return result
     }
 
-    fun getByDeathDate(month:Int,day:Int):List<Artist> {
-        return artistRepository.findArtistByDeathDate(month,day)
+    fun getByDeathDate(month:Int,day:Int):List<ArtistAnniversaryDto> {
+        val data=artistRepository.findArtistByDeathDate(month,day)
+        val result:MutableList<ArtistAnniversaryDto> = mutableListOf()
+        data.forEach {
+            val yearsSince=it.deathDate!!.until(LocalDate.now()).years
+            result.add(ArtistAnniversaryDto(
+                id=it.id,
+                name=it.name,
+                anniversaryDate=it.deathDate,
+                daysTillAnniversary=0,
+                yearsSince=yearsSince,
+                country=countryRepository.getCountryNameById(it.country),
+            ))
+        }
+        return result
     }
 
     fun getByBirthdayBetween(startMonth:Int,startDay:Int,endMonth:Int,endDay:Int):List<Artist> {
@@ -368,5 +462,16 @@ class ArtistService(
         }
         else
             userArtistRepository.deleteById(recordId)
+    }
+
+    @Transactional
+    fun toggleFavoriteArtistByBand(bandId:Int,login:String){
+        val user=userAccountService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val bandMembers=bandsMemberRepository.findByBandId(bandId)
+        val artists=bandMembers.map {it.artist!!}
+        artists.forEach { a->
+            val recordId=userArtistRepository.findByArtistAndUser(a,user)?.id
+            if(recordId==null) toggleFavoriteArtist(a.id!!,login)
+        }
     }
 }

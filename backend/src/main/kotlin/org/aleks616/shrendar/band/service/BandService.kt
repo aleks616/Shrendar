@@ -156,16 +156,16 @@ class BandService(
     }*/
 
 
-    fun getBandsGenre(id:Int):String {
+    fun getBandsGenre(id:Int):String? {
         val data=bandRepository.findBandById(id)
-        return data.averageGenre!!
+        return data.averageGenre
     }
 
     fun getSimilarBands(bandId:Int,count:Int):List<BandGenreDto> {
         val dataRaw=bandRepository.findBandsWithAvgGenre()
         val avgGenre=getBandsGenre(bandId)
         val similarList:MutableList<Pair<Double,Band>> =arrayListOf()
-
+        if(avgGenre==null) return emptyList()
         dataRaw.forEach {d->
             val similarity=GenreSimilarity.getGenreSimilarity(d.averageGenre!!,avgGenre)
             similarList.add(Pair(similarity,d))
