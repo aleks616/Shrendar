@@ -14,6 +14,7 @@ import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
@@ -32,6 +33,7 @@ class AlbumServiceTest {
     private lateinit var userAccountService:UserAccountService
     private lateinit var rankService:RankService
     private lateinit var albumService:AlbumService
+    private lateinit var userBandRepository:UserBandRepository
     private lateinit var album:Album
     private lateinit var album1:Album
     private lateinit var album2:Album
@@ -49,7 +51,16 @@ class AlbumServiceTest {
         genreRepository=mock(GenreRepository::class.java)
         userAccountService=mock(UserAccountService::class.java)
         rankService=mock(RankService::class.java)
-        albumService=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userAccountService,rankService)
+        userBandRepository=mock(UserBandRepository::class.java)
+        albumService=AlbumService(
+            albumRepository,
+            bandService,
+            contributionRepository,
+            genreRepository,
+            userAccountService,
+            rankService,
+            userBandRepository
+        )
 
         band=Band().apply {id=2; name="Metallica"; formedYear=1981}
         band1=Band().apply {id=2; name="Metallica"; formedYear=null}

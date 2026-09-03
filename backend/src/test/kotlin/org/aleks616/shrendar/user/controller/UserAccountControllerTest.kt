@@ -779,6 +779,15 @@ class UserAccountControllerTest {
             verified=true
         })
 
+        userRepository.saveAndFlush(User().apply {
+            login="user2"
+            username="User2"
+            email="user2@example.com"
+            passwordHash="hash1"
+            rank=rankRepository.findById(1).get()
+            verified=true
+        })
+
         assertTrue(userAccountService.doesUserExist(1))
     }
 
