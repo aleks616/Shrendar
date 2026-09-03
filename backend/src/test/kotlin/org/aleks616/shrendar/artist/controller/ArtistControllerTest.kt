@@ -206,7 +206,7 @@ class ArtistControllerTest {
         val artists=listOf(ArtistAnniversaryDto(id=1, name="James Hetfield"))
         `when`(artistService.getByBirthday(8,3)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/birthday") {
+        mockMvc.get("/api/artist/birthdate") {
             param("month","8")
             param("day","3")
         }.andExpect {
@@ -218,7 +218,7 @@ class ArtistControllerTest {
     @Test
     fun `getByBirthday should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/birthday?month=13&day=1")
+            mockMvc.get("/api/artist/birthdate?month=13&day=1")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
@@ -331,7 +331,7 @@ class ArtistControllerTest {
         val artists=listOf(ArtistAnniversaryDto(id=2,name="Cliff Burton"))
         `when`(artistService.getByDeathDate(9,27)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/death") {
+        mockMvc.get("/api/artist/deathDate") {
             param("month","9")
             param("day","27")
         }.andExpect {
@@ -343,7 +343,7 @@ class ArtistControllerTest {
     @Test
     fun `getByDeathDate should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/death?month=2&day=30")
+            mockMvc.get("/api/artist/deathDate?month=2&day=30")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",

@@ -62,6 +62,7 @@ class ArtistServiceTest {
             id=1
             name="James Hetfield"
             birthDate=LocalDate.of(1963,8,3)
+            deathDate=LocalDate.of(2025,9,27)
             gender='M'
             country=1
             description="Metallica frontman"
@@ -121,8 +122,8 @@ class ArtistServiceTest {
         assertEquals("USA",result.country)
         assertEquals(ZodiacSign.LEO,result.zodiacSign)
         assertEquals(ChineseZodiacSign.RABBIT,result.chineseZodiacSign)
-        assertNull(result.deathDate)
-        assertNull(result.daysTillDeathAnniversary)
+        assertNotNull(result.deathDate)
+        assertNotNull(result.daysTillDeathAnniversary)
     }
 
     @Test
@@ -168,13 +169,15 @@ class ArtistServiceTest {
     @Test
     fun `getByBirthday should delegate to repository`() {
         `when`(artistRepository.findArtistByBirthDate(8,3)).thenReturn(mutableListOf(artist))
-        assertEquals(listOf(artist),artistService.getByBirthday(8,3))
+        val result=artistService.getByBirthday(8,3)
+        assertEquals(1,result[0].id)
     }
 
     @Test
     fun `getByDeathDate should delegate to repository`() {
         `when`(artistRepository.findArtistByDeathDate(9,27)).thenReturn(mutableListOf(artist))
-        assertEquals(listOf(artist),artistService.getByDeathDate(9,27))
+        val result=artistService.getByDeathDate(9,27)
+        assertEquals(1,result[0].id)
     }
 
     @Test

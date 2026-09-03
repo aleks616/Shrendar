@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/main")
+@RequestMapping("/api/main")
 class HomePageController(
     private val homePageService:HomePageService
 ) {
