@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.album.repository
 
 import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.album.model.AlbumAnniversaryDto
 import org.aleks616.shrendar.genre.model.Genre
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -66,4 +67,15 @@ interface AlbumRepository :JpaRepository<Album,Int>{
     fun deleteById(id:Long)
     fun existsById(id:Long):Boolean
     fun findByGenre(genre:Genre):MutableList<Album>
+
+    @Query("""
+        SELECT *
+        FROM album a
+        WHERE DATE(CONCAT(IF(MONTH(a.release_date)*100+DAYOFMONTH(a.release_date)<MONTH(NOW())*100+DAYOFMONTH(NOW()),'2001','2000'),'-',MONTH(a.release_date),'-',DAYOFMONTH(a.release_date)))
+        BETWEEN DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL 1 DAY)
+        AND (DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL :daysMax DAY))
+        ORDER BY RAND()
+        LIMIT 5
+    """,nativeQuery=true)
+    fun findAlbumsByUpcomingAnniversaries(daysMax:Int=15):MutableList<Album>
 }

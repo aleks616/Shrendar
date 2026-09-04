@@ -13,7 +13,6 @@ import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
@@ -29,7 +28,6 @@ class AlbumService(
     private val genreRepository:GenreRepository,
     private val userAccountService:UserAccountService,
     private val rankService:RankService,
-    private val userBandRepository:UserBandRepository,
 ) {
     fun doesBandExist(bandId:Int):Boolean {
         return bandService.doesBandExist(bandId)
@@ -120,36 +118,6 @@ class AlbumService(
         }
 
     }
-
-    fun getUpcomingFavoriteAlbumAnniversaries(login:String):List<AlbumAnniversaryDto> {
-        val user=userAccountService.getUserByLogin(login)?:throw IllegalArgumentException("User not found")
-        val favoriteBands=userBandRepository.findByUser(user).map {it.band}
-
-        if(favoriteBands.isEmpty()) return emptyList()
-        val favoriteAlbums:MutableList<Album> =mutableListOf()
-        favoriteBands.forEach { band->
-            favoriteAlbums.addAll(albumRepository.findByBandId(band!!.id!!))
-        }
-        val allAlbums:MutableList<AlbumAnniversaryDto> =mutableListOf()
-        favoriteAlbums.filter{it.releaseDate!=null}.forEach { album->
-            val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate!!)
-            val albumAge=album.releaseDate!!.until(LocalDate.now()).years
-            allAlbums.add(AlbumAnniversaryDto(
-                id=album.id,
-                bandId=album.band!!.id,
-                bandName=album.band!!.name,
-                title=album.title,
-                releaseDate=album.releaseDate,
-                type=album.type,
-                artworkUrl=album.artworkUrl,
-                age=albumAge,
-                daysTillAnniversary=daysTill,
-            ))
-        }
-        return allAlbums.filter { it.daysTillAnniversary!=0 && it.daysTillAnniversary!!<=7 }.sortedBy { it.daysTillAnniversary!! }.take(4)+
-               allAlbums.filter { it.daysTillAnniversary!!>7&&it.daysTillAnniversary<30 }.shuffled().take(2).sortedBy { it.daysTillAnniversary }
-    }
-
     //endregion
 
     fun doesAlbumWithNameExistForBand(albumAddDto:AlbumAddDto):Boolean{

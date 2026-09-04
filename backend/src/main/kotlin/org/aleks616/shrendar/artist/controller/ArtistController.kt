@@ -86,25 +86,6 @@ class ArtistController(
         return artistService.getRecentBirthdays()
     }
 
-    //MAIN PAGE 1/X
-    @GetMapping("/upcomingFavoriteBirthdays")
-    fun getUpcomingFavoriteArtistBirthdays():List<ArtistAnniversaryDto>{
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
-        val userLogin=user.name
-
-        return artistService.getUpcomingFavoriteArtistsBirthdays(userLogin)
-    }
-
-    //MAIN PAGE 3/X
-    @GetMapping("/upcomingFavoriteDeathAnns")
-    fun getUpcomingFavoriteArtistDeathAnniversaries():List<ArtistAnniversaryDto>{
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
-        val userLogin=user.name
-
-        return artistService.getUpcomingFavoriteArtistsDeathAnniversaries(userLogin)
-    }
-
-
     @GetMapping("/deathDate")
     fun getByDeathDate(@RequestParam month:Int,@RequestParam day:Int):List<ArtistAnniversaryDto>{
         if(!Utils.doesDateExist(month,day)) throw IllegalArgumentException("invalid month or day")

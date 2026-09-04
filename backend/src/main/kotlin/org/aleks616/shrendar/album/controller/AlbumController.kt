@@ -75,15 +75,6 @@ class AlbumController (
         return albumService.getAlbumsByNameExact(name)
     }
 
-    //MAIN PAGE 2/X
-    @GetMapping("/upcomingFavoriteAnniversaries")
-    fun getUpcomingFavoriteAlbumAnniversaries():List<AlbumAnniversaryDto>{
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
-        val userLogin=user.name
-
-        return albumService.getUpcomingFavoriteAlbumAnniversaries(userLogin)
-    }
-
     //endregion
 
     @PostMapping("/add")

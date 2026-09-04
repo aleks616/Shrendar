@@ -21,7 +21,8 @@ object Utils{
         else true
     }
 
-    fun getDaysTillNextAnniversary(birthDate:LocalDate):Int {
+    fun getDaysTillNextAnniversary(birthDate:LocalDate?):Int {
+        if(birthDate==null) return -1
         val isAfterFebruary=LocalDate.now().monthValue>2
         val isNextFebruaryYearLeap=if(isAfterFebruary) LocalDate.now().plusYears(1).isLeapYear else LocalDate.now().isLeapYear
         val actualDay=if(birthDate.monthValue==2&&birthDate.dayOfMonth==29&&!isNextFebruaryYearLeap) 28 else birthDate.dayOfMonth
