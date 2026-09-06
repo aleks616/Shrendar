@@ -384,7 +384,7 @@ class HomePageService(
             .shuffled()
             .toMutableList()
 
-        val recommendedAlbumAnniversaries:MutableList<AlbumByDateDto> =recommendedAlbums.map{
+        val recommendedAlbumsAnniversaries:MutableList<AlbumByDateDto> =recommendedAlbums.map{
             AlbumByDateDto(
                 id=it.id,
                 band=BandDto(it.band?.id,it.band?.name),
@@ -398,7 +398,7 @@ class HomePageService(
             )
         }.toMutableList()
 
-        if(recommendedAlbumAnniversaries.size<4){
+        if(recommendedAlbumsAnniversaries.size < 4){
             val bandsIds:MutableList<Int> =mutableListOf()
             favoriteBands.map{it.band}.forEach{band->
                 bandsIds.addAll(bandService.getSimilarBands(band?.id!!,20).mapNotNull{it.id})
@@ -406,7 +406,7 @@ class HomePageService(
             val others=albumService.getAlbumAnniversariesByDate(month,day)
                 .filter{d-> d.band!!.id in bandsIds}
                 .filterNot{d-> favoriteAlbums.map{it.id}.contains(d.id)}
-            recommendedAlbumAnniversaries.addAll(others.take(5))
+            recommendedAlbumsAnniversaries.addAll(others.take(5))
         }
 
         val allRecommendedArtists=getRecommendedArtists(user)
@@ -442,15 +442,18 @@ class HomePageService(
         }.filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
             .filterNot{d->otherBandMembersDeathAnniversaries.map{it.id}.contains(d.id)}
 
+        val recommendedArtistBirthdaysResult=recommendedArtistBirthdays.ifEmpty {artistService.getByBirthday(month,day).shuffled().take(4)}
+        val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries.ifEmpty {artistService.getByDeathDate(month,day).shuffled().take(4)}
+
         return HomePageMainDto(
             favoriteAlbumsAnniversaries,
             favoriteArtistsBirthdays,
             favoriteArtistsDeathAnniversaries,
             otherBandMembersBirthdays,
             otherBandMembersDeathAnniversaries,
-            recommendedArtistBirthdays,
-            recommendedArtistsDeathAnniversaries,
-            recommendedAlbumAnniversaries
+            recommendedArtistBirthdaysResult,
+            recommendedArtistDeathdaysResult,
+            recommendedAlbumsAnniversaries
         )
 
     }
