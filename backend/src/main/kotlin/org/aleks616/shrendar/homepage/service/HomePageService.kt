@@ -11,15 +11,19 @@ import org.aleks616.shrendar.artist.model.ArtistAnniversaryDto
 import org.aleks616.shrendar.artist.model.ArtistBirthdayDeathDateDto
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.model.ArtistBandsDto
 import org.aleks616.shrendar.band.model.BandGenreDto
 import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.homepage.model.HomePageMainDto
+import org.aleks616.shrendar.homepage.model.RecentlyAddedDto
+import org.aleks616.shrendar.homepage.model.RecentlyAddedRow
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.repository.UserBandRepository
@@ -41,7 +45,8 @@ class HomePageService(
     private val userGenreRepository:UserGenreRepository,
     private val genreRepository:GenreRepository,
     private val bandService:BandService,
-    private val artistRepository:ArtistRepository
+    private val artistRepository:ArtistRepository,
+    private val contributionRepository:ContributionRepository
 ){
     //region upcoming
     fun getUpcomingFavoriteBirthdaysAndDeaths(login:String):List<ArtistBirthdayDeathDateDto>{
@@ -448,5 +453,42 @@ class HomePageService(
             recommendedAlbumAnniversaries
         )
 
+    }
+
+    fun getCommonBands(login:String):List<ArtistBandsDto> {
+        val user=userAccountService.getUserByLogin(login)?:throw IllegalArgumentException("User not found")
+        val favoriteBands=userBandRepository.findByUser(user)
+        val favoriteArtists=userArtistRepository.findByUser(user)
+
+        val bandsMembers:MutableList<ArtistBandsDto> =mutableListOf()
+        favoriteArtists.map{it.artist}.forEach{artist->
+            bandsMembers.addAll(bandsMemberRepository.findBandsByArtistId(artist!!.id!!))
+        }
+        return bandsMembers.filterNot { it.bandId in favoriteBands.map {f-> f.band!!.id} }.distinctBy { it.bandId }
+    }
+
+    fun getRecentlyAdded():List<Any>{
+        val dataRaw=contributionRepository.getRecentAdditions(5)
+        val result:MutableList<RecentlyAddedDto> =mutableListOf()
+        dataRaw.groupBy { it.changeId }.forEach { d->
+            println(d.key)
+            val data=d.value.map {RecentlyAddedRow(
+                id=it.id,
+                changedColumn=it.changedColumn,
+                oldValue=it.oldValue,
+                newValue=it.newValue,
+            )}
+
+            result.add(RecentlyAddedDto(
+                d.value[0].changeId,
+                d.value[0].user?.id,
+                d.value[0].changedRecordId,
+                d.value[0].changedTable,
+                data,
+                d.value[0].changedAt.toString()
+            ))
+        }
+
+        return result
     }
 }

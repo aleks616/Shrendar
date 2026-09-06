@@ -109,4 +109,18 @@ interface ContributionRepository:JpaRepository<Contribution,Int> {
     )
     fun findContributionsByActionAndUserId(action:String,user:Int):MutableList<Contribution>
 
+    @Query("""
+        SELECT c.id, c.change_id, c.action, c.changed_table, c.changed_column, c.changed_record_id, c.old_value, c.new_value, 
+        c.changed_at, c.user_id, c.confirmed, c.confirmed_by
+        FROM Contribution c
+INNER JOIN (
+    SELECT DISTINCT c1.change_id
+    FROM contribution c1
+    WHERE c1.action='create' AND c1.confirmed=true AND (c1.changed_table='band' OR c1.changed_table='album')
+    ORDER BY c1.change_id DESC
+    LIMIT :count
+) as c2 ON c.change_id=c2.change_id
+    """,nativeQuery=true)
+    fun getRecentAdditions(count:Int=5):List<Contribution>
+
 }

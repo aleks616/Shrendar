@@ -1,7 +1,6 @@
 package org.aleks616.shrendar.album.repository
 
 import org.aleks616.shrendar.album.model.Album
-import org.aleks616.shrendar.album.model.AlbumAnniversaryDto
 import org.aleks616.shrendar.genre.model.Genre
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
