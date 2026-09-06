@@ -5,10 +5,12 @@ import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
+import org.aleks616.shrendar.artist.model.ArtistAnniversaryDto
 import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.model.Country
@@ -52,7 +54,15 @@ class ArtistControllerTest {
     private val countryService:CountryService=mock(CountryService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
     private val bandsMemberService=mock(BandsMemberService::class.java)
-    private val artistController=ArtistController(artistService,rateLimiter,countryService,bandsMemberService)
+
+    private val bandService=mock(BandService::class.java)
+    private val artistController=ArtistController(
+        artistService,
+        rateLimiter,
+        countryService,
+        bandsMemberService,
+        bandService
+    )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(artistController).build()
     private val request=mock(HttpServletRequest::class.java)
     private val dto=ArtistAddDto(name="James Hetfield",gender='M')
@@ -193,10 +203,10 @@ class ArtistControllerTest {
 
     @Test
     fun `getByBirthday should return artists for valid date`() {
-        val artists=listOf(Artist().apply {id=1; name="James Hetfield"})
+        val artists=listOf(ArtistAnniversaryDto(id=1, name="James Hetfield"))
         `when`(artistService.getByBirthday(8,3)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/birthday") {
+        mockMvc.get("/api/artist/birthdate") {
             param("month","8")
             param("day","3")
         }.andExpect {
@@ -208,7 +218,7 @@ class ArtistControllerTest {
     @Test
     fun `getByBirthday should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/birthday?month=13&day=1")
+            mockMvc.get("/api/artist/birthdate?month=13&day=1")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
@@ -318,10 +328,10 @@ class ArtistControllerTest {
 
     @Test
     fun `getByDeathDate should return artists for valid date`() {
-        val artists=listOf(Artist().apply {id=2; name="Cliff Burton"})
+        val artists=listOf(ArtistAnniversaryDto(id=2,name="Cliff Burton"))
         `when`(artistService.getByDeathDate(9,27)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/death") {
+        mockMvc.get("/api/artist/deathDate") {
             param("month","9")
             param("day","27")
         }.andExpect {
@@ -333,7 +343,7 @@ class ArtistControllerTest {
     @Test
     fun `getByDeathDate should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/death?month=2&day=30")
+            mockMvc.get("/api/artist/deathDate?month=2&day=30")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",

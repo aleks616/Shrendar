@@ -11,5 +11,5 @@ interface CountryRepository:JpaRepository<Country,Int> {
     fun getCountryByName(name:String):MutableList<Country>
 
     @Query("SELECT c.name FROM Country c WHERE c.id=:id")
-    fun getCountryNameById(id:Int?):String
+    fun getCountryNameById(id:Int?):String?
 }

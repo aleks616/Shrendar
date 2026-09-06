@@ -76,4 +76,26 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
     fun findTopIdByName(name:String):Long
     fun existsById(id:Long):Boolean
     fun deleteById(id:Long)
+
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT(IF(MONTH(a.birth_date)*100+DAYOFMONTH(a.birth_date)<MONTH(NOW())*100+DAYOFMONTH(NOW()),'2001','2000'),'-',MONTH(a.birth_date),'-',DAYOFMONTH(a.birth_date)))
+        BETWEEN DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL 1 DAY)
+        AND (DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL :daysMax DAY))
+        ORDER BY RAND()
+        LIMIT 5
+    """,nativeQuery=true)
+    fun findUpcomingBirthdays(daysMax:Int=15):List<Artist>
+
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT(IF(MONTH(a.death_date)*100+DAYOFMONTH(a.death_date)<MONTH(NOW())*100+DAYOFMONTH(NOW()),'2001','2000'),'-',MONTH(a.death_date),'-',DAYOFMONTH(a.death_date)))
+        BETWEEN DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL 1 DAY)
+        AND (DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL :daysMax DAY))
+        ORDER BY RAND()
+        LIMIT 5
+    """,nativeQuery=true)
+    fun findUpcomingDeathAnniversaries(daysMax:Int=15):List<Artist>
 }

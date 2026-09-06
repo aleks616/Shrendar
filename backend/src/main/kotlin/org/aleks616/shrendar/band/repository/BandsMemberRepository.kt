@@ -49,6 +49,7 @@ bm.role, bm.joinedYear, bm.leftYear, bm.nickname)
     fun existsById(id:Long):Boolean
     fun findById(id:Long):BandsMembers
     fun deleteById(id:Long)
+    fun findByBandId(bandId:Int):MutableList<BandsMembers>
 
 
 }

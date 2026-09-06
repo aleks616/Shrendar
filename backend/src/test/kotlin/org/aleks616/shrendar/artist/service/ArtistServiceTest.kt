@@ -7,6 +7,7 @@ import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.common.model.NameValue
 import org.aleks616.shrendar.artist.repository.ArtistRepository
+import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
@@ -32,6 +33,7 @@ class ArtistServiceTest {
     private lateinit var contributionRepository:ContributionRepository
     private lateinit var rankService:RankService
     private lateinit var userArtistRepository:UserArtistRepository
+    private lateinit var bandsMemberRepository:BandsMemberRepository
     private lateinit var artistService:ArtistService
     private lateinit var artist:Artist
     private lateinit var artist1:Artist
@@ -46,13 +48,21 @@ class ArtistServiceTest {
         contributionRepository=mock(ContributionRepository::class.java)
         rankService=mock(RankService::class.java)
         userArtistRepository=mock(UserArtistRepository::class.java)
+        bandsMemberRepository=mock(BandsMemberRepository::class.java)
         artistService=ArtistService(
-            artistRepository,countryRepository,userAccountService,contributionRepository,rankService,userArtistRepository
+            artistRepository,
+            countryRepository,
+            userAccountService,
+            contributionRepository,
+            rankService,
+            userArtistRepository,
+            bandsMemberRepository
         )
         artist=Artist().apply {
             id=1
             name="James Hetfield"
             birthDate=LocalDate.of(1963,8,3)
+            deathDate=LocalDate.of(2025,9,27)
             gender='M'
             country=1
             description="Metallica frontman"
@@ -112,8 +122,8 @@ class ArtistServiceTest {
         assertEquals("USA",result.country)
         assertEquals(ZodiacSign.LEO,result.zodiacSign)
         assertEquals(ChineseZodiacSign.RABBIT,result.chineseZodiacSign)
-        assertNull(result.deathDate)
-        assertNull(result.daysTillDeathAnniversary)
+        assertNotNull(result.deathDate)
+        assertNotNull(result.daysTillDeathAnniversary)
     }
 
     @Test
@@ -159,13 +169,15 @@ class ArtistServiceTest {
     @Test
     fun `getByBirthday should delegate to repository`() {
         `when`(artistRepository.findArtistByBirthDate(8,3)).thenReturn(mutableListOf(artist))
-        assertEquals(listOf(artist),artistService.getByBirthday(8,3))
+        val result=artistService.getByBirthday(8,3)
+        assertEquals(1,result[0].id)
     }
 
     @Test
     fun `getByDeathDate should delegate to repository`() {
         `when`(artistRepository.findArtistByDeathDate(9,27)).thenReturn(mutableListOf(artist))
-        assertEquals(listOf(artist),artistService.getByDeathDate(9,27))
+        val result=artistService.getByDeathDate(9,27)
+        assertEquals(1,result[0].id)
     }
 
     @Test

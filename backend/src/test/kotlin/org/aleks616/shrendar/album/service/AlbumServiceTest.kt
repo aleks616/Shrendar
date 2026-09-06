@@ -49,7 +49,14 @@ class AlbumServiceTest {
         genreRepository=mock(GenreRepository::class.java)
         userAccountService=mock(UserAccountService::class.java)
         rankService=mock(RankService::class.java)
-        albumService=AlbumService(albumRepository,bandService,contributionRepository,genreRepository,userAccountService,rankService)
+        albumService=AlbumService(
+            albumRepository,
+            bandService,
+            contributionRepository,
+            genreRepository,
+            userAccountService,
+            rankService
+        )
 
         band=Band().apply {id=2; name="Metallica"; formedYear=1981}
         band1=Band().apply {id=2; name="Metallica"; formedYear=null}
