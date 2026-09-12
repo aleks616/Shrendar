@@ -4,10 +4,7 @@ import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.model.*
-import org.aleks616.shrendar.user.repository.RankRepository
-import org.aleks616.shrendar.user.repository.UserLogRepository
-import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
-import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.user.repository.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

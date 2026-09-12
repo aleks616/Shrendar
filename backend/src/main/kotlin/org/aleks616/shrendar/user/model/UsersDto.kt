@@ -24,8 +24,3 @@ data class UsersDto(
         val name:String?=null
     ):Serializable
 }
-
-data class ResetPassword(
-    val email:String,
-    val newPassword:String
-)
