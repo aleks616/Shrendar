@@ -2,6 +2,7 @@ package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.exception.RankTooLowException
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
@@ -174,5 +175,17 @@ class UserAccountController(
     fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
 
     @GetMapping("/users")
-    fun getUsers():ResponseEntity<List<UsersDto>> = ResponseEntity.ok(userAccountService.getUsersDto())
+    fun getUsers():ResponseEntity<List<UsersDto>>{
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
+        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+
+        return ResponseEntity.ok(userAccountService.getUsersDto())
+    }
+
+    @ExceptionHandler(RankTooLowException::class)
+    fun handleRankTooLowException():ResponseEntity<String>{
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Page not found")
+    }
 }

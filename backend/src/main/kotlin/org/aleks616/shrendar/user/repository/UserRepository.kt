@@ -11,10 +11,6 @@ interface UserRepository:JpaRepository<User,Int> {
 
     @Query("SELECT u FROM User u WHERE u.login=:login")
     fun findByLogin(login:String):User?
-    @Modifying
-    @Query("DELETE FROM User u WHERE u.id=:id")
-    fun deleteUserById(id:Int)
-
     @Query("SELECT u FROM User u WHERE u.id=:id")
     fun findUserById(id:Int):User?
 }

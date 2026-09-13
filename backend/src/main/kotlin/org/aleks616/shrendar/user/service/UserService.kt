@@ -31,6 +31,9 @@ class UserService(
 
     fun getUserProfile(login:String):UserProfileDto {
         val user:User=userRepository.findByLogin(login)?:throw IllegalArgumentException("User not found")
+        if(user.deleted==true) return UserProfileDto(
+            "deleted","deleted",0,"none","deleted"
+        )
         val favoriteBandsRaw=userBandRepository.findByUser(user)
         val favoriteBands:List<FavoriteBandDto> =favoriteBandsRaw.map {d->
             FavoriteBandDto(

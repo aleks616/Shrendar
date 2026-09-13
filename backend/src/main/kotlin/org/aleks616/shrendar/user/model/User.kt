@@ -38,4 +38,7 @@ open class User {
 
     @Column(name="bio")
     open var bio:String?=null
+
+    @Column(name="deleted")
+    open var deleted:Boolean?=false
 }

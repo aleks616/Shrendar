@@ -147,6 +147,6 @@ class UserBanController(
 
     @ExceptionHandler(RankTooLowException::class)
     fun handleRankTooLowException():ResponseEntity<String>{
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Page not found")
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Page not found")
     }
 }

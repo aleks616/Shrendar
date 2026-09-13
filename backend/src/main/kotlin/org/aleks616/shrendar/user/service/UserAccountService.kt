@@ -75,6 +75,7 @@ class UserAccountService(
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
         if(user==null) return null
+        if(user.deleted==true) return null
         val userLog=findUserLog(user.id!!)
 
         if(userLog.accountDeletionScheduledTime!=null){
@@ -219,9 +220,8 @@ class UserAccountService(
             val userLog=findUserLog(user.id!!)
             if(userLog.accountDeletionScheduledTime!=null){
                 if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
-                    userLogRepository.deleteById(userLog.id)
-                    userLogRepository.flush()
-                    userRepository.deleteUserById(user.id!!)
+                    user.deleted=true
+                    userRepository.save(user)
                     emailService.sendAccountDeletedMessage(user.email!!)
                 }
             }
