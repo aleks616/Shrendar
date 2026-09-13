@@ -340,7 +340,7 @@ class UserAccountControllerTest {
 
         userAccountService.checkAccountScheduledToBeDeleted()
 
-        assertNull(userRepository.findByEmail(email))
+        assertEquals(true,userRepository.findByEmail(email)?.deleted)
     }
 
     @Test
