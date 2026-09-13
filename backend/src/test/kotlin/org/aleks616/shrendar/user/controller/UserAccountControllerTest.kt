@@ -134,6 +134,7 @@ class UserAccountControllerTest {
 
         val codesField=CodeStorage::class.java.getDeclaredField("codes")
         codesField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val codes=codesField.get(registrationCodeStorage) as Map<String,String>
         val code=codes["test@example.com"]
         assertNotNull(code,"Verification code should be stored")
@@ -163,6 +164,7 @@ class UserAccountControllerTest {
 
         val codesField=CodeStorage::class.java.getDeclaredField("codes")
         codesField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val codes=codesField.get(registrationCodeStorage) as Map<String,String>
         val code=codes["test@example.com"]
         assertNotNull(code,"Verification code should be stored")
@@ -189,6 +191,7 @@ class UserAccountControllerTest {
         }
         val codeField=CodeStorage::class.java.getDeclaredField("codes")
         codeField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val regCode=(codeField.get(registrationCodeStorage) as Map<String,String>)[email]
 
         mockMvc.post("/api/user-account/register/confirm") {
@@ -203,11 +206,12 @@ class UserAccountControllerTest {
             status {isOk()}
         }
 
+        @Suppress("UNCHECKED_CAST")
         val resetCode=(codeField.get(passwordResetCodeStorage) as Map<String,String>)[email]
         assertNotNull(resetCode,"Reset code should be stored")
 
         val newPassword="newPassword123"
-        val resetRequest=ResetPassword(email,newPassword)
+        val resetRequest=ResetPasswordDto(email,newPassword)
 
         mockMvc.post("/api/user-account/resetPassword") {
             param("code",resetCode!!)
@@ -600,13 +604,13 @@ class UserAccountControllerTest {
             mockMvc.post("/api/user-account/resetPassword") {
                 param("code","1234")
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(ResetPassword(email,"newpass"))
+                content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
             }
         }
         mockMvc.post("/api/user-account/resetPassword") {
             param("code","1234")
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPassword(email,"newpass"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -652,6 +656,7 @@ class UserAccountControllerTest {
 
         val storageField=RateLimiter::class.java.getDeclaredField("storage")
         storageField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         (storageField.get(rateLimiter) as MutableMap<String,Any>).remove("reset:acct:$email")
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
@@ -753,6 +758,7 @@ class UserAccountControllerTest {
 
         val resetCodeField=CodeStorage::class.java.getDeclaredField("codes")
         resetCodeField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val resetCode=(resetCodeField.get(passwordResetCodeStorage) as Map<String,String>)[login]
         assertNotNull(resetCode,"Reset code should be stored under login key")
     }
@@ -821,12 +827,13 @@ class UserAccountControllerTest {
         }
         val codeField=CodeStorage::class.java.getDeclaredField("codes")
         codeField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val resetCode=(codeField.get(passwordResetCodeStorage) as Map<String,String>)[email]!!
 
         mockMvc.post("/api/user-account/resetPassword") {
             param("code",resetCode)
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPassword(email,"newPassword123"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123"))
         }.andExpect {status {isOk()}}
 
         val history=userPasswordHistoryRepository.findAllByUserId(user.id!!)
@@ -843,6 +850,7 @@ class UserAccountControllerTest {
         }
         val codeField=CodeStorage::class.java.getDeclaredField("codes")
         codeField.isAccessible=true
+        @Suppress("UNCHECKED_CAST")
         val code=(codeField.get(registrationCodeStorage) as Map<String,String>)[email]
 
         mockMvc.post("/api/user-account/register/confirm") {

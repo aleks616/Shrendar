@@ -7,18 +7,17 @@ import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.user.model.LoginRequestDto
 import org.aleks616.shrendar.user.model.RegisterRequestDto
-import org.aleks616.shrendar.user.model.ResetPassword
+import org.aleks616.shrendar.user.model.ResetPasswordDto
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-@Controller
+@RestController
 @RequestMapping("/api/user-account")
 class UserAccountController(
     private val userAccountService:UserAccountService,
@@ -67,7 +66,7 @@ class UserAccountController(
     }
 
     @PostMapping("/resetPassword")
-    fun resetPassword(@RequestBody request:ResetPassword,@RequestParam code:String):ResponseEntity<String> {
+    fun resetPassword(@RequestBody request:ResetPasswordDto,@RequestParam code:String):ResponseEntity<String> {
         return if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests")
         else if(userAccountService.changePassword(request.email,request.newPassword,code))

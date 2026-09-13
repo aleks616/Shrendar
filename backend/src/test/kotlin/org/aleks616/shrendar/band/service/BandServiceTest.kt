@@ -1,6 +1,5 @@
 package org.aleks616.shrendar.band.service
 
-import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
@@ -383,7 +382,7 @@ class BandServiceTest {
         service.addBand(dto,"user")
 
         verify(bandRepository).save(any(Band::class.java))
-        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
+        val captor=ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==true&&it.confirmedBy==7})
     }
@@ -397,7 +396,7 @@ class BandServiceTest {
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
 
         service.addBand(dto,"user")
-        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
+        val captor=ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==false&&it.confirmedBy==null})
     }
@@ -430,7 +429,7 @@ class BandServiceTest {
 
         service.editBandRequest(dto,"user")
         verify(contributionRepository,atLeastOnce()).save(any(Contribution::class.java))
-        val captor=org.mockito.ArgumentCaptor.forClass(Contribution::class.java)
+        val captor=ArgumentCaptor.forClass(Contribution::class.java)
         verify(contributionRepository,atLeastOnce()).save(captor.capture())
         assertTrue(captor.allValues.all {it.confirmed==true&&it.confirmedBy==7})
     }

@@ -8,6 +8,7 @@ import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.security.RateLimiter
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -19,7 +20,8 @@ import java.time.LocalDate
 class AlbumController (
     private val albumService:AlbumService,
     private val rateLimiter:RateLimiter,
-    private val genreService:GenreService
+    private val genreService:GenreService,
+    private val userBanService:UserBanService
 ){
     //region query
     @GetMapping("/")
@@ -89,6 +91,8 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(album.bandId==null||album.bandId<1||album.title.isNullOrEmpty()||album.type.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not enough data. At least band, title, and album type are required to add an album, and they should not be empty.")
         if(albumService.doesAlbumWithNameExistForBand(album))
@@ -124,6 +128,8 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(album.id==null||album.title==null||album.type==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Album id, title and type are required")
         if(!albumService.doesAlbumExist(album.id))
@@ -160,6 +166,8 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(!albumService.doesAlbumExist(id))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Album with id $id does not exist")
 

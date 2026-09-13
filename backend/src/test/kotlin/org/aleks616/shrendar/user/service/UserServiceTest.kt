@@ -9,17 +9,8 @@ import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.ContributionDto
 import org.aleks616.shrendar.contribution.service.ContributionService
 import org.aleks616.shrendar.genre.model.Genre
-import org.aleks616.shrendar.user.model.Rank
-import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.model.UserLog
-import org.aleks616.shrendar.user.model.UsersArtists
-import org.aleks616.shrendar.user.model.UsersBands
-import org.aleks616.shrendar.user.model.UsersGenres
-import org.aleks616.shrendar.user.repository.UserArtistRepository
-import org.aleks616.shrendar.user.repository.UserBandRepository
-import org.aleks616.shrendar.user.repository.UserGenreRepository
-import org.aleks616.shrendar.user.repository.UserLogRepository
-import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.user.model.*
+import org.aleks616.shrendar.user.repository.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,7 +18,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Optional
+import java.util.*
 
 class UserServiceTest {
 
@@ -66,7 +57,7 @@ class UserServiceTest {
         }
         val targetBand=Band().apply { id=4; name="Metallica"; country=1 }
         val targetArtist=Artist().apply { id=9; name="James Hetfield" }
-        val targetGenre=org.aleks616.shrendar.genre.model.Genre().apply { id=5; name="Thrash Metal" }
+        val targetGenre=Genre().apply { id=5; name="Thrash Metal" }
         val bandRow=UsersBands().apply { user=targetUser; band=targetBand }
         val artistRow=UsersArtists().apply { user=targetUser; artist=targetArtist }
         val genreRow=UsersGenres().apply { user=targetUser; genre=targetGenre }

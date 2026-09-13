@@ -27,6 +27,7 @@ import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -55,13 +56,16 @@ class ArtistControllerTest {
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
     private val bandsMemberService=mock(BandsMemberService::class.java)
 
+    private val userBanService=mock(UserBanService::class.java)
+
     private val bandService=mock(BandService::class.java)
     private val artistController=ArtistController(
         artistService,
         rateLimiter,
         countryService,
         bandsMemberService,
-        bandService
+        bandService,
+        userBanService
     )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(artistController).build()
     private val request=mock(HttpServletRequest::class.java)

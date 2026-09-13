@@ -25,6 +25,7 @@ import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -55,7 +56,16 @@ class BandControllerTest {
     private val countryService:CountryService=mock(CountryService::class.java)
     private val artistService:ArtistService=mock(ArtistService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
-    private val bandController=BandController(bandService,bandsMemberService,rateLimiter,countryService,artistService)
+
+    private val userBanService=mock(UserBanService::class.java)
+    private val bandController=BandController(
+        bandService,
+        bandsMemberService,
+        rateLimiter,
+        countryService,
+        artistService,
+        userBanService
+    )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(bandController).build()
     private val request=mock(HttpServletRequest::class.java)
     private val validBandDto=BandAddDto(name="Metallica",formedYear=1981,status=Status.ACTIVE,country=1,imageUrl=null)
