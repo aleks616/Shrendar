@@ -174,6 +174,7 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
         val mod=userRepository.findByLogin(modLogin)?:throw IllegalStateException("mod not found")
         usersBan.appealed=true
         usersBan.appealedBy=mod
+        usersBan.until=Instant.now()
         usersBanRepository.save(usersBan)
     }
 

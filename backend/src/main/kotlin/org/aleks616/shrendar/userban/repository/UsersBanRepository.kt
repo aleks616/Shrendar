@@ -11,21 +11,27 @@ interface UsersBanRepository:JpaRepository<UsersBan,Int> {
 
     @Query("""
         SELECT
-        IF(EXISTS(
+        CASE WHEN EXISTS(
         SELECT b.id
         FROM users_bans b JOIN user u ON b.user=u.user_id
-        WHERE u.user_id=:userId AND b.until>CURRENT_TIMESTAMP AND b.appealed=false
-        ), 1, 0)
+        WHERE u.user_id=:userId AND b.until>CURRENT_TIMESTAMP
+        )
+        THEN 1
+        ELSE 0
+        END as banned
     """,nativeQuery=true)
     fun findIfUserBanned(userId:Int):Int
 
     @Query("""
         SELECT
-        IF(EXISTS(
+        CASE WHEN EXISTS(
         SELECT b.id
         FROM users_bans b JOIN user u ON b.user=u.user_id
-        WHERE u.login=:login AND b.until>CURRENT_TIMESTAMP AND b.appealed=false
-        ), 1, 0)
+        WHERE u.login=:login AND b.until>CURRENT_TIMESTAMP
+        )
+        THEN 1
+        ELSE 0
+        END as banned
     """,nativeQuery=true)
     fun findIfUserBanned(login:String):Int
 

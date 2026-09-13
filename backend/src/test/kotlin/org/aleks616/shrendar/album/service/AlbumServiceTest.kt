@@ -282,7 +282,7 @@ class AlbumServiceTest {
 
     @Test
     fun `isReleaseDateValid should return false for missing band formed year`() {
-        `when`(bandService.getBandById(3)).thenReturn(band1)
+        `when`(bandService.getBandById(2)).thenReturn(band1)
 
         assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=LocalDate.of(1981,1,1))))
     }
