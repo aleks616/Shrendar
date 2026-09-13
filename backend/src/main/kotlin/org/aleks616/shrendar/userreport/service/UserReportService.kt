@@ -1,10 +1,10 @@
 package org.aleks616.shrendar.userreport.service
 
-import org.aleks616.shrendar.user.model.ReportDetailsDto
-import org.aleks616.shrendar.user.model.ReportRequestDto
-import org.aleks616.shrendar.user.model.ReportsByUserDto
-import org.aleks616.shrendar.user.model.UsersReport
-import org.aleks616.shrendar.user.model.UsersReportDto
+import org.aleks616.shrendar.userreport.model.ReportDetailsDto
+import org.aleks616.shrendar.userreport.model.ReportRequestDto
+import org.aleks616.shrendar.userreport.model.ReportsByUserDto
+import org.aleks616.shrendar.userreport.model.UsersReport
+import org.aleks616.shrendar.userreport.model.UsersReportDto
 import org.aleks616.shrendar.user.repository.UserRepository
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.aleks616.shrendar.userreport.repository.UsersReportRepository

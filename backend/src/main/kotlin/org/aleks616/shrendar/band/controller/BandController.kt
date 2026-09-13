@@ -9,6 +9,7 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -22,7 +23,8 @@ class BandController (
     private val bandsMemberService:BandsMemberService,
     private val rateLimiter:RateLimiter,
     private val countryService:CountryService,
-    private val artistService:ArtistService
+    private val artistService:ArtistService,
+    private val userBanService:UserBanService
 ){
     @GetMapping("/")
     fun getAll():List<BandDto>{
@@ -129,6 +131,8 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(band.name.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least band name and status are required to add a new band")
         if(band.status==null)
@@ -162,6 +166,8 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(band.name.isNullOrEmpty()||band.status==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band name and status are required")
         if(!bandService.doesBandExist(band.id!!))
@@ -192,6 +198,9 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(!bandService.doesBandExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id $id does not exist")
 
@@ -219,6 +228,8 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least artist id, band id, role and joined year are required")
         if(memberValidate(member)!=null)
@@ -251,6 +262,8 @@ class BandController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member id, artist id, band id, role and joined year are required")
         if(!bandService.doesBandMemberExist(member.id!!))
@@ -282,6 +295,9 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(!bandsMemberService.doesBandMemberExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id $id does not exist")
 

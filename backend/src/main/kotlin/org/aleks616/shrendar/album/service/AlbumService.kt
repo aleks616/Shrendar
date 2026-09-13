@@ -137,8 +137,8 @@ class AlbumService(
     fun isReleaseDateValid(album:AlbumAddDto):Boolean{
         if(album.bandId==null||album.releaseDate==null) return false
         if(album.releaseDate>LocalDate.now().plusYears(1)) return false
-        val band:Band?=bandService.getBandById(album.bandId)
-        if(band?.formedYear==null) return false
+        val band:Band=bandService.getBandById(album.bandId)
+        if(band.formedYear==null) return false
         val isValid=band.formedYear!!<=album.releaseDate.year
         return isValid
     }

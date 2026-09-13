@@ -1,4 +1,4 @@
-package org.aleks616.shrendar.user.model
+package org.aleks616.shrendar.userreport.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.Lob
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.aleks616.shrendar.user.model.User
 import java.time.Instant
 
 @Entity

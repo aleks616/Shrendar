@@ -1,7 +1,7 @@
 package org.aleks616.shrendar.userreport.repository
 
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.model.UsersReport
+import org.aleks616.shrendar.userreport.model.UsersReport
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.time.Instant

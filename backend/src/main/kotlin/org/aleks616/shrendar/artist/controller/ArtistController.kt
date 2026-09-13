@@ -10,6 +10,7 @@ import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -24,6 +25,7 @@ class ArtistController(
     private val countryService:CountryService,
     private val bandsMemberService:BandsMemberService,
     private val bandService:BandService,
+    private val userBanService:UserBanService,
 ) {
     @GetMapping("/")
     fun getAll():List<Artist>{
@@ -124,9 +126,10 @@ class ArtistController(
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(artist.name.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least artist name is required to add an artist")
-
         if(artistValidate(artist)!=null)
             return artistValidate(artist)!!
 
@@ -154,7 +157,10 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
-       if(artist.id==null)
+
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+        if(artist.id==null)
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist id, name and gender are required")
         if(artist.name.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist id, name and gender are required")
@@ -186,6 +192,9 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(!artistService.doesArtistExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id $id does not exist")
 

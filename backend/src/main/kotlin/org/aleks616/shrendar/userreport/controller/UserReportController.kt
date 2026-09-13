@@ -4,10 +4,10 @@ import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.exception.RankTooLowException
 import org.aleks616.shrendar.security.RateLimiter
-import org.aleks616.shrendar.user.model.ReportRequestDto
-import org.aleks616.shrendar.user.model.ReportsByUserDto
+import org.aleks616.shrendar.userreport.model.ReportRequestDto
+import org.aleks616.shrendar.userreport.model.ReportsByUserDto
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.model.UsersReportDto
+import org.aleks616.shrendar.userreport.model.UsersReportDto
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.aleks616.shrendar.userreport.service.UserReportService
 import org.springframework.http.HttpStatus

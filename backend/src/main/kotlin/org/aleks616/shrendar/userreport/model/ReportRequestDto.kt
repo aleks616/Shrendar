@@ -1,4 +1,4 @@
-package org.aleks616.shrendar.user.model
+package org.aleks616.shrendar.userreport.model
 
 import java.io.Serializable
 

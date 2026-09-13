@@ -26,6 +26,7 @@ import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -129,8 +130,9 @@ class AlbumControllerTest {
         private val albumService=mock(AlbumService::class.java)
         private val rateLimiter=mock(RateLimiter::class.java)
         private val genreService=mock(GenreService::class.java)
+        private val userBanService=mock(UserBanService::class.java)
         private val request=mock(HttpServletRequest::class.java)
-        private val controller=AlbumController(albumService,rateLimiter,genreService)
+        private val controller=AlbumController(albumService,rateLimiter,genreService,userBanService)
         private val dto=AlbumAddDto(bandId=1,title="Album",type=AlbumType.STUDIO,importance=3, releaseDate=LocalDate.of(2020,1,1))
 
         @BeforeEach
