@@ -279,6 +279,13 @@ class AlbumControllerTest {
             verifyNoInteractions(albumService)
         }
 
+        @Test
+        fun `addAlbum should reject an empty title`() {
+            val result=controller.addAlbum(dto.copy(title=""),request)
+
+            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            verifyNoInteractions(albumService)
+        }
 
         @Test
         fun `addAlbum should reject duplicate album title`() {

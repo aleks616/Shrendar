@@ -572,6 +572,22 @@ class UserAccountControllerTest {
         verify(service).addBio("Bio","bio-user")
     }
 
+    @Test
+    fun `add bio uses unknown when the IP address is missing`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=UserAccountController(service,limiter,tokenBlacklistService)
+        authenticate("bio-user")
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(limiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+        `when`(limiter.allowRequest("login:acct:bio-user",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=controller.addBio("Bio",request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(limiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
 
     @Test
     fun `getUserProfile should return user profile`() {

@@ -3,7 +3,10 @@ package org.aleks616.shrendar.user.service
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.model.Rank
+import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.model.UserLog
+import org.aleks616.shrendar.user.model.UserPasswordHistory
 import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
 import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
@@ -129,5 +132,131 @@ class UserAccountServiceTest {
         }
 
         verify(xpService).increaseUserXp("tester",6)
+    }
+
+    @Test
+    fun `initiateRegistration rejects the anonymous user login`() {
+        assertEquals(false,service.initiateRegistration(RegisterRequestDto("anonymousUser","Anonymous","user@example.com","password")))
+        verifyNoInteractions(users,registrationCodes,emailService)
+    }
+
+    @Test
+    fun `initiateRegistration rejects an existing login`() {
+        `when`(users.findAll()).thenReturn(listOf(User().apply {login="existing"; email="other@example.com"}))
+
+        assertEquals(false,service.initiateRegistration(RegisterRequestDto("existing","User","user@example.com","password")))
+        verifyNoInteractions(registrationCodes,emailService)
+    }
+
+    @Test
+    fun `initiateRegistration rejects an existing email`() {
+        `when`(users.findAll()).thenReturn(listOf(User().apply {login="other"; email="user@example.com"}))
+
+        assertEquals(false,service.initiateRegistration(RegisterRequestDto("new-user","User","user@example.com","password")))
+        verifyNoInteractions(registrationCodes,emailService)
+    }
+
+    @Test
+    fun `requestPasswordReset returns false when the account does not exist`() {
+        `when`(users.findAll()).thenReturn(emptyList())
+
+        assertEquals(false,service.requestPasswordReset("missing"))
+        verifyNoInteractions(resetCodes,emailService)
+    }
+
+    @Test
+    fun `requestPasswordReset returns false when the matching login cannot be loaded`() {
+        `when`(users.findAll()).thenReturn(listOf(User().apply {login="tester"}))
+        `when`(resetCodes.canSendCode("tester")).thenReturn(true)
+        `when`(users.findByLogin("tester")).thenReturn(null)
+
+        assertEquals(false,service.requestPasswordReset("tester"))
+        verifyNoInteractions(emailService)
+    }
+
+    @Test
+    fun `requestPasswordReset returns false when the matching login has no email`() {
+        `when`(users.findAll()).thenReturn(listOf(User().apply {login="tester"}))
+        `when`(resetCodes.canSendCode("tester")).thenReturn(true)
+        `when`(users.findByLogin("tester")).thenReturn(User().apply {login="tester"; email=null})
+
+        assertEquals(false,service.requestPasswordReset("tester"))
+        verifyNoInteractions(emailService)
+    }
+
+    @Test
+    fun `changePassword returns false when no user has the email`() {
+        `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(true)
+        `when`(users.findAll()).thenReturn(emptyList())
+
+        assertEquals(false,service.changePassword("user@example.com","new-password","code"))
+    }
+
+    @Test
+    fun `changePassword returns false when the password was used before`() {
+        val user=User().apply {id=7; email="user@example.com"}
+        val history=UserPasswordHistory().apply {password="old-hash"}
+        `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(true)
+        `when`(users.findAll()).thenReturn(listOf(user))
+        `when`(passwordHistory.findAllByUserId(7)).thenReturn(listOf(history))
+        `when`(encoder.encode("new-password")).thenReturn("old-hash")
+
+        assertEquals(false,service.changePassword("user@example.com","new-password","code"))
+        verify(users,never()).save(user)
+    }
+
+    @Test
+    fun `changeUsername returns false when the user does not exist`() {
+        `when`(users.findByEmail("missing@example.com")).thenReturn(null)
+
+        assertEquals(false,service.changeUsername("missing@example.com","New Name"))
+    }
+
+    @Test
+    fun `changeUsername returns false when changed less than 90 days ago`() {
+        val user=User().apply {id=7; email="user@example.com"}
+        val log=UserLog().apply {displayNameChangedTime=Instant.now().minusSeconds(89 * 24 * 60 * 60)}
+        `when`(users.findByEmail("user@example.com")).thenReturn(user)
+        `when`(userLogs.findById(7)).thenReturn(Optional.of(log))
+
+        assertEquals(false,service.changeUsername("user@example.com","New Name"))
+    }
+
+    @Test
+    fun `addBirthday returns false when the user does not exist`() {
+        `when`(users.findByEmail("missing@example.com")).thenReturn(null)
+
+        assertEquals(false,service.addBirthday("missing@example.com",LocalDate.of(2000,1,1)))
+    }
+
+    @Test
+    fun `addBirthday returns false when changed less than 180 days ago`() {
+        val user=User().apply {id=7; email="user@example.com"}
+        val log=UserLog().apply {birthdayChangedTime=Instant.now().minusSeconds(179 * 24 * 60 * 60)}
+        `when`(users.findByEmail("user@example.com")).thenReturn(user)
+        `when`(userLogs.findById(7)).thenReturn(Optional.of(log))
+
+        assertEquals(false,service.addBirthday("user@example.com",LocalDate.of(2000,1,1)))
+        verify(users,never()).save(user)
+    }
+
+    @Test
+    fun `requestDeletion returns false when the user does not exist`() {
+        `when`(users.findByEmail("missing@example.com")).thenReturn(null)
+
+        assertEquals(false,service.requestDeletion("missing@example.com"))
+    }
+
+    @Test
+    fun `checkAccountScheduledToBeDeleted keeps accounts scheduled less than 21 days ago`() {
+        val user=User().apply {id=7; email="user@example.com"}
+        val log=UserLog().apply {accountDeletionScheduledTime=Instant.now().minusSeconds(20 * 24 * 60 * 60)}
+        `when`(users.findAll()).thenReturn(listOf(user))
+        `when`(userLogs.findById(7)).thenReturn(Optional.of(log))
+
+        service.checkAccountScheduledToBeDeleted()
+
+        verify(users,never()).save(user)
+        verifyNoInteractions(emailService)
     }
 }

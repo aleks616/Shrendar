@@ -502,6 +502,20 @@ class AlbumServiceTest {
     }
 
     @Test
+    fun `deleteAlbumRequest should log and not delete untrusted users`() {
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
+        `when`(albumRepository.findAlbumById(2L)).thenReturn(album1)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+
+        albumService.deleteAlbumRequest(2,"tester",true)
+
+        verify(albumRepository,never()).deleteById(2L)
+        verifyNoInteractions(bandService)
+        verify(contributionRepository,times(9)).save(any(Contribution::class.java))
+    }
+
+    @Test
     fun `deleteAlbumRequest should log and delete for trusted users`() {
         requestingUser.rank=Rank().apply {id=10}
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
@@ -519,9 +533,9 @@ class AlbumServiceTest {
     private fun stubAddDependencies(dto:AlbumAddDto) {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
-        `when`(bandService.getBandById(dto.bandId!!)).thenReturn(band)
+        `when`(bandService.getBandById(dto.bandId)).thenReturn(band)
         `when`(genreRepository.findGenreById(dto.mainSubgenre!!)).thenReturn(genre)
-        `when`(albumRepository.findIdByData(dto.bandId,dto.title!!)).thenReturn(9)
+        `when`(albumRepository.findIdByData(dto.bandId,dto.title)).thenReturn(9)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
     }
 
