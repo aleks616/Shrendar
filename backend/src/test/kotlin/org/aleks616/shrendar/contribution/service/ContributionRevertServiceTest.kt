@@ -12,6 +12,7 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.Rank
@@ -29,6 +30,7 @@ class ContributionRevertServiceTest {
     private lateinit var bandService:BandService
     private lateinit var bandsMemberRepository:BandsMemberRepository
     private lateinit var contributionRepository:ContributionRepository
+    private lateinit var eventRepository:EventRepository
     private lateinit var userAccountService:UserAccountService
     private lateinit var service:ContributionRevertService
     private lateinit var user:User
@@ -41,10 +43,11 @@ class ContributionRevertServiceTest {
         bandService=mock(BandService::class.java)
         bandsMemberRepository=mock(BandsMemberRepository::class.java)
         contributionRepository=mock(ContributionRepository::class.java)
+        eventRepository=mock(EventRepository::class.java)
         userAccountService=mock(UserAccountService::class.java)
         service=ContributionRevertService(
             albumRepository,artistRepository,bandRepository,bandService,
-            bandsMemberRepository,contributionRepository,userAccountService
+            bandsMemberRepository,contributionRepository,eventRepository,userAccountService
         )
         user=User().apply {login="trusted"; rank=Rank().apply {id=12}}
         `when`(userAccountService.getUserByLogin("trusted")).thenReturn(user)

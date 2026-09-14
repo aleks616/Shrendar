@@ -8,7 +8,7 @@ open class Band {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="band_id",nullable=false)
-    open var id:Int?=null
+    open var id:Int=0
 
     @Column(name="name",nullable=false,length=80)
     open var name:String?=null
