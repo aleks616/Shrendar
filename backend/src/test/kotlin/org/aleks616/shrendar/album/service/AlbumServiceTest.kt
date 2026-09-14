@@ -267,20 +267,6 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `isReleaseDateValid should return false for missing release date`() {
-        `when`(bandService.getBandById(2)).thenReturn(band)
-
-        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=null)))
-    }
-
-    @Test
-    fun `isReleaseDateValid should return false for missing bandId`() {
-        `when`(bandService.getBandById(2)).thenReturn(band)
-
-        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=null,releaseDate=LocalDate.of(1984,1,1))))
-    }
-
-    @Test
     fun `isReleaseDateValid should return false for missing band formed year`() {
         `when`(bandService.getBandById(2)).thenReturn(band1)
 
@@ -397,8 +383,17 @@ class AlbumServiceTest {
     @Test
     fun `editAlbumRequest should throw when there are no changes`() {
         stubEditDependencies()
-
-        assertThrows<IllegalStateException> {albumService.editAlbumRequest(AlbumAddDto(id=1),"tester")}
+        val album=AlbumAddDto(
+            id=1,
+            title="Ride the Lightning",
+            bandId=2,
+            releaseDate=LocalDate.of(1984,7,27),
+            type=AlbumType.STUDIO,
+            importance=5,
+            artworkUrl="https://example.com/artwork.jpg",
+            description="Description",
+        )
+        assertThrows<IllegalStateException> {albumService.editAlbumRequest(album,"tester")}
         verify(albumRepository,never()).save(any(Album::class.java))
     }
 
@@ -412,18 +407,18 @@ class AlbumServiceTest {
         albumService.editAlbumRequest(dto,"tester")
 
         assertEquals("New",album.title)
-        assertEquals(4,album.band?.id)
+        assertEquals(4,album.band.id)
         assertEquals(4,album.importance)
         verify(albumRepository).save(album)
         verify(bandService).calculateBandsGenre(4)
-        verify(contributionRepository,times(4)).save(any(Contribution::class.java))
+        verify(contributionRepository,times(5)).save(any(Contribution::class.java))
     }
 
     @Test
     fun `editAlbumRequest should mark changes confirmed for rank above 9`() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.STUDIO,importance=4)
+        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.STUDIO,importance=4,bandId=2)
         `when`(albumRepository.findAlbumById(2)).thenReturn(album1)
         `when`(contributionRepository.findTopChangeId()).thenReturn(1)
 
@@ -439,7 +434,7 @@ class AlbumServiceTest {
     fun `editAlbumRequest should work for an EP `() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.EP,importance=2)
+        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.EP,importance=2,bandId=2)
         `when`(albumRepository.findAlbumById(2)).thenReturn(album1)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
 
@@ -473,7 +468,7 @@ class AlbumServiceTest {
     fun `editAlbumRequest should work for an album with 0 importance `() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=1,title="New",importance=0)
+        val dto=AlbumAddDto(id=1,title="New",importance=0,bandId=2)
 
         albumService.editAlbumRequest(dto,"tester")
 
@@ -507,6 +502,20 @@ class AlbumServiceTest {
     }
 
     @Test
+    fun `deleteAlbumRequest should log and not delete untrusted users`() {
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(rankService.checkRank(requestingUser)).thenReturn(null)
+        `when`(albumRepository.findAlbumById(2L)).thenReturn(album1)
+        `when`(contributionRepository.findTopChangeId()).thenReturn(null)
+
+        albumService.deleteAlbumRequest(2,"tester",true)
+
+        verify(albumRepository,never()).deleteById(2L)
+        verifyNoInteractions(bandService)
+        verify(contributionRepository,times(9)).save(any(Contribution::class.java))
+    }
+
+    @Test
     fun `deleteAlbumRequest should log and delete for trusted users`() {
         requestingUser.rank=Rank().apply {id=10}
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
@@ -524,9 +533,9 @@ class AlbumServiceTest {
     private fun stubAddDependencies(dto:AlbumAddDto) {
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
         `when`(rankService.checkRank(requestingUser)).thenReturn(null)
-        `when`(bandService.getBandById(dto.bandId!!)).thenReturn(band)
+        `when`(bandService.getBandById(dto.bandId)).thenReturn(band)
         `when`(genreRepository.findGenreById(dto.mainSubgenre!!)).thenReturn(genre)
-        `when`(albumRepository.findIdByData(dto.bandId,dto.title!!)).thenReturn(9)
+        `when`(albumRepository.findIdByData(dto.bandId,dto.title)).thenReturn(9)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
     }
 

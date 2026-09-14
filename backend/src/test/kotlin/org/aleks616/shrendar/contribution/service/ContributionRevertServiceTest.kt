@@ -12,6 +12,7 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.event.model.Event
 import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
@@ -146,6 +147,16 @@ class ContributionRevertServiceTest {
     }
 
     @Test
+    fun `revertAddition should delete event for event addition`() {
+        val event=Event().apply {id=4}
+        val item=contribution("event",false).apply {changedRecordId=4}
+        `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(item))
+        `when`(eventRepository.findEventById(4)).thenReturn(event)
+        service.revertAddition(1,"trusted")
+        verify(eventRepository).delete(event)
+    }
+
+    @Test
     fun `revertAddition should throw RuntimeException for missing album id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("album",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
@@ -166,6 +177,12 @@ class ContributionRevertServiceTest {
     @Test
     fun `revertAddition should throw RuntimeException for missing membership id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("bands_members",false)))
+        assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
+    }
+
+    @Test
+    fun `revertAddition should throw RuntimeException for missing event id`() {
+        `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("event",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }
 

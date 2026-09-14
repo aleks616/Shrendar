@@ -21,8 +21,8 @@ class UserReportService(
         if(report.reportedUserId==0||!userAccountService.doesUserExist(report.reportedUserId)) throw Exception("User not found")
         usersReportRepository.save(
             UsersReport().apply {
-                reportedUser=userRepository.findUserById(report.reportedUserId)
-                requestingUser=userRepository.findByLogin(requesting)
+                reportedUser=userRepository.findUserById(report.reportedUserId)?:throw Exception("User not found")
+                requestingUser=userRepository.findByLogin(requesting)?:throw Exception("User not found")
                 at=Instant.now()
                 description=report.reason
             }
@@ -37,17 +37,17 @@ class UserReportService(
         return usersReportRepository.findByResolved(false).map {
             UsersReportDto(
                 id=it.id,
-                reportedUserId=it.reportedUser?.id,
-                reportedUserLogin=it.reportedUser?.login,
-                reportedUserUsername=it.reportedUser?.username,
-                reportedUserRankId=it.reportedUser?.rank?.id,
-                reportedUserBirthDate=it.reportedUser?.birthDate,
-                reportedUserXp=it.reportedUser?.xp,
-                reportedUserVerified=it.reportedUser?.verified,
-                reportedUserBio=it.reportedUser?.bio,
-                requestingUserId=it.requestingUser?.id,
-                requestingUserLogin=it.requestingUser?.login,
-                requestingUserRankId=it.requestingUser?.rank?.id,
+                reportedUserId=it.reportedUser.id,
+                reportedUserLogin=it.reportedUser.login,
+                reportedUserUsername=it.reportedUser.username,
+                reportedUserRankId=it.reportedUser.rank.id,
+                reportedUserBirthDate=it.reportedUser.birthDate,
+                reportedUserXp=it.reportedUser.xp,
+                reportedUserVerified=it.reportedUser.verified,
+                reportedUserBio=it.reportedUser.bio,
+                requestingUserId=it.requestingUser.id,
+                requestingUserLogin=it.requestingUser.login,
+                requestingUserRankId=it.requestingUser.rank.id,
                 at=it.at,
                 resolved=it.resolved,
                 description=it.description,
@@ -74,18 +74,18 @@ class UserReportService(
             userId=user.id,
             login=user.login,
             username=user.username,
-            rankId=user.rank?.id,
+            rankId=user.rank.id,
             birthDate=user.birthDate,
             xp=user.xp,
             verified=user.verified,
             bio=user.bio,
             reports=mapNotNull {r->
-                r.requestingUser?.let {
+                r.requestingUser.let {
                     ReportDetailsDto(
                         id=r.id,
                         requestingUserId=it.id,
                         requestingUserLogin=it.login,
-                        requestingUserRankId=it.rank?.id,
+                        requestingUserRankId=it.rank.id,
                         at=r.at,
                         resolved=r.resolved,
                         description=r.description

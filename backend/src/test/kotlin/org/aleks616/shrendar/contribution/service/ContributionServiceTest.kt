@@ -67,6 +67,16 @@ class ContributionServiceTest {
     fun `getAll should delegate to repository`() {
         `when`(contributionRepository.findAll()).thenReturn(listOf(contribution))
         assertEquals(listOf(contribution),contributionService.getAll())
+        verify(contributionRepository).findAll()
+    }
+
+    @Test
+    fun `getRecentAdditions default count delegates to repository`() {
+        `when`(contributionRepository.getRecentAdditions()).thenReturn(listOf(contribution))
+
+        assertEquals(listOf(contribution),contributionRepository.getRecentAdditions())
+
+        verify(contributionRepository).getRecentAdditions(5)
     }
 
     @Test

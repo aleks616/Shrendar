@@ -255,11 +255,12 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum should reject null bandId`() {
-            val result=controller.addAlbum(dto.copy(bandId=null),request)
+        fun `addAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
 
-            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-            verifyNoInteractions(albumService)
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
         }
 
         @Test
@@ -279,8 +280,8 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `addAlbum should reject null title`() {
-            val result=controller.addAlbum(dto.copy(title=null),request)
+        fun `addAlbum should reject an empty title`() {
+            val result=controller.addAlbum(dto.copy(title=""),request)
 
             assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
             verifyNoInteractions(albumService)
@@ -374,6 +375,15 @@ class AlbumControllerTest {
         }
 
         @Test
+        fun `editAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        }
+
+        @Test
         fun `editAlbum should return too many requests when IP rate limit is reached`() {
             `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
 
@@ -402,14 +412,7 @@ class AlbumControllerTest {
         fun `editAlbum should reject missing id`() {
             val result=controller.editAlbum(dto,request)
 
-            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        }
-
-        @Test
-        fun `editAlbum should reject missing title`() {
-            val result=controller.editAlbum(dto.copy(id=1,title=null),request)
-
-            assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,result.statusCode)
         }
 
         @Test
@@ -520,6 +523,15 @@ class AlbumControllerTest {
             val result=controller.deleteAlbum(1,request)
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
         }
 
         @Test
@@ -800,7 +812,8 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbum should return all albums`() {
-        albumRepository.save(Album().apply {title="Album 1"})
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
+        albumRepository.save(Album().apply {title="Album 1";band=testBand})
 
         mockMvc.get("/api/album/")
             .andExpect {
@@ -812,7 +825,8 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumById should return album`() {
-        val album=albumRepository.save(Album().apply {title="Master of Puppets"})
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
+        val album=albumRepository.save(Album().apply {title="Master of Puppets";band=testBand})
 
         mockMvc.get("/api/album/id/${album.id}")
             .andExpect {
@@ -839,9 +853,11 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumAnniversariesByDate should return albums for valid date`() {
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
         albumRepository.save(Album().apply {
             title="Anniversary"
             releaseDate=LocalDate.of(2020,5,20)
+            band=testBand
         })
 
         mockMvc.get("/api/album/inDate") {
@@ -902,9 +918,11 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumsByYear should return albums for valid year`() {
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
         albumRepository.save(Album().apply {
             title="Year Album"
             releaseDate=LocalDate.of(2020,1,1)
+            band=testBand
         })
 
         mockMvc.get("/api/album/year/2020").andExpect {status {isOk()}}
@@ -925,7 +943,8 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumsByNameLike should return albums`() {
-        albumRepository.save(Album().apply {title="Master of Puppets"})
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
+        albumRepository.save(Album().apply {title="Master of Puppets";band=testBand})
 
         mockMvc.get("/api/album/like/Master")
             .andExpect {
@@ -936,7 +955,8 @@ class AlbumControllerTest {
 
     @Test
     fun `getAlbumsByNameExact should return albums`() {
-        albumRepository.save(Album().apply {title="Master of Puppets"})
+        val testBand=bandRepository.save(Band().apply {name="Metallica"})
+        albumRepository.save(Album().apply {title="Master of Puppets";band=testBand})
 
         mockMvc.get("/api/album/exact/Master of Puppets")
             .andExpect {

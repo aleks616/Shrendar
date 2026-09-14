@@ -23,11 +23,11 @@ open class UsersReport {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="reported_user")
-    open var reportedUser:User?=null
+    open var reportedUser:User=User()
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="requesting_user")
-    open var requestingUser:User?=null
+    open var requestingUser:User=User()
 
     @Column(name="at")
     open var at:Instant?=null

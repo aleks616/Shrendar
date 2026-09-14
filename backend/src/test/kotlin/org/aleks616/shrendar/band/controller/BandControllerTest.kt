@@ -465,6 +465,15 @@ class BandControllerTest {
     }
 
     @Test
+    fun `addBand should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.addBand(validBandDto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+    }
+
+    @Test
     fun `addBand should throw bad request for missing name`() {
         val result=bandController.addBand(BandAddDto(name="",status=Status.ACTIVE),request)
 
@@ -570,6 +579,15 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1),request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `editBand should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.editBand(validBandDto.copy(id=1),request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
     }
 
     @Test
@@ -694,6 +712,15 @@ class BandControllerTest {
         val result=bandController.deleteBand(1,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBand should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.deleteBand(1,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
     }
 
     @Test
@@ -980,6 +1007,19 @@ class BandControllerTest {
     }
 
     @Test
+    fun `addBandMember should reject banned authenticated user`() {
+        val member=ArtistBandAddDto(artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.addBandMember(member,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        verify(bandService,never()).doesSameMemberExist(member)
+        verifyNoInteractions(bandsMemberService)
+    }
+
+    @Test
     fun `addBandMember should reject missing required member info`() {
         val result=
             bandController.addBandMember(ArtistBandAddDto(artistId=1L,bandId=2,role=null,joinedYear=null),request)
@@ -1125,6 +1165,19 @@ class BandControllerTest {
     }
 
     @Test
+    fun `editBandMember should reject banned authenticated user`() {
+        val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.editBandMember(member,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        verify(bandService,never()).doesBandMemberExist(10L)
+        verifyNoInteractions(bandsMemberService)
+    }
+
+    @Test
     fun `editBandMember should reject missing band member`() {
         val member=ArtistBandAddDto(id=10L,artistId=1L,bandId=2,role="Vocals",joinedYear=1981)
         `when`(bandService.doesBandMemberExist(10L)).thenReturn(false)
@@ -1265,6 +1318,17 @@ class BandControllerTest {
         val result=bandController.deleteBandMember(1,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `deleteBandMember should reject banned authenticated user`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=bandController.deleteBandMember(1,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        verifyNoInteractions(bandsMemberService)
     }
 
     @Test

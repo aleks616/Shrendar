@@ -10,14 +10,14 @@ open class Contribution {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
-    open var id:Long?=null
+    open var id:Long=0
 
     @Column(name="change_id")
-    open var changeId:Long?=null
+    open var changeId:Long=0
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
-    open var user:User?=null
+    open var user:User=User()
 
     @Enumerated(EnumType.STRING)
     @Column(name="action",columnDefinition="ENUM('CREATE', 'UPDATE', 'DELETE')")

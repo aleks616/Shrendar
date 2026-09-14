@@ -7,6 +7,7 @@ import org.aleks616.shrendar.artist.model.ChineseZodiacSign
 import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.common.model.NameValue
 import org.aleks616.shrendar.artist.repository.ArtistRepository
+import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Contribution
@@ -113,6 +114,7 @@ class ArtistServiceTest {
 
     @Test
     fun `getByIdWiki should work for a living artist (m)`() {
+        artist.deathDate=null
         `when`(artistRepository.existsArtistById(1)).thenReturn(true)
         `when`(artistRepository.findArtistById(1)).thenReturn(artist)
         `when`(countryRepository.getCountryNameById(1)).thenReturn("USA")
@@ -122,8 +124,9 @@ class ArtistServiceTest {
         assertEquals("USA",result.country)
         assertEquals(ZodiacSign.LEO,result.zodiacSign)
         assertEquals(ChineseZodiacSign.RABBIT,result.chineseZodiacSign)
-        assertNotNull(result.deathDate)
-        assertNotNull(result.daysTillDeathAnniversary)
+        assertEquals(artist.birthDate!!.until(LocalDate.now()).years,result.age)
+        assertNull(result.deathDate)
+        assertNull(result.daysTillDeathAnniversary)
     }
 
     @Test
@@ -441,6 +444,35 @@ class ArtistServiceTest {
         `when`(artistRepository.findArtistById(1L)).thenReturn(artist)
 
         assertThrows<IllegalStateException>{artistService.toggleFavoriteArtist(1L,"tester")}
+    }
+
+    @Test
+    fun `toggleFavoriteArtistByBand adds every artist not already favorited`() {
+        val existingFavorite=UsersArtists().apply {id=4}
+        val members=mutableListOf(
+            BandsMembers().apply {artist=this@ArtistServiceTest.artist},
+            BandsMembers().apply {artist=this@ArtistServiceTest.artist1}
+        )
+        `when`(userAccountService.getUserByLogin("tester")).thenReturn(requestingUser)
+        `when`(bandsMemberRepository.findByBandId(5)).thenReturn(members)
+        `when`(userArtistRepository.findByArtistAndUser(artist,requestingUser)).thenReturn(existingFavorite)
+        `when`(userArtistRepository.findByArtistAndUser(artist1,requestingUser)).thenReturn(null)
+        val service=spy(artistService)
+        doNothing().`when`(service).toggleFavoriteArtist(artist1.id!!,"tester")
+
+        service.toggleFavoriteArtistByBand(5,"tester")
+
+        verify(service).toggleFavoriteArtist(artist1.id!!,"tester")
+        verify(service,never()).toggleFavoriteArtist(artist.id!!,"tester")
+    }
+
+    @Test
+    fun `toggleFavoriteArtistByBand throws when the user does not exist`() {
+        `when`(userAccountService.getUserByLogin("missing")).thenReturn(null)
+
+        assertThrows<IllegalStateException> {artistService.toggleFavoriteArtistByBand(5,"missing")}
+
+        verifyNoInteractions(bandsMemberRepository,userArtistRepository)
     }
 
     @Test

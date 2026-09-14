@@ -576,7 +576,7 @@ class BandServiceTest {
     fun `toggleFavoriteBand should create missing favorite`() {
         `when`(userAccountService.getUserByLogin("user")).thenReturn(requestingUser)
         `when`(bandRepository.findBandById(1)).thenReturn(band)
-        doReturn(UsersBands().apply {id=null}).`when`(userBandRepository).findByBandAndUser(band,requestingUser)
+        `when`(userBandRepository.findByBandAndUser(band,requestingUser)).thenReturn(null)
         doReturn(UsersBands()).`when`(userBandRepository).saveAndFlush(any(UsersBands::class.java))
         service.toggleFavoriteBand(1,"user")
         verify(userBandRepository).saveAndFlush(any(UsersBands::class.java))

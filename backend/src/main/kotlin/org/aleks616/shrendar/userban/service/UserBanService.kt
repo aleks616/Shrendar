@@ -23,18 +23,18 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
         return usersBanRepository.findByUntilIsAfterNow().map {
             BansDto(
                 id=it.id,
-                userId=it.user?.id,
-                userLogin=it.user?.login,
-                userUsername=it.user?.username,
-                userRank=it.user?.rank?.id,
+                userId=it.user.id,
+                userLogin=it.user.login,
+                userUsername=it.user.username,
+                userRank=it.user.rank.id,
                 at=it.at,
                 until=it.until,
                 length=Duration.between(it.at,it.until),
                 description=it.description,
-                byId=it.by?.id,
-                byLogin=it.by?.login,
-                byUsername=it.by?.username,
-                byRank=it.by?.rank?.id,
+                byId=it.by.id,
+                byLogin=it.by.login,
+                byUsername=it.by.username,
+                byRank=it.by.rank.id,
                 appealReason=it.appealReason,
             )
         }
@@ -44,18 +44,18 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
         return usersBanRepository.findByActiveAndHasAppeal().map {
             BansDto(
                 id=it.id,
-                userId=it.user?.id,
-                userLogin=it.user?.login,
-                userUsername=it.user?.username,
-                userRank=it.user?.rank?.id,
+                userId=it.user.id,
+                userLogin=it.user.login,
+                userUsername=it.user.username,
+                userRank=it.user.rank.id,
                 at=it.at,
                 until=it.until,
                 length=Duration.between(it.at,it.until),
                 description=it.description,
-                byId=it.by?.id,
-                byLogin=it.by?.login,
-                byUsername=it.by?.username,
-                byRank=it.by?.rank?.id,
+                byId=it.by.id,
+                byLogin=it.by.login,
+                byUsername=it.by.username,
+                byRank=it.by.rank.id,
                 appealReason=it.appealReason,
             )
         }
@@ -69,18 +69,18 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
         val data=usersBanRepository.findCurrentUserBanData(userId)?:throw IllegalStateException("user is not banned")
         return BansDto(
             id=data.id,
-            userId=data.user?.id,
-            userLogin=data.user?.login,
-            userUsername=data.user?.username,
-            userRank=data.user?.rank?.id,
+            userId=data.user.id,
+            userLogin=data.user.login,
+            userUsername=data.user.username,
+            userRank=data.user.rank.id,
             at=data.at,
             until=data.until,
             length=Duration.between(data.at,data.until),
             description=data.description,
-            byId=data.by?.id,
-            byLogin=data.by?.login,
-            byUsername=data.by?.username,
-            byRank=data.by?.rank?.id,
+            byId=data.by.id,
+            byLogin=data.by.login,
+            byUsername=data.by.username,
+            byRank=data.by.rank.id,
             appealReason=data.appealReason,
         )
     }
@@ -95,7 +95,7 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
             userId=user.id,
             userLogin=user.login,
             userUsername=user.username,
-            userRank=user.rank?.id,
+            userRank=user.rank.id,
             bans=mapNotNull {b->
                 UserBansDetailsDto(
                     id=b.id,
@@ -103,13 +103,13 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
                     until=b.until,
                     length=Duration.between(b.at,b.until),
                     description=b.description,
-                    byId=b.by?.id,
-                    byLogin=b.by?.login,
-                    byUsername=b.by?.username,
-                    byRank=b.by?.rank?.id,
+                    byId=b.by.id,
+                    byLogin=b.by.login,
+                    byUsername=b.by.username,
+                    byRank=b.by.rank.id,
                     appealed=b.appealed,
                     appealReason=b.appealReason,
-                    appealedBy=b.appealedBy?.id
+                    appealedBy=b.appealedBy.id
                 )
             }
         )
@@ -125,7 +125,7 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
             userId=mod.id,
             userLogin=mod.login,
             userUsername=mod.username,
-            userRank=mod.rank?.id,
+            userRank=mod.rank.id,
             bans=mapNotNull {b->
                 UserBansDetailsDto(
                     id=b.id,
@@ -133,24 +133,25 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
                     until=b.until,
                     length=Duration.between(b.at,b.until),
                     description=b.description,
-                    byId=b.user?.id,
-                    byLogin=b.user?.login,
-                    byUsername=b.user?.username,
-                    byRank=b.user?.rank?.id,
+                    byId=b.user.id,
+                    byLogin=b.user.login,
+                    byUsername=b.user.username,
+                    byRank=b.user.rank.id,
                     appealed=b.appealed,
                     appealReason=b.appealReason,
-                    appealedBy=b.appealedBy?.id
+                    appealedBy=b.appealedBy.id
                 )
             }
         )
     }
 
     fun banUser(data:BanDto,userLogin:String) {
-        val byUser=userRepository.findByLogin(userLogin)
+        val byUser=userRepository.findByLogin(userLogin)?:throw IllegalStateException("user not found")
         val now=Instant.now()
         val duration=Duration.of(data.duration!!.toLong(),ChronoUnit.HOURS)
+        val userToBan=userRepository.findUserById(data.userId!!)?:throw IllegalStateException("user not found")
         usersBanRepository.save(UsersBan().apply {
-            user=userRepository.findUserById(data.userId!!)
+            user=userToBan
             at=now
             until=now.plus(duration)
             description=data.description
@@ -161,7 +162,7 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
     fun appealBan(reason:String,login:String){
         if(!isBanned(login)) throw IllegalStateException("user is not banned")
         val user=userRepository.findByLogin(login)?:throw IllegalStateException("user not found")
-        val usersBan=getCurrentUserBanData(user.id!!)
+        val usersBan=getCurrentUserBanData(user.id)
         if(usersBan.appealReason!=null) throw IllegalStateException("you already filed an appeal")
         usersBan.appealReason=reason
         usersBanRepository.save(usersBan)
@@ -170,7 +171,7 @@ class UserBanService(private val usersBanRepository:UsersBanRepository,private v
     fun cancelBan(userId:Int,modLogin:String){
         if(!isBanned(userId)) throw IllegalStateException("user is not banned")
         val user=userRepository.findUserById(userId)?:throw IllegalStateException("user not found")
-        val usersBan=getCurrentUserBanData(user.id!!)
+        val usersBan=getCurrentUserBanData(user.id)
         val mod=userRepository.findByLogin(modLogin)?:throw IllegalStateException("mod not found")
         usersBan.appealed=true
         usersBan.appealedBy=mod

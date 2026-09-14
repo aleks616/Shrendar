@@ -36,7 +36,7 @@ class EventService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -97,7 +97,7 @@ class EventService(
             }
         }
 
-        updateIfChanged("band_id",event.band?.id,eventAddDto.bandId,{event.band=bandService.getBandById(it)})
+        updateIfChanged("band_id",event.band.id,eventAddDto.bandId,{event.band=bandService.getBandById(it)})
         updateIfChanged("date",event.date,eventAddDto.date,{event.date=it})
         updateIfChanged("name",event.name,eventAddDto.name,{event.name=it})
         updateIfChanged("description",event.description,eventAddDto.description,{event.description=it})
@@ -107,7 +107,7 @@ class EventService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -140,7 +140,7 @@ class EventService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -149,7 +149,7 @@ class EventService(
             val event=eventRepository.findEventById(eventId)
             val changes:List<Triple<String,String?,String?>> =listOf(
                 Triple("id",event.id.toString(),null),
-                Triple("band_id",event.band?.id.toString(),null),
+                Triple("band_id",event.band.id.toString(),null),
                 Triple("date",event.date.toString(),null),
                 Triple("name",event.name,null),
                 Triple("description",event.description,null),

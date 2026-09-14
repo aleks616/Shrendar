@@ -34,7 +34,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         try{
             return userBanService.getActiveBans()
@@ -49,7 +49,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         try{
             return userBanService.getBansWithAppeal()
@@ -64,7 +64,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("mod not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         if(userAccountService.doesUserExist(userId)) throw IllegalStateException("user with id $userId doesn't exist")
         return userBanService.getAllBansOfUser(userId)
@@ -75,7 +75,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("mod not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         if(userAccountService.doesUserExist(userId)) throw IllegalStateException("user with id $userId doesn't exist")
         try{
@@ -91,7 +91,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("mod not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         if(userAccountService.doesUserExist(modId)) throw IllegalStateException("user with id $modId doesn't exist")
         return userBanService.getBansByMod(modId)
@@ -102,7 +102,7 @@ class UserBanController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
-        if(user.rank!!.id!!<10) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Page not found")
+        if(user.rank.id < 10) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Page not found")
 
         if(data.userId==null||data.duration==null||data.description.isNullOrEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User id duration and description are required")
         if(userAccountService.doesUserExist(data.userId)) throw IllegalStateException("user with id ${data.userId} doesn't exist")

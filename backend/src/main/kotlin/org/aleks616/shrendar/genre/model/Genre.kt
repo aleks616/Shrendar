@@ -10,10 +10,10 @@ import jakarta.persistence.Table
 open class Genre {
     @Id
     @Column(name="genre_id",nullable=false)
-    open var id:Int?=null
+    open var id:Int=0
 
     @Column(name="name",nullable=false,length=80)
-    open var name:String?=null
+    open var name:String=""
 
     @Column(name="properties",length=7)
     open var properties:String?="0000000"
