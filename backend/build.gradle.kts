@@ -39,12 +39,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }
