@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.userreport.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.exception.RankTooLowException
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.user.model.Rank
@@ -46,6 +47,40 @@ class UserReportControllerTest {
         doThrow(IllegalStateException("bad")).`when`(reports).reportUser(ReportRequestDto(2,"bad"),"mod")
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,controller.reportUser(ReportRequestDto(2,"bad"),request).statusCode)
         assertEquals(HttpStatus.OK,controller.reportUser(ReportRequestDto(2,"reason"),request).statusCode)
+    }
+
+    @Test fun `reportUser uses unknown for a missing remote IP address`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(limiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        assertEquals(HttpStatus.OK,controller.reportUser(ReportRequestDto(2,"reason"),request).statusCode)
+        verify(limiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test fun `reportUser throws when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        assertThrows<IllegalStateException> {
+            controller.reportUser(ReportRequestDto(2,"reason"),request)
+        }
+    }
+
+    @Test fun `getReportsByUserId throws when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        assertThrows<IllegalStateException> {controller.getReportsByUserId(2)}
+    }
+
+    @Test fun `getUnresolvedReports throws when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        assertThrows<IllegalStateException> {controller.getUnresolvedReports()}
+    }
+
+    @Test fun `resolve throws when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        assertThrows<IllegalStateException> {controller.resolve(1)}
     }
 
     @Test fun `can report delegates and protected endpoints enforce authentication and rank`() {

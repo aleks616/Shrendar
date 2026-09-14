@@ -45,6 +45,36 @@ class UserReportServiceTest {
         assertNotNull(saved.value.at)
     }
 
+    @Test fun `reportUser throws when reported user cannot be loaded`() {
+        `when`(accounts.doesUserExist(2)).thenReturn(true)
+        `when`(users.findUserById(2)).thenReturn(null)
+
+        assertThrows<Exception> {service.reportUser(ReportRequestDto(2,"reason"),"reporter")}
+
+        verify(reports,never()).save(any())
+    }
+
+    @Test fun `reportUser throws when requesting user cannot be loaded`() {
+        `when`(accounts.doesUserExist(2)).thenReturn(true)
+        `when`(users.findUserById(2)).thenReturn(reported)
+        `when`(users.findByLogin("reporter")).thenReturn(null)
+
+        assertThrows<Exception> {service.reportUser(ReportRequestDto(2,"reason"),"reporter")}
+
+        verify(reports,never()).save(any())
+    }
+
+    @Test fun `reports by user dto is null for an empty report list`() {
+        assertNull(service.run {emptyList<UsersReport>().toReportsByUserDto()})
+    }
+
+    @Test fun `reports by user dto is null when the first report has no reported user`() {
+        val reportWithoutReportedUser=mock(UsersReport::class.java)
+        doReturn(null).`when`(reportWithoutReportedUser).reportedUser
+
+        assertNull(service.run {listOf(reportWithoutReportedUser).toReportsByUserDto()})
+    }
+
     @Test fun `reports by user reject missing users and map reporters while excluding malformed records`() {
         `when`(users.findUserById(2)).thenReturn(null)
         assertThrows<Exception> {service.getUserReportsByUserId(2)}
@@ -52,7 +82,7 @@ class UserReportServiceTest {
         `when`(reports.findByReportedUser(reported)).thenReturn(mutableListOf(report(4),UsersReport().apply {id=5; reportedUser=reported}))
         val result=service.getUserReportsByUserId(2)!!
         assertEquals("reported",result.login)
-        assertEquals(listOf(4L),result.reports!!.map {it.id})
+        assertEquals(listOf(4L,5L),result.reports!!.map {it.id})
         `when`(reports.findByReportedUser(reported)).thenReturn(mutableListOf())
         assertNull(service.getUserReportsByUserId(2))
     }
