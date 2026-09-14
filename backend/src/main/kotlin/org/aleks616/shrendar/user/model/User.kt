@@ -40,5 +40,5 @@ open class User {
     open var bio:String?=null
 
     @Column(name="deleted")
-    open var deleted:Boolean=false
+    open var deleted:Boolean?=false
 }

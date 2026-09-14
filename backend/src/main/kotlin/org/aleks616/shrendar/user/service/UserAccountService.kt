@@ -75,7 +75,7 @@ class UserAccountService(
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
         if(user==null) return null
-        if(user.deleted) return null
+        if(user.deleted==true) return null
         val userLog=findUserLog(user.id)
 
         if(userLog.accountDeletionScheduledTime!=null){

@@ -73,6 +73,7 @@ class UserServiceTest {
         `when`(userGenreRepository.findByUser(targetUser)).thenReturn(mutableListOf(genreRow))
         `when`(contributionService.getContributionsByRequestingUser(7)).thenReturn(emptyList())
         `when`(userLogRepository.getUserLogById(7)).thenReturn(UserLog().apply {
+            id=7
             accountCreatedTime=Instant.now().minus(400, ChronoUnit.DAYS)
             lastLoginTime=Instant.now().minus(45, ChronoUnit.DAYS)
         })
