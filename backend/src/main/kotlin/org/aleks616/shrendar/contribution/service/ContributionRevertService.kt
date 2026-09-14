@@ -11,10 +11,12 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.event.model.Event
+import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,12 +27,13 @@ class ContributionRevertService(
     private val bandService:BandService,
     private val bandsMemberRepository:BandsMemberRepository,
     private val contributionRepository:ContributionRepository,
-    private val userService:UserService,
+    private val eventRepository:EventRepository,
+    private val userAccountService:UserAccountService,
 ) {
 
     fun revertAddition(changeId:Long,confirmedUserLogin:String) {
-        val confirmingUser:User=userService.getUserByLogin(confirmedUserLogin)!!
-        val rank=confirmingUser.rank!!.id!!
+        val confirmingUser:User=userAccountService.getUserByLogin(confirmedUserLogin)!!
+        val rank=confirmingUser.rank.id
         if(rank<10) throw RankTooLowToRevertContributionException("Rank 10 is required to revert contribution. User rank: $rank")
         val contributions=contributionRepository.getByChangeId(changeId)
         if(contributions[0].confirmed==true&&rank<12) throw RankTooLowToRevertConfirmedContributionException("Rank 12 is required to revert confirmed contribution. User rank: $rank")
@@ -43,10 +46,11 @@ class ContributionRevertService(
                 "artist"->revertArtistAddition(contributions)
                 "band"->revertBandAddition(contributions)
                 "bands_members"->revertBandMemberAddition(contributions)
-                else->throw IllegalArgumentException("table name has to be one of: album, artist, band, bands_members. actual: $table")
+                "event"->revertEventAddition(contributions)
+                else->throw IllegalArgumentException("table name has to be one of: album, artist, band, bands_members, event. actual: $table")
             }
         }
-        else throw UnsupportedOperationException("reverting of edits and removal is not supported yet")
+        else throw UnsupportedOperationException("reverting of edits is done separately")
     }
 
     fun revertAlbumAddition(contributions:List<Contribution>) {
@@ -91,6 +95,17 @@ class ContributionRevertService(
             bandsMemberRepository.delete(bandArtist)
         }
         else throw RuntimeException("id can't be null")
+
+    }
+
+    fun revertEventAddition(contributions:List<Contribution>) {
+        val eventId=contributions[0].changedRecordId
+
+        if(eventId!=null) {
+            val event:Event=eventRepository.findEventById(eventId.toInt())
+            eventRepository.delete(event)
+        }
+        else throw RuntimeException("event id can't be null")
 
     }
 

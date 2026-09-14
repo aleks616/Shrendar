@@ -11,17 +11,17 @@ open class Album {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="album_id",nullable=false)
-    open var id:Long?=null
+    open var id:Long=0
 
     @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="band_id")
-    open var band:Band?=null
+    @JoinColumn(name="band_id",nullable=false)
+    open var band:Band=Band()
 
     @Column(name="title",nullable=false,length=100)
-    open var title:String?=null
+    open var title:String=""
 
-    @Column(name="release_date")
-    open var releaseDate:LocalDate?=null
+    @Column(name="release_date",nullable=false)
+    open var releaseDate:LocalDate=LocalDate.now()
 
     @Enumerated(EnumType.STRING)
     @Column(name="type", columnDefinition="ENUM('STUDIO','EP','COMPILATION','CONCERT','DEMO','SINGLE','OTHER')")

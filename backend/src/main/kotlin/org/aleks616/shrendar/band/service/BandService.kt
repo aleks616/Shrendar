@@ -18,7 +18,7 @@ import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersBands
 import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -31,7 +31,7 @@ class BandService(
     private val contributionRepository:ContributionRepository,
     private val countryRepository:CountryRepository,
     private val genreService:GenreService,
-    private val userService:UserService,
+    private val userAccountService:UserAccountService,
     private val genreRepository:GenreRepository,
     private val rankService:RankService,
     private val userBandRepository:UserBandRepository,
@@ -49,7 +49,7 @@ class BandService(
                 formedYear=b.formedYear,
                 disbandedYear=b.disbandedYear,
                 status=b.status,
-                country=getBandsCountry(b.id!!),
+                country=getBandsCountry(b.id),
                 description=b.description
             )
 
@@ -80,10 +80,10 @@ class BandService(
             formedYear=dataRaw.get().formedYear,
             disbandedYear=dataRaw.get().disbandedYear,
             status=dataRaw.get().status,
-            country=getBandsCountry(dataRaw.get().id!!),
+            country=getBandsCountry(dataRaw.get().id),
             description=dataRaw.get().description,
             imageUrl=dataRaw.get().imageUrl,
-            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id!!)
+            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id)
         )
     }
 
@@ -156,16 +156,16 @@ class BandService(
     }*/
 
 
-    fun getBandsGenre(id:Int):String {
+    fun getBandsGenre(id:Int):String? {
         val data=bandRepository.findBandById(id)
-        return data.averageGenre!!
+        return data.averageGenre
     }
 
     fun getSimilarBands(bandId:Int,count:Int):List<BandGenreDto> {
         val dataRaw=bandRepository.findBandsWithAvgGenre()
         val avgGenre=getBandsGenre(bandId)
         val similarList:MutableList<Pair<Double,Band>> =arrayListOf()
-
+        if(avgGenre==null) return emptyList()
         dataRaw.forEach {d->
             val similarity=GenreSimilarity.getGenreSimilarity(d.averageGenre!!,avgGenre)
             similarList.add(Pair(similarity,d))
@@ -176,7 +176,7 @@ class BandService(
 
         return mostSimilar.map {
             BandGenreDto().apply {
-                id=it.second.id!!
+                id=it.second.id
                 name=it.second.name!!
                 formedYear=it.second.formedYear!!
                 country=CountryDto().apply {
@@ -194,15 +194,15 @@ class BandService(
     }
 
     @Transactional
-    fun addBandRequest(bandAddDto:BandAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+    fun addBand(bandAddDto:BandAddDto,userLogin:String) {
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -221,8 +221,8 @@ class BandService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
-            Pair("name",bandAddDto.name),
+        val changes:List<Pair<String,String>> =listOf(
+            Pair("name",bandAddDto.name.toString()),
             Pair("formedYear",bandAddDto.formedYear.toString()),
             Pair("status",bandAddDto.status.toString()),
             Pair("disbandedYear",bandAddDto.disbandedYear.toString()),
@@ -232,28 +232,26 @@ class BandService(
         )
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changedRecordId=bandId?.toLong()
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="band"
-                    changedColumn=it.first
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changedRecordId=bandId!!.toLong()
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="band"
+                changedColumn=it.first
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
 
     }
 
     @Transactional
     fun editBandRequest(bandAddDto:BandAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -280,14 +278,13 @@ class BandService(
         updateIfChanged("country",band.country,bandAddDto.country,{band.country=it})
         updateIfChanged("description",band.description,bandAddDto.description,{band.description=it})
         updateIfChanged("image_url",band.imageUrl,bandAddDto.imageUrl,{band.imageUrl=it})
-        //averageGenre should be updated separately
 
         if(changes.isEmpty()) throw IllegalStateException("no changes found")
 
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -313,14 +310,14 @@ class BandService(
 
     @Transactional
     fun deleteBandRequest(id:Int,userLogin:String,log:Boolean=true) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -364,11 +361,10 @@ class BandService(
 
     @Transactional
     fun toggleFavoriteBand(bandId:Int,login:String) {
-        val user=userService.getUserByLogin(login)?:throw IllegalStateException("User not found")
+        val user=userAccountService.getUserByLogin(login)?:throw IllegalStateException("User not found")
         val band=bandRepository.findBandById(bandId)
-        val recordId:Long=userBandRepository.findByBandAndUser(band,user)?.id?:-1L
-
-        if(recordId==-1L) {
+        val recordId=userBandRepository.findByBandAndUser(band,user)?.id
+        if(recordId==null) {
             userBandRepository.saveAndFlush(UsersBands().apply {
                 this.user=user
                 this.band=band

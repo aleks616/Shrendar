@@ -1,27 +1,51 @@
 package org.aleks616.shrendar.artist.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
+import org.aleks616.shrendar.artist.model.ArtistAnniversaryDto
+import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
+import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.Country
+import org.aleks616.shrendar.common.model.NameValue
+import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.common.service.CountryService
+import org.aleks616.shrendar.contribution.model.Action
+import org.aleks616.shrendar.contribution.model.Contribution
+import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
+import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
-import org.junit.jupiter.api.BeforeEach
+import org.aleks616.shrendar.user.model.Rank
+import org.aleks616.shrendar.user.model.User
+import org.aleks616.shrendar.user.repository.RankRepository
+import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDate
 
@@ -30,7 +54,19 @@ class ArtistControllerTest {
     private val artistService:ArtistService=mock(ArtistService::class.java)
     private val countryService:CountryService=mock(CountryService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
-    private val artistController=ArtistController(artistService,rateLimiter,countryService)
+    private val bandsMemberService=mock(BandsMemberService::class.java)
+
+    private val userBanService=mock(UserBanService::class.java)
+
+    private val bandService=mock(BandService::class.java)
+    private val artistController=ArtistController(
+        artistService,
+        rateLimiter,
+        countryService,
+        bandsMemberService,
+        bandService,
+        userBanService
+    )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(artistController).build()
     private val request=mock(HttpServletRequest::class.java)
     private val dto=ArtistAddDto(name="James Hetfield",gender='M')
@@ -42,6 +78,7 @@ class ArtistControllerTest {
         `when`(request.remoteAddr).thenReturn("127.0.0.1")
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_BASIC),eq(60))).thenReturn(true)
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_HIGH),eq(60))).thenReturn(true)
+        `when`(userBanService.isBanned("user")).thenReturn(false)
     }
 
     @Test
@@ -171,10 +208,10 @@ class ArtistControllerTest {
 
     @Test
     fun `getByBirthday should return artists for valid date`() {
-        val artists=listOf(Artist().apply {id=1; name="James Hetfield"})
+        val artists=listOf(ArtistAnniversaryDto(id=1, name="James Hetfield"))
         `when`(artistService.getByBirthday(8,3)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/birthday") {
+        mockMvc.get("/api/artist/birthdate") {
             param("month","8")
             param("day","3")
         }.andExpect {
@@ -186,7 +223,7 @@ class ArtistControllerTest {
     @Test
     fun `getByBirthday should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/birthday?month=13&day=1")
+            mockMvc.get("/api/artist/birthdate?month=13&day=1")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
@@ -259,11 +296,47 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `getArtistBands should return a list of artist bands`() {
+        val artistBands=listOf(
+            org.aleks616.shrendar.band.model.ArtistBandsStatusDto(
+                artistId=1,
+                artistName="James Hetfield",
+                bandId=3,
+                bandName="Metallica",
+                current=true
+            )
+        )
+        `when`(bandsMemberService.getArtistBandsList(1L)).thenReturn(artistBands)
+
+        mockMvc.get("/api/artist/1/bands-data")
+            .andExpect {
+                status {isOk()}
+                content { json("[{\"artistId\":1,\"artistName\":\"James Hetfield\",\"bandId\":3,\"bandName\":\"Metallica\",\"current\":true}]") }
+            }
+    }
+
+    @Test
+    fun `getArtistGenres should return an artist genre dto`() {
+        val genreDto=ArtistGenreDto(
+            artistId=1,
+            artistName="James Hetfield",
+            genres=listOf(NameValue("Thrash Metal", 1))
+        )
+        `when`(artistService.getArtistGenres(1L)).thenReturn(genreDto)
+
+        mockMvc.get("/api/artist/genres/1")
+            .andExpect {
+                status {isOk()}
+                content { json("{\"artistId\":1,\"artistName\":\"James Hetfield\",\"genres\":[{\"name\":\"Thrash Metal\",\"value\":1}]}" ) }
+            }
+    }
+
+    @Test
     fun `getByDeathDate should return artists for valid date`() {
-        val artists=listOf(Artist().apply {id=2; name="Cliff Burton"})
+        val artists=listOf(ArtistAnniversaryDto(id=2,name="Cliff Burton"))
         `when`(artistService.getByDeathDate(9,27)).thenReturn(artists)
 
-        mockMvc.get("/api/artist/death") {
+        mockMvc.get("/api/artist/deathDate") {
             param("month","9")
             param("day","27")
         }.andExpect {
@@ -275,7 +348,7 @@ class ArtistControllerTest {
     @Test
     fun `getByDeathDate should throw exception for invalid date`() {
         val exception=assertThrows<ServletException> {
-            mockMvc.get("/api/artist/death?month=2&day=30")
+            mockMvc.get("/api/artist/deathDate?month=2&day=30")
         }
         assertEquals(
             "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
@@ -316,11 +389,14 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `addArtist should return bad request when name is missing`() {
-        val result=artistController.addArtist(dto.copy(name=null),request)
+    fun `addArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
 
-        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        verifyNoInteractions(artistService)
+        val result=artistController.addArtist(dto,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
     }
 
     @Test
@@ -330,6 +406,14 @@ class ArtistControllerTest {
         val result=artistController.addArtist(dto,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should return bad request when name is missing`() {
+        val result=artistController.addArtist(dto.copy(name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -349,6 +433,16 @@ class ArtistControllerTest {
         val result=artistController.addArtist(dto,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `addArtist should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.addArtist(dto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -479,7 +573,28 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `editArtist should return bad request for missing required fields`() {
+    fun `editArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.editArtist(dto.copy(id=1),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `editArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=artistController.editArtist(dto.copy(id=1),request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing id`() {
         val result=artistController.editArtist(dto.copy(id=null),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
@@ -487,7 +602,31 @@ class ArtistControllerTest {
     }
 
     @Test
-    fun `editArtist should return bad request for missing artist`() {
+    fun `editArtist should return bad request for missing name`() {
+        val result=artistController.editArtist(dto.copy(id=1,name=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for empty name`() {
+        val result=artistController.editArtist(dto.copy(id=1,name=""),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for missing gender`() {
+        val result=artistController.editArtist(dto.copy(id=1,gender=null),request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
+    fun `editArtist should return bad request for non-existent artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
         val result=artistController.editArtist(dto.copy(id=1),request)
@@ -515,6 +654,17 @@ class ArtistControllerTest {
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
         verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `editArtist should return forbidden when user is banned`() {
+        val editDto=dto.copy(id=1)
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -552,6 +702,27 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `deleteArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `deleteArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_BASIC,60)
+    }
+
+    @Test
     fun `deleteArtist should return bad request for missing artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
@@ -578,6 +749,16 @@ class ArtistControllerTest {
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
         verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `deleteArtist should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -613,6 +794,27 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `favoriteArtist should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteArtist should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
     fun `favoriteArtist should return bad request for missing artist`() {
         `when`(artistService.doesArtistExist(1)).thenReturn(false)
 
@@ -639,5 +841,232 @@ class ArtistControllerTest {
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
         verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `favoriteArtist should handle unexpected exception`() {
+        `when`(artistService.doesArtistExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).toggleFavoriteArtist(1,"user")
+
+        val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return success`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).toggleFavoriteArtistByBand(1,"user")
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return bad request for missing band`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return too many requests when IP limit is reached`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(bandService,never()).doesBandExist(anyInt())
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return too many requests when login limit is reached`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(bandService,never()).doesBandExist(anyInt())
+    }
+
+    @Test
+    fun `favoriteBandsArtists should handle unexpected exception`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).toggleFavoriteArtistByBand(1,"user")
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Nested
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    @ActiveProfiles("test")
+    inner class ArtistControllerIntegrationTest {
+
+        @Autowired
+        private lateinit var mockMvc: MockMvc
+
+        @Autowired
+        private lateinit var artistRepository: ArtistRepository
+
+        @Autowired
+        private lateinit var contributionRepository: ContributionRepository
+
+        @Autowired
+        private lateinit var userRepository: UserRepository
+
+        @Autowired
+        private lateinit var rankRepository: RankRepository
+
+        @Autowired
+        private lateinit var countryRepository: CountryRepository
+
+        @Autowired
+        private lateinit var rateLimiter: RateLimiter
+
+        private val objectMapper = ObjectMapper().findAndRegisterModules()
+        private lateinit var userToken: String
+
+        @BeforeEach
+        fun setupIntegration() {
+            contributionRepository.deleteAll()
+            artistRepository.deleteAll()
+            userRepository.deleteAll()
+            rankRepository.deleteAll()
+            countryRepository.deleteAll()
+
+            rankRepository.saveAndFlush(Rank().apply { id=1; name="Newbie"; minXp=0; allowedContributions=10 })
+            userRepository.saveAndFlush(User().apply {
+                login="user"
+                username="User"
+                email="user@example.com"
+                passwordHash="hash"
+                rank=rankRepository.findById(1).get()
+                verified=true
+            })
+            userToken = JwtUtil.createToken("user")
+
+            val adminUser = userRepository.findAll().first()
+            contributionRepository.saveAndFlush(Contribution().apply {
+                changeId=0
+                user=adminUser
+                action=Action.CREATE
+                changedTable="seed"
+                changedColumn="seed"
+                newValue="seed"
+                changedAt=java.time.LocalDateTime.now()
+                confirmed=true
+            })
+
+            val storageField = RateLimiter::class.java.getDeclaredField("storage")
+            storageField.isAccessible = true
+            (storageField.get(rateLimiter) as MutableMap<*, *>).clear()
+        }
+
+        @Test
+        fun `addArtist should work for authorized user`() {
+            val countryId = countryRepository.saveAndFlush(Country().apply { name="USA" }).id!!
+            val artistAddDto = ArtistAddDto(
+                name="James Hetfield",
+                birthDate=LocalDate.of(1963,8,3),
+                gender='M',
+                country=countryId,
+                description="Metallica frontman"
+            )
+
+            mockMvc.post("/api/artist/add") {
+                header("Authorization", "Bearer $userToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(artistAddDto)
+            }.andExpect {
+                status { isOk() }
+                content { string("Artist addition request received") }
+            }
+
+            val artist = artistRepository.findAll().find { it.name == "James Hetfield" }
+            assertNotNull(artist)
+
+            val changeId = contributionRepository.findAll().find { it.changedTable == "artist" }?.changeId
+            assertNotNull(changeId)
+        }
+
+        @Test
+        fun `addArtist should return unauthorized for missing token`() {
+            val artistAddDto = ArtistAddDto(name="Unknown")
+
+            mockMvc.post("/api/artist/add") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(artistAddDto)
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `addArtist should return too many requests when rate limit reached`() {
+            val artistAddDto = ArtistAddDto(name="Fast Artist")
+
+            repeat(Utils.LIMIT_BASIC) {
+                mockMvc.post("/api/artist/add") {
+                    header("Authorization", "Bearer $userToken")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(artistAddDto)
+                }
+            }
+
+            mockMvc.post("/api/artist/add") {
+                header("Authorization", "Bearer $userToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(artistAddDto)
+            }.andExpect {
+                status { isTooManyRequests() }
+            }
+        }
+
+        @Test
+        fun `addArtist should fail when user reaches weekly contribution limit`() {
+            val rank = rankRepository.findById(1).get()
+            rank.allowedContributions = 0
+            rankRepository.saveAndFlush(rank)
+
+            val artistAddDto = ArtistAddDto(name="Limited Artist")
+
+            mockMvc.post("/api/artist/add") {
+                header("Authorization", "Bearer $userToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(artistAddDto)
+            }.andExpect {
+                status { isForbidden() }
+                content { string("ContributionLimitExceededException You have reached your weekly limit. Limit for rank 1 is 0") }
+            }
+        }
     }
 }

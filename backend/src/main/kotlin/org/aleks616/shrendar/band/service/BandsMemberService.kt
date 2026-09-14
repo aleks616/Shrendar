@@ -10,7 +10,7 @@ import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -20,7 +20,7 @@ class BandsMemberService(
     val bandService:BandService,
     val bandsMemberRepository:BandsMemberRepository,
     val contributionRepository:ContributionRepository,
-    val userService:UserService,
+    val userAccountService:UserAccountService,
     val rankService:RankService,
 ) {
     fun doesBandMemberExist(id:Long):Boolean {
@@ -54,7 +54,8 @@ class BandsMemberService(
             found=false
             val left:String=if(d.leftYear==null) "" else d.leftYear.toString()
             val yearRole:String=
-                if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})")
+                if(d.joinedYear==null) throw IllegalStateException("Joined year is required")
+                else if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})")
                 else ("${d.role} (${d.joinedYear})")
 
             result.forEach {r->
@@ -107,7 +108,7 @@ class BandsMemberService(
         return allData.filter {d-> d.artistId !in currentData.map {it.artistId}}
     }
 
-    fun getBandsByArtistId(id:Int):List<ArtistBandsHistoryDto>{
+    fun getBandsByArtistId(id:Long):List<ArtistBandsHistoryDto>{
         val dataRaw=bandsMemberRepository.findBandsByArtistId(id)
         val data:List<ArtistBandsExtendedDto> =dataRaw.map {d->
             ArtistBandsExtendedDto(
@@ -157,17 +158,29 @@ class BandsMemberService(
         return result
     }
 
+    fun getArtistBandsList(id:Long):List<ArtistBandsStatusDto>{
+        val dataRaw=bandsMemberRepository.findBandsByArtistId(id).distinctBy {it.bandId}
+        return dataRaw.map { d->
+            ArtistBandsStatusDto(
+                artistId=d.artistId,
+                artistName=d.artistName,
+                bandId=d.bandId,
+                bandName=d.bandName,
+                current=d.leftYear==null,
+            )
+        }
+    }
 
     @Transactional
-    fun addBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+    fun addBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>8) {
+        if(requestingUser.rank.id > 8) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -183,38 +196,36 @@ class BandsMemberService(
 
         val lastChangeId=contributionRepository.findTopChangeId()?:0
 
-        val changes:List<Pair<String,String?>> =listOf(
+        val changes:List<Pair<String,String>> =listOf(
             Pair("bandId",artistBandAddDto.bandId.toString()),
             Pair("artistId",artistBandAddDto.artistId.toString()),
-            Pair("role",artistBandAddDto.role),
+            Pair("role",artistBandAddDto.role.toString()),
             Pair("joinedYear",artistBandAddDto.joinedYear.toString()),
             Pair("leftYear",artistBandAddDto.leftYear.toString()),
-            Pair("nickname",artistBandAddDto.nickname)
+            Pair("nickname",artistBandAddDto.nickname.toString())
         )
         val bandMemberId=bandsMemberRepository.findTopIdByBandIdAndArtistId(artistBandAddDto.bandId!!,artistBandAddDto.artistId!!)
 
         changes.forEach {
-            if(it.second!=null) {
-                contributionRepository.save(Contribution().apply {
-                    changeId=lastChangeId+1
-                    user=requestingUser
-                    action=Action.CREATE
-                    changedTable="bands_members"
-                    changedColumn=it.first
-                    changedRecordId=bandMemberId
-                    oldValue=null
-                    newValue=it.second
-                    changedAt=time
-                    confirmed=trusted
-                    confirmedBy=confirmedByUser
-                })
-            }
+            contributionRepository.save(Contribution().apply {
+                changeId=lastChangeId+1
+                user=requestingUser
+                action=Action.CREATE
+                changedTable="bands_members"
+                changedColumn=it.first
+                changedRecordId=bandMemberId
+                oldValue=null
+                newValue=it.second
+                changedAt=time
+                confirmed=trusted
+                confirmedBy=confirmedByUser
+            })
         }
     }
 
     @Transactional
-    fun editBandMemberRequest(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+    fun editBandMember(artistBandAddDto:ArtistBandAddDto,userLogin:String) {
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
@@ -251,13 +262,14 @@ class BandsMemberService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
 
         bandsMemberRepository.save(bandMember)
         val lastChangeId=contributionRepository.findTopChangeId()?:0
+
         changes.forEach { (column,oldValue,newValue)->
             contributionRepository.save(Contribution().apply {
                 changeId=lastChangeId+1
@@ -276,15 +288,15 @@ class BandsMemberService(
     }
 
     @Transactional
-    fun deleteBandMemberRequest(id:Long,userLogin:String,log:Boolean=true) {
-        val requestingUser:User=userService.getUserByLogin(userLogin)!!
+    fun deleteBandMember(id:Long,userLogin:String,log:Boolean=true) {
+        val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -293,8 +305,8 @@ class BandsMemberService(
             val bandMember=bandsMemberRepository.findById(id)
             val changes:List<Triple<String,String?,String?>> =listOf(
                 Triple("id",bandMember.id.toString(),null),
-                Triple("band_id",bandMember.band?.id.toString(),null),
-                Triple("artist_id",bandMember.artist?.id.toString(),null),
+                Triple("band_id",bandMember.band!!.id.toString(),null),
+                Triple("artist_id",bandMember.artist!!.id.toString(),null),
                 Triple("nickname",bandMember.nickname,null),
                 Triple("role",bandMember.role,null),
                 Triple("joined_year",bandMember.joinedYear.toString(),null),
@@ -302,6 +314,7 @@ class BandsMemberService(
             )
 
             val lastChangeId=contributionRepository.findTopChangeId()?:0
+
             changes.forEach {(column,oldValue,newValue)->
                 contributionRepository.save(Contribution().apply {
                     changeId=lastChangeId+1

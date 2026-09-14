@@ -23,12 +23,12 @@ open class Event {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="band_id")
-    open var band:Band?=null
+    open var band:Band=Band()
 
     @Column(name="date")
     open var date:LocalDate?=null
 
-    @Column(name="name",length=30)
+    @Column(name="name",length=120)
     open var name:String?=null
 
     @Lob

@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserGenreRepository:JpaRepository<UsersGenres,Long> {
     fun findByGenreAndUser(genre:Genre,user:User):UsersGenres?
+    fun findByUser(user:User):MutableList<UsersGenres>
 }

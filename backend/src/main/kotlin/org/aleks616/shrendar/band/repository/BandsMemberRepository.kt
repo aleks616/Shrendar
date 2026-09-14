@@ -19,12 +19,13 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
     fun findAllByBandName(band:Int):List<BandsMembersDataDto>
 
     @Query("""
-        SELECT bm.id, a.id, a.name, b.id, b.name, bm.role, bm.joinedYear, bm.leftYear, bm.nickname
+        SELECT NEW org.aleks616.shrendar.band.model.ArtistBandsDto(bm.id, a.id, a.name, b.id, b.name, 
+bm.role, bm.joinedYear, bm.leftYear, bm.nickname)
         FROM Band b JOIN BandsMembers bm ON b.id=bm.band.id
         JOIN Artist a ON bm.artist.id=a.id
         WHERE a.id=:id
     """)
-    fun findBandsByArtistId(id:Int):List<ArtistBandsDto>
+    fun findBandsByArtistId(id:Long):List<ArtistBandsDto>
 
     @Query("""
         SELECT bm.id
@@ -48,6 +49,7 @@ interface BandsMemberRepository :JpaRepository<BandsMembers,Int>{
     fun existsById(id:Long):Boolean
     fun findById(id:Long):BandsMembers
     fun deleteById(id:Long)
+    fun findByBandId(bandId:Int):MutableList<BandsMembers>
 
 
 }

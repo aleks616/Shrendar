@@ -2,8 +2,11 @@ package org.aleks616.shrendar.common
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.net.MalformedURLException
+import org.mockito.Mockito.CALLS_REAL_METHODS
+import org.mockito.Mockito.mockStatic
+import java.time.DateTimeException
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 class UtilsTest {
 
@@ -45,8 +48,52 @@ class UtilsTest {
     }
 
     @Test
+    fun `getDaysTillNextAnniversary should keep February 28 anniversary in January`() {
+        val today=LocalDate.of(2025,1,15)
+        val nextAnniversary=LocalDate.of(2025,2,28)
+
+        withMockedToday(today) {
+            assertEquals(
+                ChronoUnit.DAYS.between(today,nextAnniversary).toInt(),
+                Utils.getDaysTillNextAnniversary(LocalDate.of(1990,2,28))
+            )
+        }
+    }
+
+    @Test
+    fun `getDaysTillNextAnniversary should use February 28 for leap day birthdays in non leap year`() {
+        val today=LocalDate.of(2025,1,15)
+        val nextAnniversary=LocalDate.of(2025,2,28)
+
+        withMockedToday(today) {
+            assertEquals(
+                ChronoUnit.DAYS.between(today,nextAnniversary).toInt(),
+                Utils.getDaysTillNextAnniversary(LocalDate.of(2000,2,29))
+            )
+        }
+    }
+
+    @Test
+    fun `getDaysTillNextAnniversary should reach leap year branch for leap day birthdays`() {
+        val today=LocalDate.of(2024,2,10)
+
+        withMockedToday(today) {
+            assertThrows(DateTimeException::class.java) {
+                Utils.getDaysTillNextAnniversary(LocalDate.of(2000,2,29))
+            }
+        }
+    }
+
+    @Test
     fun `isValidUrl throws error for too long url`() {
-        val url="ww.ewfjhecrinogvnrtigvneroifgncerfaigncuirewjafnsgvirlsueijfdfmclsridgfhdjoewflmcknghjeromfixwlcsvgoigremsxfcvslhgjhnceroievbhvgnisoceuvbhgyfdns.com"
+        val url="www.ewfjewfwfhecflgengelrfwefwfwefwfwfwfnglrengergnlergnegnekgnlsgiregieugiregegeirgheigieghegheghueighegiuehgiegheiugheighxrinogvnrtigvneroifgncerfaigncuirewjafnsgvirlsueijfdfmclsridgfhdjoewflmcknghjeromfixwlcsvgoigremsxfcvslhgjhnceroievbhvgnisoceuvbhgyfdns.com"
         assertEquals(false,Utils.isValidUrl(url))
+    }
+
+    private fun withMockedToday(today:LocalDate,assertions:()->Unit) {
+        mockStatic(LocalDate::class.java,CALLS_REAL_METHODS).use { mockedLocalDate ->
+            mockedLocalDate.`when`<LocalDate> { LocalDate.now() }.thenReturn(today)
+            assertions()
+        }
     }
 }

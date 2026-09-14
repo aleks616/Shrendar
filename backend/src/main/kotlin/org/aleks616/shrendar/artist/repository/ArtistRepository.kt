@@ -1,6 +1,7 @@
 package org.aleks616.shrendar.artist.repository
 
 import org.aleks616.shrendar.artist.model.Artist
+import org.aleks616.shrendar.common.model.NameValue
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -50,6 +51,19 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
     fun findArtistByDeathDate(month:Int,day:Int):MutableList<Artist>
 
     @Query("""
+        SELECT NEW org.aleks616.shrendar.common.model.NameValue(g.name,COUNT(g.id))
+        FROM Artist ar JOIN BandsMembers bm ON ar.id=bm.artist.id 
+        JOIN Band b ON bm.band.id=b.id 
+        JOIN Album al ON al.band.id=b.id 
+        JOIN Genre g ON g.id=al.genre.id
+        WHERE FUNCTION('YEAR',al.releaseDate) BETWEEN bm.joinedYear AND bm.leftYear 
+        AND ar.id=:artistId
+        GROUP BY g.name
+        ORDER BY COUNT(g.id) DESC
+    """)
+    fun findArtistGenres(artistId:Long):List<NameValue>
+
+    @Query("""
         SELECT *
         FROM artist a
         WHERE DATE(CONCAT('2000-',MONTH(a.death_date),'-',DAYOFMONTH(a.death_date))) BETWEEN DATE(CONCAT('2000-',:startMonth,'-',:startDay)) AND DATE(CONCAT('2000-',:endMonth,'-',:endDay))
@@ -62,4 +76,26 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
     fun findTopIdByName(name:String):Long
     fun existsById(id:Long):Boolean
     fun deleteById(id:Long)
+
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT(IF(MONTH(a.birth_date)*100+DAYOFMONTH(a.birth_date)<MONTH(NOW())*100+DAYOFMONTH(NOW()),'2001','2000'),'-',MONTH(a.birth_date),'-',DAYOFMONTH(a.birth_date)))
+        BETWEEN DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL 1 DAY)
+        AND (DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL :daysMax DAY))
+        ORDER BY RAND()
+        LIMIT 5
+    """,nativeQuery=true)
+    fun findUpcomingBirthdays(daysMax:Int=15):List<Artist>
+
+    @Query("""
+        SELECT *
+        FROM artist a
+        WHERE DATE(CONCAT(IF(MONTH(a.death_date)*100+DAYOFMONTH(a.death_date)<MONTH(NOW())*100+DAYOFMONTH(NOW()),'2001','2000'),'-',MONTH(a.death_date),'-',DAYOFMONTH(a.death_date)))
+        BETWEEN DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL 1 DAY)
+        AND (DATE(CONCAT('2000-',MONTH(NOW()),'-',DAYOFMONTH(NOW()))+INTERVAL :daysMax DAY))
+        ORDER BY RAND()
+        LIMIT 5
+    """,nativeQuery=true)
+    fun findUpcomingDeathAnniversaries(daysMax:Int=15):List<Artist>
 }

@@ -8,6 +8,7 @@ import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.exception.InvalidAlbumImportanceException
 import org.aleks616.shrendar.genre.service.GenreService
 import org.aleks616.shrendar.security.RateLimiter
+import org.aleks616.shrendar.userban.service.UserBanService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -19,7 +20,8 @@ import java.time.LocalDate
 class AlbumController (
     private val albumService:AlbumService,
     private val rateLimiter:RateLimiter,
-    private val genreService:GenreService
+    private val genreService:GenreService,
+    private val userBanService:UserBanService
 ){
     //region query
     @GetMapping("/")
@@ -74,6 +76,7 @@ class AlbumController (
     fun getAlbumsByNameExact(@PathVariable name:String):List<Album>{
         return albumService.getAlbumsByNameExact(name)
     }
+
     //endregion
 
     @PostMapping("/add")
@@ -88,7 +91,9 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(album.bandId==null||album.bandId<1||album.title.isNullOrEmpty()||album.type.isNullOrEmpty())
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+        if(album.bandId < 1||album.title.isEmpty()||album.type.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not enough data. At least band, title, and album type are required to add an album, and they should not be empty.")
         if(albumService.doesAlbumWithNameExistForBand(album))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This band already has an album with title ${album.title}. Edit the existing album instead. Check the contribution guide.")
@@ -123,7 +128,9 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
-        if(album.id==null||album.title==null||album.type==null)
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+        if(album.type==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Album id, title and type are required")
         if(!albumService.doesAlbumExist(album.id))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Album with id ${album.id} does not exist")
@@ -150,8 +157,7 @@ class AlbumController (
 
     @DeleteMapping("/delete")
     fun deleteAlbum(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
@@ -160,6 +166,8 @@ class AlbumController (
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
 
+        if(userBanService.isBanned(userLogin))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
         if(!albumService.doesAlbumExist(id))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Album with id $id does not exist")
 
@@ -177,7 +185,7 @@ class AlbumController (
     }
 
     fun albumValidate(album:AlbumAddDto):ResponseEntity<String>?{
-        if(!albumService.doesBandExist(album.bandId!!))
+        if(!albumService.doesBandExist(album.bandId))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Band with id ${album.bandId} does not exist")
         if(album.type==AlbumType.STUDIO&&(album.importance!=null&&album.importance !in 1..5))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Importance must be between 1 and 5 for studio albums.")

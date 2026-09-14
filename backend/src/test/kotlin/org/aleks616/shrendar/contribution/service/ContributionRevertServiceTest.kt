@@ -12,11 +12,13 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.event.model.Event
+import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.exception.RankTooLowToRevertConfirmedContributionException
 import org.aleks616.shrendar.exception.RankTooLowToRevertContributionException
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.User
-import org.aleks616.shrendar.user.service.UserService
+import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,7 +31,8 @@ class ContributionRevertServiceTest {
     private lateinit var bandService:BandService
     private lateinit var bandsMemberRepository:BandsMemberRepository
     private lateinit var contributionRepository:ContributionRepository
-    private lateinit var userService:UserService
+    private lateinit var eventRepository:EventRepository
+    private lateinit var userAccountService:UserAccountService
     private lateinit var service:ContributionRevertService
     private lateinit var user:User
 
@@ -41,13 +44,14 @@ class ContributionRevertServiceTest {
         bandService=mock(BandService::class.java)
         bandsMemberRepository=mock(BandsMemberRepository::class.java)
         contributionRepository=mock(ContributionRepository::class.java)
-        userService=mock(UserService::class.java)
+        eventRepository=mock(EventRepository::class.java)
+        userAccountService=mock(UserAccountService::class.java)
         service=ContributionRevertService(
             albumRepository,artistRepository,bandRepository,bandService,
-            bandsMemberRepository,contributionRepository,userService
+            bandsMemberRepository,contributionRepository,eventRepository,userAccountService
         )
         user=User().apply {login="trusted"; rank=Rank().apply {id=12}}
-        `when`(userService.getUserByLogin("trusted")).thenReturn(user)
+        `when`(userAccountService.getUserByLogin("trusted")).thenReturn(user)
     }
 
     @Test
@@ -143,6 +147,16 @@ class ContributionRevertServiceTest {
     }
 
     @Test
+    fun `revertAddition should delete event for event addition`() {
+        val event=Event().apply {id=4}
+        val item=contribution("event",false).apply {changedRecordId=4}
+        `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(item))
+        `when`(eventRepository.findEventById(4)).thenReturn(event)
+        service.revertAddition(1,"trusted")
+        verify(eventRepository).delete(event)
+    }
+
+    @Test
     fun `revertAddition should throw RuntimeException for missing album id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("album",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
@@ -163,6 +177,12 @@ class ContributionRevertServiceTest {
     @Test
     fun `revertAddition should throw RuntimeException for missing membership id`() {
         `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("bands_members",false)))
+        assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
+    }
+
+    @Test
+    fun `revertAddition should throw RuntimeException for missing event id`() {
+        `when`(contributionRepository.getByChangeId(1)).thenReturn(listOf(contribution("event",false)))
         assertThrows<RuntimeException> {service.revertAddition(1,"trusted")}
     }
 
