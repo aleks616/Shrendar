@@ -2,7 +2,6 @@ package org.aleks616.shrendar.event.service
 
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
-import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.event.model.Event

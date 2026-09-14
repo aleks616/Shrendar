@@ -2,7 +2,6 @@ package org.aleks616.shrendar.user.repository
 
 import org.aleks616.shrendar.user.model.User
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface UserRepository:JpaRepository<User,Int> {

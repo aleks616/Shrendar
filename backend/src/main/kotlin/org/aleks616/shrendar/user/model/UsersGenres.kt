@@ -17,13 +17,13 @@ open class UsersGenres {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id",nullable=false)
-    open var id:Long?=null
+    open var id:Long=0
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_id")
-    open var user:User?=null
+    open var user:User=User()
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="genre_id")
-    open var genre:Genre?=null
+    open var genre:Genre=Genre()
 }

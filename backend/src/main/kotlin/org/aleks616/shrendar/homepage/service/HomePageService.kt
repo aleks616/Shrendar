@@ -183,17 +183,17 @@ class HomePageService(
         if(favoriteBands.isEmpty()) return emptyList()
         val favoriteAlbums:MutableList<Album> =mutableListOf()
         favoriteBands.forEach{band->
-            favoriteAlbums.addAll(albumRepository.findByBandId(band!!.id!!))
+            favoriteAlbums.addAll(albumRepository.findByBandId(band.id))
         }
         val allAlbums:MutableList<AlbumAnniversaryDto> =mutableListOf()
-        favoriteAlbums.filter{it.releaseDate!=null}.forEach{album->
-            val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate!!)
-            val albumAge=album.releaseDate!!.until(LocalDate.now()).years
+        favoriteAlbums.forEach{album->
+            val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate)
+            val albumAge=album.releaseDate.until(LocalDate.now()).years
             allAlbums.add(
                 AlbumAnniversaryDto(
                     id=album.id,
-                    bandId=album.band!!.id,
-                    bandName=album.band!!.name,
+                    bandId=album.band.id,
+                    bandName=album.band.name,
                     title=album.title,
                     releaseDate=album.releaseDate,
                     type=album.type,
@@ -213,13 +213,13 @@ class HomePageService(
         val albumsData:MutableList<Album> =albumRepository.findAlbumsByUpcomingAnniversaries()
         val allAlbums:MutableList<AlbumAnniversaryDto> =mutableListOf()
         albumsData.forEach {album->
-            val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate!!)
-            val albumAge=album.releaseDate!!.until(LocalDate.now()).years
+            val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate)
+            val albumAge=album.releaseDate.until(LocalDate.now()).years
             allAlbums.add(
                 AlbumAnniversaryDto(
                     id=album.id,
-                    bandId=album.band!!.id,
-                    bandName=album.band!!.name,
+                    bandId=album.band.id,
+                    bandName=album.band.name,
                     title=album.title,
                     releaseDate=album.releaseDate,
                     type=album.type,
@@ -243,12 +243,12 @@ class HomePageService(
         val albums=albumsRaw.map{
             AlbumByDateDto(
                 id=it.id,
-                band=BandDto(it.band?.id,it.band?.name),
+                band=BandDto(it.band.id,it.band.name),
                 title=it.title,
                 releaseDate=it.releaseDate,
                 type=it.type,
                 importance=it.importance,
-                yearsSince=it.releaseDate!!.until(LocalDate.now()).years,
+                yearsSince=it.releaseDate.until(LocalDate.now()).years,
                 genre=it.genre,
                 artworkUrl=it.artworkUrl
             )
@@ -273,7 +273,7 @@ class HomePageService(
         val favoriteBands=userBandRepository.findByUser(user)
         val bandsMembers:MutableList<BandsMembers> =mutableListOf()
         favoriteBands.map{it.band}.forEach{band->
-            bandsMembers.addAll(bandsMemberRepository.findByBandId(band!!.id!!))
+            bandsMembers.addAll(bandsMemberRepository.findByBandId(band.id))
         }
         return bandsMembers
     }
@@ -317,24 +317,24 @@ class HomePageService(
         val favoriteBands=userBandRepository.findByUser(user)
         val favoriteAlbums:MutableList<Album> =mutableListOf()
         favoriteBands.map{it.band}.forEach{band->
-            favoriteAlbums.addAll(albumRepository.findByBandId(band!!.id!!))
+            favoriteAlbums.addAll(albumRepository.findByBandId(band.id))
         }
 
-        val favoriteGenresRaw:MutableList<Genre?> =userGenreRepository.findByUser(user).map{it.genre}.toMutableList()
+        val favoriteGenresRaw:MutableList<Genre> =userGenreRepository.findByUser(user).map{it.genre}.toMutableList()
         val albumsByGenreRaw:MutableList<Album> =mutableListOf()
 
         favoriteGenresRaw.forEach{genre->
-            albumsByGenreRaw.addAll(albumRepository.findByGenre(genre!!).filter{it.id!=null&&it.genre!=null})
+            albumsByGenreRaw.addAll(albumRepository.findByGenre(genre).filter{it.genre!=null})
         }
 
         val favoriteGenres:MutableList<String?> =favoriteGenresRaw
-            .filter{it?.properties!=null}.distinctBy{it?.id}
-            .map{it?.properties}.toMutableList()
+            .filter{it.properties!=null}.distinctBy{it.id}
+            .map{it.properties}.toMutableList()
 
         val allGenres:MutableList<Genre> =genreRepository.findAll()
-        favoriteBands.filter{it.band!=null}.map{it.band}.forEach{band->
-            if(allGenres.any{it.properties==band?.averageGenre})
-                favoriteGenres.add(band?.averageGenre!!)
+        favoriteBands.map{it.band}.forEach{band->
+            if(allGenres.any{it.properties==band.averageGenre})
+                favoriteGenres.add(band.averageGenre!!)
         }
 
         return albumsByGenreRaw.shuffled()
@@ -345,7 +345,7 @@ class HomePageService(
         val favoriteBands=userBandRepository.findByUser(user)
         val recommendedBandsAll=mutableListOf<BandGenreDto>()
         favoriteBands.map{it.band}.forEach{band->
-            recommendedBandsAll.addAll(bandService.getSimilarBands(band?.id!!,10))
+            recommendedBandsAll.addAll(bandService.getSimilarBands(band.id,10))
         }
 
         val recommendedBands=recommendedBandsAll.distinctBy{it.id}
@@ -364,7 +364,7 @@ class HomePageService(
         val favoriteBands=userBandRepository.findByUser(user)
         val favoriteAlbums:MutableList<Album> =mutableListOf()
         favoriteBands.map{it.band}.forEach{band->
-            favoriteAlbums.addAll(albumRepository.findByBandId(band!!.id!!))
+            favoriteAlbums.addAll(albumRepository.findByBandId(band.id))
         }
         val favoriteAlbumsAnniversaries=albumService.getAlbumAnniversariesByDate(month,day)
             .filter{d->favoriteAlbums.map{it.id}.contains(d.id)}
@@ -379,7 +379,7 @@ class HomePageService(
 
 
         val recommendedAlbums:List<Album> =getRecommendedAlbums(user)
-            .filter{it.releaseDate!!.monthValue==month&&it.releaseDate!!.dayOfMonth==day}
+            .filter{it.releaseDate.monthValue==month&&it.releaseDate.dayOfMonth==day}
             .take(10)
             .shuffled()
             .toMutableList()
@@ -387,12 +387,12 @@ class HomePageService(
         val recommendedAlbumsAnniversaries:MutableList<AlbumByDateDto> =recommendedAlbums.map{
             AlbumByDateDto(
                 id=it.id,
-                band=BandDto(it.band?.id,it.band?.name),
+                band=BandDto(it.band.id,it.band.name),
                 title=it.title,
                 releaseDate=it.releaseDate,
                 type=it.type,
                 importance=it.importance,
-                yearsSince=it.releaseDate!!.until(LocalDate.now()).years,
+                yearsSince=it.releaseDate.until(LocalDate.now()).years,
                 genre=it.genre,
                 artworkUrl=it.artworkUrl
             )
@@ -401,7 +401,7 @@ class HomePageService(
         if(recommendedAlbumsAnniversaries.size < 4){
             val bandsIds:MutableList<Int> =mutableListOf()
             favoriteBands.map{it.band}.forEach{band->
-                bandsIds.addAll(bandService.getSimilarBands(band?.id!!,20).mapNotNull{it.id})
+                bandsIds.addAll(bandService.getSimilarBands(band.id,20).mapNotNull{it.id})
             }
             val others=albumService.getAlbumAnniversariesByDate(month,day)
                 .filter{d-> d.band!!.id in bandsIds}
@@ -467,7 +467,7 @@ class HomePageService(
         favoriteArtists.map{it.artist}.forEach{artist->
             bandsMembers.addAll(bandsMemberRepository.findBandsByArtistId(artist!!.id!!))
         }
-        return bandsMembers.filterNot { it.bandId in favoriteBands.map {f-> f.band!!.id} }.distinctBy { it.bandId }
+        return bandsMembers.filterNot { it.bandId in favoriteBands.map {f-> f.band.id} }.distinctBy { it.bandId }
     }
 
     fun getRecentlyAdded():List<Any>{
@@ -484,7 +484,7 @@ class HomePageService(
 
             result.add(RecentlyAddedDto(
                 d.value[0].changeId,
-                d.value[0].user?.id,
+                d.value[0].user.id,
                 d.value[0].changedRecordId,
                 d.value[0].changedTable,
                 data,

@@ -2,7 +2,6 @@ package org.aleks616.shrendar.userban.model
 
 import jakarta.persistence.*
 import org.aleks616.shrendar.user.model.User
-import kotlin.time.Clock
 import java.time.Instant
 
 @Entity
@@ -15,7 +14,7 @@ open class UsersBan {
 
     @ManyToOne(fetch=FetchType.EAGER,optional=false)
     @JoinColumn(name="user",nullable=false)
-    open var user:User?=null
+    open var user:User=User()
 
     @Column(name="at",nullable=false,columnDefinition="DATETIME")
     open var at:Instant=Instant.now()
@@ -29,7 +28,7 @@ open class UsersBan {
 
     @ManyToOne(fetch=FetchType.EAGER,optional=false)
     @JoinColumn(name="banned_by")
-    open var by:User?=null
+    open var by:User=User()
 
     @Column(name="appealed")
     open var appealed:Boolean=false
@@ -39,5 +38,5 @@ open class UsersBan {
 
     @ManyToOne(fetch=FetchType.EAGER,optional=false)
     @JoinColumn(name="appealed_by")
-    open var appealedBy:User?=null
+    open var appealedBy:User=User()
 }

@@ -9,7 +9,7 @@ open class User {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="user_id",nullable=false)
-    open var id:Int?=null
+    open var id:Int=0
 
     @Column(name="login",nullable=false,length=50,unique=true)
     open var login:String?=null
@@ -25,20 +25,20 @@ open class User {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="rank_id")
-    open var rank:Rank?=null
+    open var rank:Rank=Rank()
 
     @Column(name="birth_date")
     open var birthDate:LocalDate?=null
 
     @Column(name="xp")
-    open var xp:Int?=null
+    open var xp:Int=0
 
     @Column(name="verified")
-    open var verified:Boolean?=false
+    open var verified:Boolean=false
 
     @Column(name="bio")
     open var bio:String?=null
 
     @Column(name="deleted")
-    open var deleted:Boolean?=false
+    open var deleted:Boolean=false
 }

@@ -26,7 +26,7 @@ class XpService(
         if(date==previousDate) return
         val users=userRepository.findAll()
         users.forEach {user->
-            user.xp=(user.xp?:0)+1
+            user.xp += 1
         }
         userRepository.saveAll(users)
         updateAllUsersRanks()
@@ -38,7 +38,7 @@ class XpService(
         val users=userRepository.findAll()
         val ranks:List<Rank> =rankRepository.findAll().sortedByDescending {it.id}
         users.forEach {user->
-            val newRank:Rank=ranks.first {(user.xp!!)>=(it.minXp!!)}
+            val newRank:Rank=ranks.first {(user.xp) >= (it.minXp)}
             if(user.rank!=newRank) {
                 user.rank=newRank
             }
@@ -54,7 +54,7 @@ class XpService(
     @Transactional
     fun increaseUserXp(login:String,amount:Int) {
         val user=userRepository.findByLogin(login)?:return
-        user.xp=(user.xp?:0)+amount
+        user.xp += amount
         userRepository.save(user)
         updateUserRank(user)
     }
@@ -62,7 +62,7 @@ class XpService(
     @Transactional
     fun updateUserRank(user:User) {
         val ranks:List<Rank> =rankRepository.findAll().sortedByDescending {it.id}
-        val newRank:Rank=ranks.first {(user.xp!!)>=(it.minXp!!)}
+        val newRank:Rank=ranks.first {(user.xp) >= (it.minXp)}
         if(user.rank!=newRank) {
             user.rank=newRank
         }

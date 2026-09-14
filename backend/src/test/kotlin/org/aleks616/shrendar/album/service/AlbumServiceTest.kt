@@ -267,20 +267,6 @@ class AlbumServiceTest {
     }
 
     @Test
-    fun `isReleaseDateValid should return false for missing release date`() {
-        `when`(bandService.getBandById(2)).thenReturn(band)
-
-        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=2,releaseDate=null)))
-    }
-
-    @Test
-    fun `isReleaseDateValid should return false for missing bandId`() {
-        `when`(bandService.getBandById(2)).thenReturn(band)
-
-        assertFalse(albumService.isReleaseDateValid(AlbumAddDto(bandId=null,releaseDate=LocalDate.of(1984,1,1))))
-    }
-
-    @Test
     fun `isReleaseDateValid should return false for missing band formed year`() {
         `when`(bandService.getBandById(2)).thenReturn(band1)
 
@@ -397,8 +383,16 @@ class AlbumServiceTest {
     @Test
     fun `editAlbumRequest should throw when there are no changes`() {
         stubEditDependencies()
-
-        assertThrows<IllegalStateException> {albumService.editAlbumRequest(AlbumAddDto(id=1),"tester")}
+        val album=AlbumAddDto(
+            id=1,
+            title="Ride the Lightning",
+            releaseDate=LocalDate.of(1984,7,27),
+            type=AlbumType.STUDIO,
+            importance=5,
+            artworkUrl="https://example.com/artwork.jpg",
+            description="Description",
+        )
+        assertThrows<IllegalStateException> {albumService.editAlbumRequest(album,"tester")}
         verify(albumRepository,never()).save(any(Album::class.java))
     }
 
@@ -412,7 +406,7 @@ class AlbumServiceTest {
         albumService.editAlbumRequest(dto,"tester")
 
         assertEquals("New",album.title)
-        assertEquals(4,album.band?.id)
+        assertEquals(4,album.band.id)
         assertEquals(4,album.importance)
         verify(albumRepository).save(album)
         verify(bandService).calculateBandsGenre(4)
