@@ -83,7 +83,7 @@ class BandsMemberService(
         return result
     }
 
-    fun getAllBandMembersWiki(id:Int):List<BandsMembersWikiDto>{ //todo type
+    fun getAllBandMembersWiki(id:Int):List<BandsMembersWikiDto>{
         val dataRaw=getAllBandMembers(id)
         val data=dataRaw.map {BandsMembersWikiDto(
             id=it.id,
