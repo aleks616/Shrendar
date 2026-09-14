@@ -37,6 +37,11 @@ export function Greeting(){
                      onAnimationEnd={handleAnimationEnd}>
                     <JSLogo/>
                     <div>React: {greeting.greet()}</div>
+                    <div style={{fontSize:"32px"}}>
+                        <p>Page is development, check out my band website</p>
+                        <p>Strona dopiero powstaje obczaj strone zespołu</p>
+                    <a href={"https://mantikora-pl.github.io/"}>Mantikora</a>
+                </div>
                 </div>
             )}
         </div>
