@@ -28,7 +28,7 @@ open class Event {
     @Column(name="date")
     open var date:LocalDate?=null
 
-    @Column(name="name",length=30)
+    @Column(name="name",length=120)
     open var name:String?=null
 
     @Lob
