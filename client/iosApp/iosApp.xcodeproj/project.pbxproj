@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		CB3ED6DC0D5293581CE97651 /* client.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = client.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB3ED6DC0D5293581CE97651 /* Shrendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shrendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,7 +50,7 @@
 		4585E520A5E3DA1E399B701A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CB3ED6DC0D5293581CE97651 /* client.app */,
+				CB3ED6DC0D5293581CE97651 /* Shrendar.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = CB3ED6DC0D5293581CE97651 /* client.app */;
+			productReference = CB3ED6DC0D5293581CE97651 /* Shrendar.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
