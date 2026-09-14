@@ -45,7 +45,7 @@ class SecurityConfig {
                 "/api/user-account/users",
                 "/api/ban/active",
                 "/api/ban/withAppeal",
-                "/api/ban/{userId]/all",
+                "/api/ban/{userId}/all",
                 "/api/bam/{userId}",
                 "/api/ban/by/{modId}",
                 "/api/ban/ban",
