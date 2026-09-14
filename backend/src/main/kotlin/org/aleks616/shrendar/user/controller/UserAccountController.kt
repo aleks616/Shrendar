@@ -179,7 +179,7 @@ class UserAccountController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
-        if(user.rank!!.id!!<10) throw RankTooLowException("You can't view this data")
+        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
 
         return ResponseEntity.ok(userAccountService.getUsersDto())
     }

@@ -178,11 +178,20 @@ class EventServiceTest {
         stubEditDependencies()
         `when`(eventRepository.findEventById(1)).thenReturn(event)
 
-        val dto=EventAddDto(id=1,bandId=2,date=LocalDate.of(2020,1,1),name="Concert",description="Description")
+        val dto=EventAddDto(
+            id=event.id,
+            bandId=event.band.id,
+            date=event.date,
+            name=event.name,
+            description=event.description
+        )
+        `when`(bandService.getBandById(event.band.id)).thenReturn(event.band)
 
-        assertDoesNotThrow {
+        assertThrows<IllegalStateException> {
             eventService.editEventRequest(dto,"tester")
         }
+        verify(eventRepository,never()).save(any(Event::class.java))
+        verify(contributionRepository,never()).save(any(Contribution::class.java))
     }
 
     @Test

@@ -49,7 +49,7 @@ class BandService(
                 formedYear=b.formedYear,
                 disbandedYear=b.disbandedYear,
                 status=b.status,
-                country=getBandsCountry(b.id!!),
+                country=getBandsCountry(b.id),
                 description=b.description
             )
 
@@ -80,10 +80,10 @@ class BandService(
             formedYear=dataRaw.get().formedYear,
             disbandedYear=dataRaw.get().disbandedYear,
             status=dataRaw.get().status,
-            country=getBandsCountry(dataRaw.get().id!!),
+            country=getBandsCountry(dataRaw.get().id),
             description=dataRaw.get().description,
             imageUrl=dataRaw.get().imageUrl,
-            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id!!)
+            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id)
         )
     }
 
@@ -176,7 +176,7 @@ class BandService(
 
         return mostSimilar.map {
             BandGenreDto().apply {
-                id=it.second.id!!
+                id=it.second.id
                 name=it.second.name!!
                 formedYear=it.second.formedYear!!
                 country=CountryDto().apply {
@@ -202,7 +202,7 @@ class BandService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -284,7 +284,7 @@ class BandService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -317,7 +317,7 @@ class BandService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id>9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }

@@ -78,6 +78,7 @@ class ArtistControllerTest {
         `when`(request.remoteAddr).thenReturn("127.0.0.1")
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_BASIC),eq(60))).thenReturn(true)
         `when`(rateLimiter.allowRequest(anyString(),eq(Utils.LIMIT_HIGH),eq(60))).thenReturn(true)
+        `when`(userBanService.isBanned("user")).thenReturn(false)
     }
 
     @Test
@@ -435,6 +436,16 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `addArtist should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.addArtist(dto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
     fun `addArtist should return validation error for invalid gender`() {
         val result=artistController.addArtist(dto.copy(gender='Z'),request)
 
@@ -646,6 +657,17 @@ class ArtistControllerTest {
     }
 
     @Test
+    fun `editArtist should return forbidden when user is banned`() {
+        val editDto=dto.copy(id=1)
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.editArtist(editDto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
+    }
+
+    @Test
     fun `editArtist should handle contribution limit exception`() {
         val editDto=dto.copy(id=1)
         `when`(artistService.doesArtistExist(1)).thenReturn(true)
@@ -727,6 +749,16 @@ class ArtistControllerTest {
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
         verify(artistService,never()).doesArtistExist(anyLong())
+    }
+
+    @Test
+    fun `deleteArtist should return forbidden when user is banned`() {
+        `when`(userBanService.isBanned("user")).thenReturn(true)
+
+        val result=artistController.deleteArtist(1,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        verifyNoInteractions(artistService)
     }
 
     @Test
@@ -818,6 +850,77 @@ class ArtistControllerTest {
             .`when`(artistService).toggleFavoriteArtist(1,"user")
 
         val result=artistController.favoriteArtist(1,request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return success`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(artistService).toggleFavoriteArtistByBand(1,"user")
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return bad request when authentication is missing`() {
+        SecurityContextHolder.clearContext()
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should work if IP is unknown`() {
+        `when`(request.remoteAddr).thenReturn(null)
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+        `when`(rateLimiter.allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)).thenReturn(true)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(rateLimiter).allowRequest("reg:ip:unknown",Utils.LIMIT_HIGH,60)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return bad request for missing band`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return too many requests when IP limit is reached`() {
+        `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(bandService,never()).doesBandExist(anyInt())
+    }
+
+    @Test
+    fun `favoriteBandsArtists should return too many requests when login limit is reached`() {
+        `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_HIGH,60)).thenReturn(false)
+
+        val result=artistController.favoriteBandsArtists(1,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        verify(bandService,never()).doesBandExist(anyInt())
+    }
+
+    @Test
+    fun `favoriteBandsArtists should handle unexpected exception`() {
+        `when`(bandService.doesBandExist(1)).thenReturn(true)
+        doThrow(IllegalStateException("broken"))
+            .`when`(artistService).toggleFavoriteArtistByBand(1,"user")
+
+        val result=artistController.favoriteBandsArtists(1,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
     }

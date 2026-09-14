@@ -386,6 +386,7 @@ class AlbumServiceTest {
         val album=AlbumAddDto(
             id=1,
             title="Ride the Lightning",
+            bandId=2,
             releaseDate=LocalDate.of(1984,7,27),
             type=AlbumType.STUDIO,
             importance=5,
@@ -410,14 +411,14 @@ class AlbumServiceTest {
         assertEquals(4,album.importance)
         verify(albumRepository).save(album)
         verify(bandService).calculateBandsGenre(4)
-        verify(contributionRepository,times(4)).save(any(Contribution::class.java))
+        verify(contributionRepository,times(5)).save(any(Contribution::class.java))
     }
 
     @Test
     fun `editAlbumRequest should mark changes confirmed for rank above 9`() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.STUDIO,importance=4)
+        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.STUDIO,importance=4,bandId=2)
         `when`(albumRepository.findAlbumById(2)).thenReturn(album1)
         `when`(contributionRepository.findTopChangeId()).thenReturn(1)
 
@@ -433,7 +434,7 @@ class AlbumServiceTest {
     fun `editAlbumRequest should work for an EP `() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.EP,importance=2)
+        val dto=AlbumAddDto(id=2,title="New",type=AlbumType.EP,importance=2,bandId=2)
         `when`(albumRepository.findAlbumById(2)).thenReturn(album1)
         `when`(contributionRepository.findTopChangeId()).thenReturn(null)
 
@@ -467,7 +468,7 @@ class AlbumServiceTest {
     fun `editAlbumRequest should work for an album with 0 importance `() {
         requestingUser.rank=Rank().apply {id=10}
         stubEditDependencies()
-        val dto=AlbumAddDto(id=1,title="New",importance=0)
+        val dto=AlbumAddDto(id=1,title="New",importance=0,bandId=2)
 
         albumService.editAlbumRequest(dto,"tester")
 

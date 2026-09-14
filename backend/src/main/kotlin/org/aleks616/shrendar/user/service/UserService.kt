@@ -31,15 +31,15 @@ class UserService(
 
     fun getUserProfile(login:String):UserProfileDto {
         val user:User=userRepository.findByLogin(login)?:throw IllegalArgumentException("User not found")
-        if(user.deleted==true) return UserProfileDto(
+        if(user.deleted) return UserProfileDto(
             "deleted","deleted",0,"none","deleted"
         )
         val favoriteBandsRaw=userBandRepository.findByUser(user)
         val favoriteBands:List<FavoriteBandDto> =favoriteBandsRaw.map {d->
             FavoriteBandDto(
-                id=d.band!!.id,
-                name=d.band!!.name,
-                country=countryRepository.findById(d.band!!.country!!).get().name!!
+                id=d.band.id,
+                name=d.band.name,
+                country=countryRepository.findById(d.band.country!!).get().name!!
             )
         }
 
@@ -55,21 +55,21 @@ class UserService(
         val favoriteGenresRaw=userGenreRepository.findByUser(user)
         val favoriteGenres=favoriteGenresRaw.map {d->
             FavoriteGenreDto(
-                id=d.genre!!.id,
-                name=d.genre!!.name,
+                id=d.genre.id,
+                name=d.genre.name,
             )
         }
 
-        val contributions=contributionService.getContributionsByRequestingUser(user.id!!)
+        val contributions=contributionService.getContributionsByRequestingUser(user.id)
 
         return UserProfileDto(
             user.login,
             user.username,
-            user.rank!!.id,
-            user.rank!!.name,
+            user.rank.id,
+            user.rank.name,
             user.bio,
-            timeSinceAccountCreated(user.id!!),
-            timeSinceLogin(user.id!!),
+            timeSinceAccountCreated(user.id),
+            timeSinceLogin(user.id),
             favoriteBands,
             favoriteArtists,
             favoriteGenres,

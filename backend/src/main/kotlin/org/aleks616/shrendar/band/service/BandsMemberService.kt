@@ -180,7 +180,7 @@ class BandsMemberService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>8) {
+        if(requestingUser.rank.id > 8) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -262,7 +262,7 @@ class BandsMemberService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }
@@ -296,7 +296,7 @@ class BandsMemberService(
         val time=LocalDateTime.now()
         var trusted=false
         var confirmedByUser:Int?=null
-        if(requestingUser.rank!!.id!!>9) {
+        if(requestingUser.rank.id > 9) {
             trusted=true
             confirmedByUser=requestingUser.id
         }

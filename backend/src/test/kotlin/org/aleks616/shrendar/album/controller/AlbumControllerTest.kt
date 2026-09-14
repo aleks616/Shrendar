@@ -255,6 +255,15 @@ class AlbumControllerTest {
         }
 
         @Test
+        fun `addAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
+
+            val result=controller.addAlbum(dto,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        }
+
+        @Test
         fun `addAlbum should reject negative bandId`() {
             val result=controller.addAlbum(dto.copy(bandId=-5),request)
 
@@ -356,6 +365,15 @@ class AlbumControllerTest {
             val result=controller.editAlbum(dto.copy(id=1),request)
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        }
+
+        @Test
+        fun `editAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
+
+            val result=controller.editAlbum(dto.copy(id=1),request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
         }
 
         @Test
@@ -498,6 +516,15 @@ class AlbumControllerTest {
             val result=controller.deleteAlbum(1,request)
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        }
+
+        @Test
+        fun `deleteAlbum should return forbidden when user is banned`() {
+            `when`(userBanService.isBanned("user")).thenReturn(true)
+
+            val result=controller.deleteAlbum(1,request)
+
+            assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
         }
 
         @Test

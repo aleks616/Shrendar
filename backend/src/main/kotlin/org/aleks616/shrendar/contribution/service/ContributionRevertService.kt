@@ -33,7 +33,7 @@ class ContributionRevertService(
 
     fun revertAddition(changeId:Long,confirmedUserLogin:String) {
         val confirmingUser:User=userAccountService.getUserByLogin(confirmedUserLogin)!!
-        val rank=confirmingUser.rank!!.id!!
+        val rank=confirmingUser.rank.id
         if(rank<10) throw RankTooLowToRevertContributionException("Rank 10 is required to revert contribution. User rank: $rank")
         val contributions=contributionRepository.getByChangeId(changeId)
         if(contributions[0].confirmed==true&&rank<12) throw RankTooLowToRevertConfirmedContributionException("Rank 12 is required to revert confirmed contribution. User rank: $rank")

@@ -3,6 +3,7 @@ package org.aleks616.shrendar.user.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.exception.RankTooLowException
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -17,12 +18,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -78,6 +83,7 @@ class UserAccountControllerTest {
 
     @BeforeEach
     fun setup() {
+        SecurityContextHolder.clearContext()
         val mimeMessage=mock(jakarta.mail.internet.MimeMessage::class.java)
         `when`(mailSender.createMimeMessage()).thenReturn(mimeMessage)
         `when`(request.remoteAddr).thenReturn("127.0.0.1")
@@ -456,18 +462,115 @@ class UserAccountControllerTest {
         }
     }
 
-    /*@Test todo rewrite - needs authorization
+    @Test
     fun `get users should return list of users`() {
-        val login="existuser"
-        registerAndConfirm(login,"exist@example.com")
+        val service=mock(UserAccountService::class.java)
+        val controller=UserAccountController(service,mock(RateLimiter::class.java),tokenBlacklistService)
+        val admin=User().apply {rank=Rank().apply {id=10}}
+        `when`(service.getUserByLogin("admin")).thenReturn(admin)
+        `when`(service.getUsersDto()).thenReturn(listOf(UsersDto(login="existuser")))
+        authenticate("admin")
 
-        mockMvc.get("/api/user-account/users")
-            .andExpect {
-                status {isOk()}
-            }.andExpect {
-                jsonPath("$[?(@.login == '$login')]") {exists()}
-            }
-    }*/
+        val result=controller.getUsers()
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        assertEquals(listOf("existuser"),result.body!!.map {it.login})
+    }
+
+    @Test
+    fun `get users throws when authentication is missing`() {
+        val controller=UserAccountController(
+            mock(UserAccountService::class.java),mock(RateLimiter::class.java),tokenBlacklistService
+        )
+
+        assertThrows(IllegalStateException::class.java) {controller.getUsers()}
+    }
+
+    @Test
+    fun `get users throws when authenticated user cannot be found`() {
+        val service=mock(UserAccountService::class.java)
+        val controller=UserAccountController(service,mock(RateLimiter::class.java),tokenBlacklistService)
+        authenticate("missing")
+        `when`(service.getUserByLogin("missing")).thenReturn(null)
+
+        assertThrows(IllegalStateException::class.java) {controller.getUsers()}
+    }
+
+    @Test
+    fun `get users returns forbidden response for a low rank user`() {
+        val service=mock(UserAccountService::class.java)
+        val controller=UserAccountController(service,mock(RateLimiter::class.java),tokenBlacklistService)
+        authenticate("member")
+        `when`(service.getUserByLogin("member")).thenReturn(User().apply {rank=Rank().apply {id=9}})
+
+        assertThrows(RankTooLowException::class.java) {controller.getUsers()}
+
+        assertEquals(HttpStatus.FORBIDDEN,controller.handleRankTooLowException().statusCode)
+    }
+
+    @Test
+    fun `add bio rejects missing authentication`() {
+        val result=UserAccountController(
+            mock(UserAccountService::class.java),mock(RateLimiter::class.java),tokenBlacklistService
+        ).addBio("Bio",request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+    }
+
+    @Test
+    fun `add bio rejects requests over the IP limit`() {
+        val limiter=mock(RateLimiter::class.java)
+        val controller=UserAccountController(mock(UserAccountService::class.java),limiter,tokenBlacklistService)
+        authenticate("bio-user")
+        `when`(limiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.addBio("Bio",request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `add bio rejects requests over the user limit`() {
+        val limiter=mock(RateLimiter::class.java)
+        val controller=UserAccountController(mock(UserAccountService::class.java),limiter,tokenBlacklistService)
+        authenticate("bio-user")
+        `when`(limiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(true)
+        `when`(limiter.allowRequest("login:acct:bio-user",Utils.LIMIT_BASIC,60)).thenReturn(false)
+
+        val result=controller.addBio("Bio",request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+    }
+
+    @Test
+    fun `add bio returns an error when the service fails`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=UserAccountController(service,limiter,tokenBlacklistService)
+        authenticate("bio-user")
+        `when`(limiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(true)
+        `when`(limiter.allowRequest("login:acct:bio-user",Utils.LIMIT_BASIC,60)).thenReturn(true)
+        doThrow(IllegalStateException("User not found")).`when`(service).addBio("Bio","bio-user")
+
+        val result=controller.addBio("Bio",request)
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
+    }
+
+    @Test
+    fun `add bio saves the authenticated users bio`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=UserAccountController(service,limiter,tokenBlacklistService)
+        authenticate("bio-user")
+        `when`(limiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(true)
+        `when`(limiter.allowRequest("login:acct:bio-user",Utils.LIMIT_BASIC,60)).thenReturn(true)
+
+        val result=controller.addBio("Bio",request)
+
+        assertEquals(HttpStatus.OK,result.statusCode)
+        verify(service).addBio("Bio","bio-user")
+    }
 
 
     @Test
@@ -770,9 +873,9 @@ class UserAccountControllerTest {
         assertTrue(userAccountService.doesAccountExist(login))
     }
 
-    /*@Test todo rewrite
+    @Test
     fun `doesUserExist should return true for existing id`() {
-        userRepository.saveAndFlush(User().apply {
+        val user=userRepository.saveAndFlush(User().apply {
             login="user"
             username="User"
             email="user@example.com"
@@ -781,17 +884,8 @@ class UserAccountControllerTest {
             verified=true
         })
 
-        userRepository.saveAndFlush(User().apply {
-            login="user2"
-            username="User2"
-            email="user2@example.com"
-            passwordHash="hash1"
-            rank=rankRepository.findById(1).get()
-            verified=true
-        })
-
-        assertTrue(userAccountService.doesUserExist(1))
-    }*/
+        assertTrue(userAccountService.doesUserExist(user.id))
+    }
 
     @Test
     fun `login should return unauthorized for missing credentials`() {
@@ -840,6 +934,10 @@ class UserAccountControllerTest {
         assertEquals(10,history.size)
         assertFalse(history.any {it.id==historyIds.first()})
         assertTrue(history.any {it.id==historyIds.last()})
+    }
+
+    private fun authenticate(login:String) {
+        SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(login,null)
     }
 
     private fun registerAndConfirm(login:String,email:String,password:String="password") {

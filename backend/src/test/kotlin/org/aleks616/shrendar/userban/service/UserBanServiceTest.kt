@@ -151,8 +151,4 @@ class UserBanServiceTest {
         id=3; user=banned; by=moderator; at=Instant.parse("2026-01-01T00:00:00Z"); until=at.plus(Duration.ofHours(2))
         description="reason"; appealReason="appeal"
     }
-    private fun banWithNullRelation(fieldName:String)=UsersBan().apply {
-        id=1
-        UsersBan::class.java.getDeclaredField(fieldName).apply {isAccessible=true}.set(this@apply,null)
-    }
 }

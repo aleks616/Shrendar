@@ -56,7 +56,7 @@ class UserAccountService(
                 email=u.email,
                 //createdAt=u.createdAt?.toEpochMilli(),
                 birthDate=u.birthDate?.toString(),
-                ranks=u.rank?.let {UsersDto.RanksDto(it.id,it.name)},
+                ranks=u.rank.let {UsersDto.RanksDto(it.id,it.name)},
                 xp=u.xp,
                 verified=u.verified
             )
@@ -75,8 +75,8 @@ class UserAccountService(
         else if(req.login!=""&&req.login!=null) userRepository.findByLogin(req.login)
         else null
         if(user==null) return null
-        if(user.deleted==true) return null
-        val userLog=findUserLog(user.id!!)
+        if(user.deleted) return null
+        val userLog=findUserLog(user.id)
 
         if(userLog.accountDeletionScheduledTime!=null){
             userLog.accountDeletionScheduledTime=null
@@ -146,18 +146,18 @@ class UserAccountService(
         val encryptedPassword=encoder.encode(newPassword)
         val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
         val userPasswordHistory=UserPasswordHistory()
-        val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id!!)
+        val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id)
         passwordHistory.forEach {
             if(it.password==encryptedPassword) return false
         }
         userPasswordHistory.user=userToChange
         userPasswordHistory.password=encryptedPassword
         userPasswordHistoryRepository.save(userPasswordHistory)
-        deleteOldPasswordHistory(userToChange.id!!)
+        deleteOldPasswordHistory(userToChange.id)
 
         userToChange.passwordHash=encryptedPassword
         userRepository.save(userToChange)
-        val userLog=findUserLog(userToChange.id!!)
+        val userLog=findUserLog(userToChange.id)
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
@@ -169,7 +169,7 @@ class UserAccountService(
         val user=userRepository.findByEmail(email)?:return false
         user.username=newUsername
         userRepository.save(user)
-        val userLog=findUserLog(user.id!!)
+        val userLog=findUserLog(user.id)
         if(userLog.displayNameChangedTime!=null){
             if(ChronoUnit.DAYS.between(userLog.displayNameChangedTime,Instant.now())<90)
                 return false
@@ -188,7 +188,7 @@ class UserAccountService(
     fun addBirthday(email:String, date:LocalDate):Boolean{
         val user=userRepository.findByEmail(email)?:return false
         user.birthDate=date
-        val userLog=findUserLog(user.id!!)
+        val userLog=findUserLog(user.id)
         if(userLog.birthdayChangedTime!=null){
             if(ChronoUnit.DAYS.between(userLog.birthdayChangedTime,Instant.now())<180)
                 return false
@@ -205,7 +205,7 @@ class UserAccountService(
 
     fun requestDeletion(userEmail:String):Boolean{
         val user=userRepository.findByEmail(userEmail)?:return false
-        val userLog=findUserLog(user.id!!)
+        val userLog=findUserLog(user.id)
         userLog.accountDeletionScheduledTime=Instant.now()
         userLogRepository.save(userLog)
         emailService.sendAccountScheduledForDeletionMessage(user.email!!)
@@ -217,7 +217,7 @@ class UserAccountService(
     fun checkAccountScheduledToBeDeleted(){
         val users=userRepository.findAll()
         users.forEach{user->
-            val userLog=findUserLog(user.id!!)
+            val userLog=findUserLog(user.id)
             if(userLog.accountDeletionScheduledTime!=null){
                 if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
                     user.deleted=true

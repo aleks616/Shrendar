@@ -12,6 +12,7 @@ import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.user.model.*
 import org.aleks616.shrendar.user.repository.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -87,6 +88,24 @@ class UserServiceTest {
         assertEquals(1, profile.favoriteGenres!!.size)
         assertEquals("Thrash Metal", profile.favoriteGenres!!.first().name)
         assertEquals(emptyList<ContributionDto>(), profile.contributions)
+    }
+
+    @Test
+    fun `getUserProfile returns the deleted profile for a deleted user`() {
+        val deletedUser=User().apply {id=7; login="former-user"; deleted=true}
+        `when`(userRepository.findByLogin("former-user")).thenReturn(deletedUser)
+
+        val profile=userService.getUserProfile("former-user")
+
+        assertEquals("deleted",profile.login)
+        assertEquals("deleted",profile.username)
+        assertEquals(0,profile.rankId)
+        assertEquals("none",profile.rankName)
+        assertEquals("deleted",profile.bio)
+        assertNull(profile.favoriteBands)
+        assertNull(profile.favoriteArtists)
+        assertNull(profile.favoriteGenres)
+        assertNull(profile.contributions)
     }
 
     @Test
