@@ -18,11 +18,11 @@ class XpService(
     @Scheduled(fixedRate=24*60*60*1000)
     @Transactional
     fun increaseAllUsersXp() {
-        if(!File("backend/last-xp-update-date").exists())
-            File("backend/last-xp-update-date").createNewFile()
+        if(!File("last-xp-update-date").exists())
+            File("last-xp-update-date").createNewFile()
 
         val date=LocalDate.now().toString()
-        val previousDate=File("backend/last-xp-update-date").readText()
+        val previousDate=File("last-xp-update-date").readText()
         if(date==previousDate) return
         val users=userRepository.findAll()
         users.forEach {user->
@@ -30,7 +30,7 @@ class XpService(
         }
         userRepository.saveAll(users)
         updateAllUsersRanks()
-        File("backend/last-xp-update-date").writeText(date)
+        File("last-xp-update-date").writeText(date)
     }
 
     @Transactional

@@ -3,6 +3,7 @@ import SharedLogic
 
 struct ContentView: View {
     @State private var showContent = false
+    let greet = LocalText().getGreeting().localized()
     var body: some View {
         VStack {
             Button("Click me!") {
@@ -17,6 +18,7 @@ struct ContentView: View {
                             .font(.system(size: 200))
                             .foregroundColor(.accentColor)
                     Text("SwiftUI: \(Greeting().greet())")
+                   Text(greet)
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
@@ -31,3 +33,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+

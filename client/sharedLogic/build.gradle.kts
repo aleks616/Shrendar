@@ -4,6 +4,14 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.androidMultiplatformLibrary)
+    id("dev.icerock.mobile.multiplatform-resources")
+}
+
+apply(plugin = "dev.icerock.mobile.multiplatform-resources")
+
+multiplatformResources {
+    resourcesPackage.set("com.example.client")
+    resourcesClassName.set("MR")
 }
 
 kotlin {
@@ -50,9 +58,11 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
+            api("dev.icerock.moko:resources:0.27.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation("dev.icerock.moko:resources:0.27.0")
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)

@@ -19,7 +19,7 @@ class XpServiceTest {
     private lateinit var rankRepository:RankRepository
     private lateinit var xpService:XpService
 
-    private val lockFile=File("backend/last-xp-update-date")
+    private val lockFile=File("last-xp-update-date")
 
     @BeforeEach
     fun setUp() {

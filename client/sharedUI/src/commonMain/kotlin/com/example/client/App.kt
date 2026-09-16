@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.painterResource
+import dev.icerock.moko.resources.compose.stringResource
 
 import client.sharedui.generated.resources.Res
 import client.sharedui.generated.resources.compose_multiplatform
@@ -34,6 +35,7 @@ fun App() {
             Button(onClick={showContent=!showContent}) {
                 Text("Click me!")
             }
+            Text(stringResource(MR.strings.greeting))
             AnimatedVisibility(showContent) {
                 val greeting=remember {Greeting().greet()}
                 Column(
