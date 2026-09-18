@@ -35,15 +35,13 @@ fun App() {
             Button(onClick={showContent=!showContent}) {
                 Text("Click me!")
             }
-            Text(stringResource(MR.strings.greeting))
             AnimatedVisibility(showContent) {
-                val greeting=remember {Greeting().greet()}
                 Column(
                     modifier=Modifier.fillMaxWidth(),
                     horizontalAlignment=Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform),null)
-                    Text("Compose: $greeting")
+                    Text("Compose: ${stringResource(MR.strings.greeting)}")
                 }
             }
         }

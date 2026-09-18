@@ -3,7 +3,7 @@ import SharedLogic
 
 struct ContentView: View {
     @State private var showContent = false
-    let greet = LocalText().getGreeting().localized()
+   let greet = LocalText().getString(resourceKey: "greeting").localized()
     var body: some View {
         VStack {
             Button("Click me!") {
@@ -17,8 +17,7 @@ struct ContentView: View {
                     Image(systemName: "swift")
                             .font(.system(size: 200))
                             .foregroundColor(.accentColor)
-                    Text("SwiftUI: \(Greeting().greet())")
-                   Text(greet)
+                    Text("SwiftUI: \(greet)")
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }

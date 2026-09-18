@@ -59,6 +59,8 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
             api("dev.icerock.moko:resources:0.27.0")
+            implementation("io.github.mbalatsko:emailverifier-kt:LATEST_VERSION")
+            implementation("com.github.User:Repo:Tag")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

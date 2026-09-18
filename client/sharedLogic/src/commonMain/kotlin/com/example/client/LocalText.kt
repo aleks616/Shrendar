@@ -8,10 +8,6 @@ import kotlin.js.JsExport
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 class LocalText {
-    fun getGreeting():StringDesc {
-        return MR.strings.greeting.desc()
-    }
-
     fun getString(resourceKey: String): StringDesc {
         return when (resourceKey) {
             "greeting" -> MR.strings.greeting.desc()

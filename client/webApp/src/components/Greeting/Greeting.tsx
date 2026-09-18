@@ -1,13 +1,10 @@
 // @ts-nocheck
 import './Greeting.css'
 import {useState} from 'react'
-import {JSLogo} from '../JSLogo/JSLogo.tsx'
-import {Greeting as KotlinGreeting} from 'sharedLogic'
 import {LocalText} from 'sharedLogic'
 import type {AnimationEvent} from 'react'
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 export function Greeting(){
-    const greeting=new KotlinGreeting()
     const greeting1 = new LocalText().getString("greeting")
     const [isVisible,setIsVisible]=useState<boolean>(false)
     const [isAnimating,setIsAnimating]=useState<boolean>(false)
@@ -36,10 +33,11 @@ export function Greeting(){
             {isVisible&&(
                 <div className={isAnimating?'greeting-content fade-out':'greeting-content'}
                      onAnimationEnd={handleAnimationEnd}>
-                    <JSLogo/>
+                    <img src={"https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original"}
+                    style={{width:"200px"}}/>
                     <div>React: {englishStrings[greeting1.stringRes_1.key_1]}</div>
                     <div style={{fontSize:"32px"}}>
-                        <p>Page is development, check out my band website</p>
+                        <p>Page in development, check out my band website</p>
                         <p>Strona dopiero powstaje obczaj strone zespołu</p>
                     <a href={"https://mantikora-pl.github.io/"}>Mantikora</a>
                 </div>
