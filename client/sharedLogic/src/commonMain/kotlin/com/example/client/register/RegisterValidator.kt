@@ -1,15 +1,19 @@
 package com.example.client.register
 
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
 class RegisterValidator {
-    suspend fun isLoginValid(login:String):String? {
+    suspend fun validateLogin(login:String):String? {
         if(login.length<5) return "Login too short"
-        if(login.length>20) return "Login too long"
-        val registerApi=RegisterApi()
-        if(registerApi.doesLoginExist(login)) return "User with this login already exists"
+        if(login.length>25) return "Login too long"
+        if(RegisterApi.doesLoginExist(login)) return "User with this login already exists"
         return null
     }
 
-    suspend fun isEmailValid(email:String):String? {
+    suspend fun validateEmail(email:String):String? {
         val emailAddressRegex = Regex(
             "[a-zA-Z0-9+._%\\-]{1,256}" +
             "@" +
@@ -20,8 +24,7 @@ class RegisterValidator {
             ")+"
         )
         if(!email.matches(emailAddressRegex)) return "E-mail address is not valid"
-        val registerApi=RegisterApi()
-        if(registerApi.doesEmailExist(email)) return "User with this email already exists"
+        if(RegisterApi.doesEmailExist(email)) return "User with this email already exists"
         return null
     }
 

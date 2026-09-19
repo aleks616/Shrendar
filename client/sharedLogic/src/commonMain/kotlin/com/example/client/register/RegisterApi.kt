@@ -12,15 +12,15 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class RegisterApi(
-    private val client:HttpClient=HttpClient {
+object RegisterApi {
+    private val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
-                ignoreUnknownKeys=true
+                ignoreUnknownKeys = true
             })
         }
     }
-) {
+
     suspend fun doesEmailExist(email:String):Boolean {
         return client.get("$BASE_URL/user-account/emailCheck") {
             parameter("email",email)
@@ -40,7 +40,6 @@ class RegisterApi(
         }.body()
     }
 
-    private companion object {
-        const val BASE_URL="http://192.168.0.18:8081/api"
-    }
+
+        const val BASE_URL="http://vvcpc4ndryhj.shares.zrok.io/api"
 }
