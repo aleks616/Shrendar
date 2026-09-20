@@ -13,10 +13,10 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object RegisterApi {
-    private val client: HttpClient = HttpClient {
+    private val client:HttpClient=HttpClient {
         install(ContentNegotiation) {
             json(Json {
-                ignoreUnknownKeys = true
+                ignoreUnknownKeys=true
             })
         }
     }
@@ -40,6 +40,5 @@ object RegisterApi {
         }.body()
     }
 
-
-        const val BASE_URL="https://shrendar.shares.zrok.io/api"
+    const val BASE_URL="https://shrendar.shares.zrok.io/api"
 }

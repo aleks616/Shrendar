@@ -1,5 +1,6 @@
 package com.example.client.register
 
+import com.example.client.LocalText
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
@@ -7,9 +8,9 @@ import kotlin.js.JsExport
 @JsExport
 class RegisterValidator {
     suspend fun validateLogin(login:String):String? {
-        if(login.length<5) return "Login too short"
-        if(login.length>25) return "Login too long"
-        if(RegisterApi.doesLoginExist(login)) return "User with this login already exists"
+        if(login.length<5) return "login_too_short"
+        if(login.length>25) return "login_too_long"
+        if(RegisterApi.doesLoginExist(login)) return "login_already_exists"
         return null
     }
 
@@ -23,8 +24,8 @@ class RegisterValidator {
             "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
             ")+"
         )
-        if(!email.matches(emailAddressRegex)) return "E-mail address is not valid"
-        if(RegisterApi.doesEmailExist(email)) return "User with this email already exists"
+        if(!email.matches(emailAddressRegex)) return "email_invalid"
+        if(RegisterApi.doesEmailExist(email)) return "email_already_exists"
         return null
     }
 

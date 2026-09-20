@@ -14,29 +14,30 @@ import kotlin.js.JsExport
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 data class Genre(
-    val id: Int,
-    val name: String,
-    val properties: String
+    val id:Int,
+    val name:String,
+    val properties:String
 )
 
 class GenreApi private constructor(
-    private val baseUrl: String,
-    private val client: HttpClient
+    private val baseUrl:String,
+    private val client:HttpClient
 ) {
-    constructor() : this(DEFAULT_BASE_URL, createHttpClient())
-    constructor(baseUrl: String) : this(baseUrl, createHttpClient())
+    constructor():this(DEFAULT_BASE_URL,createHttpClient())
+    constructor(baseUrl:String):this(baseUrl,createHttpClient())
 
-    suspend fun getAll(): List<Genre> =
-        client.get("$baseUrl/api/genre/all").body()
+    suspend fun getAll():List<Genre> {
+        return client.get("$baseUrl/api/genre/all").body()
+    }
 
     companion object {
-        const val DEFAULT_BASE_URL = "http://localhost:8081"
+        const val DEFAULT_BASE_URL="http://localhost:8081"
 
-        private fun createHttpClient() = HttpClient {
-            expectSuccess = true
+        private fun createHttpClient()=HttpClient {
+            expectSuccess=true
             install(ContentNegotiation) {
                 json(Json {
-                    ignoreUnknownKeys = true
+                    ignoreUnknownKeys=true
                 })
             }
         }
@@ -46,5 +47,5 @@ class GenreApi private constructor(
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 object GenreClient {
-    suspend fun getAll(): Array<Genre> = GenreApi().getAll().toTypedArray()
+    suspend fun getAll():Array<Genre> =GenreApi().getAll().toTypedArray()
 }

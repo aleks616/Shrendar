@@ -1,3 +1,24 @@
 <resources>
     <string name="greeting">Hello</string>
+    <string name="login_too_short">Login too short</string>
+    <string name="login_too_long">Login too long</string>
+    <string name="login_already_exists">User with this login already exists</string>
+    <string name="invalid_email">E-mail address is not valid</string>
+    <string name="email_already_exists">User with this email already exists</string>
+    <string name="create_account">Create account</string>
+    <string name="sign_up_to_continue">Sign Up to Continue</string>
+    <string name="email_address">email address</string>
+    <string name="login">login</string>
+    <string name="password">password</string>
+    <string name="re_enter_password">re-enter password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or">or</string>
+    <string name="authorization_successful">Authorization successful</string>
+    <string name="authorization_failed">Authorization failed</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="invalid_password">Password has to contain at least one lowercase letter,
+        one uppercase letter, one symbol and be between 8 and 32 characters long.</string>
+    <string name="special_sign_in_later">signing in with google or apple will become avalable later</string>
 </resources>
