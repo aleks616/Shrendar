@@ -18,7 +18,7 @@ class MainActivity:ComponentActivity() {
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                Log.d("GenreApi", GenreApi("http://10.0.2.2:8081").getAll().toString())
+                Log.d("GenreApi", GenreApi().getAll().toString())
             } catch (error: Exception) {
                 Log.e("GenreApi", "Unable to fetch genres", error)
             }

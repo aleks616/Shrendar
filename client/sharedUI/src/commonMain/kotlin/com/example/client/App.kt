@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.resources.painterResource
+import dev.icerock.moko.resources.compose.stringResource
 
 import client.sharedui.generated.resources.Res
 import client.sharedui.generated.resources.compose_multiplatform
@@ -35,13 +36,12 @@ fun App() {
                 Text("Click me!")
             }
             AnimatedVisibility(showContent) {
-                val greeting=remember {Greeting().greet()}
                 Column(
                     modifier=Modifier.fillMaxWidth(),
                     horizontalAlignment=Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform),null)
-                    Text("Compose: $greeting")
+                    Text("Compose: ${stringResource(MR.strings.greeting)}")
                 }
             }
         }

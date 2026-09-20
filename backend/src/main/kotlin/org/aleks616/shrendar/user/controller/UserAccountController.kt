@@ -25,6 +25,11 @@ class UserAccountController(
     private val rateLimiter:RateLimiter,
     private val tokenBlacklistService:TokenBlacklistService
 ) {
+    @GetMapping("/loginCheck")
+    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(login))
+
+    @GetMapping("/emailCheck")
+    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
     @PostMapping("/register")
     fun register(@RequestBody request:RegisterRequestDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
@@ -167,12 +172,6 @@ class UserAccountController(
 
         return ResponseEntity.ok("Bio added")
     }
-
-    @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(login))
-
-    @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
 
     @GetMapping("/users")
     fun getUsers():ResponseEntity<List<UsersDto>>{

@@ -1,0 +1,24 @@
+<resources>
+    <string name="greeting">Cześć</string>
+    <string name="login_too_short">Login jest za krótki</string>
+    <string name="login_too_long">Login jest za długi</string>
+    <string name="login_already_exists">Już istnieje użytkownik z tym loginem</string>
+    <string name="invalid_email">Adres e-mail jest nieprawidłowy</string>
+    <string name="email_already_exists">Użytkownik z tym e-mailem już istnieje</string>
+    <string name="create_account">Utwórz konto</string>
+    <string name="sign_up_to_continue">Zarejestruj się, aby kontynuować</string>
+    <string name="email_address">e-mail</string>
+    <string name="login">login</string>
+    <string name="password">hasło</string>
+    <string name="re_enter_password">powtórz hasło</string>
+    <string name="sign_up">Zarejestruj się</string>
+    <string name="or">albo</string>
+    <string name="authorization_successful">Autoryzacja pomyślna</string>
+    <string name="authorization_failed">Autoryzacja nieudana</string>
+    <string name="already_have_an_account">Masz już konto?</string>
+    <string name="sign_in">Zaloguj się</string>
+    <string name="passwords_dont_match">Hasła się różnią</string>
+    <string name="invalid_password">Hasło musi zawierać co najmniej jedną małą literę, jedną wielką literę
+    jeden symbol i mieć długość od 8 do 32 znaków.</string>
+    <string name="special_sign_in_later">Logowanie się z Google albo Apple będzie dostępne później</string>
+</resources>

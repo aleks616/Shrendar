@@ -37,6 +37,7 @@ kotlin {
         }
         commonMain.dependencies {
             api(project(":sharedLogic"))
+            implementation("dev.icerock.moko:resources-compose:0.27.0")
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)

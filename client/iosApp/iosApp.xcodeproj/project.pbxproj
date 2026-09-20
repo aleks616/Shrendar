@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		55F075E2305B472500800CC5 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 55F075E1305B472500800CC5 /* GoogleSignIn */; };
+		55F075E4305B472500800CC5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 55F075E3305B472500800CC5 /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CB3ED6DC0D5293581CE97651 /* Shrendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shrendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -41,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55F075E2305B472500800CC5 /* GoogleSignIn in Frameworks */,
+				55F075E4305B472500800CC5 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +79,7 @@
 			buildConfigurationList = AAD792689DD67CE37B089C34 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
 				417D475D4AC0103FC08517B7 /* Compile Kotlin Framework */,
+				9D0A4A4D04E641C8A7F4432B /* Copy Moko Resources */,
 				848FA42C31363FC42DF99876 /* Sources */,
 				CFBE3664F78BF7A517B56DBF /* Frameworks */,
 				86FA2F852E902A5430F45494 /* Resources */,
@@ -85,6 +93,8 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				55F075E1305B472500800CC5 /* GoogleSignIn */,
+				55F075E3305B472500800CC5 /* GoogleSignInSwift */,
 			);
 			productName = iosApp;
 			productReference = CB3ED6DC0D5293581CE97651 /* Shrendar.app */;
@@ -114,6 +124,9 @@
 			);
 			mainGroup = A5101BD614D0A3751BDF498C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				55F075E0305B472500800CC5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4585E520A5E3DA1E399B701A /* Products */;
 			projectDirPath = "";
@@ -153,6 +166,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :sharedLogic:embedAndSignAppleFrameworkForXcode\n";
+		};
+		9D0A4A4D04E641C8A7F4432B /* Copy Moko Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Moko Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "case \"$PLATFORM_NAME\" in\n  iphoneos) target=IosArm64 ;;\n  iphonesimulator) target=IosSimulatorArm64 ;;\n  *) echo \"Unsupported Apple platform: $PLATFORM_NAME\" >&2; exit 1 ;;\nesac\ncase \"$CONFIGURATION\" in\n  Debug|Release) ;;\n  *) echo \"Unsupported build configuration: $CONFIGURATION\" >&2; exit 1 ;;\nesac\ncd \"$SRCROOT/..\"\n./gradlew \":sharedLogic:copyResources${CONFIGURATION}Framework${target}\" \\\n  \"-Pmoko.resources.BUILT_PRODUCTS_DIR=$BUILT_PRODUCTS_DIR\" \\\n  \"-Pmoko.resources.CONTENTS_FOLDER_PATH=$CONTENTS_FOLDER_PATH\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -243,6 +275,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -336,6 +369,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -368,6 +402,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		55F075E0305B472500800CC5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		55F075E1305B472500800CC5 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55F075E0305B472500800CC5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		55F075E3305B472500800CC5 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55F075E0305B472500800CC5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E93FE4B017626CF1DA5FB9EB /* Project object */;
 }
