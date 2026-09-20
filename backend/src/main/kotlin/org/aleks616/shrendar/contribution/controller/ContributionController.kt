@@ -32,14 +32,14 @@ class ContributionController (
     @PostMapping("/confirm")
     fun confirmContributionRequest(@RequestParam changeId:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         try{
             contributionService.confirmDataChangeRequest(changeId,userLogin)
@@ -48,23 +48,23 @@ class ContributionController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something_wrong. ${e.message}")
         }
 
-        return ResponseEntity.ok("Confirmation successful")
+        return ResponseEntity.ok("confirmation_success")
     }
 
     @PostMapping("/revert")
     fun revertAddRequest(@RequestParam changeId:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         try{
            contributionRevertService.revertAddition(changeId,userLogin)
@@ -73,22 +73,22 @@ class ContributionController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something_wrong. ${e.message}")
         }
 
-        return ResponseEntity.ok("Addition reverted successful")
+        return ResponseEntity.ok("addition_reverted")
     }
 
     @ExceptionHandler(IllegalStateException::class)
     fun handleLimitExceededException(e:IllegalStateException):ResponseEntity<String>{
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. ${e.message}")
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong. ${e.message}")
     }
 
     //region select
 
     @GetMapping("/requested-by/{id}")
     fun getContributionsByRequestingUser(@PathVariable id:Int):List<ContributionDto>{
-        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user_not_exist")
 
         try{
             return contributionService.getContributionsByRequestingUser(id)
@@ -100,7 +100,7 @@ class ContributionController (
 
     @GetMapping("/confirmed-by/{id}")
     fun getContributionsByConfirmingUser(@PathVariable id:Int):List<ContributionDto>{
-        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user_not_exist")
 
         try{
             return contributionService.getContributionsByConfirmingUser(id)
@@ -116,7 +116,7 @@ class ContributionController (
             Table.valueOf(table.uppercase())
         }
         catch(_:IllegalArgumentException){
-            throw IllegalArgumentException("table \"$table\" does not exist")
+            throw IllegalArgumentException("table_not_exist")
         }
 
         try{
@@ -133,7 +133,7 @@ class ContributionController (
             Table.valueOf(table.uppercase())
         }
         catch(_:IllegalArgumentException){
-            throw IllegalArgumentException("table \"$table\" does not exist")
+            throw IllegalArgumentException("table_not_exist")
         }
 
         try{
@@ -150,7 +150,7 @@ class ContributionController (
             Table.valueOf(table.uppercase())
         }
         catch(_:IllegalArgumentException){
-            throw IllegalArgumentException("table \"$table\" does not exist")
+            throw IllegalArgumentException("table_not_exist")
         }
 
         try{
@@ -163,7 +163,7 @@ class ContributionController (
 
     @GetMapping("/between-dates")
     fun getContributionsByChangedAtBetween(@RequestParam start:LocalDate, @RequestParam(required=false) end:LocalDate):List<ContributionDto>{
-        if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
+        if(start.isAfter(end)) throw IllegalStateException("start_after_end")
 
         try{
             return contributionService.getContributionsByChangedAtBetween(start,end)
@@ -175,9 +175,9 @@ class ContributionController (
 
     @GetMapping("/between-dates-by-user/{id}")
     fun getContributionsByRequestingUserAndChangedAtBetween(@RequestParam start:LocalDate,@RequestParam(required=false) end:LocalDate,@PathVariable id:Int):List<ContributionDto>{
-        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user with id $id doesn't exist")
+        if(!userAccountService.doesUserExist(id)) throw IllegalStateException("user_not_exist")
 
-        if(start.isAfter(end)) throw IllegalStateException("start date cannot be after end date")
+        if(start.isAfter(end)) throw IllegalStateException("start_after_end")
 
         try{
             return contributionService.getContributionsByRequestingUserAndChangedAtBetween(start,end,id)
