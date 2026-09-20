@@ -6,6 +6,8 @@ import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import java.io.File
+import java.util.Locale
+import java.util.Locale.getDefault
 
 @Service
 class EmailService(
@@ -14,7 +16,8 @@ class EmailService(
     fun sendVerificationCode(email:String,code:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/verificationCode-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/verificationCode-$lang.html").readText()
             .replace($$"$code",code)
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Confirm your e-mail address"
@@ -27,7 +30,8 @@ class EmailService(
     fun sendAccountCreatedMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountVerified-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountVerified-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account Created"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
@@ -38,7 +42,8 @@ class EmailService(
     fun sendPasswordResetMessage(email:String,code:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordResetCode-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordResetCode-$lang.html").readText()
             .replace($$"$code",code)
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Password reset"
@@ -50,7 +55,8 @@ class EmailService(
     fun sendPasswordHasBeenChangedMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordChanged-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordChanged-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Password has been changed"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
@@ -61,8 +67,9 @@ class EmailService(
     fun sendAccountScheduledForDeletionMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
+        val lang=language.toString().lowercase()
         val content=
-            File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionScheduled-$language.html").readText()
+            File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionScheduled-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account will be deleted"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
@@ -73,8 +80,9 @@ class EmailService(
     fun sendAccountDeletionCancelledMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
+        val lang=language.toString().lowercase()
         val content=
-            File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionCanceled-$language.html").readText()
+            File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionCanceled-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account won't be deleted"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
@@ -85,7 +93,8 @@ class EmailService(
     fun sendAccountDeletedMessage(email:String,language:SupportedLanguages=SupportedLanguages.PL) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeleted-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeleted-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account has been deleted"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
