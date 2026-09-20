@@ -61,7 +61,7 @@ struct RegisterView: View {
 			}.buttonStyle(.glass)
 				.disabled(email.isEmpty||login.isEmpty||password.isEmpty||confirmPassword.isEmpty)
 			
-//			LabelledDivider(label: localize(key: "or"))
+			LabelledDivider(label: localize(key: "or"))
 //			GoogleSignInButton(
 //				scheme: .light,
 //				state: .normal,
@@ -78,6 +78,7 @@ struct RegisterView: View {
 //						print("\(localize(key: "authorization_failed"))): \(error.localizedDescription)")
 //				}
 //			}.frame(width: 280, height: 45)
+			
 			Text(localize(key: "special_sign_in_later"))
 			Spacer()
 			HStack{

@@ -23,7 +23,7 @@ class GenreApi private constructor(
     private val baseUrl:String,
     private val client:HttpClient
 ) {
-    constructor():this(DEFAULT_BASE_URL,createHttpClient())
+    constructor():this(BASE_URL,createHttpClient())
     constructor(baseUrl:String):this(baseUrl,createHttpClient())
 
     suspend fun getAll():List<Genre> {
@@ -31,7 +31,7 @@ class GenreApi private constructor(
     }
 
     companion object {
-        const val DEFAULT_BASE_URL="http://localhost:8081"
+        const val BASE_URL="https://shrendar.shares.zrok.io/api/user-account"
 
         private fun createHttpClient()=HttpClient {
             expectSuccess=true

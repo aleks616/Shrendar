@@ -13,6 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object RegisterApi {
+    const val BASE_URL="https://shrendar.shares.zrok.io/api/user-account"
     private val client:HttpClient=HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -22,23 +23,21 @@ object RegisterApi {
     }
 
     suspend fun doesEmailExist(email:String):Boolean {
-        return client.get("$BASE_URL/user-account/emailCheck") {
+        return client.get("$BASE_URL/emailCheck") {
             parameter("email",email)
         }.body()
     }
 
     suspend fun doesLoginExist(login:String):Boolean {
-        return client.get("$BASE_URL/user-account/loginCheck") {
+        return client.get("$BASE_URL/loginCheck") {
             parameter("login",login)
         }.body()
     }
 
     suspend fun register(request:RegisterRequest):String {
-        return client.post("$BASE_URL/user-account/register") {
+        return client.post("$BASE_URL/register") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
-
-    const val BASE_URL="https://shrendar.shares.zrok.io/api"
 }
