@@ -52,7 +52,7 @@ class ContributionControllerTest {
     fun `confirmContributionRequest should succeed`() {
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Confirmation successful",result.body)
+        assertEquals("confirmation_success",result.body)
         verify(contributionService).confirmDataChangeRequest(1,"user")
     }
 
@@ -114,7 +114,7 @@ class ContributionControllerTest {
     fun `revertAddRequest should succeed`() {
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Addition reverted successful",result.body)
+        assertEquals("addition_reverted",result.body)
         verify(revertService).revertAddition(1,"user")
     }
 
@@ -189,7 +189,7 @@ class ContributionControllerTest {
     fun `getContributionsByRequestingUser should throw IllegalStateException for unknown user`() {
         `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7)}
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
 
@@ -213,7 +213,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7)
         }
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
     @Test
@@ -221,7 +221,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalArgumentException> {
             controller.getContributionsByTableName("other")
         }
-        assertEquals("table \"other\" does not exist",exception.message)
+        assertEquals("table_not_exist",exception.message)
         verifyNoInteractions(contributionService)
     }
 
@@ -238,7 +238,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalArgumentException> {
             controller.getLastChangesByTableAndChangedRecordId("other",3)
         }
-        assertEquals("table \"other\" does not exist",exception.message)
+        assertEquals("table_not_exist",exception.message)
         verifyNoInteractions(contributionService)
     }
 
@@ -354,7 +354,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.of(2025,2,1),LocalDate.of(2025,1,1))
         }
-        assertEquals("start date cannot be after end date",exception.message)
+        assertEquals("start_after_end",exception.message)
     }
 
     @Test
@@ -372,7 +372,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(LocalDate.now(),LocalDate.now(),7)
         }
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
     @Test

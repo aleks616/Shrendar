@@ -67,7 +67,7 @@ class GenreControllerTest {
         val result=controller.favoriteGenre(1,request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Genre favorite toggled successfully",result.body)
+        assertEquals("genre_toggled",result.body)
         verify(genreService).toggleFavoriteGenre(1,"user")
     }
 
@@ -122,7 +122,7 @@ class GenreControllerTest {
         val result=controller.favoriteGenre(1,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Genre with id 1 does not exist",result.body)
+        assertEquals("genre_not_exist",result.body)
         verify(genreService,never()).toggleFavoriteGenre(anyInt(),anyString())
     }
 

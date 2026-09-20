@@ -149,7 +149,7 @@ class ArtistControllerTest {
             mockMvc.get("/api/artist/name?name=Ja")
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: name has to be at least 3 characters",
+            "Request processing failed: java.lang.IllegalArgumentException: name_at_least_3",
             exception.message
         )
     }
@@ -175,7 +175,7 @@ class ArtistControllerTest {
             }
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: name has to be at least 2 characters",
+            "Request processing failed: java.lang.IllegalArgumentException: name_at_least_2",
             exception.message
         )
     }
@@ -201,7 +201,7 @@ class ArtistControllerTest {
             }
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: name has to be at least 2 characters",
+            "Request processing failed: java.lang.IllegalArgumentException: name_at_least_2",
             exception.message
         )
     }
@@ -1008,7 +1008,7 @@ class ArtistControllerTest {
                 content = objectMapper.writeValueAsString(artistAddDto)
             }.andExpect {
                 status { isOk() }
-                content { string("Artist addition request received") }
+                content { string("artist_addition_received") }
             }
 
             val artist = artistRepository.findAll().find { it.name == "James Hetfield" }

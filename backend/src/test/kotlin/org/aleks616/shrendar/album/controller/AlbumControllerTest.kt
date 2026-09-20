@@ -761,7 +761,7 @@ class AlbumControllerTest {
             content=objectMapper.writeValueAsString(albumAddDto)
         }.andExpect {
             status {isOk()}
-            content {string("Album addition request received")}
+            content {string("album_addition_recieved")}
         }
 
         val album=albumRepository.findAll().find {it.title=="Ride the Lightning"}
