@@ -41,5 +41,5 @@ object RegisterApi {
     }
 
 
-        const val BASE_URL="http://vvcpc4ndryhj.shares.zrok.io/api"
+        const val BASE_URL="https://shrendar.shares.zrok.io/api"
 }

@@ -46,7 +46,6 @@ struct RegisterView: View {
 					.font(.system(size: 24.0))
 				
 			}
-			.frame(maxHeight: 800)
 			Text(errorText ?? "").foregroundStyle(.red)
 			
 			Button(action:createAccount){
@@ -85,9 +84,9 @@ struct RegisterView: View {
 	
 	func createAccount(){
 		Task{
-			let registerValidator=RegisterValidator()
+			let registerValidator = RegisterValidator()
 			do{
-				let loginValid=try await registerValidator.validateLogin(login: login)
+				let loginValid = try await registerValidator.validateLogin(login: login)
 				if loginValid != nil {
 					errorText = loginValid
 					return
@@ -108,6 +107,7 @@ struct RegisterView: View {
 				if passwordValid != true {
 					errorText="Password has to contain at least one lowercase letter, one uppercase letter, one symbol and be between 8 and 32 characters long."
 				}
+				errorText=""
 			}
 			catch let error{
 				print(error)
