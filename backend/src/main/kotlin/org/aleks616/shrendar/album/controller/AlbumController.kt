@@ -92,7 +92,7 @@ class AlbumController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(album.bandId < 1||album.title.isEmpty()||album.type.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("insuffiecient_album_data")
         if(albumService.doesAlbumWithNameExistForBand(album))
@@ -129,7 +129,7 @@ class AlbumController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(album.type==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_album_edit_data")
         if(!albumService.doesAlbumExist(album.id))
@@ -167,7 +167,7 @@ class AlbumController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!albumService.doesAlbumExist(id))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("album_id_not_exist")
 

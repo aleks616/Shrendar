@@ -127,7 +127,7 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(artist.name.isNullOrEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_artist_add_data")
         if(artistValidate(artist)!=null)
@@ -159,7 +159,7 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(artist.id==null||artist.name.isNullOrEmpty()||artist.gender==null)
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_artist_edit_data")
         if(!artistService.doesArtistExist(artist.id))

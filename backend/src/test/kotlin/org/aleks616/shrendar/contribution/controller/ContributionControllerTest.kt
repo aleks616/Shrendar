@@ -79,7 +79,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
         verifyNoInteractions(contributionService)
     }
 
@@ -88,7 +88,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
         verifyNoInteractions(contributionService)
     }
 
@@ -107,7 +107,7 @@ class ContributionControllerTest {
             .`when`(contributionService).confirmDataChangeRequest(1,"user")
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("Something went wrong. broken",result.body)
+        assertEquals("something_wrong. broken",result.body)
     }
 
     @Test
@@ -141,7 +141,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
         verifyNoInteractions(revertService)
     }
 
@@ -150,7 +150,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
         verifyNoInteractions(revertService)
     }
 
@@ -168,14 +168,14 @@ class ContributionControllerTest {
         doThrow(IllegalStateException("broken")).`when`(revertService).revertAddition(1,"user")
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("Something went wrong. broken",result.body)
+        assertEquals("something_wrong. broken",result.body)
     }
 
     @Test
     fun `handleLimitExceededException should return bad request`() {
         val result=controller.handleLimitExceededException(IllegalStateException("limit"))
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Something went wrong. limit",result.body)
+        assertEquals("something_wrong. limit",result.body)
     }
 
     @Test

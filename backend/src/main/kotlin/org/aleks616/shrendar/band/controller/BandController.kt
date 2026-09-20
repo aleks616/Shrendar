@@ -132,7 +132,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(band.name.isNullOrEmpty()||band.status==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_band_add_data")
         if(bandValidate(band)!=null)
@@ -165,7 +165,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(band.name.isNullOrEmpty()||band.status==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_band_edit_data")
         if(!bandService.doesBandExist(band.id!!))
@@ -198,7 +198,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!bandService.doesBandExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_not_exist")
 
@@ -227,7 +227,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_add_data")
         if(memberValidate(member)!=null)
@@ -261,7 +261,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_edit_data")
         if(!bandService.doesBandMemberExist(member.id!!))
@@ -295,7 +295,7 @@ class BandController (
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!bandsMemberService.doesBandMemberExist(id))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_not_exist")
 
