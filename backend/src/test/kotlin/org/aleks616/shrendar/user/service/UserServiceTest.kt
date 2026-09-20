@@ -83,11 +83,11 @@ class UserServiceTest {
         assertEquals("james", profile.login)
         assertEquals("Metallica vocalist", profile.bio)
         assertEquals(1, profile.favoriteBands!!.size)
-        assertEquals("USA", profile.favoriteBands!!.first().country)
+        assertEquals("USA", profile.favoriteBands.first().country)
         assertEquals(1, profile.favoriteArtists!!.size)
-        assertEquals("James Hetfield", profile.favoriteArtists!!.first().name)
+        assertEquals("James Hetfield", profile.favoriteArtists.first().name)
         assertEquals(1, profile.favoriteGenres!!.size)
-        assertEquals("Thrash Metal", profile.favoriteGenres!!.first().name)
+        assertEquals("Thrash Metal", profile.favoriteGenres.first().name)
         assertEquals(emptyList<ContributionDto>(), profile.contributions)
     }
 

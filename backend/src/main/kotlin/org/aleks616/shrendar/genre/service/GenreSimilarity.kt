@@ -13,7 +13,7 @@ object GenreSimilarity{
             if(i<3) value+=abs(genre1[i]-genre2[i])
             else value+=0.667*abs(genre1[i]-genre2[i])
         }
-        return "%.2f".format(value).toDouble()
+        return round(value*100.0)/100.0
     }
 
     fun getAverageGenre(genres:List<Pair<String,Byte>>):String{

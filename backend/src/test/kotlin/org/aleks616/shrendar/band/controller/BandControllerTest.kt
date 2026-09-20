@@ -240,7 +240,7 @@ class BandControllerTest {
             mockMvc.get("/api/band/foundedBetween")
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: startYear and endYear cannot both be null",
+            "Request processing failed: java.lang.IllegalArgumentException: start_end_not_null",
             ex.message
         )
     }
@@ -251,7 +251,7 @@ class BandControllerTest {
             mockMvc.get("/api/band/foundedBetween?startYear=1990&endYear=1980")
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: startYear cannot be greater than endYear",
+            "Request processing failed: java.lang.IllegalArgumentException: start_before_end",
             ex.message
         )
     }
@@ -262,7 +262,7 @@ class BandControllerTest {
         val ex=assertThrows<ServletException> {
             mockMvc.get("/api/band/foundedBetween?startYear=${currentYear+1}")
         }
-        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid startYear",ex.message)
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid_start_year",ex.message)
     }
 
     @Test
@@ -271,7 +271,7 @@ class BandControllerTest {
         val ex=assertThrows<ServletException> {
             mockMvc.get("/api/band/foundedBetween?endYear=${currentYear+1}")
         }
-        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid endYear",ex.message)
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid_end_year",ex.message)
     }
 
     @Test
@@ -333,7 +333,7 @@ class BandControllerTest {
         val ex=assertThrows<ServletException> {
             mockMvc.get("/api/band/status/invalid")
         }
-        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid status",ex.message)
+        assertEquals("Request processing failed: java.lang.IllegalArgumentException: invalid_status",ex.message)
     }
 
     @Test
@@ -389,7 +389,7 @@ class BandControllerTest {
             bandController.statusStringToEnum("not-a-status")
         }
 
-        assertEquals("invalid status",ex.message)
+        assertEquals("invalid_status",ex.message)
     }
 
     @Test
@@ -420,7 +420,7 @@ class BandControllerTest {
         val result=bandController.addBand(validBandDto,request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band addition request received",result.body)
+        assertEquals("band_addition_received",result.body)
         verify(bandService).addBand(validBandDto,"user")
     }
 
@@ -478,7 +478,7 @@ class BandControllerTest {
         val result=bandController.addBand(BandAddDto(name="",status=Status.ACTIVE),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("At least band name and status are required to add a new band",result.body)
+        assertEquals("missing_band_add_data",result.body)
     }
 
     @Test
@@ -486,7 +486,7 @@ class BandControllerTest {
         val result=bandController.addBand(BandAddDto(name=null,status=Status.ACTIVE),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("At least band name and status are required to add a new band",result.body)
+        assertEquals("missing_band_add_data",result.body)
     }
 
     @Test
@@ -494,7 +494,7 @@ class BandControllerTest {
         val result=bandController.addBand(BandAddDto(name="a name",status=null),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("At least band name and status are required to add a new band",result.body)
+        assertEquals("missing_band_add_data",result.body)
     }
 
 
@@ -506,7 +506,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band formed year cannot be in the future",result.body)
+        assertEquals("formed_year_future",result.body)
     }
 
     @Test
@@ -538,7 +538,7 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1),request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band edit request received",result.body)
+        assertEquals("band_edition_received",result.body)
         verify(bandService).editBandRequest(validBandDto.copy(id=1),"user")
     }
 
@@ -602,7 +602,7 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1,name=null),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band name and status are required",result.body)
+        assertEquals("missing_band_edit_data",result.body)
     }
 
     @Test
@@ -610,7 +610,7 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1,status=null),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band name and status are required",result.body)
+        assertEquals("missing_band_edit_data",result.body)
     }
 
     @Test
@@ -620,7 +620,7 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band with id 1 does not exist",result.body)
+        assertEquals("band_not_exist",result.body)
     }
 
     @Test
@@ -636,7 +636,7 @@ class BandControllerTest {
         val result=bandController.editBand(validBandDto.copy(id=1,status=Status.DISBANDED),request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Disbanded year is required if band status is disbanded",result.body)
+        assertEquals("missing_disbanded",result.body)
     }
 
     @Test
@@ -671,7 +671,7 @@ class BandControllerTest {
         val result=bandController.deleteBand(1,request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band deletion request received",result.body)
+        assertEquals("band_deletion_received",result.body)
         verify(bandService).deleteBandRequest(1,"user")
     }
 
@@ -730,7 +730,7 @@ class BandControllerTest {
         val result=bandController.deleteBand(1,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Band with id 1 does not exist",result.body)
+        assertEquals("band_not_exist",result.body)
     }
 
     @Test
@@ -764,7 +764,7 @@ class BandControllerTest {
         val result=bandController.bandValidate(band)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band formed year cannot be in the future",result?.body)
+        assertEquals("formed_year_future",result?.body)
     }
 
     @Test
@@ -773,7 +773,7 @@ class BandControllerTest {
         val result=bandController.bandValidate(band)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band formed year is required if disbanded year is provided",result?.body)
+        assertEquals("missing_formed",result?.body)
     }
 
     @Test
@@ -781,7 +781,7 @@ class BandControllerTest {
         val result=bandController.bandValidate(BandAddDto(name="Metallica",status=Status.DISBANDED,imageUrl=null))
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Disbanded year is required if band status is disbanded",result?.body)
+        assertEquals("missing_disbanded",result?.body)
     }
 
     @Test
@@ -791,7 +791,7 @@ class BandControllerTest {
         val result=bandController.bandValidate(BandAddDto(name="Metallica",status=Status.ACTIVE,country=99,imageUrl=null))
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Country with id 99 does not exist",result?.body)
+        assertEquals("country_not_exist",result?.body)
     }
 
     @Test
@@ -799,7 +799,7 @@ class BandControllerTest {
         val result=bandController.bandValidate(BandAddDto(name="Metallica",status=Status.ACTIVE,imageUrl="bad-url"))
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Image url can't be more than 255 characters and has to be valid URL",result?.body)
+        assertEquals("url_too_long",result?.body)
     }
 
     @Test
@@ -809,7 +809,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band formed year cannot be before 1901",result?.body)
+        assertEquals("formed_before_min",result?.body)
     }
 
     @Test
@@ -819,7 +819,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band disbanded year cannot be before 1901",result?.body)
+        assertEquals("disbanded_before_min",result?.body)
     }
 
     @Test
@@ -829,7 +829,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band disbanded year cannot be before formed year",result?.body)
+        assertEquals("disbanded_before_formed",result?.body)
     }
 
     @Test
@@ -839,7 +839,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band status must be disbanded if disbanded year is provided",result?.body)
+        assertEquals("inconsistent_status",result?.body)
     }
 
     @Test
@@ -873,7 +873,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Image url can't be more than 255 characters and has to be valid URL",result?.body)
+        assertEquals("url_too_long",result?.body)
     }
     //endregion
 
@@ -886,7 +886,7 @@ class BandControllerTest {
         val result=bandController.favoriteBand(1,request)
 
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Band favorite toggled successfully",result.body)
+        assertEquals("band_toggled",result.body)
         verify(bandService).toggleFavoriteBand(1,"user")
     }
 
@@ -1035,7 +1035,7 @@ class BandControllerTest {
         val result=bandController.addBandMember(member,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Member with id, role and joined year or left year already exists",result.body)
+        assertEquals("member_exists",result.body)
     }
 
     @Test
@@ -1240,7 +1240,7 @@ class BandControllerTest {
         val result=bandController.editBandMember(member,request)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Joined year can't be in the future",result.body)
+        assertEquals("joined_future",result.body)
     }
 
     @Test
@@ -1375,7 +1375,7 @@ class BandControllerTest {
         val result=bandController.memberValidate(member)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Artist has to be at least 10 years old when joining the band",result?.body)
+        assertEquals("artist_too_young_joining",result?.body)
     }
 
     @Test
@@ -1406,7 +1406,7 @@ class BandControllerTest {
         val result=bandController.memberValidate(member)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Left year can't be in the future",result?.body)
+        assertEquals("left_future",result?.body)
     }
 
     @Test
@@ -1420,7 +1420,7 @@ class BandControllerTest {
         val result=bandController.memberValidate(member)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Artist has to be alive when joining the band",result?.body)
+        assertEquals("artist_dead_joining",result?.body)
     }
 
     @Test
@@ -1434,7 +1434,7 @@ class BandControllerTest {
         val result=bandController.memberValidate(member)
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Artist has to leave the band when dying",result?.body)
+        assertEquals("artist_leave_when_dead",result?.body)
     }
 
     @Test
@@ -1472,7 +1472,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Artist with id 99 does not exist",result?.body)
+        assertEquals("artist_not_exist",result?.body)
     }
 
     @Test
@@ -1484,7 +1484,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Band with id 99 does not exist",result?.body)
+        assertEquals("band_not_exist",result?.body)
     }
 
     @Test
@@ -1509,7 +1509,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Nickname can't be longer than 255 characters",result?.body)
+        assertEquals("nickname_too_long",result?.body)
     }
 
     @Test
@@ -1519,7 +1519,7 @@ class BandControllerTest {
         )
 
         assertEquals(HttpStatus.BAD_REQUEST,result?.statusCode)
-        assertEquals("Role can't be longer than 20 characters. Input roles separately",result?.body)
+        assertEquals("role_too_long",result?.body)
     }
 
     @Test
@@ -1651,7 +1651,7 @@ class BandControllerTest {
                 content = objectMapper.writeValueAsString(bandAddDto)
             }.andExpect {
                 status { isOk() }
-                content { string("Band addition request received") }
+                content { string("band_addition_received") }
             }
 
             val band = bandRepository.findAll().find { it.name == "Metallica" }
@@ -1687,7 +1687,7 @@ class BandControllerTest {
                 content = objectMapper.writeValueAsString(memberAddDto)
             }.andExpect {
                 status { isOk() }
-                content { string("Band member addition request received") }
+                content { string("member_addition_received") }
             }
 
             val member = bandsMemberRepository.findAll().find { it.artist?.id == artist.id && it.band?.id == band.id }

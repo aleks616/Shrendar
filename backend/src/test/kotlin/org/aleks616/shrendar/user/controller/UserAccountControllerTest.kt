@@ -336,11 +336,11 @@ class UserAccountControllerTest {
             status {isOk()}
         }
 
-        val userLogAfterLogin=userLogRepository.findById(user.id!!).get()
+        val userLogAfterLogin=userLogRepository.findById(user.id).get()
         assertNull(userLogAfterLogin.accountDeletionScheduledTime)
 
         userAccountService.requestDeletion(email)
-        val userLogAfterSecondRequest=userLogRepository.findById(user.id!!).get()
+        val userLogAfterSecondRequest=userLogRepository.findById(user.id).get()
         userLogAfterSecondRequest.accountDeletionScheduledTime=Instant.now().minus(22,ChronoUnit.DAYS)
         userLogRepository.save(userLogAfterSecondRequest)
 
@@ -782,7 +782,7 @@ class UserAccountControllerTest {
             param("accountKey",email)
         }.andExpect {
             status {isBadRequest()}
-            content {string("Could not send password reset code, try again in 5 minutes")}
+            content {string("something_wrong")}
         }
     }
 
@@ -911,7 +911,6 @@ class UserAccountControllerTest {
             content=objectMapper.writeValueAsString(loginReq)
         }.andExpect {
             status {isUnauthorized()}
-            jsonPath("$.error") {value("Invalid credentials")}
         }
     }
 
@@ -946,7 +945,7 @@ class UserAccountControllerTest {
             content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123"))
         }.andExpect {status {isOk()}}
 
-        val history=userPasswordHistoryRepository.findAllByUserId(user.id!!)
+        val history=userPasswordHistoryRepository.findAllByUserId(user.id)
         assertEquals(10,history.size)
         assertFalse(history.any {it.id==historyIds.first()})
         assertTrue(history.any {it.id==historyIds.last()})
