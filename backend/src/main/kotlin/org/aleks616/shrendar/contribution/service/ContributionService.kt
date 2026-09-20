@@ -35,7 +35,7 @@ class ContributionService(
     @Transactional
     fun confirmDataChangeRequest(changeId:Long,confirmedUserLogin:String){
         val confirmingUser:User=userRepository.findByLogin(confirmedUserLogin)!!
-        if(confirmingUser.rank.id < 10) throw Exception("User's rank is too low to confirm contribution request")
+        if(confirmingUser.rank.id<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
         if(contributions.any{it.confirmed==true}){
             val previousConfirmingUser=userRepository.findUserById(contributions.first().confirmedBy!!)

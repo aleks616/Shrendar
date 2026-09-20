@@ -226,7 +226,7 @@ class ArtistControllerTest {
             mockMvc.get("/api/artist/birthdate?month=13&day=1")
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
+            "Request processing failed: java.lang.IllegalArgumentException: invalid_month_day",
             exception.message
         )
     }
@@ -351,7 +351,7 @@ class ArtistControllerTest {
             mockMvc.get("/api/artist/deathDate?month=2&day=30")
         }
         assertEquals(
-            "Request processing failed: java.lang.IllegalArgumentException: invalid month or day",
+            "Request processing failed: java.lang.IllegalArgumentException: invalid_month_day",
             exception.message
         )
     }

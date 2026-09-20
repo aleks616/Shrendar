@@ -124,9 +124,11 @@ struct RegisterView: View {
 			}
 			
 			do{
-				let registerAccount = RegisterAccount()
-				let registerRequest = RegisterRequest(login: login, displayName: login, email: email, password: password)
-				let result = try await registerAccount.register(request: registerRequest)
+				//let registerAccount = RegisterAccount()
+				let lang=Locale.current.language.languageCode ?? "EN"
+				let langCode:String=lang.identifier.uppercased()
+				let registerRequest = RegisterRequest(login: login, displayName: login, email: email, password: password,language:langCode)
+				let result = try await RegisterAccount().register(request: registerRequest)
 				print(result)
 				
 			}

@@ -22,7 +22,7 @@ class HomePageController(
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return homePageService.getUpcomingRandomArtistsBirthdays()
         }
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
 
         return homePageService.getUpcomingFavoriteArtistsBirthdays(userLogin)
@@ -33,7 +33,7 @@ class HomePageController(
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return homePageService.getUpcomingRandomArtistsDeathAnniversaries()
         }
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
 
         return homePageService.getUpcomingFavoriteArtistsDeathAnniversaries(userLogin)
@@ -44,7 +44,7 @@ class HomePageController(
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return homePageService.getUpcomingRandomAlbumAnniversaries()
         }
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
 
         return homePageService.getUpcomingFavoriteAlbumAnniversaries(userLogin)
@@ -55,7 +55,7 @@ class HomePageController(
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return homePageService.getTodayAnniversariesNoAuth()
         }
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
         return homePageService.getTodayAnniversaries(userLogin)
     }
@@ -65,7 +65,7 @@ class HomePageController(
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return emptyList()
         }
-        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
         return homePageService.getCommonBands(userLogin)
     }

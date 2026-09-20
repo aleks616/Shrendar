@@ -85,10 +85,10 @@ class BandController (
 
     @GetMapping("/foundedBetween")
     fun getBandsByFoundedBetween(@RequestParam startYear:Int?,@RequestParam endYear:Int?):List<BandDto>{
-        if(startYear==null && endYear==null) throw IllegalArgumentException("startYear and endYear cannot both be null")
-        if(startYear!=null && endYear!=null && startYear>endYear) throw IllegalArgumentException("startYear cannot be greater than endYear")
-        if(startYear!=null &&(startYear>LocalDate.now().year)) throw IllegalArgumentException("invalid startYear")
-        if(endYear!=null &&(endYear>LocalDate.now().year)) throw IllegalArgumentException("invalid endYear")
+        if(startYear==null && endYear==null) throw IllegalArgumentException("start_end_not_null")
+        if(startYear!=null && endYear!=null && startYear>endYear) throw IllegalArgumentException("start_before_end")
+        if(startYear!=null &&(startYear>LocalDate.now().year)) throw IllegalArgumentException("invalid_start_year")
+        if(endYear!=null &&(endYear>LocalDate.now().year)) throw IllegalArgumentException("invalid_end_year")
         return bandService.getBandsByFoundedBetween(startYear,endYear)
     }
 
@@ -116,27 +116,25 @@ class BandController (
             "on_hold"->Status.ON_HOLD
             "on hold"->Status.ON_HOLD
             "unknown"->Status.UNKNOWN
-            else->throw IllegalArgumentException("invalid status")
+            else->throw IllegalArgumentException("invalid_status")
         }
     }
 
     @PostMapping("/add")
     fun addBand(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
-        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
-        if(band.name.isNullOrEmpty())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least band name and status are required to add a new band")
-        if(band.status==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least band name and status are required to add a new band")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
+        if(band.name.isNullOrEmpty()||band.status==null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_band_add_data")
         if(bandValidate(band)!=null)
             return bandValidate(band)!!
 
@@ -147,31 +145,31 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band addition request received")
+        return ResponseEntity.ok("band_addition_received")
     }
 
     @PutMapping("/edit")
     fun editBand(@RequestBody band:BandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
-        if(band.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band ID is required")
+        if(band.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_id_required")
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(band.name.isNullOrEmpty()||band.status==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band name and status are required")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_band_edit_data")
         if(!bandService.doesBandExist(band.id!!))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id ${band.id} does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_not_exist")
         if(bandValidate(band)!=null)
             return bandValidate(band)!!
 
@@ -182,27 +180,27 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band edit request received")
+        return ResponseEntity.ok("band_edition_received")
     }
 
     @DeleteMapping("/delete")
     fun deleteBand(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!bandService.doesBandExist(id))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id $id does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_not_exist")
 
         try{
             bandService.deleteBandRequest(id,userLogin)
@@ -211,31 +209,31 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band deletion request received")
+        return ResponseEntity.ok("band_deletion_received")
     }
 
     @PostMapping("/member-add")
     fun addBandMember(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
-        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least artist id, band id, role and joined year are required")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_add_data")
         if(memberValidate(member)!=null)
             return memberValidate(member)!!
         if(bandService.doesSameMemberExist(member))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member with id, role and joined year or left year already exists")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_exists")
 
         try{
             bandsMemberService.addBandMember(member,userLogin)
@@ -244,30 +242,30 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band member addition request received")
+        return ResponseEntity.ok("member_addition_received")
     }
 
     @PutMapping("/member-edit")
     fun editBandMember(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
-        if(member.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member ID is required")
-        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+        if(member.id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_id_required")
+        val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Member id, artist id, band id, role and joined year are required")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_edit_data")
         if(!bandService.doesBandMemberExist(member.id!!))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id ${member.id} doesn't exists")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_not_exist")
         if(memberValidate(member)!=null)
             return memberValidate(member)!!
 
@@ -278,28 +276,28 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band member edit request received")
+        return ResponseEntity.ok("member_edition_received")
     }
 
 
     @DeleteMapping("/member-delete")
     fun deleteBandMember(@RequestParam id:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!bandsMemberService.doesBandMemberExist(id))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band member with id $id does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_not_exist")
 
         try{
             bandsMemberService.deleteBandMember(id,userLogin)
@@ -308,86 +306,86 @@ class BandController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Band deletion request received")
+        return ResponseEntity.ok("member_deletion_received")
     }
 
     @PostMapping("/favorite")
     fun favoriteBand(@RequestBody bandId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_HIGH,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_HIGH,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         if(!bandService.doesBandExist(bandId))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id $bandId does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_not_exist")
 
         try{
             bandService.toggleFavoriteBand(bandId,userLogin)
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
-        return ResponseEntity.ok("Band favorite toggled successfully")
+        return ResponseEntity.ok("band_toggled")
     }
 
     fun bandValidate(band:BandAddDto):ResponseEntity<String>?{
         if(band.formedYear!=null&&band.formedYear!!>LocalDate.now().year)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band formed year cannot be in the future")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("formed_year_future")
         if(band.disbandedYear!=null&&band.formedYear==null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band formed year is required if disbanded year is provided")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_formed")
         }
         if(band.formedYear!=null&&band.formedYear!!<1901)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band formed year cannot be before 1901")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("formed_before_min")
         if(band.disbandedYear!=null&&band.disbandedYear!!<1901)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band disbanded year cannot be before 1901")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("disbanded_before_min")
         if(band.formedYear!=null&&band.disbandedYear!=null&&band.formedYear!!>band.disbandedYear!!)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band disbanded year cannot be before formed year")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("disbanded_before_formed")
         if(band.disbandedYear!=null&&band.status!=Status.DISBANDED)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band status must be disbanded if disbanded year is provided")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("inconsistent_status")
         if(band.disbandedYear==null&&band.status==Status.DISBANDED)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Disbanded year is required if band status is disbanded")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_disbanded")
         if(band.country!=null&&!countryService.doesCountryExist(band.country!!))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Country with id ${band.country} does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("country_not_exist")
         if(band.imageUrl!=null&&(band.imageUrl!!.length>255||!Utils.isValidUrl(band.imageUrl!!)))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Image url can't be more than 255 characters and has to be valid URL")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("url_too_long")
 
         return null
     }
 
     fun memberValidate(member:ArtistBandAddDto):ResponseEntity<String>?{
         if(member.joinedYear!=null&&member.joinedYear!!>LocalDate.now().year)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Joined year can't be in the future")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("joined_future")
         if(member.leftYear!=null&&member.leftYear!!>LocalDate.now().year)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Left year can't be in the future")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("left_future")
         if(member.leftYear!=null&&member.joinedYear!!>member.leftYear!!)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Left year has to be the same or greater than joined year")
 
         if(member.artistId!=null&&!artistService.doesArtistExist(member.artistId!!)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist with id ${member.artistId} does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("artist_not_exist")
         }
         if(member.bandId!=null&&!bandService.doesBandExist(member.bandId!!)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Band with id ${member.bandId} does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("band_not_exist")
         }
         val artistId:Long=if(member.artistId!=null) member.artistId!!
             else bandService.getBandMemberById(member.bandId!!).artist!!.id!!
 
         val artist=artistService.getById(artistId)
         if(member.joinedYear!=null&&artist.birthDate!=null&&artist.birthDate!!.year+10>member.joinedYear!!)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to be at least 10 years old when joining the band")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("artist_too_young_joining")
         if(member.joinedYear!=null&&artist.deathDate!=null&&artist.deathDate!!.year<member.joinedYear!!)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to be alive when joining the band")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("artist_dead_joining")
         if(artist.deathDate!=null&&member.leftYear!=null&&artist.deathDate!!.year<member.leftYear!!)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Artist has to leave the band when dying")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("artist_leave_when_dead")
         if(member.nickname!=null&&member.nickname!!.length>255)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nickname can't be longer than 255 characters")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("nickname_too_long")
         if(member.role!=null&&member.role!!.length>20)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role can't be longer than 20 characters. Input roles separately")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("role_too_long")
 
         return null
     }

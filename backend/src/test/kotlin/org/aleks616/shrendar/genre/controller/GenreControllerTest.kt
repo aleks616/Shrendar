@@ -100,7 +100,7 @@ class GenreControllerTest {
         val result=controller.favoriteGenre(1,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
         verifyNoInteractions(genreService)
     }
 
@@ -111,7 +111,7 @@ class GenreControllerTest {
         val result=controller.favoriteGenre(1,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
         verify(genreService,never()).doesGenreExist(anyInt())
     }
 
@@ -135,6 +135,6 @@ class GenreControllerTest {
         val result=controller.favoriteGenre(1,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: broken",result.body)
+        assertEquals("unexpected_error: broken",result.body)
     }
 }

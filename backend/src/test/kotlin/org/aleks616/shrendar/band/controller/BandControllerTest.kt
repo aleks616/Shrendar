@@ -451,7 +451,7 @@ class BandControllerTest {
         val result=bandController.addBand(validBandDto,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
     }
 
     @Test
@@ -461,7 +461,7 @@ class BandControllerTest {
         val result=bandController.addBand(validBandDto,request)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
     }
 
     @Test
@@ -528,7 +528,7 @@ class BandControllerTest {
         val result=bandController.addBand(validBandDto,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
     //endregion
 
@@ -660,7 +660,7 @@ class BandControllerTest {
         val result=bandController.editBand(band,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
 
     //endregion
@@ -752,7 +752,7 @@ class BandControllerTest {
         val result=bandController.deleteBand(1,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
 
     //endregion
@@ -947,7 +947,7 @@ class BandControllerTest {
         val result=bandController.favoriteBand(1,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
     //endregion
 
@@ -1014,7 +1014,7 @@ class BandControllerTest {
         val result=bandController.addBandMember(member,request)
 
         assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        assertEquals("you_are_banned",result.body)
         verify(bandService,never()).doesSameMemberExist(member)
         verifyNoInteractions(bandsMemberService)
     }
@@ -1094,7 +1094,7 @@ class BandControllerTest {
         val result=bandController.addBandMember(member,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
 
     //endregion
@@ -1172,7 +1172,7 @@ class BandControllerTest {
         val result=bandController.editBandMember(member,request)
 
         assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        assertEquals("you_are_banned",result.body)
         verify(bandService,never()).doesBandMemberExist(10L)
         verifyNoInteractions(bandsMemberService)
     }
@@ -1266,7 +1266,7 @@ class BandControllerTest {
         val result=bandController.editBandMember(member,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
     //endregion
 
@@ -1327,7 +1327,7 @@ class BandControllerTest {
         val result=bandController.deleteBandMember(1,request)
 
         assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
-        assertEquals("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.",result.body)
+        assertEquals("you_are_banned",result.body)
         verifyNoInteractions(bandsMemberService)
     }
 
@@ -1361,7 +1361,7 @@ class BandControllerTest {
         val result=bandController.deleteBandMember(1L,request)
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("An unexpected error occurred: boom",result.body)
+        assertEquals("unexpected_error: boom",result.body)
     }
 
     //endregion

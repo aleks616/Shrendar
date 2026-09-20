@@ -26,17 +26,17 @@ class EventController(
     @PostMapping("/add")
     fun addEvent(@RequestBody event:EventAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(validateEvent(event)!=null)
             return validateEvent(event)!!
 
@@ -47,30 +47,30 @@ class EventController(
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Event addition request received")
+        return ResponseEntity.ok("event_addition_received")
     }
 
     @PutMapping("/edit")
     fun editEvent(@RequestBody event:EventAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(event.id==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event id is required")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("event_id_required")
         if(!eventService.doesEventExist(event.id))
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Event with id ${event.id} does not exist")
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("event_not_exist")
         if(validateEvent(event)!=null)
             return validateEvent(event)!!
 
@@ -81,28 +81,28 @@ class EventController(
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error ${e.message}")
         }
 
-        return ResponseEntity.ok("Event edit request received")
+        return ResponseEntity.ok("event_edition_received")
     }
 
     @DeleteMapping("/delete")
     fun deleteEvent(@RequestParam id:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         if(userBanService.isBanned(userLogin))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You're banned, your site access is view-only. If you think this is a mistake, file an appeal.")
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(!eventService.doesEventExist(id))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event with id $id does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("event_not_exist")
 
         try{
             eventService.deleteEventRequest(id,userLogin)
@@ -111,21 +111,21 @@ class EventController(
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Event deletion request received")
+        return ResponseEntity.ok("event_delete_received")
     }
 
     fun validateEvent(event:EventAddDto):ResponseEntity<String>?{
         if(event.bandId==null||event.bandId<1||event.date==null||event.name.isNullOrEmpty())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("At least band, date and name are required to add an event")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_event_add_data")
         if(event.name.length>120)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event name must be shorter than 120 characters long")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("event_name_too_long")
         if(event.date.isAfter(LocalDate.now().plusYears(2)))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event date must be in the past or up to 2 years in the future")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid_event_date")
         if(!bandService.doesBandExist(event.bandId))
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("Band with id ${event.bandId} does not exist")
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("band_not_exist")
         return null
     }
 }
