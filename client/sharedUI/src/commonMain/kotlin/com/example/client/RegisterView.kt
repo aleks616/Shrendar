@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,7 +106,9 @@ fun RegisterView() {
                         autoCorrectEnabled=false,
                         keyboardType=KeyboardType.Password,
                         imeAction=ImeAction.Done
-                    )
+                    ),
+                    visualTransformation=VisualTransformation.None,
+
                 )
                 errorTextKey?.let{key->
                     Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
