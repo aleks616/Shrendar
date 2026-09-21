@@ -163,7 +163,7 @@ struct RegisterView: View {
 //	}
 	
 	func localize(key:String) -> String{
-		return LocalText().getString(resourceKey: key).localized()
+		return LocalText().getStringDesc(resourceKey: key).localized()
 	}
 }
 
