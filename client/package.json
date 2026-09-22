@@ -4,6 +4,7 @@
   "private": true,
   "workspaces": [
     "webApp",
+    "shrendar",
     "sharedLogic/build/dist/js/developmentLibrary"
   ],
   "scripts": {

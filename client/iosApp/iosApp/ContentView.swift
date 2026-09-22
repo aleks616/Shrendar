@@ -3,7 +3,7 @@ import SharedLogic
 
 struct ContentView: View {
     @State private var showContent = false
-   let greet = LocalText().getString(resourceKey: "greeting").localized()
+   let greet = LocalText().getStringDesc(key: "greeting").localized()
     var body: some View {
         VStack {
             Button("Click me!") {

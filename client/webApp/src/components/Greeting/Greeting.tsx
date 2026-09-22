@@ -5,7 +5,7 @@ import {LocalText} from 'sharedLogic'
 import type {AnimationEvent} from 'react'
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 export function Greeting(){
-    const greeting1 = new LocalText().getString("greeting")
+    const greeting1 = new LocalText().getStringDesc("greeting")
     const [isVisible,setIsVisible]=useState<boolean>(false)
     const [isAnimating,setIsAnimating]=useState<boolean>(false)
     const handleClick=() => {
