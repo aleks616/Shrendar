@@ -12,3 +12,5 @@ class JsPlatform:Platform {
 }
 
 actual fun getPlatform():Platform=JsPlatform()
+
+actual val BASE_URL:String="/api"

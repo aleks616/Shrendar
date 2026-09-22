@@ -1,8 +1,12 @@
 package com.example.client.register
 
 import kotlinx.serialization.Serializable
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
 @Serializable
+@OptIn(ExperimentalJsExport::class)
+@JsExport
 data class RegisterRequest(
     val login: String,
     val displayName: String,

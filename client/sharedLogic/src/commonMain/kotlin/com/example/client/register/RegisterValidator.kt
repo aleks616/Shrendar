@@ -10,7 +10,7 @@ class RegisterValidator {
     suspend fun validateLogin(login:String):String? {
         if(login.length<5) return "login_too_short"
         if(login.length>25) return "login_too_long"
-        if(RegisterApi.doesLoginExist(login)) return "login_already_exists"
+        if(RegisterClient.doesLoginExist(login)) return "login_already_exists"
         return null
     }
 
@@ -25,7 +25,7 @@ class RegisterValidator {
             ")+"
         )
         if(!email.matches(emailAddressRegex)) return "email_invalid"
-        if(RegisterApi.doesEmailExist(email)) return "email_already_exists"
+        if(RegisterClient.doesEmailExist(email)) return "email_already_exists"
         return null
     }
 

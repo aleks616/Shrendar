@@ -7,3 +7,5 @@ class AndroidPlatform:Platform {
 }
 
 actual fun getPlatform():Platform=AndroidPlatform()
+
+actual val BASE_URL:String="https://shrendar.shares.zrok.io/api"

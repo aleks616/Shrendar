@@ -1,12 +1,13 @@
 import './Register.css'
 import {getLanguage} from "../getLanguage.ts";
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Separator} from '@heroui/react';
-import {RegisterAccount,RegisterValidator} from "sharedLogic";
+import {RegisterClient,RegisterRequest,RegisterValidator} from "sharedLogic";
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json';
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json';
 import {useState} from "react";
 import type {FormEvent} from "react";
 
+//GenreClient.getInstance().getAll().then((genres)=>console.log(genres))
 export function Register(){
     const lang=getLanguage().toUpperCase()
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
@@ -46,7 +47,8 @@ export function Register(){
             }
 
             setErrorKey(null)
-            await new RegisterAccount().register({login,displayName:login,email,password,lang})
+            const registerRequest=new RegisterRequest(login,login,email,password,lang)
+            await RegisterClient.getInstance().register(registerRequest)
         }
         catch(e){
             console.log(e)

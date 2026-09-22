@@ -11,5 +11,13 @@ export default defineConfig({
         outDir: 'dist',
         emptyOutDir: true,
     },
-    server: {port: 8080},
+    server: {
+        port: 8080,
+        proxy: {
+            '/api': {
+                target: 'https://shrendar.shares.zrok.io',
+                changeOrigin: true,
+            },
+        },
+    },
 });

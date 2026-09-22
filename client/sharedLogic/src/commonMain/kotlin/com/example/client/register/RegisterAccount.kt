@@ -7,6 +7,6 @@ import kotlin.js.JsExport
 @JsExport
 class RegisterAccount {
     suspend fun register(request:RegisterRequest):String{
-        return RegisterApi.register(request)
+        return RegisterClient.register(request)
     }
 }
