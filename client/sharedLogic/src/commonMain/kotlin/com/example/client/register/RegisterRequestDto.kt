@@ -7,7 +7,7 @@ import kotlin.js.JsExport
 @Serializable
 @OptIn(ExperimentalJsExport::class)
 @JsExport
-data class RegisterRequest(
+data class RegisterRequestDto(
     val login: String,
     val displayName: String,
     val email: String,

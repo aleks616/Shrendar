@@ -1,7 +1,7 @@
 import './Register.css'
 import {getLanguage} from "../getLanguage.ts";
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Separator} from '@heroui/react';
-import {RegisterClient,RegisterRequest,RegisterValidator} from "sharedLogic";
+import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic";
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json';
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json';
 import {useState} from "react";
@@ -47,7 +47,7 @@ export function Register(){
             }
 
             setErrorKey(null)
-            const registerRequest=new RegisterRequest(login,login,email,password,lang)
+            const registerRequest=new RegisterRequestDto(login,login,email,password,lang)
             await RegisterClient.getInstance().register(registerRequest)
         }
         catch(e){

@@ -1,43 +1,62 @@
 package com.example.client.register
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.parameter
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import com.example.client.BASE_URL
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
-object RegisterApi {
-    const val BASE_URL="https://shrendar.shares.zrok.io/api/user-account"
-    private val client:HttpClient=HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys=true
-            })
-        }
-    }
 
+class RegisterApi private constructor(
+    private val baseUrl:String,
+    private val client:HttpClient
+) {
+    constructor():this(BASE_URL,createHttpClient())
+    constructor(baseUrl:String):this(baseUrl,createHttpClient())
     suspend fun doesEmailExist(email:String):Boolean {
-        return client.get("$BASE_URL/emailCheck") {
+        return client.get("$BASE_URL/user-account/emailCheck") {
             parameter("email",email)
         }.body()
     }
 
     suspend fun doesLoginExist(login:String):Boolean {
-        return client.get("$BASE_URL/loginCheck") {
+        return client.get("$BASE_URL/user-account/loginCheck") {
             parameter("login",login)
         }.body()
     }
 
-    suspend fun register(request:RegisterRequest):String {
-        return client.post("$BASE_URL/register") {
+    suspend fun register(request:RegisterRequestDto):String {
+        return client.post("$BASE_URL/user-account/register") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
+
+    companion object {
+        private fun createHttpClient()=HttpClient {
+            expectSuccess=true
+            install(DefaultRequest) {
+                header("skip_zrok_interstitial", "1")
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys=true
+                })
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+object RegisterClient{
+    suspend fun doesEmailExist(email:String):Boolean=RegisterApi().doesEmailExist(email)
+    suspend fun doesLoginExist(login:String):Boolean=RegisterApi().doesLoginExist(login)
+    suspend fun register(request:RegisterRequestDto):String=RegisterApi().register(request)
 }

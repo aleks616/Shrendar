@@ -11,13 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.client.register.RegisterAccount
-import com.example.client.register.RegisterRequest
+import com.example.client.register.RegisterClient
+import com.example.client.register.RegisterRequestDto
 import com.example.client.register.RegisterValidator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
@@ -52,8 +51,8 @@ fun RegisterView() {
 
     suspend fun register(){
         val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
-        val registerRequest=RegisterRequest(login=login,displayName=login,email=email,password=password,language=language)
-        val result=RegisterAccount().register(registerRequest)
+        val registerRequestDto=RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
+        val result=RegisterClient.register(registerRequestDto)
         println(result)
     }
 
