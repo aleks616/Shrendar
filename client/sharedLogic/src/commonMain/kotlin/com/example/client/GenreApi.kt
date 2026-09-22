@@ -2,8 +2,10 @@ package com.example.client
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -27,14 +29,15 @@ class GenreApi private constructor(
     constructor(baseUrl:String):this(baseUrl,createHttpClient())
 
     suspend fun getAll():List<Genre> {
-        return client.get("$baseUrl/api/genre/all").body()
+        return client.get("$baseUrl/genre/all").body()
     }
 
     companion object {
-        const val BASE_URL="https://shrendar.shares.zrok.io/api/user-account"
-
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
+            install(DefaultRequest) {
+                header("skip_zrok_interstitial", "1")
+            }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys=true
