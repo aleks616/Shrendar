@@ -6,6 +6,8 @@ import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import java.io.File
+import java.util.Locale
+import java.util.Locale.getDefault
 
 @Service
 class EmailService(

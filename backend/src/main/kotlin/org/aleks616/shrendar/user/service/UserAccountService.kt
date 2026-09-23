@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.user.service
 
+import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -103,7 +104,8 @@ class UserAccountService(
         if(!registrationCodeStorage.canSendCode(req.email)) return false
         val code=CodeGenerator.generateCode(numericOnly=true)
         registrationCodeStorage.storeCode(req.email,code)
-        emailService.sendVerificationCode(req.email,code)
+        //string to supported languages
+        emailService.sendVerificationCode(req.email,code,req.language?:SupportedLanguages.EN)
         return true
     }
 
@@ -125,7 +127,7 @@ class UserAccountService(
             passwordChangedTime=Instant.now()
         })
 
-        emailService.sendAccountCreatedMessage(req.email)
+        emailService.sendAccountCreatedMessage(req.email,req.language?:SupportedLanguages.EN)
         return true
     }
 
