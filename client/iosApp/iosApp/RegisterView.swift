@@ -30,6 +30,7 @@ struct RegisterView: View {
 	@State private var codeSent: Bool = false
 	@State private var timerOn: Bool = false
 	@State private var resendCountdown: Int = 60
+	@State private var confirmed: Bool = false
 
 	let timer: Timer.TimerPublisher = Timer.publish(
 		every: 1.0,
@@ -107,7 +108,7 @@ struct RegisterView: View {
 			}.buttonStyle(.glass)
 				.disabled(
 					email.isEmpty || login.isEmpty || password.isEmpty
-						|| confirmPassword.isEmpty || (resendCountdown > 0 && codeSent )
+						|| confirmPassword.isEmpty || (resendCountdown > 0 && codeSent ) || confirmed
 				)
 
 			if codeSent {
@@ -124,7 +125,9 @@ struct RegisterView: View {
 				}
 				.buttonStyle(.glass)
 				.disabled(code.count<6)
-				
+			}
+			if confirmed {
+				Text("Your account has been confirmed. You can log into your account")
 			}
 
 			LabelledDivider(label: localize(key: "or"))
@@ -145,8 +148,8 @@ struct RegisterView: View {
 			//				}
 			//			}.frame(width: 280, height: 45)
 
-			Text(localize(key: "special_sign_in_later"))
-			Spacer()
+			//Text(localize(key: "special_sign_in_later"))
+			//Spacer()
 			HStack {
 				Text(localize(key: "already_have_account"))
 				Button(localize(key: "sign_in")) {}
@@ -168,29 +171,6 @@ struct RegisterView: View {
 				}
 			}
 		)
-	}
-	
-	func confirmAccount() {
-		Task{
-			do {
-				timerOn = false
-				let langCode: String = lang.identifier.uppercased()
-				let registerRequest = RegisterRequestDto(
-					login: login,
-					displayName: login,
-					email: email,
-					password: password,
-					language: langCode
-				)
-				let result1 = try await RegisterClient().registerConfirm(request: registerRequest, code: code)
-				print(result1)
-				
-			}
-			catch let error {
-				print(error)
-				return
-			}
-		}
 	}
 	
 	func validateFields() {
@@ -253,6 +233,36 @@ struct RegisterView: View {
 					timerOn = true
 				}
 
+			}
+			catch let error {
+				print(error)
+				return
+			}
+		}
+	}
+	
+	func confirmAccount() {
+		Task{
+			do {
+				timerOn = false
+				codeSent = false
+				let langCode: String = lang.identifier.uppercased()
+				let registerRequest = RegisterRequestDto(
+					login: login,
+					displayName: login,
+					email: email,
+					password: password,
+					language: langCode
+				)
+				let confirmationResult = try await RegisterClient().registerConfirm(request: registerRequest, code: code)
+				print(confirmationResult)
+				if confirmationResult == "account_created"{
+					confirmed = true
+				}
+				else {
+					errorText=localize(key: confirmationResult)
+				}
+				
 			}
 			catch let error {
 				print(error)
