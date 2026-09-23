@@ -146,4 +146,5 @@
     <string name="confirm_account">Confirm account</string>
     <string name="done">Done</string>
     <string name="invalid_code">Invalid code</string>
+    <string name="no_code">Didn't receive the code?</string>
 </resources>

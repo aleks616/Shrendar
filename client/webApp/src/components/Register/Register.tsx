@@ -1,6 +1,6 @@
 import './Register.css'
 import {getLanguage} from "../getLanguage.ts";
-import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP} from '@heroui/react';
+import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REGEXP_ONLY_DIGITS} from '@heroui/react';
 import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic";
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json';
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json';
@@ -49,14 +49,13 @@ export function Register(){
                 setErrorKey("invalid_password")
                 return
             }
-
             setErrorKey(null)
+            setCodeSent(true)
+            setTimerOn(true)
             const registerRequest=new RegisterRequestDto(login,login,email,password,lang)
             const result=await RegisterClient.getInstance().register(registerRequest)
             if(result=="verification_code_sent"){
                 setErrorKey(null)
-                setCodeSent(true)
-                setTimerOn(true)
                 setResendCountdown(60)
             }
             else if(result=="something_wrong"){
@@ -125,21 +124,27 @@ export function Register(){
                     <Button isDisabled={email.length===0||login.length===0||password.length===0||repeatPassword.length===0||confirmed||(resendCountdown>0&&codeSent)}
                         onPress={createAccount}>{translate("sign_up")}</Button>
                 </div>
-                {codeSent&&<>
+
+                {(codeSent&&!confirmed)&&<>
                 <p>{translate("verification_code_sent")}</p>
-                    {timerOn&&<p>
-                        {translate("resend_code_in")} {resendCountdown}
-                    </p>
-                    }
                     <div className={"flex justify-center gap-1"}>
-                        <p>Didn't receive the code? </p>
+                        <p>{translate("no_code")} </p>
                         <Link onPress={createAccount} isDisabled={resendCountdown>0}>
-                            {translate("resend_code")}
+                            <span>{timerOn?translate("resend_code_in"):translate("resend_code")}&nbsp;</span>
+                            {timerOn&&<span>{resendCountdown}</span>}
                         </Link>
                     </div>
 
                     <div className={"flex justify-center"}>
-                        <InputOTP maxLength={6}>
+                        <InputOTP
+                            pattern={REGEXP_ONLY_DIGITS}
+                            value={code}
+                            onChange={(val) => {
+                                setCode(val)
+                            }}
+                            className="w-fit"
+                            maxLength={6}
+                        >
                             <InputOTP.Group>
                                 <InputOTP.Slot index={0} />
                                 <InputOTP.Slot index={1} />
