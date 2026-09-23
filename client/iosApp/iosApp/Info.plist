@@ -18,12 +18,10 @@
 			</array>
 		</dict>
 	</array>
-	<key>CFBundleIdentifier</key>
-	<string></string>
-	<key>NSA</key>
-	<string></string>
 	<key>GIDClientID</key>
 	<string>13978966379-0c8s74s07n6mggje95k7edbjpanqli13.apps.googleusercontent.com</string>
+	<key>NSA</key>
+	<string></string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>

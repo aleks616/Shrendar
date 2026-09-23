@@ -38,6 +38,14 @@ class RegisterApi private constructor(
         }.body()
     }
 
+    suspend fun registerConfirm(request:RegisterRequestDto,code:String):String {
+        return client.post("$BASE_URL/user-account/register/confirm") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+            parameter("code",code)
+        }.body()
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -59,4 +67,5 @@ object RegisterClient{
     suspend fun doesEmailExist(email:String):Boolean=RegisterApi().doesEmailExist(email)
     suspend fun doesLoginExist(login:String):Boolean=RegisterApi().doesLoginExist(login)
     suspend fun register(request:RegisterRequestDto):String=RegisterApi().register(request)
+    suspend fun registerConfirm(request:RegisterRequestDto,code:String):String=RegisterApi().registerConfirm(request,code)
 }
