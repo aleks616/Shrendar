@@ -6,6 +6,8 @@ import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import java.io.File
+import java.util.Locale
+import java.util.Locale.getDefault
 
 @Service
 class EmailService(
@@ -14,7 +16,8 @@ class EmailService(
     fun sendVerificationCode(email:String,code:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/verificationCode-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/verificationCode-$lang.html").readText()
             .replace($$"$code",code)
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Confirm your e-mail address"
@@ -27,7 +30,8 @@ class EmailService(
     fun sendAccountCreatedMessage(email:String,language:SupportedLanguages=SupportedLanguages.EN) {
         val address=email.trim()
         InternetAddress(address).apply {validate()}
-        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountVerified-$language.html").readText()
+        val lang=language.toString().lowercase()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountVerified-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account Created"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))

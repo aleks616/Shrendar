@@ -101,7 +101,7 @@ class UserAccountService(
         if(req.login=="anonymousUser") return false
         if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
         if(!registrationCodeStorage.canSendCode(req.email)) return false
-        val code=CodeGenerator.generateCode()
+        val code=CodeGenerator.generateCode(numericOnly=true)
         registrationCodeStorage.storeCode(req.email,code)
         emailService.sendVerificationCode(req.email,code)
         return true
