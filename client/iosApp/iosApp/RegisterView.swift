@@ -10,13 +10,44 @@ import GoogleSignIn
 import GoogleSignInSwift
 import SharedLogic
 import SwiftUI
+import SwiftUIOTPEntry
 
 struct RegisterView: View {
+	let lang = Locale.current.language.languageCode ?? "EN"
+	private enum Field: Int, CaseIterable {
+		case email,login,password,confirmPassword
+	}
 	@State private var email: String = ""
 	@State private var login: String = ""
 	@State private var password: String = ""
 	@State private var confirmPassword: String = ""
+	@State private var code: String = ""
+	
+	@FocusState private var focusedField: Field?
+	@State var isDismissKeyboard: Bool = false
+	
 	@State private var errorText: String? = ""
+	@State private var codeSent: Bool = false
+	@State private var timerOn: Bool = false
+	@State private var resendCountdown: Int = 60
+
+	let timer: Timer.TimerPublisher = Timer.publish(
+		every: 1.0,
+		on: .main,
+		in: .common
+	)
+	
+	let model: ModelUISwiftUIOTPEntry = .init(
+		font: .systemFont(ofSize: 20),
+		textAccessibilityForEmptyBox: "Empty box",
+		textAccessibilityPosition: "Position",
+		count: 6,
+		spacing: 8,
+		colorFocused: .red,
+		colorEmpty: .gray,
+		colorFill: .green,
+		size: 50
+	)
 
 	var body: some View {
 		VStack {
@@ -33,6 +64,7 @@ struct RegisterView: View {
 				.keyboardType(.emailAddress)
 				.textContentType(.emailAddress)
 				.font(.system(size: 24.0))
+				.focused($focusedField, equals: .email)
 				.autocorrectionDisabled()
 
 				TextField(
@@ -41,6 +73,7 @@ struct RegisterView: View {
 				)
 				.textContentType(.username)
 				.font(.system(size: 24.0))
+				.focused($focusedField, equals: .login)
 				.autocorrectionDisabled()
 
 				SecureField(
@@ -48,6 +81,7 @@ struct RegisterView: View {
 					text: $password
 				)
 				.textContentType(.password)
+				.focused($focusedField, equals: .password)
 				.font(.system(size: 24.0))
 
 				SecureField(
@@ -55,18 +89,43 @@ struct RegisterView: View {
 					text: $confirmPassword
 				)
 				.textContentType(.password)
+				.focused($focusedField, equals: .confirmPassword)
 				.font(.system(size: 24.0))
 
+			}.toolbar {
+				ToolbarItem(placement: .keyboard) {
+					Button("Done") {
+						focusedField = nil
+					}
+				}
 			}
+			
 			Text(errorText ?? "").foregroundStyle(.red)
 
-			Button(action: createAccount) {
+			Button(action: validateFields) {
 				Text(localize(key: "sign_up"))
 			}.buttonStyle(.glass)
 				.disabled(
 					email.isEmpty || login.isEmpty || password.isEmpty
-						|| confirmPassword.isEmpty
+						|| confirmPassword.isEmpty || (resendCountdown > 0 && codeSent )
 				)
+
+			if codeSent {
+				Text(localize(key: "verification_code_sent"))
+				Text("resend code in \(resendCountdown)")
+				Button(action: createAccount){
+					Text("Resend code")
+				}
+				.disabled(resendCountdown > 0)
+				
+				ViewSwiftUIOTPEntry(model: model, number: $code, isDismissKeyboard: $isDismissKeyboard)
+				Button(action:confirmAccount){
+					Text("confirm account")
+				}
+				.buttonStyle(.glass)
+				.disabled(code.count<6)
+				
+			}
 
 			LabelledDivider(label: localize(key: "or"))
 			//			GoogleSignInButton(
@@ -95,10 +154,47 @@ struct RegisterView: View {
 
 		}
 		.padding(.top, 15)
+		.onReceive(
+			timer.autoconnect(),
+			perform: { _ in
+				if timerOn {
+					if resendCountdown > 0 {
+						resendCountdown = resendCountdown - 1
+					}
+					else {
+						resendCountdown = 60
+						timerOn = false
+					}
+				}
+			}
+		)
 	}
-
-	func createAccount() {
-		Task {
+	
+	func confirmAccount() {
+		Task{
+			do {
+				timerOn = false
+				let langCode: String = lang.identifier.uppercased()
+				let registerRequest = RegisterRequestDto(
+					login: login,
+					displayName: login,
+					email: email,
+					password: password,
+					language: langCode
+				)
+				let result1 = try await RegisterClient().registerConfirm(request: registerRequest, code: code)
+				print(result1)
+				
+			}
+			catch let error {
+				print(error)
+				return
+			}
+		}
+	}
+	
+	func validateFields() {
+		Task{
 			let registerValidator = RegisterValidator()
 			do {
 				let loginValid = try await registerValidator.validateLogin(
@@ -108,7 +204,7 @@ struct RegisterView: View {
 					errorText = localize(key: loginValid!)
 					return
 				}
-
+				
 				let emailValid = try await registerValidator.validateEmail(
 					email: email
 				)
@@ -116,12 +212,12 @@ struct RegisterView: View {
 					errorText = localize(key: emailValid!)
 					return
 				}
-
+				
 				if password != confirmPassword {
 					errorText = localize(key: "passwords_dont_match")
 					return
 				}
-
+				
 				let passwordValid = registerValidator.isPasswordValid(
 					password: password
 				)
@@ -134,9 +230,13 @@ struct RegisterView: View {
 				print(error)
 				return
 			}
+			createAccount()
+		}
+	}
 
+	func createAccount() {
+		Task {
 			do {
-				let lang = Locale.current.language.languageCode ?? "EN"
 				let langCode: String = lang.identifier.uppercased()
 				let registerRequest = RegisterRequestDto(
 					login: login,
@@ -148,9 +248,13 @@ struct RegisterView: View {
 				let result = try await RegisterClient().register(
 					request: registerRequest
 				)
-				print(result)
+				if result == "verification_code_sent" {
+					codeSent = true
+					timerOn = true
+				}
 
-			} catch let error {
+			}
+			catch let error {
 				print(error)
 				return
 			}
