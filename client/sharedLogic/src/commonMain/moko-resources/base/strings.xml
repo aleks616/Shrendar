@@ -72,7 +72,7 @@
     <string name="invalid_status">Invalid status</string>
     <string name="missing_band_add_data">At least band name and status are required to add a new band</string>
     <string name="band_addition_received">Band addition request received</string>
-    <string name="band_id_required">Band Id is required</string>
+    <string name="band_id_required">Band id is required</string>
     <string name="missing_band_edit_data">Band name and status are required</string>
     <string name="band_edition_received">Band edit request received</string>
     <string name="band_deletion_received">Band deletion request received</string>
@@ -137,8 +137,12 @@
     <string name="usernamed_change_limit">Username has been changed in last 90 days</string>
     <string name="username_taken">New username taken</string>
     <string name="logged_out">Logged out</string>
-    <string name="no_token">No toke provided</string>
-    <string name="account_created">Account created and verified</string>
+    <string name="no_token">No token provided</string>
+    <string name="account_created">Your account has been created. You can log into your account</string>
     <string name="invalid_credentials">Invalid credentials</string>
-    <string name="password_changed">Password changed succesfully</string>
+    <string name="password_changed">Password changed successfully</string>
+    <string name="resend_code_in">Resend code in </string>
+    <string name="resend_code">Resend code</string>
+    <string name="confirm_account">Confirm account</string>
+    <string name="done">Done</string>
 </resources>
