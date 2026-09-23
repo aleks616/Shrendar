@@ -149,6 +149,7 @@ class LocalText {
             "resend_code"->MR.strings.resend_code
             "confirm_account"->MR.strings.confirm_account
             "done"->MR.strings.done
+            "invalid_code"->MR.strings.invalid_code
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

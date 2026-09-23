@@ -141,8 +141,9 @@
     <string name="account_created">Your account has been created. You can log into your account</string>
     <string name="invalid_credentials">Invalid credentials</string>
     <string name="password_changed">Password changed successfully</string>
-    <string name="resend_code_in">Resend code in </string>
+    <string name="resend_code_in">Resend code in</string>
     <string name="resend_code">Resend code</string>
     <string name="confirm_account">Confirm account</string>
     <string name="done">Done</string>
+    <string name="invalid_code">Invalid code</string>
 </resources>

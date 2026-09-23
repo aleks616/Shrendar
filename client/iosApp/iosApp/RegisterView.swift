@@ -113,8 +113,10 @@ struct RegisterView: View {
 
       if codeSent {
         Text(localize(key: "verification_code_sent"))
-        Text("\(localize(key: "resend_code_in")) \(resendCountdown)")
-        Button(action: createAccount) {
+			if timerOn {
+				Text("\(localize(key: "resend_code_in")) \(resendCountdown)")
+			}
+        Button(action: validateFields) {
           Text(localize(key: "resend_code"))
         }
         .disabled(resendCountdown > 0)
@@ -167,8 +169,8 @@ struct RegisterView: View {
         if timerOn {
           if resendCountdown > 0 {
             resendCountdown = resendCountdown - 1
-          } else {
-            resendCountdown = 60
+          }
+			  else {
             timerOn = false
           }
         }
@@ -208,7 +210,8 @@ struct RegisterView: View {
           errorText = localize(key: "invalid_password")
         }
         errorText = ""
-      } catch let error {
+      }
+		 catch let error {
         print(error)
         return
       }
@@ -231,11 +234,16 @@ struct RegisterView: View {
           request: registerRequest
         )
         if result == "verification_code_sent" {
+			  errorText = ""
           codeSent = true
           timerOn = true
         }
+			else if result == "something_wrong" {
+				errorText = localize(key: "something_wrong")
+			}
 
-      } catch let error {
+      }
+		 catch let error {
         print(error)
         return
       }
@@ -245,8 +253,6 @@ struct RegisterView: View {
   func confirmAccount() {
     Task {
       do {
-        timerOn = false
-        codeSent = false
         let langCode: String = lang.identifier.uppercased()
         let registerRequest = RegisterRequestDto(
           login: login,
@@ -260,11 +266,15 @@ struct RegisterView: View {
         print(confirmationResult)
         if confirmationResult == "account_created" {
           confirmed = true
-        } else {
+			  timerOn = false
+			  codeSent = false
+        }
+			else {
           errorText = localize(key: confirmationResult)
         }
 
-      } catch let error {
+      }
+		 catch let error {
         print(error)
         return
       }

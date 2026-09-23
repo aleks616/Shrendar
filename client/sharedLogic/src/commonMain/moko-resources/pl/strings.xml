@@ -140,4 +140,5 @@
     <string name="resend_code">Wyślij kod ponownie</string>
     <string name="confirm_account">Potwierdź konto</string>
     <string name="done">Gotowe</string>
+    <string name="invalid_code">Nieprawidłowy kod</string>
 </resources>
