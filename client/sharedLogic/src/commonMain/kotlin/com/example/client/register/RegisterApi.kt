@@ -3,9 +3,11 @@ package com.example.client.register
 import com.example.client.BASE_URL
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
@@ -32,18 +34,28 @@ class RegisterApi private constructor(
     }
 
     suspend fun register(request:RegisterRequestDto):String {
-        return client.post("$BASE_URL/user-account/register") {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        return try{
+            client.post("$BASE_URL/user-account/register") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+        }
+        catch (e:ClientRequestException) {
+            e.response.bodyAsText()
+        }
     }
 
     suspend fun registerConfirm(request:RegisterRequestDto,code:String):String {
-        return client.post("$BASE_URL/user-account/register/confirm") {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-            parameter("code",code)
-        }.body()
+        return try {
+            client.post("$BASE_URL/user-account/register/confirm") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+                parameter("code",code)
+            }.body()
+        }
+        catch (e:ClientRequestException) {
+            e.response.bodyAsText()
+        }
     }
 
     companion object {

@@ -145,6 +145,11 @@ class LocalText {
             "account_created"->MR.strings.account_created
             "invalid_credentials"->MR.strings.invalid_credentials
             "password_changed"->MR.strings.password_changed
+            "resend_code_in"->MR.strings.resend_code_in
+            "resend_code"->MR.strings.resend_code
+            "confirm_account"->MR.strings.confirm_account
+            "done"->MR.strings.done
+            "invalid_code"->MR.strings.invalid_code
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
