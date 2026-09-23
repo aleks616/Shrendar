@@ -68,8 +68,7 @@ class EmailService(
         val address=email.trim()
         InternetAddress(address).apply {validate()}
         val lang=language.toString().lowercase()
-        val content=
-            File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionScheduled-$lang.html").readText()
+        val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/accountDeletionScheduled-$lang.html").readText()
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Account will be deleted"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))

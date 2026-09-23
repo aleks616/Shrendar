@@ -133,7 +133,12 @@
     <string name="username_taken">Nowa nazwa użytkownika jest zajęta</string>
     <string name="logged_out">Wylogowano</string>
     <string name="no_token">Nie podano tokenu</string>
-    <string name="account_created">Konto utworzone i zweryfikowane</string>
+    <string name="account_created">Konto zostało utworzone i zweryfikowane, możesz się zalogować.</string>
     <string name="invalid_credentials">Nieprawidłowe dane logowania</string>
     <string name="password_changed">Pomyślnie zmieniono hasło</string>
+    <string name="resend_code_in">Wyślij kod ponownie za </string>
+    <string name="resend_code">Wyślij kod ponownie</string>
+    <string name="confirm_account">Potwierdź konto</string>
+    <string name="done">Gotowe</string>
+    <string name="invalid_code">Nieprawidłowy kod</string>
 </resources>

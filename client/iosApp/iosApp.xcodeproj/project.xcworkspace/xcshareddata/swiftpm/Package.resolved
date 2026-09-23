@@ -1,5 +1,5 @@
 {
-  "originHash" : "68aa00e3cba36db2e0a76f54dbc84d1f079d8aa9a19bfa9fce02d6286bd620b7",
+  "originHash" : "4edcce1cc5360b87dc42790942d781620d3da7f0e56b390bc56bba54530a04dc",
   "pins" : [
     {
       "identity" : "app-check",
@@ -71,6 +71,15 @@
       "state" : {
         "revision" : "f4a19a3c313dc2616c70bb49d29a799fb16be837",
         "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "swiftuiotpentry",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/julioarregoitia/SwiftUIOTPEntry.git",
+      "state" : {
+        "revision" : "ad5657fb585884a58e3d68eba5647ba982fe27ad",
+        "version" : "1.0.9"
       }
     }
   ],

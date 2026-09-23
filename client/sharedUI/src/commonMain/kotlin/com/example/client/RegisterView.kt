@@ -1,6 +1,8 @@
 package com.example.client
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -21,6 +23,8 @@ import com.example.client.register.RegisterValidator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 @Preview
@@ -30,6 +34,13 @@ fun RegisterView() {
     var password by remember {mutableStateOf("")}
     var repeatPassword by remember {mutableStateOf("")}
     var errorTextKey by remember {mutableStateOf<String?>(null)}
+
+    val code = remember {mutableStateOf("")}
+    var codeSent:Boolean by remember {mutableStateOf(false)}
+    var timerOn:Boolean by remember {mutableStateOf(false)}
+    var resendCountdown by remember {mutableStateOf(60)}
+    var confirmed:Boolean by remember {mutableStateOf(false)}
+
     val scope=rememberCoroutineScope()
 
     suspend fun validate():String?{
@@ -53,9 +64,42 @@ fun RegisterView() {
         val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
         val registerRequestDto=RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
         val result=RegisterClient.register(registerRequestDto)
-        println(result)
+        if(result=="verification_code_sent"){
+            errorTextKey=null
+            codeSent=true
+            timerOn=true
+        }
+        else if(result=="something_wrong"){
+            errorTextKey="something_wrong"
+        }
     }
 
+    suspend fun confirmAccount(){
+        val registerRequest=RegisterRequestDto(login=login,displayName=login,email=email,password=password)
+        val confirmationResult=RegisterClient.registerConfirm(registerRequest,code.value)
+        if(confirmationResult=="account_created"){
+            confirmed=true
+            timerOn=false
+            codeSent=false
+            errorTextKey=null
+        }
+        else{
+            errorTextKey=confirmationResult
+            code.value=""
+        }
+    }
+
+    LaunchedEffect(timerOn){
+        while(timerOn){
+            if(resendCountdown>0){
+                resendCountdown--
+                kotlinx.coroutines.delay(1.seconds)
+            }
+            else{
+                timerOn=false
+            }
+        }
+    }
 
     MaterialTheme {
         Surface{
@@ -134,10 +178,75 @@ fun RegisterView() {
                                 }
                             }
                         }
-                    }
+                    }, enabled=!(email.isBlank()||login.isBlank()||password.isBlank()||repeatPassword.isBlank()
+                                  ||confirmed)
                 ){
                     Text(text=stringResource(MR.strings.sign_up))
                 }
+
+                if(codeSent){
+                    Text(stringResource(MR.strings.verification_code_sent))
+                    if(timerOn){
+                        //todo decrease time
+                        Text(text=stringResource(MR.strings.resend_code_in)+' '+resendCountdown)
+                    }
+                    Button(
+                        onClick={
+                            scope.launch{
+                                val validationError:String?
+                                try{
+                                    validationError=validate()
+                                }
+                                catch(e:Exception){
+                                    Log.e("validate register data",e.localizedMessage?:"")
+                                    return@launch
+                                }
+                                errorTextKey=validationError
+                                if(validationError.isNullOrEmpty()){
+                                    try{
+                                        register()
+                                    }
+                                    catch(e:Exception){
+                                        Log.e("register",e.localizedMessage?:"")
+                                        return@launch
+                                    }
+                                }
+                            }
+                        },
+                        enabled=resendCountdown==0
+                    ){
+                        Text(stringResource(MR.strings.resend_code))
+                    }
+
+                    OtpInputField(
+                        otp=code,
+                        count=6,
+                        otpBoxModifier=Modifier
+                            .border(3.pxToDp(),Color.Black)
+                            .background(Color.White),
+                        otpTextType=KeyboardType.Number
+                    )
+                    Button(
+                        onClick={
+                            scope.launch{
+                                try{
+                                    confirmAccount()
+                                }
+                                catch(e:Exception){
+                                    Log.e("register-confirm",e.localizedMessage?:"")
+                                    return@launch
+                                }
+                            }
+                        },
+                        enabled=code.value.length==6
+                    ){
+                        Text(stringResource(MR.strings.confirm_account))
+                    }
+                }
+                if(confirmed)
+                    Text(stringResource(MR.strings.account_created))
+
+
                 LabelledDivider(text=stringResource(MR.strings.or))
                 Text(text=stringResource(MR.strings.special_sign_in_later))
 
