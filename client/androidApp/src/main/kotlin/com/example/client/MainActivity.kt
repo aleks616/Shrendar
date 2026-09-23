@@ -16,13 +16,13 @@ class MainActivity:ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        CoroutineScope(Dispatchers.Main).launch {
+        /*CoroutineScope(Dispatchers.Main).launch {
             try {
                 Log.d("GenreApi", GenreApi().getAll().toString())
             } catch (error: Exception) {
                 Log.e("GenreApi", "Unable to fetch genres", error)
             }
-        }
+        }*/
 
         setContent {
             RegisterView()
