@@ -23,7 +23,6 @@ import com.example.client.register.RegisterValidator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import java.util.Locale
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -33,7 +32,7 @@ fun RegisterView() {
     var login by remember {mutableStateOf("")}
     var password by remember {mutableStateOf("")}
     var repeatPassword by remember {mutableStateOf("")}
-    var errorTextKey by remember {mutableStateOf<String?>(null)}
+    var errorKey by remember {mutableStateOf<String?>(null)}
 
     val code = remember {mutableStateOf("")}
     var codeSent:Boolean by remember {mutableStateOf(false)}
@@ -65,12 +64,12 @@ fun RegisterView() {
         val registerRequestDto=RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
         val result=RegisterClient.register(registerRequestDto)
         if(result=="verification_code_sent"){
-            errorTextKey=null
+            errorKey=null
             codeSent=true
             timerOn=true
         }
         else if(result=="something_wrong"){
-            errorTextKey="something_wrong"
+            errorKey="something_wrong"
         }
     }
 
@@ -81,10 +80,10 @@ fun RegisterView() {
             confirmed=true
             timerOn=false
             codeSent=false
-            errorTextKey=null
+            errorKey=null
         }
         else{
-            errorTextKey=confirmationResult
+            errorKey=confirmationResult
             code.value=""
         }
     }
@@ -105,7 +104,7 @@ fun RegisterView() {
         Surface{
             Column(
                 horizontalAlignment=Alignment.CenterHorizontally,
-                modifier=Modifier.padding(top=20.dp).fillMaxWidth(),
+                modifier=Modifier.padding(top=25.dp).fillMaxWidth(),
                 verticalArrangement=Arrangement.spacedBy(15.dp)
             ) {
                 Text(text=stringResource(MR.strings.create_account),fontSize=28.sp,fontWeight=FontWeight.Bold)
@@ -154,7 +153,7 @@ fun RegisterView() {
                     visualTransformation=PasswordVisualTransformation(),
 
                 )
-                errorTextKey?.let{key->
+                errorKey?.let{key->
                     Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
                 }
                 Button(
@@ -168,7 +167,7 @@ fun RegisterView() {
                                 Log.e("validate register data",e.localizedMessage?:"")
                                 return@launch
                             }
-                            errorTextKey=validationError
+                            errorKey=validationError
                             if(validationError.isNullOrEmpty()){
                                 try{
                                     register()
@@ -202,7 +201,7 @@ fun RegisterView() {
                                     Log.e("validate register data",e.localizedMessage?:"")
                                     return@launch
                                 }
-                                errorTextKey=validationError
+                                errorKey=validationError
                                 if(validationError.isNullOrEmpty()){
                                     try{
                                         register()

@@ -142,4 +142,5 @@
     <string name="done">Gotowe</string>
     <string name="invalid_code">Nieprawidłowy kod</string>
     <string name="no_code">Nie otrzymałeś kodu?</string>
+    <string name="login_email">Login lub adres e-mail</string>
 </resources>

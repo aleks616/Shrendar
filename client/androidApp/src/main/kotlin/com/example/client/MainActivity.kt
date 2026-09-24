@@ -25,7 +25,7 @@ class MainActivity:ComponentActivity() {
         }*/
 
         setContent {
-            RegisterView()
+            SignInView()
         }
     }
 }
@@ -33,5 +33,5 @@ class MainActivity:ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    RegisterView()
+    SignInView()
 }
