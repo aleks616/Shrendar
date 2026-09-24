@@ -55,7 +55,7 @@ class UserAccountController(
         else if(userAccountService.createUser(request,code))
             ResponseEntity.ok("account_created")
         else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid_code")
     }
 
     @PostMapping("/requestPasswordReset")

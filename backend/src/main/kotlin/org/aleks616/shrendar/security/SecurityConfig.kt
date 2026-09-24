@@ -18,6 +18,7 @@ class SecurityConfig {
     @Bean
     fun filterChain(http:HttpSecurity,tokenBlacklistService:TokenBlacklistService):SecurityFilterChain {
         http.csrf {it.disable()}
+        http.cors {}
         http.sessionManagement {it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)}
         http.authorizeHttpRequests {
             it.requestMatchers(
