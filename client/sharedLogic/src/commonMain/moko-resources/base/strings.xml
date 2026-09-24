@@ -20,7 +20,7 @@
     <string name="passwords_dont_match">Passwords don\'t match</string>
     <string name="invalid_password">Password has to contain at least one lowercase letter,
         one uppercase letter, one symbol and be between 8 and 32 characters long.</string>
-    <string name="special_sign_in_later">signing in with Google or apple will become avalable later</string>
+    <string name="special_sign_in_later">signing in with Google/Apple will be available later</string>
     <string name="too_many_email_requests">Too many registration attempts for this email</string>
     <string name="too_many_user_requests">Too many requests from this user</string>
     <string name="too_many_ip_requests">Too many requests from this IP</string>
@@ -146,4 +146,5 @@
     <string name="confirm_account">Confirm account</string>
     <string name="done">Done</string>
     <string name="invalid_code">Invalid code</string>
+    <string name="no_code">Didn't receive the code?</string>
 </resources>

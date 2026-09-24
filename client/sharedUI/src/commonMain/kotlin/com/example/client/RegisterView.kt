@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -139,7 +139,8 @@ fun RegisterView() {
                         autoCorrectEnabled=false,
                         keyboardType=KeyboardType.Password,
                         imeAction=ImeAction.Next
-                    )
+                    ),
+                    visualTransformation=PasswordVisualTransformation()
                 )
                 TextField(
                     value=repeatPassword,
@@ -150,7 +151,7 @@ fun RegisterView() {
                         keyboardType=KeyboardType.Password,
                         imeAction=ImeAction.Done
                     ),
-                    visualTransformation=VisualTransformation.None,
+                    visualTransformation=PasswordVisualTransformation(),
 
                 )
                 errorTextKey?.let{key->

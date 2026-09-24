@@ -16,6 +16,7 @@ kotlin {
 
         compilerOptions {
             jvmTarget=JvmTarget.JVM_11
+            freeCompilerArgs.add("-Xexpect-actual-classes")
         }
         androidResources {
             enable=true
