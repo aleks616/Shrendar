@@ -150,4 +150,5 @@
     <string name="guest_question">gość?</string>
     <string name="back">Cofnij</string>
     <string name="logout">Wyloguj się</string>
+    <string name="not_found">Wystąpił błąd, spróbuj ponownie później. Serwer może być offline.</string>
 </resources>

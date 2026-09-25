@@ -31,7 +31,8 @@ class AccountApi private constructor(
             }.body()
         }
         catch(e:ClientRequestException){
-            e.response.bodyAsText()
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
         }
     }
 
@@ -43,7 +44,8 @@ class AccountApi private constructor(
             }.body()
         }
         catch(e:ClientRequestException){
-            e.response.bodyAsText()
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
         }
     }
 

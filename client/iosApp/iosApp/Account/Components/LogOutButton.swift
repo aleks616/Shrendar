@@ -19,7 +19,7 @@ struct LogOutButton: View {
     Task {
       do {
 			if let token = KeychainService.retrieveToken() {
-				let result=try await AccountClient().logout(token)
+				let result=try await AccountClient().logout(token: token)
 				if result=="logged_out"{
 					KeychainService.removeToken()
 					return
