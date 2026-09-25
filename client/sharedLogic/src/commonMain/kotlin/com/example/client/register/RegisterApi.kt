@@ -22,15 +22,25 @@ class RegisterApi private constructor(
     constructor():this(BASE_URL,createHttpClient())
     //constructor(baseUrl:String):this(baseUrl,createHttpClient())
     suspend fun doesEmailExist(email:String):Boolean {
-        return client.get("$BASE_URL/user-account/emailCheck") {
-            parameter("email",email)
-        }.body()
+        return try{
+            client.get("$BASE_URL/user-account/emailCheck") {
+                parameter("email",email)
+            }.body()
+        }
+        catch(_:ClientRequestException){
+            false
+        }
     }
 
     suspend fun doesLoginExist(login:String):Boolean {
-        return client.get("$BASE_URL/user-account/loginCheck") {
-            parameter("login",login)
-        }.body()
+        return try{
+            client.get("$BASE_URL/user-account/loginCheck") {
+                parameter("login",login)
+            }.body()
+        }
+        catch(_:ClientRequestException){
+            false
+        }
     }
 
     suspend fun register(request:RegisterRequestDto):String {
@@ -40,8 +50,9 @@ class RegisterApi private constructor(
                 setBody(request)
             }.body()
         }
-        catch (e:ClientRequestException) {
-            e.response.bodyAsText()
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
         }
     }
 
@@ -53,8 +64,9 @@ class RegisterApi private constructor(
                 parameter("code",code)
             }.body()
         }
-        catch (e:ClientRequestException) {
-            e.response.bodyAsText()
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
         }
     }
 
