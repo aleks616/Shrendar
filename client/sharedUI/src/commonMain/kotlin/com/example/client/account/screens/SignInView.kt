@@ -71,13 +71,13 @@ fun SignInView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton { onBack() }
+                        BackButton {onBack()}
                     },
                 )
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),
-                    verticalArrangement=Arrangement.spacedBy(15.dp)
+                    verticalArrangement=Arrangement.spacedBy(16.dp)
                 ) {
                     Text(text=stringResource(MR.strings.sign_in),fontSize=28.sp,fontWeight=FontWeight.Bold)
                     Spacer(modifier=Modifier.height(20.dp))

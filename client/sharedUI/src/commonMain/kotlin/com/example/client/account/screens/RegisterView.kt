@@ -27,8 +27,10 @@ import com.example.client.account.components.pxToDp
 import com.example.client.account_created
 import com.example.client.arrow_left
 import com.example.client.confirm_account
+import com.example.client.continue_as
 import com.example.client.create_account
 import com.example.client.email_address
+import com.example.client.guest_question
 import com.example.client.login
 import com.example.client.or
 import com.example.client.password
@@ -54,6 +56,7 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalMaterial3Api::class)
 fun RegisterView(
     onBack:()->Unit={},
+    signInScreen:()->Unit={},
 ) {
     var email by remember {mutableStateOf("")}
     var login by remember {mutableStateOf("")}
@@ -134,96 +137,67 @@ fun RegisterView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton { onBack() }
+                        BackButton {onBack()}
                     },
                 )
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),
-                    verticalArrangement=Arrangement.spacedBy(15.dp)
+                    verticalArrangement=Arrangement.spacedBy(16.dp)
                 ) {
-                Text(text=stringResource(MR.strings.create_account),fontSize=28.sp,fontWeight=FontWeight.Bold)
-                Text(text=stringResource(MR.strings.sign_up_to_continue),fontSize=20.sp)
-                Spacer(modifier=Modifier.height(20.dp))
-                TextField(
-                    value=email,
-                    onValueChange={email=it},
-                    label={Text(stringResource(MR.strings.email_address))},
-                    keyboardOptions=KeyboardOptions(
-                        autoCorrectEnabled=false,
-                        keyboardType=KeyboardType.Email,
-                        imeAction=ImeAction.Next
+                    Text(text=stringResource(MR.strings.create_account),fontSize=28.sp,fontWeight=FontWeight.Bold)
+                    Text(text=stringResource(MR.strings.sign_up_to_continue),fontSize=20.sp)
+                    Spacer(modifier=Modifier.height(20.dp))
+                    TextField(
+                        value=email,
+                        onValueChange={email=it},
+                        label={Text(stringResource(MR.strings.email_address))},
+                        keyboardOptions=KeyboardOptions(
+                            autoCorrectEnabled=false,
+                            keyboardType=KeyboardType.Email,
+                            imeAction=ImeAction.Next
+                        )
                     )
-                )
-                TextField(
-                    value=login,
-                    onValueChange={login=it},
-                    label={Text(stringResource(MR.strings.login))},
-                    keyboardOptions=KeyboardOptions(
-                        autoCorrectEnabled=false,
-                        keyboardType=KeyboardType.Text,
-                        imeAction=ImeAction.Next
+                    TextField(
+                        value=login,
+                        onValueChange={login=it},
+                        label={Text(stringResource(MR.strings.login))},
+                        keyboardOptions=KeyboardOptions(
+                            autoCorrectEnabled=false,
+                            keyboardType=KeyboardType.Text,
+                            imeAction=ImeAction.Next
+                        )
                     )
-                )
-                TextField(
-                    value=password,
-                    onValueChange={password=it},
-                    label={Text(stringResource(MR.strings.password))},
-                    keyboardOptions=KeyboardOptions(
-                        autoCorrectEnabled=false,
-                        keyboardType=KeyboardType.Password,
-                        imeAction=ImeAction.Next
-                    ),
-                    visualTransformation=PasswordVisualTransformation()
-                )
-                TextField(
-                    value=repeatPassword,
-                    onValueChange={repeatPassword=it},
-                    label={Text(stringResource(MR.strings.re_enter_password))},
-                    keyboardOptions=KeyboardOptions(
-                        autoCorrectEnabled=false,
-                        keyboardType=KeyboardType.Password,
-                        imeAction=ImeAction.Done
-                    ),
-                    visualTransformation=PasswordVisualTransformation(),
-
+                    TextField(
+                        value=password,
+                        onValueChange={password=it},
+                        label={Text(stringResource(MR.strings.password))},
+                        keyboardOptions=KeyboardOptions(
+                            autoCorrectEnabled=false,
+                            keyboardType=KeyboardType.Password,
+                            imeAction=ImeAction.Next
+                        ),
+                        visualTransformation=PasswordVisualTransformation()
                     )
-                errorKey?.let {key->
-                    Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
-                }
-                Button(
-                    onClick={
-                        scope.launch {
-                            val validationError:String?
-                            try {
-                                validationError=validate()
-                            }
-                            catch(e:Exception) {
-                                Log.e("validate register data",e.localizedMessage?:"")
-                                return@launch
-                            }
-                            errorKey=validationError
-                            if(validationError.isNullOrEmpty()) {
-                                try {
-                                    register()
-                                }
-                                catch(e:Exception) {
-                                    Log.e("register",e.localizedMessage?:"")
-                                    return@launch
-                                }
-                            }
+                    TextField(
+                        value=repeatPassword,
+                        onValueChange={repeatPassword=it},
+                        label={Text(stringResource(MR.strings.re_enter_password))},
+                        keyboardOptions=KeyboardOptions(
+                            autoCorrectEnabled=false,
+                            keyboardType=KeyboardType.Password,
+                            imeAction=ImeAction.Done
+                        ),
+                        visualTransformation=PasswordVisualTransformation(),
+                    )
+                    errorKey?.let {key->
+                        Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
+                    }
+                    Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
+                        Text(text=stringResource(MR.strings.continue_as))
+                        TextButton(onClick={signInScreen},modifier=Modifier.padding(0.dp)) {
+                            Text(text=stringResource(MR.strings.guest_question),modifier=Modifier.padding(0.dp))
                         }
-                    },enabled=!(email.isBlank()||login.isBlank()||password.isBlank()||repeatPassword.isBlank()
-                                ||confirmed)
-                ) {
-                    Text(text=stringResource(MR.strings.sign_up))
-                }
-
-                if(codeSent) {
-                    Text(stringResource(MR.strings.verification_code_sent))
-                    if(timerOn) {
-                        //todo decrease time
-                        Text(text=stringResource(MR.strings.resend_code_in)+' '+resendCountdown)
                     }
                     Button(
                         onClick={
@@ -247,43 +221,77 @@ fun RegisterView(
                                     }
                                 }
                             }
-                        },
-                        enabled=resendCountdown==0
+                        },enabled=!(email.isBlank()||login.isBlank()||password.isBlank()||repeatPassword.isBlank()
+                                    ||confirmed)
                     ) {
-                        Text(stringResource(MR.strings.resend_code))
+                        Text(text=stringResource(MR.strings.sign_up))
                     }
 
-                    OtpInputField(
-                        otp=code,
-                        count=6,
-                        otpBoxModifier=Modifier
-                            .border(3.pxToDp(),Color.Black)
-                            .background(Color.White),
-                        otpTextType=KeyboardType.Number
-                    )
-                    Button(
-                        onClick={
-                            scope.launch {
-                                try {
-                                    confirmAccount()
+                    if(codeSent) {
+                        Text(stringResource(MR.strings.verification_code_sent))
+                        if(timerOn) {
+                            //todo decrease time
+                            Text(text=stringResource(MR.strings.resend_code_in)+' '+resendCountdown)
+                        }
+                        Button(
+                            onClick={
+                                scope.launch {
+                                    val validationError:String?
+                                    try {
+                                        validationError=validate()
+                                    }
+                                    catch(e:Exception) {
+                                        Log.e("validate register data",e.localizedMessage?:"")
+                                        return@launch
+                                    }
+                                    errorKey=validationError
+                                    if(validationError.isNullOrEmpty()) {
+                                        try {
+                                            register()
+                                        }
+                                        catch(e:Exception) {
+                                            Log.e("register",e.localizedMessage?:"")
+                                            return@launch
+                                        }
+                                    }
                                 }
-                                catch(e:Exception) {
-                                    Log.e("register-confirm",e.localizedMessage?:"")
-                                    return@launch
+                            },
+                            enabled=resendCountdown==0
+                        ) {
+                            Text(stringResource(MR.strings.resend_code))
+                        }
+
+                        OtpInputField(
+                            otp=code,
+                            count=6,
+                            otpBoxModifier=Modifier
+                                .border(3.pxToDp(),Color.Black)
+                                .background(Color.White),
+                            otpTextType=KeyboardType.Number
+                        )
+                        Button(
+                            onClick={
+                                scope.launch {
+                                    try {
+                                        confirmAccount()
+                                    }
+                                    catch(e:Exception) {
+                                        Log.e("register-confirm",e.localizedMessage?:"")
+                                        return@launch
+                                    }
                                 }
-                            }
-                        },
-                        enabled=code.value.length==6
-                    ) {
-                        Text(stringResource(MR.strings.confirm_account))
+                            },
+                            enabled=code.value.length==6
+                        ) {
+                            Text(stringResource(MR.strings.confirm_account))
+                        }
                     }
-                }
-                if(confirmed)
-                    Text(stringResource(MR.strings.account_created))
+                    if(confirmed)
+                        Text(stringResource(MR.strings.account_created))
 
 
-                LabelledDivider(text=stringResource(MR.strings.or))
-                Text(text=stringResource(MR.strings.special_sign_in_later))
+                    LabelledDivider(text=stringResource(MR.strings.or))
+                    Text(text=stringResource(MR.strings.special_sign_in_later))
 
                 }
             }

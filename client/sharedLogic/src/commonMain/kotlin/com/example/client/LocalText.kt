@@ -157,6 +157,7 @@ class LocalText {
             "account_already"->MR.strings.account_already
             "continue_as"->MR.strings.continue_as
             "guest_question"->MR.strings.guest_question
+            "back"->MR.strings.back
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
