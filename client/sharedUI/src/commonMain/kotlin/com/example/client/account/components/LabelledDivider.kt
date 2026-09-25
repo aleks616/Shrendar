@@ -1,4 +1,4 @@
-package com.example.client.components
+package com.example.client.account.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

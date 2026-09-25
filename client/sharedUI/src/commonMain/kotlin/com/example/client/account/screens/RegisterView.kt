@@ -17,9 +17,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.client.components.LabelledDivider
-import com.example.client.components.OtpInputField
-import com.example.client.components.pxToDp
+import com.example.client.account.components.LabelledDivider
+import com.example.client.account.components.OtpInputField
+import com.example.client.account.components.pxToDp
 import com.example.client.register.RegisterClient
 import com.example.client.register.RegisterRequestDto
 import com.example.client.register.RegisterValidator
