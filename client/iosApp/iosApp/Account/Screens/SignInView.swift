@@ -29,7 +29,7 @@ struct SignInView: View {
 				.font(.system(size: 24.0))
 				.autocorrectionDisabled()
 
-				SecureField(
+				SecureInputView(
 					localize(key: "password"),
 					text: $password
 				)
@@ -40,10 +40,15 @@ struct SignInView: View {
 			Text(errorText ?? "").foregroundStyle(.red)
 
 			Button(action: signIn) {
-				Text(localize(key: "sign_in"))
-			}.buttonStyle(.glass)
-				.frame(minHeight:50)
-				.disabled(login.isEmpty || password.isEmpty)
+				Text(localize(key: "sign_in")).frame(maxWidth: .infinity)
+			}
+			.disabled(login.isEmpty || password.isEmpty)
+			.padding()
+			.background(Color.accentColor)
+			.foregroundColor(.white)
+			.glassEffect()
+			.cornerRadius(25)
+			.padding(.horizontal, 20)
 		}.padding(.top, 15)
 	}
 
@@ -51,39 +56,39 @@ struct SignInView: View {
 		Task {
 			do {
 				let isEmail = login.contains("@")
-				let rLogin:String?=if isEmail {nil} else {login}
-				let rEmail:String?=if isEmail {login} else {nil}
+				let rLogin: String? = if isEmail { nil } else { login }
+				let rEmail: String? = if isEmail { login } else { nil }
 				let loginRequest = LoginRequestDto(
 					login: rLogin,
 					email: rEmail,
 					password: password
 				)
 				let result = try await AccountClient().login(request: loginRequest)
-				do{
-					let token = (try JSONSerialization.jsonObject(with: Data(result.utf8)) as! [String: Any])["token"] as! String
+				do {
+					let token =
+						(try JSONSerialization.jsonObject(with: Data(result.utf8))
+						as! [String: Any])["token"] as! String
 					let query: [String: Any] = [
 						kSecClass as String: kSecClassGenericPassword,
 						kSecAttrAccount as String: "userAccount",
 						kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
 						kSecUseDataProtectionKeychain as String: true,
-						kSecValueData as String: token
+						kSecValueData as String: token,
 					]
 					let status = SecItemAdd(query as CFDictionary, nil)
 					guard status == errSecSuccess else {
 						//print(error)
 						return
 					}
-					errorText=""
+					errorText = ""
 					print("success")
 					return
-				}
-				catch _ {
-					errorText=localize(key: result)
+				} catch _ {
+					errorText = localize(key: result)
 					return
 				}
 
-			}
-			catch let error {
+			} catch let error {
 				print(error)
 				return
 			}

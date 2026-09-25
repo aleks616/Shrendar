@@ -148,4 +148,10 @@
     <string name="invalid_code">Invalid code</string>
     <string name="no_code">Didn't receive the code?</string>
     <string name="login_email">Login or e-mail address</string>
+    <string name="welcome">Welcome</string>
+    <string name="sign_in_up">Create an account or sign in to continue</string>
+    <string name="account_already">Already have an account</string>
+    <string name="continue_as">Continue as a</string>
+    <string name="guest_question">guest?</string>
+    <string name="back">Back</string>
 </resources>
