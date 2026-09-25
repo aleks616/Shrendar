@@ -46,10 +46,10 @@ class MainActivity:ComponentActivity() {
                     )
                 }
                 composable<Destinations.Register> {
-                    RegisterView()
+                    RegisterView(onBack={navController.popBackStack()})
                 }
                 composable<Destinations.SignIn> {
-                    SignInView()
+                    SignInView(onBack={navController.popBackStack()})
                 }
             }
         }

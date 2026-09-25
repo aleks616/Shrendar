@@ -24,6 +24,7 @@ import com.example.client.account.components.LabelledDivider
 import com.example.client.account.components.OtpInputField
 import com.example.client.account.components.pxToDp
 import com.example.client.account_created
+import com.example.client.arrow_left
 import com.example.client.confirm_account
 import com.example.client.create_account
 import com.example.client.email_address
@@ -40,6 +41,7 @@ import com.example.client.sign_up
 import com.example.client.sign_up_to_continue
 import com.example.client.special_sign_in_later
 import com.example.client.verification_code_sent
+import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,14 +50,17 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 @Preview
-fun RegisterView() {
+@OptIn(ExperimentalMaterial3Api::class)
+fun RegisterView(
+    onBack:()->Unit={},
+) {
     var email by remember {mutableStateOf("")}
     var login by remember {mutableStateOf("")}
     var password by remember {mutableStateOf("")}
     var repeatPassword by remember {mutableStateOf("")}
     var errorKey by remember {mutableStateOf<String?>(null)}
 
-    val code = remember {mutableStateOf("")}
+    val code=remember {mutableStateOf("")}
     var codeSent:Boolean by remember {mutableStateOf(false)}
     var timerOn:Boolean by remember {mutableStateOf(false)}
     var resendCountdown by remember {mutableStateOf(60)}
@@ -63,7 +68,7 @@ fun RegisterView() {
 
     val scope=rememberCoroutineScope()
 
-    suspend fun validate():String?{
+    suspend fun validate():String? {
         val registerValidator=RegisterValidator()
 
         val loginValid=registerValidator.validateLogin(login)
@@ -80,49 +85,63 @@ fun RegisterView() {
         return null
     }
 
-    suspend fun register(){
+    suspend fun register() {
         val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
-        val registerRequestDto=RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
+        val registerRequestDto=
+            RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
         val result=RegisterClient.register(registerRequestDto)
-        if(result=="verification_code_sent"){
+        if(result=="verification_code_sent") {
             errorKey=null
             codeSent=true
             timerOn=true
         }
-        else if(result=="something_wrong"){
+        else if(result=="something_wrong") {
             errorKey="something_wrong"
         }
     }
 
-    suspend fun confirmAccount(){
+    suspend fun confirmAccount() {
         val registerRequest=RegisterRequestDto(login=login,displayName=login,email=email,password=password)
         val confirmationResult=RegisterClient.registerConfirm(registerRequest,code.value)
-        if(confirmationResult=="account_created"){
+        if(confirmationResult=="account_created") {
             confirmed=true
             timerOn=false
             codeSent=false
             errorKey=null
         }
-        else{
+        else {
             errorKey=confirmationResult
             code.value=""
         }
     }
 
-    LaunchedEffect(timerOn){
-        while(timerOn){
-            if(resendCountdown>0){
+    LaunchedEffect(timerOn) {
+        while(timerOn) {
+            if(resendCountdown>0) {
                 resendCountdown--
                 delay(1.seconds)
             }
-            else{
+            else {
                 timerOn=false
             }
         }
     }
 
     AppTheme {
-        Surface{
+        Surface {
+            TopAppBar(
+                title={},
+                navigationIcon={
+                    IconButton(onClick=onBack) {
+                        Icon(
+                            painter=painterResource(MR.images.arrow_left),
+                            contentDescription="back",
+                            modifier=Modifier.size(24.dp),
+                            tint=MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+            )
             Column(
                 horizontalAlignment=Alignment.CenterHorizontally,
                 modifier=Modifier.padding(top=25.dp).fillMaxWidth(),
@@ -173,61 +192,61 @@ fun RegisterView() {
                     ),
                     visualTransformation=PasswordVisualTransformation(),
 
-                )
-                errorKey?.let{key->
+                    )
+                errorKey?.let {key->
                     Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
                 }
                 Button(
                     onClick={
-                        scope.launch{
+                        scope.launch {
                             val validationError:String?
-                            try{
+                            try {
                                 validationError=validate()
                             }
-                            catch(e:Exception){
+                            catch(e:Exception) {
                                 Log.e("validate register data",e.localizedMessage?:"")
                                 return@launch
                             }
                             errorKey=validationError
-                            if(validationError.isNullOrEmpty()){
-                                try{
+                            if(validationError.isNullOrEmpty()) {
+                                try {
                                     register()
                                 }
-                                catch(e:Exception){
+                                catch(e:Exception) {
                                     Log.e("register",e.localizedMessage?:"")
                                     return@launch
                                 }
                             }
                         }
-                    }, enabled=!(email.isBlank()||login.isBlank()||password.isBlank()||repeatPassword.isBlank()
-                                  ||confirmed)
-                ){
+                    },enabled=!(email.isBlank()||login.isBlank()||password.isBlank()||repeatPassword.isBlank()
+                                ||confirmed)
+                ) {
                     Text(text=stringResource(MR.strings.sign_up))
                 }
 
-                if(codeSent){
+                if(codeSent) {
                     Text(stringResource(MR.strings.verification_code_sent))
-                    if(timerOn){
+                    if(timerOn) {
                         //todo decrease time
                         Text(text=stringResource(MR.strings.resend_code_in)+' '+resendCountdown)
                     }
                     Button(
                         onClick={
-                            scope.launch{
+                            scope.launch {
                                 val validationError:String?
-                                try{
+                                try {
                                     validationError=validate()
                                 }
-                                catch(e:Exception){
+                                catch(e:Exception) {
                                     Log.e("validate register data",e.localizedMessage?:"")
                                     return@launch
                                 }
                                 errorKey=validationError
-                                if(validationError.isNullOrEmpty()){
-                                    try{
+                                if(validationError.isNullOrEmpty()) {
+                                    try {
                                         register()
                                     }
-                                    catch(e:Exception){
+                                    catch(e:Exception) {
                                         Log.e("register",e.localizedMessage?:"")
                                         return@launch
                                     }
@@ -235,7 +254,7 @@ fun RegisterView() {
                             }
                         },
                         enabled=resendCountdown==0
-                    ){
+                    ) {
                         Text(stringResource(MR.strings.resend_code))
                     }
 
@@ -249,18 +268,18 @@ fun RegisterView() {
                     )
                     Button(
                         onClick={
-                            scope.launch{
-                                try{
+                            scope.launch {
+                                try {
                                     confirmAccount()
                                 }
-                                catch(e:Exception){
+                                catch(e:Exception) {
                                     Log.e("register-confirm",e.localizedMessage?:"")
                                     return@launch
                                 }
                             }
                         },
                         enabled=code.value.length==6
-                    ){
+                    ) {
                         Text(stringResource(MR.strings.confirm_account))
                     }
                 }
