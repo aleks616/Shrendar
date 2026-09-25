@@ -152,6 +152,11 @@ class LocalText {
             "invalid_code"->MR.strings.invalid_code
             "no_code"->MR.strings.no_code
             "login_email"->MR.strings.login_email
+            "welcome"->MR.strings.welcome
+            "sign_in_up"->MR.strings.sign_in_up
+            "account_already"->MR.strings.account_already
+            "continue_as"->MR.strings.continue_as
+            "guest_question"->MR.strings.guest_question
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

@@ -1,4 +1,4 @@
-package com.example.client
+package com.example.client.components
 
 //credit: https://github.com/shafayathossain/OtpField/tree/main
 

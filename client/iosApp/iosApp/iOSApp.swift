@@ -6,7 +6,7 @@ import GoogleSignIn
 struct iOSApp: App {
     var body: some Scene {
         WindowGroup {
-            SignInView()
+            WelcomeView()
               .onOpenURL { url in
                         GIDSignIn.sharedInstance.handle(url)
                       }

@@ -143,4 +143,9 @@
     <string name="invalid_code">Nieprawidłowy kod</string>
     <string name="no_code">Nie otrzymałeś kodu?</string>
     <string name="login_email">Login lub adres e-mail</string>
+    <string name="welcome">Witaj</string>
+    <string name="sign_in_up">Stwórz konto albo zaloguj się, aby kontynuować</string>
+    <string name="account_already">Mam już konto</string>
+    <string name="continue_as">Kontynuuj jako</string>
+    <string name="guest_question">gość?</string>
 </resources>
