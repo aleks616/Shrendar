@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -33,6 +34,7 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
+            implementation("com.kiwi.navigation-compose.typed:core:0.10.0")
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
         }

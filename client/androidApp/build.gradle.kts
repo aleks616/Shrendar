@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.composeCompiler)
 }
 
@@ -12,10 +13,12 @@ kotlin {
 }
 dependencies {
     implementation(project(":sharedUI"))
+    implementation("com.kiwi.navigation-compose.typed:core:0.10.0")
 
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.compose.uiToolingPreview)
+    implementation(libs.androidx.navigation.compose)
     debugImplementation(libs.compose.uiTooling)
 }
 
