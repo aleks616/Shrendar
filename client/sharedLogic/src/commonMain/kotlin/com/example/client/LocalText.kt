@@ -158,6 +158,7 @@ class LocalText {
             "continue_as"->MR.strings.continue_as
             "guest_question"->MR.strings.guest_question
             "back"->MR.strings.back
+            "logout"->MR.strings.logout
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

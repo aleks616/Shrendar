@@ -65,21 +65,10 @@ struct SignInView: View {
 				)
 				let result = try await AccountClient().login(request: loginRequest)
 				do {
-					let token =
+					let authToken =
 						(try JSONSerialization.jsonObject(with: Data(result.utf8))
 						as! [String: Any])["token"] as! String
-					let query: [String: Any] = [
-						kSecClass as String: kSecClassGenericPassword,
-						kSecAttrAccount as String: "userAccount",
-						kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
-						kSecUseDataProtectionKeychain as String: true,
-						kSecValueData as String: token,
-					]
-					let status = SecItemAdd(query as CFDictionary, nil)
-					guard status == errSecSuccess else {
-						//print(error)
-						return
-					}
+					KeychainService.saveToken(authToken)
 					errorText = ""
 					print("success")
 					return
