@@ -1,4 +1,4 @@
-package com.example.client
+package com.example.client.account.screens
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -17,13 +17,31 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.client.AppTheme
+import com.example.client.LocalText
+import com.example.client.MR
 import com.example.client.account.components.LabelledDivider
 import com.example.client.account.components.OtpInputField
 import com.example.client.account.components.pxToDp
+import com.example.client.account_created
+import com.example.client.confirm_account
+import com.example.client.create_account
+import com.example.client.email_address
+import com.example.client.login
+import com.example.client.or
+import com.example.client.password
+import com.example.client.re_enter_password
 import com.example.client.register.RegisterClient
 import com.example.client.register.RegisterRequestDto
 import com.example.client.register.RegisterValidator
+import com.example.client.resend_code
+import com.example.client.resend_code_in
+import com.example.client.sign_up
+import com.example.client.sign_up_to_continue
+import com.example.client.special_sign_in_later
+import com.example.client.verification_code_sent
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
@@ -95,7 +113,7 @@ fun RegisterView() {
         while(timerOn){
             if(resendCountdown>0){
                 resendCountdown--
-                kotlinx.coroutines.delay(1.seconds)
+                delay(1.seconds)
             }
             else{
                 timerOn=false
@@ -103,7 +121,7 @@ fun RegisterView() {
         }
     }
 
-    MaterialTheme {
+    AppTheme {
         Surface{
             Column(
                 horizontalAlignment=Alignment.CenterHorizontally,

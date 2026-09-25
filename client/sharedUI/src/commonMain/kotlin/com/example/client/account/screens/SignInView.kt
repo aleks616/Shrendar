@@ -1,4 +1,4 @@
-package com.example.client
+package com.example.client.account.screens
 
 import android.content.Context
 import android.util.Log
@@ -31,8 +31,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.client.AppTheme
+import com.example.client.LocalText
+import com.example.client.MR
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.login_email
+import com.example.client.password
+import com.example.client.sign_in
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -73,7 +79,7 @@ fun SignInView() {
         }
     }
 
-    MaterialTheme {
+    AppTheme {
         Surface {
             Column(
                 horizontalAlignment=Alignment.CenterHorizontally,

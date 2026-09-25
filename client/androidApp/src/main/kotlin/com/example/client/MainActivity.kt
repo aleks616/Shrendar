@@ -1,15 +1,12 @@
 package com.example.client
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.client.account.screens.WelcomeView
 
 class MainActivity:ComponentActivity() {
     override fun onCreate(savedInstanceState:Bundle?) {
@@ -25,7 +22,7 @@ class MainActivity:ComponentActivity() {
         }*/
 
         setContent {
-            SignInView()
+            WelcomeView()
         }
     }
 }
@@ -33,5 +30,5 @@ class MainActivity:ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    SignInView()
+    WelcomeView()
 }
