@@ -35,6 +35,18 @@ class AccountApi private constructor(
         }
     }
 
+    suspend fun logout(token:String):String{
+        return try{
+            client.post("$BASE_URL/user-account/logout"){
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -54,4 +66,5 @@ class AccountApi private constructor(
 @JsExport
 object AccountClient {
     suspend fun login(request:LoginRequestDto):String=AccountApi().login(request)
+    suspend fun logout(token:String):String=AccountApi().logout(token)
 }
