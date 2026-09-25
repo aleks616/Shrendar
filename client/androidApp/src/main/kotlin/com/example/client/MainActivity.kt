@@ -48,7 +48,10 @@ class MainActivity:ComponentActivity() {
                 composable<Destinations.Register> {
                     RegisterView(
                         onBack={navController.popBackStack()},
-                        signInScreen={navController.navigate(createRoutePattern<Destinations.SignIn>())})
+                        signInScreen={
+                            navController.navigate(createRoutePattern<Destinations.SignIn>())
+                        }
+                    )
                 }
                 composable<Destinations.SignIn> {
                     SignInView(onBack={navController.popBackStack()})

@@ -9,12 +9,11 @@ import androidx.compose.ui.graphics.Color
 
 private val LightColors=lightColorScheme(
     primary=Color(0xFF5F55EC),
-    surfaceVariant=Color(0xFF717171),
 )
 
 private val DarkColors=darkColorScheme(
     primary=Color(0xFF6F7BF7),
-    surfaceVariant=Color(0xFF717171),
+    onPrimary=Color.White,
 )
 
 @Composable

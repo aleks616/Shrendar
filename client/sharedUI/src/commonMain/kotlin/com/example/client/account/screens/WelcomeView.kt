@@ -83,7 +83,7 @@ fun WelcomeView(
                             modifier=Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal=20.dp),
-                            colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.surfaceVariant)
+                            colors=ButtonDefaults.buttonColors(containerColor=Color(0xFF717171))
 
                         ) {
                             Text(text=stringResource(MR.strings.account_already))

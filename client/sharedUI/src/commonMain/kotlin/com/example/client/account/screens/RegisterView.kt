@@ -25,6 +25,7 @@ import com.example.client.account.components.LabelledDivider
 import com.example.client.account.components.OtpInputField
 import com.example.client.account.components.pxToDp
 import com.example.client.account_created
+import com.example.client.already_have_an_account
 import com.example.client.arrow_left
 import com.example.client.confirm_account
 import com.example.client.continue_as
@@ -40,6 +41,7 @@ import com.example.client.register.RegisterRequestDto
 import com.example.client.register.RegisterValidator
 import com.example.client.resend_code
 import com.example.client.resend_code_in
+import com.example.client.sign_in
 import com.example.client.sign_up
 import com.example.client.sign_up_to_continue
 import com.example.client.special_sign_in_later
@@ -193,12 +195,6 @@ fun RegisterView(
                     errorKey?.let {key->
                         Text(text=stringResource(LocalText().getStringResource(key)),color=Color.Red)
                     }
-                    Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
-                        Text(text=stringResource(MR.strings.continue_as))
-                        TextButton(onClick={signInScreen},modifier=Modifier.padding(0.dp)) {
-                            Text(text=stringResource(MR.strings.guest_question),modifier=Modifier.padding(0.dp))
-                        }
-                    }
                     Button(
                         onClick={
                             scope.launch {
@@ -291,6 +287,12 @@ fun RegisterView(
 
 
                     LabelledDivider(text=stringResource(MR.strings.or))
+                    Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
+                        Text(text=stringResource(MR.strings.already_have_an_account))
+                        TextButton(onClick={signInScreen},modifier=Modifier.padding(0.dp)) {
+                            Text(text=stringResource(MR.strings.sign_in),modifier=Modifier.padding(0.dp))
+                        }
+                    }
                     Text(text=stringResource(MR.strings.special_sign_in_later))
 
                 }
