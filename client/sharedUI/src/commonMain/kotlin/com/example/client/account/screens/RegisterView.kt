@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.client.AppTheme
+import com.example.client.BackButton
 import com.example.client.LocalText
 import com.example.client.MR
 import com.example.client.account.components.LabelledDivider
@@ -129,24 +130,18 @@ fun RegisterView(
 
     AppTheme {
         Surface {
-            TopAppBar(
-                title={},
-                navigationIcon={
-                    IconButton(onClick=onBack) {
-                        Icon(
-                            painter=painterResource(MR.images.arrow_left),
-                            contentDescription="back",
-                            modifier=Modifier.size(24.dp),
-                            tint=MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-            )
-            Column(
-                horizontalAlignment=Alignment.CenterHorizontally,
-                modifier=Modifier.padding(top=25.dp).fillMaxWidth(),
-                verticalArrangement=Arrangement.spacedBy(15.dp)
-            ) {
+            Column(modifier=Modifier.fillMaxSize()) {
+                TopAppBar(
+                    title={},
+                    navigationIcon={
+                        BackButton { onBack() }
+                    },
+                )
+                Column(
+                    horizontalAlignment=Alignment.CenterHorizontally,
+                    modifier=Modifier.fillMaxWidth(),
+                    verticalArrangement=Arrangement.spacedBy(15.dp)
+                ) {
                 Text(text=stringResource(MR.strings.create_account),fontSize=28.sp,fontWeight=FontWeight.Bold)
                 Text(text=stringResource(MR.strings.sign_up_to_continue),fontSize=20.sp)
                 Spacer(modifier=Modifier.height(20.dp))
@@ -290,6 +285,7 @@ fun RegisterView(
                 LabelledDivider(text=stringResource(MR.strings.or))
                 Text(text=stringResource(MR.strings.special_sign_in_later))
 
+                }
             }
         }
     }
