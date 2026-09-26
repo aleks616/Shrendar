@@ -172,7 +172,7 @@ class LocalTextTest {
             "email_change",
             "new_email_exists",
             "usernamed_changed",
-            "usernamed_change_limit",
+            "username_change_limit",
             "username_taken",
             "logged_out",
             "no_token",

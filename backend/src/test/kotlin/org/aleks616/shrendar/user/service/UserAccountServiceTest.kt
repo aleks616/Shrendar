@@ -1,5 +1,8 @@
 package org.aleks616.shrendar.user.service
 
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
+import org.aleks616.shrendar.exception.ReusedPasswordException
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.model.Rank
@@ -135,8 +138,10 @@ class UserAccountServiceTest {
     }
 
     @Test
-    fun `initiateRegistration rejects the anonymous user login`() {
-        assertEquals(false,service.initiateRegistration(RegisterRequestDto("anonymousUser","Anonymous","user@example.com","password")))
+    fun `initiateRegistration rejects a forbidden user login`() {
+        assertThrows(ForbiddenLoginException::class.java) {
+            service.initiateRegistration(RegisterRequestDto("admin","Administrator","user@example.com","password"))
+        }
         verifyNoInteractions(users,registrationCodes,emailService)
     }
 
@@ -144,7 +149,9 @@ class UserAccountServiceTest {
     fun `initiateRegistration rejects an existing login`() {
         `when`(users.findAll()).thenReturn(listOf(User().apply {login="existing"; email="other@example.com"}))
 
-        assertEquals(false,service.initiateRegistration(RegisterRequestDto("existing","User","user@example.com","password")))
+        assertThrows(IllegalArgumentException::class.java) {
+            service.initiateRegistration(RegisterRequestDto("existing","User","user@example.com","password"))
+        }
         verifyNoInteractions(registrationCodes,emailService)
     }
 
@@ -152,48 +159,92 @@ class UserAccountServiceTest {
     fun `initiateRegistration rejects an existing email`() {
         `when`(users.findAll()).thenReturn(listOf(User().apply {login="other"; email="user@example.com"}))
 
-        assertEquals(false,service.initiateRegistration(RegisterRequestDto("new-user","User","user@example.com","password")))
+        assertThrows(IllegalArgumentException::class.java) {
+            service.initiateRegistration(RegisterRequestDto("new-user","User","user@example.com","password"))
+        }
         verifyNoInteractions(registrationCodes,emailService)
     }
 
     @Test
-    fun `requestPasswordReset returns false when the account does not exist`() {
+    fun `initiateRegistration rejects requests during email cooldown`() {
+        `when`(users.findAll()).thenReturn(emptyList())
+        `when`(registrationCodes.canSendCode("user@example.com")).thenReturn(false)
+
+        assertThrows(IllegalStateException::class.java) {
+            service.initiateRegistration(RegisterRequestDto("new-user","User","user@example.com","password"))
+        }
+        verifyNoInteractions(emailService)
+    }
+
+    @Test
+    fun `createUser rejects an invalid code`() {
+        `when`(registrationCodes.validateCode("user@example.com","code")).thenReturn(false)
+
+        assertThrows(InvalidOTPCodeException::class.java) {
+            service.createUser(RegisterRequestDto("new-user","User","user@example.com","password"),"code")
+        }
+        verifyNoInteractions(users,passwordHistory,emailService)
+    }
+
+    @Test
+    fun `requestPasswordReset throws when the account does not exist`() {
         `when`(users.findAll()).thenReturn(emptyList())
 
-        assertEquals(false,service.requestPasswordReset("missing"))
+        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("missing")}
         verifyNoInteractions(resetCodes,emailService)
     }
 
     @Test
-    fun `requestPasswordReset returns false when the matching login cannot be loaded`() {
+    fun `requestPasswordReset throws when the matching login cannot be loaded`() {
         `when`(users.findAll()).thenReturn(listOf(User().apply {login="tester"}))
         `when`(resetCodes.canSendCode("tester")).thenReturn(true)
         `when`(users.findByLogin("tester")).thenReturn(null)
 
-        assertEquals(false,service.requestPasswordReset("tester"))
+        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("tester")}
         verifyNoInteractions(emailService)
     }
 
     @Test
-    fun `requestPasswordReset returns false when the matching login has no email`() {
+    fun `requestPasswordReset throws when the matching login has no email`() {
         `when`(users.findAll()).thenReturn(listOf(User().apply {login="tester"}))
         `when`(resetCodes.canSendCode("tester")).thenReturn(true)
         `when`(users.findByLogin("tester")).thenReturn(User().apply {login="tester"; email=null})
 
-        assertEquals(false,service.requestPasswordReset("tester"))
+        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("tester")}
         verifyNoInteractions(emailService)
     }
 
     @Test
-    fun `changePassword returns false when no user has the email`() {
-        `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(true)
-        `when`(users.findAll()).thenReturn(emptyList())
+    fun `requestPasswordReset throws during email cooldown`() {
+        `when`(users.findAll()).thenReturn(listOf(User().apply {email="user@example.com"}))
+        `when`(resetCodes.canSendCode("user@example.com")).thenReturn(false)
 
-        assertEquals(false,service.changePassword("user@example.com","new-password","code"))
+        assertThrows(IllegalStateException::class.java) {service.requestPasswordReset("user@example.com")}
+        verifyNoInteractions(emailService)
     }
 
     @Test
-    fun `changePassword returns false when the password was used before`() {
+    fun `changePassword rejects an invalid code`() {
+        `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(false)
+
+        assertThrows(InvalidOTPCodeException::class.java) {
+            service.changePassword("user@example.com","new-password","code")
+        }
+        verifyNoInteractions(users,passwordHistory,emailService)
+    }
+
+    @Test
+    fun `changePassword throws when no user has the email`() {
+        `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(true)
+        `when`(users.findAll()).thenReturn(emptyList())
+
+        assertThrows(IllegalStateException::class.java) {
+            service.changePassword("user@example.com","new-password","code")
+        }
+    }
+
+    @Test
+    fun `changePassword rejects a password that was used before`() {
         val user=User().apply {id=7; email="user@example.com"}
         val history=UserPasswordHistory().apply {password="old-hash"}
         `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(true)
@@ -201,50 +252,69 @@ class UserAccountServiceTest {
         `when`(passwordHistory.findAllByUserId(7)).thenReturn(listOf(history))
         `when`(encoder.encode("new-password")).thenReturn("old-hash")
 
-        assertEquals(false,service.changePassword("user@example.com","new-password","code"))
+        assertThrows(ReusedPasswordException::class.java) {
+            service.changePassword("user@example.com","new-password","code")
+        }
         verify(users,never()).save(user)
     }
 
     @Test
-    fun `changeUsername returns false when the user does not exist`() {
+    fun `changeUsername throws when the user does not exist`() {
         `when`(users.findByEmail("missing@example.com")).thenReturn(null)
 
-        assertEquals(false,service.changeUsername("missing@example.com","New Name"))
+        assertThrows(IllegalStateException::class.java) {
+            service.changeUsername("missing@example.com","New Name")
+        }
     }
 
     @Test
-    fun `changeUsername returns false when changed less than 90 days ago`() {
+    fun `changeUsername rejects changes made less than 90 days ago`() {
         val user=User().apply {id=7; email="user@example.com"}
         val log=UserLog().apply {displayNameChangedTime=Instant.now().minusSeconds(89 * 24 * 60 * 60)}
         `when`(users.findByEmail("user@example.com")).thenReturn(user)
         `when`(userLogs.findById(7)).thenReturn(Optional.of(log))
 
-        assertEquals(false,service.changeUsername("user@example.com","New Name"))
+        assertThrows(IllegalStateException::class.java) {
+            service.changeUsername("user@example.com","New Name")
+        }
     }
 
     @Test
-    fun `addBirthday returns false when the user does not exist`() {
+    fun `addBirthday throws when the user does not exist`() {
         `when`(users.findByEmail("missing@example.com")).thenReturn(null)
 
-        assertEquals(false,service.addBirthday("missing@example.com",LocalDate.of(2000,1,1)))
+        assertThrows(IllegalStateException::class.java) {
+            service.addBirthday("missing@example.com",LocalDate.of(2000,1,1))
+        }
     }
 
     @Test
-    fun `addBirthday returns false when changed less than 180 days ago`() {
+    fun `addBirthday rejects changes made less than 180 days ago`() {
         val user=User().apply {id=7; email="user@example.com"}
         val log=UserLog().apply {birthdayChangedTime=Instant.now().minusSeconds(179 * 24 * 60 * 60)}
         `when`(users.findByEmail("user@example.com")).thenReturn(user)
         `when`(userLogs.findById(7)).thenReturn(Optional.of(log))
 
-        assertEquals(false,service.addBirthday("user@example.com",LocalDate.of(2000,1,1)))
+        assertThrows(IllegalStateException::class.java) {
+            service.addBirthday("user@example.com",LocalDate.of(2000,1,1))
+        }
         verify(users,never()).save(user)
     }
 
     @Test
-    fun `requestDeletion returns false when the user does not exist`() {
+    fun `requestDeletion throws when the user does not exist`() {
         `when`(users.findByEmail("missing@example.com")).thenReturn(null)
 
-        assertEquals(false,service.requestDeletion("missing@example.com"))
+        assertThrows(IllegalStateException::class.java) {
+            service.requestDeletion("missing@example.com")
+        }
+    }
+
+    @Test
+    fun `findUserLog throws when the log does not exist`() {
+        `when`(userLogs.findById(7)).thenReturn(Optional.empty())
+
+        assertThrows(IllegalStateException::class.java) {service.findUserLog(7)}
     }
 
     @Test

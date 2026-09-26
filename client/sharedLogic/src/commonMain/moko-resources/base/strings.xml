@@ -134,7 +134,7 @@
     <string name="email_change">E-mail address has been changed</string>
     <string name="new_email_exists">There's already an account associated with provided new email</string>
     <string name="usernamed_changed">Usernamed has been changed</string>
-    <string name="usernamed_change_limit">Username has been changed in last 90 days</string>
+    <string name="username_change_limit">Username has been changed in the last 90 days</string>
     <string name="username_taken">New username taken</string>
     <string name="logged_out">Logged out</string>
     <string name="no_token">No token provided</string>
@@ -156,4 +156,9 @@
     <string name="back">Back</string>
     <string name="logout">Log out</string>
     <string name="not_found">An error occured, try again later. Server might be down.</string>
+    <string name="rate_limited">You are being rate limited. Try again later.</string>
+    <string name="invalid_otp">The OTP code is invalid.</string>
+    <string name="forbidden_login">This login is reserved or has forbidden characters. Use only letters and numbers.</string>
+    <string name="reused_password">You cannot set password to one you already had.</string>
+    <string name="birthday_change_limit">Birthday has been changed in the last 180 days</string>
 </resources>
