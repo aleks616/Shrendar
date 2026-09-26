@@ -13,27 +13,27 @@ import kotlin.test.assertEquals
 class OtpInputFieldTest {
 
     @Test
-    fun rendersOneInputBoxPerRequestedDigit() = runComposeUiTest {
-        val otp = mutableStateOf("")
+    fun rendersOneInputBoxPerRequestedDigit()=runComposeUiTest {
+        val otp=mutableStateOf("")
         setContent {
-            OtpInputField(otp = otp, count = 6)
+            OtpInputField(otp=otp,count=6)
         }
 
-        repeat(6) { index ->
+        repeat(6) {index->
             onNodeWithTag("otpBox$index").assertIsDisplayed()
         }
     }
 
     @Test
-    fun updatesOtpStateWhenDigitIsEntered() = runComposeUiTest {
-        val otp = mutableStateOf("")
+    fun updatesOtpStateWhenDigitIsEntered()=runComposeUiTest {
+        val otp=mutableStateOf("")
         setContent {
-            OtpInputField(otp = otp, count = 4)
+            OtpInputField(otp=otp,count=4)
         }
 
         onNodeWithTag("otpBox0").performTextInput("7")
         waitForIdle()
 
-        assertEquals("7", otp.value)
+        assertEquals("7",otp.value)
     }
 }

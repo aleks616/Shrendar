@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class SignInViewTest {
 
     @Test
-    fun displaysSignInForm() = runComposeUiTest {
+    fun displaysSignInForm()=runComposeUiTest {
         setContent {
             SignInView()
         }
@@ -30,10 +30,10 @@ class SignInViewTest {
     }
 
     @Test
-    fun invokesBackCallback() = runComposeUiTest {
-        var backPressed = false
+    fun invokesBackCallback()=runComposeUiTest {
+        var backPressed=false
         setContent {
-            SignInView(onBack = { backPressed = true })
+            SignInView(onBack={backPressed=true})
         }
 
         onNodeWithContentDescription("back").performClick()

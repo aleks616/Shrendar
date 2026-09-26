@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 class BackButtonTest {
 
     @Test
-    fun displaysBackButton() = runComposeUiTest {
+    fun displaysBackButton()=runComposeUiTest {
         setContent {
             BackButton()
         }
@@ -21,10 +21,10 @@ class BackButtonTest {
     }
 
     @Test
-    fun invokesBackCallback() = runComposeUiTest {
-        var backPressed = false
+    fun invokesBackCallback()=runComposeUiTest {
+        var backPressed=false
         setContent {
-            BackButton(onBack = { backPressed = true })
+            BackButton(onBack={backPressed=true})
         }
 
         onNodeWithContentDescription("back").performClick()

@@ -12,6 +12,7 @@ import com.example.client.account.AccountClient
 import com.example.client.logout
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 @Composable
 @Preview
@@ -26,7 +27,7 @@ fun LogOut() {
             if(token!=null){
                 val result=AccountClient.logout(token)
                 if(result=="logged_out"){
-                    preferenceToken.edit().clear().apply()
+                    preferenceToken.edit {clear()}
                     return null
                 }
             }

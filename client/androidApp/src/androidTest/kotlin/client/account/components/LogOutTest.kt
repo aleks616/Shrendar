@@ -7,14 +7,14 @@ import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class LabelledDividerTest {
+class LogOutTest {
 
     @Test
-    fun displaysDividerLabel() = runComposeUiTest {
+    fun displaysLogoutButton()=runComposeUiTest {
         setContent {
-            LabelledDivider(text = "Continue")
+            LogOut()
         }
 
-        onNodeWithText("Continue").assertIsDisplayed()
+        onNodeWithText("Log out").assertIsDisplayed()
     }
 }

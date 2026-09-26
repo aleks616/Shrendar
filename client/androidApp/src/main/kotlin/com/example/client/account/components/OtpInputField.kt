@@ -2,6 +2,7 @@ package com.example.client.account.components
 
 //credit: https://github.com/shafayathossain/OtpField/tree/main
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -258,6 +259,7 @@ private fun focusNextBox(
 }
 
 
+@SuppressLint("RememberInComposition")
 @Composable
 private fun OtpBox(
     modifier: Modifier,

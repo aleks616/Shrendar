@@ -15,11 +15,11 @@ import kotlin.test.assertTrue
 class AppThemeTest {
 
     @Test
-    fun providesMaterialThemeToContent() = runComposeUiTest {
-        var primaryColor: Color? = null
+    fun providesMaterialThemeToContent()=runComposeUiTest {
+        var primaryColor:Color?=null
         setContent {
             AppTheme {
-                primaryColor = MaterialTheme.colorScheme.primary
+                primaryColor=MaterialTheme.colorScheme.primary
                 Text("Themed content")
             }
         }
@@ -27,7 +27,7 @@ class AppThemeTest {
         onNodeWithText("Themed content").assertIsDisplayed()
         runOnIdle {
             assertNotNull(primaryColor)
-            assertTrue(primaryColor != Color.Unspecified)
+            assertTrue(primaryColor!=Color.Unspecified)
         }
     }
 }

@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 class RegisterViewTest {
 
     @Test
-    fun displaysRegistrationForm() = runComposeUiTest {
+    fun displaysRegistrationForm()=runComposeUiTest {
         setContent {
             RegisterView()
         }
@@ -29,10 +29,10 @@ class RegisterViewTest {
     }
 
     @Test
-    fun invokesBackCallback() = runComposeUiTest {
-        var backPressed = false
+    fun invokesBackCallback()=runComposeUiTest {
+        var backPressed=false
         setContent {
-            RegisterView(onBack = { backPressed = true })
+            RegisterView(onBack={backPressed=true})
         }
 
         onNodeWithContentDescription("back").performClick()
@@ -43,10 +43,10 @@ class RegisterViewTest {
     }
 
     @Test
-    fun invokesSignInCallback() = runComposeUiTest {
-        var signInPressed = false
+    fun invokesSignInCallback()=runComposeUiTest {
+        var signInPressed=false
         setContent {
-            RegisterView(signInScreen = { signInPressed = true })
+            RegisterView(signInScreen={signInPressed=true})
         }
 
         onNodeWithText("Sign in").performClick()

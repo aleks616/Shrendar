@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 class WelcomeViewTest {
 
     @Test
-    fun displaysWelcomeContent() = runComposeUiTest {
+    fun displaysWelcomeContent()=runComposeUiTest {
         setContent {
             WelcomeView()
         }
@@ -28,10 +28,10 @@ class WelcomeViewTest {
     }
 
     @Test
-    fun invokesRegisterCallback() = runComposeUiTest {
-        var registerPressed = false
+    fun invokesRegisterCallback()=runComposeUiTest {
+        var registerPressed=false
         setContent {
-            WelcomeView(registerScreen = { registerPressed = true })
+            WelcomeView(registerScreen={registerPressed=true})
         }
 
         onNodeWithText("Create account").performClick()
@@ -42,10 +42,10 @@ class WelcomeViewTest {
     }
 
     @Test
-    fun invokesSignInCallback() = runComposeUiTest {
-        var signInPressed = false
+    fun invokesSignInCallback()=runComposeUiTest {
+        var signInPressed=false
         setContent {
-            WelcomeView(signInScreen = { signInPressed = true })
+            WelcomeView(signInScreen={signInPressed=true})
         }
 
         onNode(hasText("Already have an account") and hasClickAction()).performClick()
