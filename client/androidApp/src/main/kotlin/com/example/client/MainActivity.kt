@@ -42,7 +42,7 @@ class MainActivity:ComponentActivity() {
                         },
                         signInScreen={
                             navController.navigate(createRoutePattern<Destinations.SignIn>())
-                        },
+                        }
                     )
                 }
                 composable<Destinations.Register> {

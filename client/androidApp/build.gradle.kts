@@ -12,8 +12,21 @@ kotlin {
     }
 }
 dependencies {
-    implementation(project(":sharedUI"))
+    implementation(project(":sharedLogic"))
+
+    implementation("dev.icerock.moko:resources-compose:0.27.0")
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.components.resources)
+    implementation(libs.androidx.lifecycle.viewmodelCompose)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    androidTestImplementation(libs.kotlin.testJunit)
     implementation("com.kiwi.navigation-compose.typed:core:0.10.0")
+    androidTestImplementation("org.jetbrains.compose.ui:ui-test:1.10.0")
+    androidTestImplementation(libs.androidx.espresso.core)
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.10.0")
 
     implementation(libs.androidx.activity.compose)
 
