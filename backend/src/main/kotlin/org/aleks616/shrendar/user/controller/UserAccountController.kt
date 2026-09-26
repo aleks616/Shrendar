@@ -2,7 +2,10 @@ package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
+import org.aleks616.shrendar.exception.ReusedPasswordException
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
@@ -33,14 +36,24 @@ class UserAccountController(
     @PostMapping("/register")
     fun register(@RequestBody request:RegisterRequestDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
-        return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
-        else if(!rateLimiter.allowRequest("reg:email:${request.email}",5,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
-        else if(userAccountService.initiateRegistration(request))
-            ResponseEntity.ok("verification_code_sent")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+        if(!rateLimiter.allowRequest("reg:email:${request.email}",5,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+        try{
+            userAccountService.initiateRegistration(request)
+            return ResponseEntity.ok("verification_code_sent")
+        }
+        catch(_:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+        }
+        catch(e:ForbiddenLoginException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message) //todo add strings
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/register/confirm")
@@ -50,34 +63,64 @@ class UserAccountController(
         servletRequest:HttpServletRequest
     ):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
-        return if(!rateLimiter.allowRequest("regconfirm:ip:$ip",10,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
-        else if(userAccountService.createUser(request,code))
-            ResponseEntity.ok("account_created")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid_code")
+        if(!rateLimiter.allowRequest("regconfirm:ip:$ip",10,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+        try{
+            userAccountService.createUser(request,code)
+            return ResponseEntity.ok("account_created")
+        }
+        catch(e:InvalidOTPCodeException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/requestPasswordReset")
     fun requestPasswordReset(@RequestParam accountKey:String):ResponseEntity<String> {
-        return if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
+        if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         else if(!userAccountService.doesAccountExist(accountKey))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
-        else if(userAccountService.requestPasswordReset(accountKey))
-            ResponseEntity.ok("Password reset code sent to email")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        try{
+            userAccountService.requestPasswordReset(accountKey)
+            return ResponseEntity.ok("Password reset code sent to email")
+        }
+        catch(_:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+        }
+        catch(_:IllegalArgumentException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/resetPassword")
     fun resetPassword(@RequestBody request:ResetPasswordDto,@RequestParam code:String):ResponseEntity<String> {
-        return if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
-        else if(userAccountService.changePassword(request.email,request.newPassword,code))
-            ResponseEntity.ok("password_changed")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
+        try{
+            userAccountService.changePassword(request.email,request.newPassword,code)
+            return ResponseEntity.ok("password_changed")
+        }
+        catch(e:InvalidOTPCodeException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(_:IllegalArgumentException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        }
+        catch(e:ReusedPasswordException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/login")
@@ -110,14 +153,21 @@ class UserAccountController(
 
     @PostMapping("/updateUsername")
     fun updateUsername(@RequestParam email:String,@RequestParam newUsername:String):ResponseEntity<String> {
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
+        if(!userAccountService.doesAccountExist(email))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
         else if(userAccountService.doesAccountExist(newUsername))
-            ResponseEntity.status(HttpStatus.CONFLICT).body("username_taken")
-        else if(!userAccountService.changeUsername(email,newUsername))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("usernamed_change_limit")
-        else
-            ResponseEntity.ok("username_changed")
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("username_taken")
+        try{
+            userAccountService.changeUsername(email,newUsername)
+            return ResponseEntity.ok("username_changed")
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/updateEmail")
@@ -132,21 +182,38 @@ class UserAccountController(
 
     @PostMapping("/addBirthday")
     fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
-        else if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("user_too_young")
+        if(!userAccountService.doesAccountExist(email))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
+        if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("user_too_young")
         }
-        else if(!userAccountService.addBirthday(email,date))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
-        else ResponseEntity.ok("birthday_added")
+        try{
+            userAccountService.addBirthday(email,date)
+            return ResponseEntity.ok("birthday_added")
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     /**requires email**/
     @PostMapping("/deleteAccount")
     fun deleteAccount(@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
         userAccountService.authenticate(request,false)
-        userAccountService.requestDeletion(request.email!!)
+        try{
+            userAccountService.requestDeletion(request.email!!)
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
 
         return ResponseEntity.ok("confirmed")
     }

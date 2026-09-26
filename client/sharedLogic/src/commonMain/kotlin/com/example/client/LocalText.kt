@@ -138,7 +138,7 @@ class LocalText {
             "email_change"->MR.strings.email_change
             "new_email_exists"->MR.strings.new_email_exists
             "usernamed_changed"->MR.strings.usernamed_changed
-            "usernamed_change_limit"->MR.strings.usernamed_change_limit
+            "username_change_limit"->MR.strings.username_change_limit
             "username_taken"->MR.strings.username_taken
             "logged_out"->MR.strings.logged_out
             "no_token"->MR.strings.no_token
@@ -160,6 +160,11 @@ class LocalText {
             "back"->MR.strings.back
             "logout"->MR.strings.logout
             "not_found"->MR.strings.not_found
+            "rate_limited"->MR.strings.rate_limited
+            "invalid_otp"->MR.strings.invalid_otp
+            "forbidden_login"->MR.strings.forbidden_login
+            "reused_password"->MR.strings.reused_password
+            "birthday_change_limit"->MR.strings.birthday_change_limit
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

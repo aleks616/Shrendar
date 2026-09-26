@@ -3,7 +3,10 @@ package org.aleks616.shrendar.user.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
+import org.aleks616.shrendar.exception.ReusedPasswordException
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -18,8 +21,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.verify
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
@@ -155,6 +161,76 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `registration should return too many requests when email sending is limited`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalStateException("too_many_email_requests")).`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        assertEquals("too_many_email_requests",result.body)
+    }
+
+    @Test
+    fun `registration should return forbidden for a forbidden login`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("admin","Administrator","test@example.com","password")
+        doAnswer {throw ForbiddenLoginException("forbidden_login")}.`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("forbidden_login",result.body)
+    }
+
+    @Test
+    fun `registration should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalArgumentException("account_exists")).`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
+    fun `registration confirmation should return bad request for an invalid code`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doAnswer {throw InvalidOTPCodeException()}.`when`(service).createUser(dto,"1234")
+
+        val result=controller.confirmRegistration(dto,"1234",request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("invalid_otp",result.body)
+    }
+
+    @Test
+    fun `registration confirmation should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalStateException("unexpected")).`when`(service).createUser(dto,"1234")
+
+        val result=controller.confirmRegistration(dto,"1234",request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `registration should work if IP is unknown`() {
         val dto=RegisterRequestDto(
             login="testuser",
@@ -261,6 +337,22 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `updating username should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        `when`(service.doesAccountExist("new-name")).thenReturn(false)
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .changeUsername("user@example.com","new-name")
+
+        val result=controller.updateUsername("user@example.com","new-name")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `updating email should work`() {
         val email="old@example.com"
         val login="emailuser"
@@ -311,6 +403,22 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `adding birthday should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val date=LocalDate.now().minusYears(20)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .addBirthday("user@example.com",date)
+
+        val result=controller.addBirthday("user@example.com",date)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `account deletion should work`() {
         val email="delete@example.com"
         val password="password123"
@@ -347,6 +455,36 @@ class UserAccountControllerTest {
         userAccountService.checkAccountScheduledToBeDeleted()
 
         assertEquals(true,userRepository.findByEmail(email)?.deleted)
+    }
+
+    @Test
+    fun `account deletion should return bad request when scheduling fails`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=LoginRequestDto(null,"user@example.com","password")
+        doThrow(IllegalStateException("account_not_found")).`when`(service)
+            .requestDeletion("user@example.com")
+
+        val result=controller.deleteAccount(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `account deletion should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=LoginRequestDto(null,"user@example.com","password")
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .requestDeletion("user@example.com")
+
+        val result=controller.deleteAccount(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
     }
 
     @Test
@@ -754,6 +892,111 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `request password reset should return too many requests when email sending is limited`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(IllegalStateException("too_many_email_requests")).`when`(service)
+            .requestPasswordReset("user@example.com")
+
+        val result=controller.requestPasswordReset("user@example.com")
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        assertEquals("too_many_email_requests",result.body)
+    }
+
+    @Test
+    fun `request password reset should return bad request when the service cannot find the account`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(IllegalArgumentException("account_not_found")).`when`(service)
+            .requestPasswordReset("user@example.com")
+
+        val result=controller.requestPasswordReset("user@example.com")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `request password reset should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(RuntimeException("unexpected")).`when`(service)
+            .requestPasswordReset("user@example.com")
+
+        val result=controller.requestPasswordReset("user@example.com")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for an invalid code`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        doAnswer {throw InvalidOTPCodeException()}.`when`(service)
+            .changePassword("user@example.com","new-password","1234")
+
+        val result=controller.resetPassword(requestDto,"1234")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("invalid_otp",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request when the account cannot be found`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        doThrow(IllegalArgumentException("account_not_found")).`when`(service)
+            .changePassword("user@example.com","new-password","1234")
+
+        val result=controller.resetPassword(requestDto,"1234")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for a reused password`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        doAnswer {throw ReusedPasswordException()}.`when`(service)
+            .changePassword("user@example.com","new-password","1234")
+
+        val result=controller.resetPassword(requestDto,"1234")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("reused_password",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        doThrow(IllegalStateException("unexpected")).`when`(service)
+            .changePassword("user@example.com","new-password","1234")
+
+        val result=controller.resetPassword(requestDto,"1234")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `request password reset should return bad request for unknown account`() {
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey","nonexistent@example.com")
@@ -781,8 +1024,8 @@ class UserAccountControllerTest {
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
         }.andExpect {
-            status {isBadRequest()}
-            content {string("something_wrong")}
+            status {isTooManyRequests()}
+            content {string("too_many_email_requests")}
         }
     }
 
@@ -953,6 +1196,14 @@ class UserAccountControllerTest {
 
     private fun authenticate(login:String) {
         SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(login,null)
+    }
+
+    private fun controllerFor(
+        service:UserAccountService,
+        limiter:RateLimiter
+    ):UserAccountController {
+        `when`(limiter.allowRequest(anyString(),anyInt(),anyInt())).thenReturn(true)
+        return UserAccountController(service,limiter,tokenBlacklistService)
     }
 
     private fun registerAndConfirm(login:String,email:String,password:String="password") {
