@@ -21,6 +21,8 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
   
 - Mobile apps - in progress
 
-- Frontend
+- Frontend - in progress
+
+Prototype expected in **Late November**
 
 
