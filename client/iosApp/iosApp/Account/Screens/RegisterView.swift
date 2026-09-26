@@ -22,22 +22,22 @@ struct RegisterView: View {
 	@State private var password: String = ""
 	@State private var confirmPassword: String = ""
 	@State private var code: String = ""
-
+	
 	@FocusState private var focusedField: Field?
 	@State var isDismissKeyboard: Bool = false
-
+	
 	@State private var errorText: String? = ""
 	@State private var codeSent: Bool = false
 	@State private var timerOn: Bool = false
 	@State private var resendCountdown: Int = 60
 	@State private var confirmed: Bool = false
-
+	
 	let timer: Timer.TimerPublisher = Timer.publish(
 		every: 1.0,
 		on: .main,
 		in: .common
 	)
-
+	
 	let model: ModelUISwiftUIOTPEntry = .init(
 		font: .systemFont(ofSize: 20),
 		textAccessibilityForEmptyBox: "Empty box",
@@ -49,7 +49,7 @@ struct RegisterView: View {
 		colorFill: .green,
 		size: 50
 	)
-
+	
 	var body: some View {
 		NavigationStack {
 			VStack {
@@ -65,35 +65,41 @@ struct RegisterView: View {
 					)
 					.keyboardType(.emailAddress)
 					.textContentType(.emailAddress)
+					.accessibilityLabel(localize(key: "email_address"))
+					.accessibilityIdentifier("register.email")
 					.font(.system(size: 24.0))
 					.focused($focusedField, equals: .email)
 					.autocorrectionDisabled()
-
+					
 					TextField(
 						localize(key: "login"),
 						text: $login
 					)
 					.textContentType(.username)
+					.accessibilityLabel(localize(key: "login"))
+					.accessibilityIdentifier("register.login")
 					.font(.system(size: 24.0))
 					.focused($focusedField, equals: .login)
 					.autocorrectionDisabled()
-
+					
 					SecureInputView(
 						localize(key: "password"),
-						text: $password
+						text: $password,
+						accessibilityIdentifier: "register.password"
 					)
 					.textContentType(.password)
 					.focused($focusedField, equals: .password)
 					.font(.system(size: 24.0))
-
+					
 					SecureInputView(
 						localize(key: "re_enter_password"),
-						text: $confirmPassword
+						text: $confirmPassword,
+						accessibilityIdentifier: "register.confirmPassword"
 					)
 					.textContentType(.password)
 					.focused($focusedField, equals: .confirmPassword)
 					.font(.system(size: 24.0))
-
+					
 				}.toolbar {
 					ToolbarItem(placement: .keyboard) {
 						Button(localize(key: "done")) {
@@ -101,16 +107,17 @@ struct RegisterView: View {
 						}
 					}
 				}
-
+				
 				Text(errorText ?? "").foregroundStyle(.red)
-
+				
 				Button(action: validateFields) {
 					Text(localize(key: "sign_up")).frame(maxWidth: .infinity)
 				}
+				.accessibilityIdentifier("register.submit")
 				.disabled(
 					email.isEmpty || login.isEmpty || password.isEmpty
-						|| confirmPassword.isEmpty
-						|| (resendCountdown > 0 && codeSent) || confirmed
+					|| confirmPassword.isEmpty
+					|| (resendCountdown > 0 && codeSent) || confirmed
 				)
 				.padding()
 				.background(Color.accentColor)
@@ -118,7 +125,7 @@ struct RegisterView: View {
 				.glassEffect()
 				.cornerRadius(25)
 				.padding(.horizontal, 20)
-
+				
 				if codeSent {
 					Text(localize(key: "verification_code_sent"))
 					if timerOn {
@@ -128,7 +135,7 @@ struct RegisterView: View {
 						Text(localize(key: "resend_code"))
 					}
 					.disabled(resendCountdown > 0)
-
+					
 					ViewSwiftUIOTPEntry(
 						model: model,
 						number: $code,
@@ -143,7 +150,7 @@ struct RegisterView: View {
 				if confirmed {
 					Text(localize(key: "account_created"))
 				}
-
+				
 				LabelledDivider(label: localize(key: "or"))
 				//			GoogleSignInButton(
 				//				scheme: .light,
@@ -161,7 +168,7 @@ struct RegisterView: View {
 				//						print("\(localize(key: "authorization_failed"))): \(error.localizedDescription)")
 				//				}
 				//			}.frame(width: 280, height: 45)
-
+				
 				//Text(localize(key: "special_sign_in_later"))
 				//Spacer()
 				HStack {
@@ -169,8 +176,9 @@ struct RegisterView: View {
 					NavigationLink(destination: SignInView()) {
 						Text(localize(key: "sign_in"))
 					}
+					.accessibilityIdentifier("register.signInLink")
 				}
-
+				
 			}
 			.padding(.top, 15)
 			.onReceive(
@@ -187,7 +195,7 @@ struct RegisterView: View {
 			)
 		}
 	}
-
+	
 	func validateFields() {
 		Task {
 			let registerValidator = RegisterValidator()
@@ -199,7 +207,7 @@ struct RegisterView: View {
 					errorText = localize(key: loginValid!)
 					return
 				}
-
+				
 				let emailValid = try await registerValidator.validateEmail(
 					email: email
 				)
@@ -207,12 +215,12 @@ struct RegisterView: View {
 					errorText = localize(key: emailValid!)
 					return
 				}
-
+				
 				if password != confirmPassword {
 					errorText = localize(key: "passwords_dont_match")
 					return
 				}
-
+				
 				let passwordValid = registerValidator.isPasswordValid(
 					password: password
 				)
@@ -227,7 +235,7 @@ struct RegisterView: View {
 			createAccount()
 		}
 	}
-
+	
 	func createAccount() {
 		Task {
 			do {
@@ -249,14 +257,14 @@ struct RegisterView: View {
 				} else if result == "something_wrong" {
 					errorText = localize(key: "something_wrong")
 				}
-
+				
 			} catch let error {
 				print(error)
 				return
 			}
 		}
 	}
-
+	
 	func confirmAccount() {
 		Task {
 			do {
@@ -280,14 +288,14 @@ struct RegisterView: View {
 				} else {
 					errorText = localize(key: confirmationResult)
 				}
-
+				
 			} catch let error {
 				print(error)
 				return
 			}
 		}
 	}
-
+	
 	//	func handleGoogleSignInButton() {
 	//		guard let rootViewController = UIApplication.shared.rootViewController else {
 	//			// Handle error
@@ -310,7 +318,7 @@ struct RegisterView: View {
 	//			}
 	//		}
 	//	}
-
+	
 }
 
 #Preview {

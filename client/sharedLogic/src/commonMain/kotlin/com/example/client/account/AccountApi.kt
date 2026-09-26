@@ -22,6 +22,7 @@ class AccountApi private constructor(
     private val client:HttpClient
 ) {
     constructor():this(BASE_URL,createHttpClient())
+    internal constructor(testClient:HttpClient):this(BASE_URL,testClient)
 
     suspend fun login(loginRequest:LoginRequestDto):String{
         return try{

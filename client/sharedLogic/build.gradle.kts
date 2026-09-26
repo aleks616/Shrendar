@@ -64,6 +64,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation("dev.icerock.moko:resources:0.27.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+            implementation("io.ktor:ktor-client-mock:3.1.3")
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)

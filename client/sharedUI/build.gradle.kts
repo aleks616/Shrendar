@@ -52,10 +52,13 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation("org.jetbrains.compose.ui:ui-test:1.10.0")
+            implementation(libs.androidx.espresso.core)
         }
     }
 }
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+    add("androidDeviceTestImplementation", "androidx.compose.ui:ui-test-manifest:1.10.0")
 }

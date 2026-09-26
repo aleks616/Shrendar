@@ -266,7 +266,7 @@ fun RegisterView(
                     LabelledDivider(text=stringResource(MR.strings.or))
                     Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
                         Text(text=stringResource(MR.strings.already_have_an_account))
-                        TextButton(onClick={signInScreen},modifier=Modifier.padding(0.dp)) {
+                        TextButton(onClick=signInScreen,modifier=Modifier.padding(0.dp)) {
                             Text(text=stringResource(MR.strings.sign_in),modifier=Modifier.padding(0.dp))
                         }
                     }

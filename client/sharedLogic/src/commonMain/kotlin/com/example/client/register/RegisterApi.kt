@@ -20,6 +20,7 @@ class RegisterApi private constructor(
     private val client:HttpClient
 ) {
     constructor():this(BASE_URL,createHttpClient())
+    internal constructor(testClient:HttpClient):this(BASE_URL,testClient)
     //constructor(baseUrl:String):this(baseUrl,createHttpClient())
     suspend fun doesEmailExist(email:String):Boolean {
         return try{
