@@ -213,7 +213,7 @@ class RegisterApiTest {
         return respond(
             content=text,
             status=status,
-            headers=io.ktor.http.headersOf(
+            headers=headersOf(
                 HttpHeaders.ContentType,
                 ContentType.Text.Plain.toString()
             )
