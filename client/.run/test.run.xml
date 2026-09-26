@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="webApp" type="js.build_tools.npm">
+  <configuration default="false" name="test" type="js.build_tools.npm" nameIsGenerated="true">
     <package-json value="$PROJECT_DIR$/webApp/package.json" />
-    <command value="start" />
+    <command value="test" />
     <node-interpreter value="project" />
     <envs />
     <method v="2">
-      <option name="Gradle.BeforeRunTask" enabled="false" tasks="jsBrowserDevelopmentLibraryDistribution" externalProjectPath="$PROJECT_DIR$/sharedLogic" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="jsBrowserDevelopmentLibraryDistribution" externalProjectPath="$PROJECT_DIR$/sharedLogic" vmOptions="" scriptParameters="" />
       <option name="NpmBeforeRunTask" enabled="true">
         <package-json value="$PROJECT_DIR$/webApp/package.json" />
         <command value="install" />
