@@ -2,6 +2,7 @@ package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.aleks616.shrendar.exception.ForbiddenLoginException
 import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
@@ -33,6 +34,7 @@ class UserAccountController(
 
     @GetMapping("/emailCheck")
     fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
+
     @PostMapping("/register")
     fun register(@RequestBody request:RegisterRequestDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
@@ -79,13 +81,13 @@ class UserAccountController(
     }
 
     @PostMapping("/requestPasswordReset")
-    fun requestPasswordReset(@RequestParam accountKey:String):ResponseEntity<String> {
+    fun requestPasswordReset(@RequestParam accountKey:String,@RequestParam language:SupportedLanguages):ResponseEntity<String> {
         if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         else if(!userAccountService.doesAccountExist(accountKey))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
         try{
-            userAccountService.requestPasswordReset(accountKey)
+            userAccountService.requestPasswordReset(accountKey,language)
             return ResponseEntity.ok("Password reset code sent to email")
         }
         catch(_:IllegalStateException){
@@ -101,11 +103,11 @@ class UserAccountController(
     }
 
     @PostMapping("/resetPassword")
-    fun resetPassword(@RequestBody request:ResetPasswordDto,@RequestParam code:String):ResponseEntity<String> {
+    fun resetPassword(@RequestBody request:ResetPasswordDto):ResponseEntity<String> {
         if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         try{
-            userAccountService.changePassword(request.email,request.newPassword,code)
+            userAccountService.changePassword(request)
             return ResponseEntity.ok("password_changed")
         }
         catch(e:InvalidOTPCodeException){
