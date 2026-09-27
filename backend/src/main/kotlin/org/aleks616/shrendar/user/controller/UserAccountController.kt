@@ -82,16 +82,16 @@ class UserAccountController(
 
     @PostMapping("/requestPasswordReset")
     fun requestPasswordReset(@RequestParam accountKey:String,@RequestParam language:SupportedLanguages):ResponseEntity<String> {
-        if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
+        if(!rateLimiter.allowRequest("reset:acct:$accountKey",3,240))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         else if(!userAccountService.doesAccountExist(accountKey))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
         try{
             userAccountService.requestPasswordReset(accountKey,language)
-            return ResponseEntity.ok("Password reset code sent to email")
+            return ResponseEntity.ok("password_link_sent")
         }
         catch(_:IllegalStateException){
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         }
         catch(_:IllegalArgumentException){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
@@ -104,7 +104,7 @@ class UserAccountController(
 
     @PostMapping("/resetPassword")
     fun resetPassword(@RequestBody request:ResetPasswordDto):ResponseEntity<String> {
-        if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
+        if(!rateLimiter.allowRequest("reset:acct:${request.email}",10,240))
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         try{
             userAccountService.changePassword(request)

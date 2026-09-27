@@ -135,11 +135,11 @@ class UserAccountService(
         if(!doesAccountExist(accountKey)) throw IllegalArgumentException("account_not_found")
         if(!passwordResetCodeStorage.canSendCode(accountKey)) throw IllegalStateException("too_many_email_requests")
         val code=CodeGenerator.generateCode(numericOnly=true)
-        passwordResetCodeStorage.storeCode(accountKey,code)
-        val email=if(accountKey.contains("@")) accountKey
-        else userRepository.findByLogin(accountKey)?.email?:throw IllegalArgumentException("account_not_found")
+        //store code for EMAIL, NEVER FOR LOGIN
+        val user=userRepository.findByLogin(accountKey)?:userRepository.findByEmail(accountKey)?:throw IllegalArgumentException("account_not_found")
+        passwordResetCodeStorage.storeCode(user.email!!,code)
 
-        emailService.sendPasswordResetMessage(email,code,language)
+        emailService.sendPasswordResetMessage(user.email!!,code,language)
     }
     fun changePassword(request:ResetPasswordDto) {
         if(!passwordResetCodeStorage.validateCode(request.email,request.code)) throw InvalidOTPCodeException()
@@ -161,7 +161,7 @@ class UserAccountService(
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
-        emailService.sendPasswordHasBeenChangedMessage(request.email,request.language)
+        emailService.sendPasswordHasBeenChangedMessage(request.email,request.language?:SupportedLanguages.EN)
     }
 
     fun changeUsername(email:String, newUsername:String){

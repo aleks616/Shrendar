@@ -6,5 +6,5 @@ data class ResetPasswordDto(
     val email:String,
     val newPassword:String,
     val code:String,
-    val language:SupportedLanguages
+    val language:SupportedLanguages?=SupportedLanguages.EN
 )
