@@ -21,6 +21,7 @@ export function SignIn(){
                 const token=JSON.parse(result).token
                 localStorage.setItem("token",token)
                 setErrorKey(null)
+                window.location.reload()
             }
             catch(e){
                 setErrorKey(result)

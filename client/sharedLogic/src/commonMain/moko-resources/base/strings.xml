@@ -161,4 +161,8 @@
     <string name="forbidden_login">This login is reserved or has forbidden characters. Use only letters and numbers.</string>
     <string name="reused_password">You cannot set password to one you already had.</string>
     <string name="birthday_change_limit">Birthday has been changed in the last 180 days</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="forgot_password_question">Forgot password?</string>
+    <string name="password_link_sent">Password reset link has been sent to your email</string>
+    <string name="reset_password">Reset password</string>
 </resources>

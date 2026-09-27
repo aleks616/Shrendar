@@ -1,12 +1,14 @@
 import {getLanguage} from "../getLanguage.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
-import {Button} from "@heroui/react"
+import {Button,ErrorMessage} from "@heroui/react"
 import {AccountClient} from "sharedLogic"
+import {useState} from "react";
 
 export default function Logout(){
     const lang=getLanguage().toUpperCase()
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const [errorKey,setErrorKey]=useState<string | null>(null)
     const translate=(key: string) => strings[key]??key
 
     const logout=async () => {
@@ -19,11 +21,11 @@ export default function Logout(){
                     window.location.reload()
                 }
                 else{
-                    console.log(translate(result))
+                    setErrorKey(result)
                 }
             }
             else{
-                console.log("no token")
+                setErrorKey("no_token")
             }
         }catch(e){
             console.log(e)
@@ -31,8 +33,11 @@ export default function Logout(){
     }
 
     return (
-        <Button onPress={logout}>
-            {translate("logout")}
-        </Button>
+        <div>
+            <Button onPress={logout}>
+                {translate("logout")}
+            </Button>
+            {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+        </div>
     )
 }

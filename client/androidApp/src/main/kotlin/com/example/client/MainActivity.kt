@@ -12,6 +12,7 @@ import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
 import com.example.client.account.screens.WelcomeView
 import com.example.client.account.screens.RegisterView
+import com.example.client.account.screens.RequestPasswordResetView
 import com.example.client.account.screens.SignInView
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -56,6 +57,10 @@ class MainActivity:ComponentActivity() {
                 composable<Destinations.SignIn> {
                     SignInView(onBack={navController.popBackStack()})
                 }
+                composable<Destinations.RequestPasswordReset> {
+                    RequestPasswordResetView(onBack={navController.popBackStack()})
+                }
+
             }
         }
     }

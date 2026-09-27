@@ -156,4 +156,8 @@
     <string name="forbidden_login">Ten login jest zarezerwowany lub zawiera niedozwolone znaki. Używaj tylko liter i cyfr.</string>
     <string name="reused_password">Nie możesz ustawić hasła, które już miałeś.</string>
     <string name="birthday_change_limit">Data urodzenia została zmieniona w ciągu ostatnich 180 dni</string>
+    <string name="forgot_password">Zapomniałem hasła</string>
+    <string name="forgot_password_question">Zapomniałeś hasła?</string>
+    <string name="password_link_sent">Link do resetowania hasła został wysłany na Twój e-mail</string>
+    <string name="reset_password">Zresetuj hasło</string>
 </resources>

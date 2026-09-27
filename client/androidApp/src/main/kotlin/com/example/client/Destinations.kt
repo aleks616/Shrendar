@@ -12,4 +12,7 @@ sealed interface Destinations:Destination {
 
     @Serializable
     data object SignIn:Destinations
+
+    @Serializable
+    data object RequestPasswordReset:Destinations
 }
