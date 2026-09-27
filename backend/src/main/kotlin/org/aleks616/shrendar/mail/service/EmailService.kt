@@ -6,8 +6,6 @@ import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import java.io.File
-import java.util.Locale
-import java.util.Locale.getDefault
 
 @Service
 class EmailService(
@@ -44,7 +42,7 @@ class EmailService(
         InternetAddress(address).apply {validate()}
         val lang=language.toString().lowercase()
         val content=File("src/main/kotlin/org/aleks616/shrendar/mail/html/passwordResetCode-$lang.html").readText()
-            .replace($$"$code",code)
+            .replace($$"$code",code).replace($$"$email",email)
         val mimeMessage=mailSender.createMimeMessage()
         mimeMessage.subject="Password reset"
         mimeMessage.setRecipient(Message.RecipientType.TO,InternetAddress(address))
