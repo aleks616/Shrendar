@@ -178,7 +178,8 @@ class RegisterApiTest {
         login="alice",
         displayName="Alice",
         email="alice@example.com",
-        password="Password1!"
+        password="Password1!",
+        language="EN"
     )
 
     private fun client(

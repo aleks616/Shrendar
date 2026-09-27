@@ -19,5 +19,6 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
+        allowedHosts: ['iujn3hpkrb1p.shares.zrok.io'],
     },
 });
