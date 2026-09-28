@@ -1,8 +1,8 @@
 import {getLanguage} from "../getLanguage.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
-import {useState} from "react"
-import {Button,ErrorMessage,Form,Heading,Input,Label,Modal,TextField} from "@heroui/react"
+import {useEffect,useState} from "react"
+import {Button,ErrorMessage,Form,Heading,Input,Label,TextField} from "@heroui/react"
 import {AccountClient,RegisterValidator,ResetPasswordDto} from "sharedLogic"
 import {isMobile} from 'react-device-detect'
 
@@ -50,36 +50,26 @@ export function CreatePassword(){
 
     const openMobileApp=() => {
         const ua=navigator.userAgent
-        if(/android/i.test(ua)){
-            openAndroid()
-        }
-        else if((/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
-            openIos()
+        if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
+            const params=new URLSearchParams(window.location.search)
+            const code=params.get("code")
+            const account=params.get("account")
+            if(!code||!account){
+                setErrorKey("something_wrong")
+                return
+            }
+            const appUrl=new URL("shrendar://reset-password")
+            appUrl.searchParams.set("code",code)
+            appUrl.searchParams.set("account",account)
+            window.location.assign(appUrl.toString())
         }
         else {
             console.log("not supported mobile device")
         }
     }
-
-    const openIos=()=>{
-        const params=new URLSearchParams(window.location.search)
-        const code=params.get("code")
-        const account=params.get("account")
-        if(!code||!account){
-            setErrorKey("something_wrong")
-            return
-        }
-        const appUrl=new URL("shrendar://reset-password")
-        appUrl.searchParams.set("code",code)
-        appUrl.searchParams.set("account",account)
-        window.location.assign(appUrl.toString())
-    }
-
-    const openAndroid=()=>{
-        console.log("not supported yet")
-    }
-
-    if(isMobile) openMobileApp()
+    useEffect(()=>{
+        openMobileApp()
+    }, [])
 
     return (
         <div>

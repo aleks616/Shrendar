@@ -30,6 +30,7 @@ import org.json.JSONObject
 @OptIn(ExperimentalMaterial3Api::class)
 fun SignInView(
     onBack:()->Unit={},
+    onForgotPassword:()->Unit={},
 ) {
     var login by remember {mutableStateOf("")}
     var password by remember {mutableStateOf("")}
@@ -119,6 +120,14 @@ fun SignInView(
                         },enabled=!(login.isEmpty()||password.isEmpty())
                     ) {
                         Text(stringResource(MR.strings.sign_in))
+                    }
+                    Row(
+                        verticalAlignment=Alignment.CenterVertically,
+                    ) {
+                        Text(stringResource(MR.strings.forgot_password_question))
+                        TextButton(onClick=onForgotPassword) {
+                            Text(stringResource(MR.strings.reset_password))
+                        }
                     }
                 }
             }
