@@ -15,10 +15,11 @@ export default defineConfig({
         port: 8080,
         proxy: {
             '/api': {
+               // target: 'https://privileges-socket-rider-knowing.trycloudflare.com',
                 target: 'https://shrendar.shares.zrok.io',
                 changeOrigin: true,
             },
         },
-        allowedHosts: ['iujn3hpkrb1p.shares.zrok.io'],
+        allowedHosts: ['shrendarclient.shares.zrok.io','unable-insulation-mae-bring.trycloudflare.com'],
     },
 });

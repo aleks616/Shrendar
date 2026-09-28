@@ -17,6 +17,12 @@
 				<string>com.googleusercontent.apps.13978966379-0c8s74s07n6mggje95k7edbjpanqli13</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>shrendar</string>
+			</array>
+		</dict>
 	</array>
 	<key>GIDClientID</key>
 	<string>13978966379-0c8s74s07n6mggje95k7edbjpanqli13.apps.googleusercontent.com</string>
@@ -26,7 +32,21 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>privileges-socker-rider-knowing.trycloudflare.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
 			<key>shrendar.shares.zrok.io</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>shrendarclient.shares.zrok.io</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>

@@ -15,4 +15,7 @@ sealed interface Destinations:Destination {
 
     @Serializable
     data object RequestPasswordReset:Destinations
+
+    @Serializable
+    data object PasswordReset:Destinations
 }
