@@ -160,4 +160,6 @@
     <string name="forgot_password_question">Zapomniałeś hasła?</string>
     <string name="password_link_sent">Link do resetowania hasła został wysłany na Twój e-mail</string>
     <string name="reset_password">Zresetuj hasło</string>
+    <string name="create_new_password">Utwórz nowe hasło</string>
+    <string name="change_password">Zmień hasło</string>
 </resources>

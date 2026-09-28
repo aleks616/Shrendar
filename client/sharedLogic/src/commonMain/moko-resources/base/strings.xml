@@ -165,4 +165,6 @@
     <string name="forgot_password_question">Forgot password?</string>
     <string name="password_link_sent">Password reset link has been sent to your email</string>
     <string name="reset_password">Reset password</string>
+    <string name="create_new_password">Create new password</string>
+    <string name="change_password">Change password</string>
 </resources>
