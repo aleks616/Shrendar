@@ -1,0 +1,8 @@
+{
+  "applinks": {
+    "details": [{
+      "appIDs": ["J3W2C3UWFS.com.example.Shrendar.Shrendar"],
+      "components": [{ "/": "/reset-password" }]
+    }]
+  }
+}

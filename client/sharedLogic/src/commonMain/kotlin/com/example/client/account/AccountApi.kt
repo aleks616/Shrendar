@@ -7,6 +7,7 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -50,6 +51,32 @@ class AccountApi private constructor(
         }
     }
 
+   suspend fun requestPasswordReset(accountKey:String,language:String):String{
+        return try{
+            client.post("$BASE_URL/user-account/requestPasswordReset"){
+                parameter("accountKey",accountKey)
+                parameter("language",language)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
+        }
+    }
+
+    suspend fun resetPassword(passwordRequest:ResetPasswordDto):String{
+        return try{
+            client.post("$BASE_URL/user-account/resetPassword"){
+                contentType(ContentType.Application.Json)
+                setBody(passwordRequest)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -70,4 +97,6 @@ class AccountApi private constructor(
 object AccountClient {
     suspend fun login(request:LoginRequestDto):String=AccountApi().login(request)
     suspend fun logout(token:String):String=AccountApi().logout(token)
+    suspend fun requestPasswordReset(accountKey:String,language:String):String=AccountApi().requestPasswordReset(accountKey,language)
+    suspend fun resetPassword(request:ResetPasswordDto):String=AccountApi().resetPassword(request)
 }

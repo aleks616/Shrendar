@@ -12,5 +12,5 @@ data class RegisterRequestDto(
     val displayName: String,
     val email: String,
     val password: String,
-    val language:String="EN"
+    val language:String
 )

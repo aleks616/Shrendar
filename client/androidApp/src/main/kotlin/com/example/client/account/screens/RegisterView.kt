@@ -50,6 +50,7 @@ fun RegisterView(
     var confirmed:Boolean by remember {mutableStateOf(false)}
 
     val scope=rememberCoroutineScope()
+    val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
 
     suspend fun validate():String? {
         val registerValidator=RegisterValidator()
@@ -69,7 +70,6 @@ fun RegisterView(
     }
 
     suspend fun register() {
-        val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
         val registerRequestDto=
             RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
         val result=RegisterClient.register(registerRequestDto)
@@ -84,7 +84,7 @@ fun RegisterView(
     }
 
     suspend fun confirmAccount() {
-        val registerRequest=RegisterRequestDto(login=login,displayName=login,email=email,password=password)
+        val registerRequest=RegisterRequestDto(login=login,displayName=login,email=email,password=password,language=language)
         val confirmationResult=RegisterClient.registerConfirm(registerRequest,code.value)
         if(confirmationResult=="account_created") {
             confirmed=true

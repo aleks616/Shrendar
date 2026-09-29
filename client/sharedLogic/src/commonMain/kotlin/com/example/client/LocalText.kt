@@ -165,6 +165,12 @@ class LocalText {
             "forbidden_login"->MR.strings.forbidden_login
             "reused_password"->MR.strings.reused_password
             "birthday_change_limit"->MR.strings.birthday_change_limit
+            "forgot_password"->MR.strings.forgot_password
+            "forgot_password_question"->MR.strings.forgot_password_question
+            "password_link_sent"->MR.strings.password_link_sent
+            "reset_password"->MR.strings.reset_password
+            "create_new_password"->MR.strings.create_new_password
+            "change_password"->MR.strings.change_password
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

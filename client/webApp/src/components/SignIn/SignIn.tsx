@@ -10,7 +10,7 @@ export function SignIn(){
     const translate=(key:string)=>strings[key]??key
     const [login,setLogin]=useState("")
     const [password,setPassword]=useState("")
-    const [errorKey,setErrorKey]=useState<string|null>(null)
+    const [errorText,setErrorText]=useState<string|null>(null)
 
     const signIn=async ()=>{
         try{
@@ -20,15 +20,16 @@ export function SignIn(){
             try{
                 const token=JSON.parse(result).token
                 localStorage.setItem("token",token)
-                setErrorKey(null)
+                setErrorText(null)
+                window.location.reload()
             }
             catch(e){
-                setErrorKey(result)
+                setErrorText(translate(result))
             }
         }
         catch(e){
             console.log(e)
-            setErrorKey("something_wrong")
+            setErrorText(translate("something_wrong"))
         }
     }
 
@@ -44,7 +45,7 @@ export function SignIn(){
                     <Label>{translate("password")}</Label>
                     <Input autoComplete={"current-password"}/>
                 </TextField>
-                {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+                {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
                 <Button
                 isDisabled={login.length==0||password.length===0}
                 onPress={signIn}>

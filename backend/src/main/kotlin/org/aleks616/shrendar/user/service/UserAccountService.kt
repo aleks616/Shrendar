@@ -131,25 +131,24 @@ class UserAccountService(
         emailService.sendAccountCreatedMessage(req.email,req.language?:SupportedLanguages.EN)
     }
 
-    fun requestPasswordReset(accountKey:String) {
+    fun requestPasswordReset(accountKey:String,language:SupportedLanguages) {
         if(!doesAccountExist(accountKey)) throw IllegalArgumentException("account_not_found")
         if(!passwordResetCodeStorage.canSendCode(accountKey)) throw IllegalStateException("too_many_email_requests")
         val code=CodeGenerator.generateCode(numericOnly=true)
-        passwordResetCodeStorage.storeCode(accountKey,code)
-        val email=if(accountKey.contains("@")) accountKey
-        else userRepository.findByLogin(accountKey)?.email?:throw IllegalArgumentException("account_not_found")
+        //store code for EMAIL, NEVER FOR LOGIN
+        val user=userRepository.findByLogin(accountKey)?:userRepository.findByEmail(accountKey)?:throw IllegalArgumentException("account_not_found")
+        passwordResetCodeStorage.storeCode(user.email!!,code)
 
-        emailService.sendPasswordResetMessage(email,code)
+        emailService.sendPasswordResetMessage(user.email!!,code,language)
     }
-
-    fun changePassword(email:String,newPassword:String,resetCode:String) {
-        if(!passwordResetCodeStorage.validateCode(email,resetCode)) throw InvalidOTPCodeException()
-        val encryptedPassword=encoder.encode(newPassword)
-        val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:throw IllegalStateException("account_not_found")
+    fun changePassword(request:ResetPasswordDto) {
+        if(!passwordResetCodeStorage.validateCode(request.email,request.code)) throw InvalidOTPCodeException()
+        val encryptedPassword=encoder.encode(request.newPassword)
+        val userToChange=userRepository.findAll().firstOrNull {it.email.equals(request.email,ignoreCase=true)}?:throw IllegalStateException("account_not_found")
         val userPasswordHistory=UserPasswordHistory()
         val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id)
         passwordHistory.forEach {
-            if(it.password==encryptedPassword) throw ReusedPasswordException()
+            if(matches(request.newPassword,it.password!!)) throw ReusedPasswordException()
         }
         userPasswordHistory.user=userToChange
         userPasswordHistory.password=encryptedPassword
@@ -162,7 +161,7 @@ class UserAccountService(
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
-        emailService.sendPasswordHasBeenChangedMessage(email)
+        emailService.sendPasswordHasBeenChangedMessage(request.email,request.language?:SupportedLanguages.EN)
     }
 
     fun changeUsername(email:String, newUsername:String){

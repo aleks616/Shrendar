@@ -16,6 +16,7 @@ class WebConfig:WebMvcConfigurer{
                 "https://localhost:[*]",
                 "http://localhost:[*]",
             )
+            .allowedOrigins("https://unable-insulation-mae-bring.trycloudflare.com/")
             .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
