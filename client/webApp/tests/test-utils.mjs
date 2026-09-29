@@ -8,6 +8,7 @@ const webAppRoot=fileURLToPath(new URL("..",import.meta.url))
 
 const testMocks={
     name: "shrendar-component-test-mocks",
+    enforce: "pre",
     resolveId(source){
         if(source==="sharedLogic") return "\0shrendar-test-shared-logic"
         if(source==="sharedLogic/localization/comexampleclient_stringsJson.json"){
@@ -28,6 +29,7 @@ const testMocks={
         }
         export class RegisterRequestDto {}
         export class LoginRequestDto {}
+        export class ResetPasswordDto {}
         export const RegisterClient = {
           getInstance: () => ({
             register: async () => "verification_code_sent",
@@ -37,7 +39,9 @@ const testMocks={
         export const AccountClient = {
           getInstance: () => ({
             login: async () => JSON.stringify({ token: "test-token" }),
-            logout: async () => "logged_out"
+            logout: async () => "logged_out",
+            requestPasswordReset: async () => "password_link_sent",
+            resetPassword: async () => "password_changed"
           })
         }
       `
@@ -61,6 +65,12 @@ const testMocks={
                 special_sign_in_later: "You can sign in later",
                 sign_in: "Sign in",
                 login_email: "Login or e-mail address",
+                forgot_password_question: "Forgot password?",
+                reset_password: "Reset password",
+                password_link_sent: "Password reset link has been sent to your email",
+                create_new_password: "Create new password",
+                change_password: "Change password",
+                something_wrong: "Something went wrong. Try again later.",
             })}`
         }
 
