@@ -27,20 +27,18 @@ struct PasswordResetView: View {
 					SecureInputView(
 						localize(key: "password"),
 						text: $password,
-						accessibilityIdentifier: "register.password"
+						accessibilityIdentifier: "resetPassword.password"
 					)
 					.textContentType(.password)
-					.accessibilityIdentifier("resetPassword.password")
 					.focused($focusedField, equals: .password)
 					.font(.system(size: 24.0))
 
 					SecureInputView(
 						localize(key: "re_enter_password"),
 						text: $confirmPassword,
-						accessibilityIdentifier: "register.confirmPassword"
+						accessibilityIdentifier: "resetPassword.confirmPassword"
 					)
 					.textContentType(.password)
-					.accessibilityIdentifier("resetPassword.confirmPassword")
 					.focused($focusedField, equals: .confirmPassword)
 					.font(.system(size: 24.0))
 				}
@@ -50,7 +48,7 @@ struct PasswordResetView: View {
 				Button(action: createPassword) {
 					Text(localize(key: "change_password")).frame(maxWidth: .infinity)
 				}
-				.accessibilityIdentifier("register.submit")
+				.accessibilityIdentifier("resetPassword.submit")
 				.disabled(
 					password.isEmpty
 						|| confirmPassword.isEmpty
