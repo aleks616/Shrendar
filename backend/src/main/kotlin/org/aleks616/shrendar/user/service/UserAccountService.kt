@@ -148,7 +148,7 @@ class UserAccountService(
         val userPasswordHistory=UserPasswordHistory()
         val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id)
         passwordHistory.forEach {
-            if(it.password==encryptedPassword) throw ReusedPasswordException()
+            if(matches(request.newPassword,it.password!!)) throw ReusedPasswordException()
         }
         userPasswordHistory.user=userToChange
         userPasswordHistory.password=encryptedPassword
