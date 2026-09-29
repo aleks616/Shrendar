@@ -12,39 +12,38 @@ export function CreatePassword(){
     const translate=(key:string)=>strings[key]??key
     const [password,setPassword]=useState("")
     const [repeatPassword,setRepeatPassword]=useState("")
-    const [errorKey,setErrorKey]=useState<string | null>(null)
+    const [errorText,setErrorText]=useState<string | null>(null)
 
     const createPassword=async () => {
         try{
             const urlParams=new URLSearchParams(window.location.search)
             const code=urlParams.get("code")
-            const email=urlParams.get("account")
-            console.log(code,email)
+            const email=urlParams.get("email")
             if(code==null||email==null){
-                console.log("invalid parameters") //todo
+                setErrorText(translate("something_wrong"))
                 return
             }
             if(password!==repeatPassword){
-                setErrorKey("passwords_dont_match")
+                setErrorText(translate("passwords_dont_match"))
                 return
             }
             const validator=new RegisterValidator()
             if(!validator.isPasswordValid(password)){
-                setErrorKey("invalid_password")
+                setErrorText(translate("invalid_password"))
                 return
             }
             const resetPasswordRequest=new ResetPasswordDto(email,password,code,lang)
             const result=await AccountClient.getInstance().resetPassword(resetPasswordRequest)
             if(result=="password_changed"){
-                setErrorKey(null)
+                setErrorText(null)
                 window.location.reload()
             }
             else
-                setErrorKey(result)
+                setErrorText(translate(result))
         }
         catch(e){
             console.log(e)
-            setErrorKey("something_wrong")
+            setErrorText(translate("something_wrong"))
         }
     }
 
@@ -53,22 +52,23 @@ export function CreatePassword(){
         if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
             const params=new URLSearchParams(window.location.search)
             const code=params.get("code")
-            const account=params.get("account")
-            if(!code||!account){
-                setErrorKey("something_wrong")
+            const email=params.get("email")
+            if(!code||!email){
+                setErrorText(translate("something_wrong"))
                 return
             }
             const appUrl=new URL("shrendar://reset-password")
             appUrl.searchParams.set("code",code)
-            appUrl.searchParams.set("account",account)
+            appUrl.searchParams.set("account",email)
             window.location.assign(appUrl.toString())
         }
         else {
             console.log("not supported mobile device")
         }
     }
+
     useEffect(()=>{
-        openMobileApp()
+        if(isMobile) openMobileApp()
     }, [])
 
     return (
@@ -84,7 +84,7 @@ export function CreatePassword(){
                     <Label>{translate("re_enter_password")}</Label>
                     <Input autoComplete="new-password"/>
                 </TextField>
-                {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+                {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
                 <Button onPress={createPassword} isDisabled={password.length===0||repeatPassword.length===0}>
                     {translate("change_password")}
                 </Button>

@@ -1,6 +1,6 @@
 package com.example.client.account.screens
 
-import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -15,19 +15,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.ResetPasswordDto
 import com.example.client.register.RegisterValidator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
-import java.util.Locale
+import java.util.*
 
 @Composable
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 fun PasswordResetView(
     resetUrl:String="https://shrendarclient.shares.zrok.io/reset-password?code=123456&account=user@example.com",
+    onBack:()->Unit={},
 ) {
     var password by remember {mutableStateOf("")}
     var confirmPassword by remember {mutableStateOf("")}
@@ -36,7 +38,7 @@ fun PasswordResetView(
     val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
 
     suspend fun createPassword() {
-        val uri=Uri.parse(resetUrl)
+        val uri=resetUrl.toUri()
         val code=uri.getQueryParameter("code")
         val email=uri.getQueryParameter("account")
 
@@ -70,12 +72,20 @@ fun PasswordResetView(
         }
         catch(e:Exception) {
             errorKey="something_wrong"
+            Log.e("create password",e.toString())
         }
     }
 
     AppTheme {
         Surface {
-            Column(
+            Column(modifier=Modifier.fillMaxSize()) {
+                TopAppBar(
+                    title={},
+                    navigationIcon={
+                        BackButton {onBack()}
+                    },
+                )
+                Column(
                 modifier=Modifier
                     .fillMaxSize()
                     .padding(top=15.dp),
@@ -123,6 +133,7 @@ fun PasswordResetView(
                 ) {
                     Text(stringResource(MR.strings.change_password))
                 }
+            }
             }
         }
     }

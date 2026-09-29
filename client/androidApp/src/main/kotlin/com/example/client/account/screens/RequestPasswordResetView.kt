@@ -110,9 +110,6 @@ fun RequestPasswordResetView(
                             }
                         },
                         enabled=login.isNotEmpty()&&!timerOn,
-                        modifier=Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal=20.dp)
                     ) {
                         Text(stringResource(MR.strings.reset_password))
                     }

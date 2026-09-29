@@ -8,7 +8,7 @@ import {useState} from "react";
 export default function Logout(){
     const lang=getLanguage().toUpperCase()
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
-    const [errorKey,setErrorKey]=useState<string | null>(null)
+    const [errorText,setErrorText]=useState<string | null>(null)
     const translate=(key: string) => strings[key]??key
 
     const logout=async () => {
@@ -21,11 +21,11 @@ export default function Logout(){
                     window.location.reload()
                 }
                 else{
-                    setErrorKey(result)
+                    setErrorText(translate(result))
                 }
             }
             else{
-                setErrorKey("no_token")
+                setErrorText(translate("no_token"))
             }
         }catch(e){
             console.log(e)
@@ -37,7 +37,7 @@ export default function Logout(){
             <Button onPress={logout}>
                 {translate("logout")}
             </Button>
-            {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+            {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
         </div>
     )
 }

@@ -10,7 +10,7 @@ export function RequestPasswordReset(){
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
     const translate=(key: string) => strings[key]??key
     const [login,setLogin]=useState("")
-    const [errorKey,setErrorKey]=useState<string | null>(null)
+    const [errorText,setErrorText]=useState<string | null>(null)
     const [codeSent,setCodeSent]=useState(false)
     const [timerOn,setTimerOn]=useState(false)
     const [resendCountdown,setResendCountdown]=useState(60)
@@ -24,17 +24,17 @@ export function RequestPasswordReset(){
                     setResendCountdown(240)
                     setTimerOn(true)
                 }
-                setErrorKey(result)
+                setErrorText(translate(result))
                 return
             }
-            setErrorKey(null)
+            setErrorText(null)
             setCodeSent(true)
             setTimerOn(true)
             return
         }
         catch(e){
             console.log(e)
-            setErrorKey("something_wrong")
+            setErrorText(translate("something_wrong"))
         }
     }
 
@@ -62,7 +62,7 @@ export function RequestPasswordReset(){
                     <Label>{translate("login_email")}</Label>
                     <Input autoComplete={"email"}/>
                 </TextField>
-                {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+                {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
                 <Button
                     isDisabled={login.length==0||timerOn}
                     onPress={requestPasswordReset}>

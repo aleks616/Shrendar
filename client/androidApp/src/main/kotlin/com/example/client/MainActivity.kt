@@ -30,11 +30,7 @@ class MainActivity:ComponentActivity() {
         resetUrl.value=intent?.data?.toString()
 
         /*CoroutineScope(Dispatchers.Main).launch {
-            try {
-                Log.d("GenreApi", GenreApi().getAll().toString())
-            } catch (error: Exception) {
-                Log.e("GenreApi", "Unable to fetch genres", error)
-            }
+            Log.d("GenreApi", GenreApi().getAll().toString())
         }*/
 
         setContent {
@@ -80,7 +76,10 @@ class MainActivity:ComponentActivity() {
                     RequestPasswordResetView(onBack={navController.popBackStack()})
                 }
                 composable<Destinations.PasswordReset> {
-                    PasswordResetView(resetUrl=resetUrl.value.orEmpty())
+                    PasswordResetView(
+                        resetUrl=resetUrl.value.orEmpty(),
+                        onBack={navController.popBackStack()},
+                    )
                 }
 
             }

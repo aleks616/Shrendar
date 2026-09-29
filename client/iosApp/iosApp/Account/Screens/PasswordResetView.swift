@@ -113,5 +113,5 @@ struct PasswordResetView: View {
 }
 
 #Preview {
-	PasswordResetView(resetURL: URL(string: "https://unable-insulation-mae-bring.trycloudflare.com/reset-password?code=123456&account=user@example.com"))
+	PasswordResetView(resetURL: URL(string: "https://shrendarclient.shares.zrok.io/reset-password?code=123456&account=user@example.com"))
 }

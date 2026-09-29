@@ -17,7 +17,7 @@ export function Register(){
     const [login,setLogin]=useState("")
     const [password,setPassword]=useState("")
     const [repeatPassword,setRepeatPassword]=useState("")
-    const [errorKey,setErrorKey]=useState<string | null>(null)
+    const [errorText,setErrorText]=useState<string | null>(null)
 
     const [code,setCode]=useState("")
     const [codeSent,setCodeSent]=useState(false)
@@ -31,41 +31,41 @@ export function Register(){
         try{
             const registerError=await new RegisterValidator().validateLogin(login)
             if(registerError){
-                setErrorKey(registerError)
+                setErrorText(translate(registerError))
                 return
             }
 
             const emailError=await validator.validateEmail(email)
             if(emailError){
-                setErrorKey(emailError==="email_invalid"?"invalid_email":emailError)
+                setErrorText(translate(emailError==="email_invalid"?"invalid_email":emailError))
                 return
             }
 
             if(password!==repeatPassword){
-                setErrorKey("passwords_dont_match")
+                setErrorText(translate("passwords_dont_match"))
                 return
             }
 
             if(!validator.isPasswordValid(password)){
-                setErrorKey("invalid_password")
+                setErrorText(translate("invalid_password"))
                 return
             }
-            setErrorKey(null)
+            setErrorText(null)
             setCodeSent(true)
             setTimerOn(true)
             const registerRequest=new RegisterRequestDto(login,login,email,password,lang)
             const result=await RegisterClient.getInstance().register(registerRequest)
             if(result=="verification_code_sent"){
-                setErrorKey(null)
+                setErrorText(null)
                 setResendCountdown(60)
             }
             else if(result=="something_wrong"){
-                setErrorKey("something_wrong")
+                setErrorText(translate("something_wrong"))
             }
         }
         catch(e){
             console.log(e)
-            setErrorKey("something_wrong")
+            setErrorText(translate("something_wrong"))
         }
     }
 
@@ -76,14 +76,14 @@ export function Register(){
             if(confirmationResult=="account_created"){
                 setConfirmed(true)
                 setTimerOn(false)
-                setErrorKey(null)
+                setErrorText(null)
             }
             else{
-                setErrorKey(confirmationResult)
+                setErrorText(translate(confirmationResult))
             }
         }catch(e){
             console.log(e)
-            setErrorKey("something_wrong")
+            setErrorText(translate("something_wrong"))
         }
     }
 
@@ -125,7 +125,7 @@ export function Register(){
                     <Label>{translate("re_enter_password")}</Label>
                     <Input autoComplete="new-password"/>
                 </TextField>
-                {errorKey&&<ErrorMessage>{translate(errorKey)}</ErrorMessage>}
+                {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
                 <div className={"flex justify-center"}>
                     <Button
                         isDisabled={email.length===0||login.length===0||password.length===0
