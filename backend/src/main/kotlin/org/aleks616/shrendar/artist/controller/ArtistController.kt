@@ -208,7 +208,7 @@ class ArtistController(
     }
 
     @PostMapping("/favorite")
-    fun favoriteArtist(@RequestBody artistId:Long, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun favoriteArtist(@RequestBody artistId:Long,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
@@ -230,7 +230,7 @@ class ArtistController(
     }
 
     @PostMapping("/favoriteAll")
-    fun favoriteBandsArtists(@RequestBody bandId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun favoriteBandsArtists(@RequestBody bandId:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name

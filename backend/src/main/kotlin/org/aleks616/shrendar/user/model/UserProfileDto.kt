@@ -14,6 +14,7 @@ data class UserProfileDto(
     val username:String?=null,
     val rankId:Int?=null,
     val rankName:String?=null,
+    val xp:Int?=null,
     val bio:String?=null,
     val accountAge:String?=null,
     val lastLogin:String?=null,
@@ -23,4 +24,5 @@ data class UserProfileDto(
     val favoriteGenres:List<FavoriteGenreDto>?=null,
 
     val contributions:List<ContributionDto>?=null,
+    val isUser:Boolean?=null
     ):Serializable

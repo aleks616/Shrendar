@@ -171,6 +171,24 @@ class LocalText {
             "reset_password"->MR.strings.reset_password
             "create_new_password"->MR.strings.create_new_password
             "change_password"->MR.strings.change_password
+            "rank1"->MR.strings.rank1
+            "rank2"->MR.strings.rank2
+            "rank3"->MR.strings.rank3
+            "rank4"->MR.strings.rank4
+            "rank5"->MR.strings.rank5
+            "rank6"->MR.strings.rank6
+            "rank7"->MR.strings.rank7
+            "rank8"->MR.strings.rank8
+            "rank9"->MR.strings.rank9
+            "rank10"->MR.strings.rank10
+            "rank11"->MR.strings.rank11
+            "rank12"->MR.strings.rank12
+            "rank13"->MR.strings.rank13
+            "rank14"->MR.strings.rank14
+            "rank15"->MR.strings.rank15
+            "rank16"->MR.strings.rank16
+            "rank17"->MR.strings.rank17
+            "rank18"->MR.strings.rank18
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

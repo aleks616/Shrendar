@@ -1,0 +1,414 @@
+import React,{useEffect,useState} from 'react'
+import {Navigate,useParams} from "react-router-dom"
+import {ProfileClient,UserProfileDto} from "sharedLogic"
+import {getLanguage} from "../getLanguage.ts"
+import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
+import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
+import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,ToggleButton} from "@heroui/react"
+import {Link as HerouiLink} from "@heroui/react"
+import {Person,Star,StarFill,Tray} from "@gravity-ui/icons"
+import {loremIpsum} from "lorem-ipsum"
+
+const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
+
+export function UserProfile(){
+    const [user,setUser]=useState<UserProfileDto | null>(new UserProfileDto())
+    const [isLoading,setIsLoading]=useState(true)
+    const lang=getLanguage().toUpperCase()
+    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const translate=(key: string) => strings[key]??key
+    const params=useParams()
+    const userParam=params.user
+    useEffect(() => {
+        const fetchUserData=async () => {
+            if(userParam==null) return
+            const token=localStorage.getItem("token")
+            const userData=await ProfileClient.getInstance().getUserProfile(userParam,token??null)
+            if(userData!=null){
+                setUser(userData)
+                setIsLoading(false)
+            }
+            else{
+                if(userData==null){
+                    setUser(null)
+                    setIsLoading(false)
+                }
+            }
+        }
+        fetchUserData()
+    },[userParam])
+
+    if(isLoading){
+        return (
+            <div className="flex justify-center items-center p-8">
+                <Spinner size="lg" color="accent"/>
+            </div>
+        )
+    }
+
+    if(user==null){
+        return <Navigate to="/404" replace={false}/>
+    }
+
+    const ranks: number[]=[
+        1,15,40,120,270,520,820,1200,1700,
+        2400,3500,5500,8000,11000,16000,21000,
+        182500,400000
+    ]
+
+    const calculateRankProgress=() => {
+        if(user.rankId<1||user.rankId>17) return -1
+        const nextMinXp=ranks[user.rankId]
+        const currentMinXp=ranks[user.rankId-1]
+        return (user.xp-currentMinXp)/(nextMinXp-currentMinXp)
+    }
+
+    const isOnline=false //todo actual logic
+    const isOwnProfile=user.user
+
+    const bandList=user.favoriteBands!.asJsReadonlyArrayView()
+    const artistList=user.favoriteArtists!.asJsReadonlyArrayView()
+    const genreList=user.favoriteGenres!.asJsReadonlyArrayView()
+    const contributionList=user.contributions!.asJsReadonlyArrayView()
+
+    const toggleBandFavorite=async (id: number) => {
+        const token=localStorage.getItem("token")
+        const result=await ProfileClient.getInstance().toggleFavoriteBand(id,token)
+        if(result!="band_toggled") console.error(result)
+    }
+
+    const toggleArtistFavorite=async (id: bigint) => {
+        const token=localStorage.getItem("token")
+        const result=await ProfileClient.getInstance().toggleFavoriteArtist(id,token)
+        if(result!="artist_toggled") console.error(result)
+    }
+
+    const toggleGenreFavorite=async (id: number) => {
+        const token=localStorage.getItem("token")
+        const result=await ProfileClient.getInstance().toggleFavoriteGenre(id,token)
+        if(result!="genre_toggled") console.error(result)
+    }
+
+    return (
+        <div className={"flex flex-col gap-4 max-w-4xl"}>
+            <div className={"flex gap-3"}>
+                <div>
+                    <Badge.Anchor>
+                        <Avatar size={"lg"} color="accent" variant="soft" className={"size-20"}>
+                            <Avatar.Image src={BLUE_AVATAR_URL}/>
+                            <Avatar.Fallback>
+                                <Person className={"size-12"}/>
+                            </Avatar.Fallback>
+                        </Avatar>
+                        <Tooltip delay={5}>
+                            <Tooltip.Trigger>
+                                <Badge color={isOnline?"success":"default"} placement="bottom-right" size="md"/>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content showArrow>
+                                <p>last online {user.lastLogin}</p>
+                            </Tooltip.Content>
+                        </Tooltip>
+                    </Badge.Anchor>
+                </div>
+                <div>
+                    <p className={"text-2xl font-bold"}>{user.login}</p>
+                    <p className={"text-lg text-muted"}>@{user.username}</p>
+                    <p className={"text-sm"}>Member since: {user.accountAge}</p>
+                </div>
+            </div>
+            {calculateRankProgress()!= -1&&
+                <ProgressBar value={calculateRankProgress()*100}>
+                    <Label>
+                        <div>
+                            Level {user.rankId} <br/>{translate("rank"+user.rankId)}
+                        </div>
+                    </Label>
+                    <ProgressBar.Output>
+                        Level {user.rankId+1} <br/>{translate("rank"+(user.rankId+1))}
+                    </ProgressBar.Output>
+                    <ProgressBar.Track>
+                        <ProgressBar.Fill/>
+                    </ProgressBar.Track>
+                </ProgressBar>}
+            <div>
+                <p>Bio:</p>
+                <div className={"h-52 border-accent bg-accent-soft"}>
+                    {loremIpsum({count: 1,units: "paragraphs"})}
+                </div>
+            </div>
+            <div>
+                <Tabs className="w-full text-lg" variant={"secondary"}>
+                    <Tabs.ListContainer>
+                        <Tabs.List aria-label="Options">
+                            <Tabs.Tab id="favorite_bands">
+                                Favorite bands
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                            <Tabs.Tab id="favorite_artists">
+                                Favorite artists
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                            <Tabs.Tab id="favorite_genres">
+                                Favorite genres
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                            <Tabs.Tab id="contributions">
+                                Contributions
+                                <Tabs.Separator/>
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                        </Tabs.List>
+                    </Tabs.ListContainer>
+                    <Tabs.Panel className="pt-2" id="favorite_bands">
+                        <Table variant={"secondary"}>
+                            <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
+                                <Table.Content aria-label={"Favorite bands table"} className={"min-w-xl"}>
+                                    <Table.Header className={"sticky top-0 z-10"}>
+                                        {isOwnProfile&&
+                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
+                                        <Table.Column isRowHeader>Band name</Table.Column>
+                                        <Table.Column>Country</Table.Column>
+                                        <Table.Column>Active</Table.Column>
+                                    </Table.Header>
+                                    <Table.Body
+                                        renderEmptyState={() => (
+                                            <EmptyState
+                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                <Tray className="size-6 text-muted"/>
+                                                <span className="text-sm text-muted">No favorite bands</span>
+                                            </EmptyState>
+                                        )}
+                                    >
+                                        {bandList.map((item,i) => (
+                                            <Table.Row key={i}>
+                                                {isOwnProfile&&
+                                                    <Table.Cell>
+                                                        <div className={"flex justify-center"}>
+                                                            <ToggleButton
+                                                                variant={"ghost"}
+                                                                defaultSelected
+                                                                isIconOnly
+                                                                aria-label="favorite"
+                                                                onPress={() => toggleBandFavorite(item.id!)}
+                                                                className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                            >
+                                                                {({isSelected}) => (
+                                                                    isSelected?(
+                                                                        <StarFill className={"size-5"}/>
+                                                                    ):(
+                                                                        <Star className={"size-5"}/>
+                                                                    )
+                                                                )}
+                                                            </ToggleButton>
+                                                        </div>
+                                                    </Table.Cell>
+                                                }
+                                                <Table.Cell>
+                                                    <HerouiLink
+                                                        href={`band/${item.id}/${item.name}`}
+                                                        className="before:absolute before:inset-0"
+                                                    >
+                                                        {item.name}
+                                                    </HerouiLink>
+                                                </Table.Cell>
+                                                <Table.Cell>{item.country}</Table.Cell>
+                                                <Table.Cell>{item.activeYears}</Table.Cell>
+                                            </Table.Row>
+                                        ))}
+                                    </Table.Body>
+                                </Table.Content>
+                            </Table.ScrollContainer>
+                        </Table>
+                    </Tabs.Panel>
+                    <Tabs.Panel className="pt-2" id="favorite_artists">
+                        <Table variant={"secondary"}>
+                            <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
+                                <Table.Content aria-label={"Favorite artists table"} className={"min-w-xl"}>
+                                    <Table.Header className={"sticky top-0 z-10"}>
+                                        {isOwnProfile&&
+                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
+                                        <Table.Column isRowHeader>Artist name</Table.Column>
+                                        <Table.Column>Bands</Table.Column>
+                                    </Table.Header>
+                                    <Table.Body
+                                        renderEmptyState={() => (
+                                            <EmptyState
+                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                <Tray className="size-6 text-muted"/>
+                                                <span className="text-sm text-muted">No favorite artists</span>
+                                            </EmptyState>
+                                        )}
+                                    >
+                                        {artistList.map((item,i) => {
+                                            const bands=item.bands!.asJsReadonlyArrayView()
+                                            const currentBands: typeof bands[number][]=[]
+                                            const pastBands: typeof bands[number][]=[]
+
+                                            bands.forEach(band => {
+                                                if(band.current===true) currentBands.push(band)
+                                                else if(band.current===false) pastBands.push(band)
+                                            })
+
+                                            return (
+                                                <Table.Row key={i}>
+                                                    {isOwnProfile&&
+                                                        <Table.Cell>
+                                                            <div className={"flex justify-center"}>
+                                                                <ToggleButton
+                                                                    variant={"ghost"}
+                                                                    defaultSelected
+                                                                    isIconOnly
+                                                                    aria-label="favorite"
+                                                                    onPress={() => toggleArtistFavorite(item.id!)}
+                                                                    className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                                >
+                                                                    {({isSelected}) => (
+                                                                        isSelected?(
+                                                                            <StarFill className={"size-5"}/>
+                                                                        ):(
+                                                                            <Star className={"size-5"}/>
+                                                                        )
+                                                                    )}
+                                                                </ToggleButton>
+                                                            </div>
+                                                        </Table.Cell>
+                                                    }
+                                                    <Table.Cell>
+                                                        <HerouiLink
+                                                            href={`artist/${item.id}/${item.name}`}
+                                                            className="before:absolute before:inset-0"
+                                                        >
+                                                            {item.name}
+                                                        </HerouiLink>
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                        {currentBands.map((band,j) => (
+                                                            <HerouiLink
+                                                                key={j}
+                                                                href={`band/${band.bandId}/${band.bandName}`}
+                                                                className="text-inherit before:absolute before:inset-0"
+                                                            >
+                                                                {band.bandName}
+                                                            </HerouiLink>
+                                                        ))}
+                                                        {currentBands.length>0&&<br/>}
+                                                        {pastBands.length>0&&(
+                                                            <span className={"text-muted"}>
+                                                                    <span>Past: </span>
+                                                                {pastBands.map((band,j) => (
+                                                                    <HerouiLink
+                                                                        key={j}
+                                                                        href={`band/${band.bandId}/${band.bandName}`}
+                                                                        className="text-inherit before:absolute before:inset-0"
+                                                                    >
+                                                                        {band.bandName}
+                                                                    </HerouiLink>
+                                                                ))}
+                                                                </span>
+                                                        )}
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            )
+                                        })}
+                                    </Table.Body>
+                                </Table.Content>
+                            </Table.ScrollContainer>
+                        </Table>
+                    </Tabs.Panel>
+                    <Tabs.Panel className="pt-2" id="favorite_genres">
+                        <Table variant={"secondary"}>
+                            <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
+                                <Table.Content aria-label={"Favorite genres table"} className={"min-w-xl"}>
+                                    <Table.Header className={"sticky top-0 z-10"}>
+                                        {isOwnProfile&&
+                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
+                                        <Table.Column isRowHeader>Genre</Table.Column>
+                                    </Table.Header>
+                                    <Table.Body
+                                        renderEmptyState={() => (
+                                            <EmptyState
+                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                <Tray className="size-6 text-muted"/>
+                                                <span className="text-sm text-muted">No favorite genres</span>
+                                            </EmptyState>
+                                        )}
+                                    >
+                                        {genreList.map((item,i) => (
+                                            <Table.Row key={i}>
+                                                {isOwnProfile&&
+                                                    <Table.Cell>
+                                                        <div className={"flex justify-center"}>
+                                                            <ToggleButton
+                                                                variant={"ghost"}
+                                                                defaultSelected
+                                                                isIconOnly
+                                                                aria-label="favorite"
+                                                                onPress={() => toggleGenreFavorite(item.id!)}
+                                                                className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                            >
+                                                                {({isSelected}) => (
+                                                                    isSelected?(
+                                                                        <StarFill className={"size-5"}/>
+                                                                    ):(
+                                                                        <Star className={"size-5"}/>
+                                                                    )
+                                                                )}
+                                                            </ToggleButton>
+                                                        </div>
+                                                    </Table.Cell>
+                                                }
+                                                <Table.Cell>{item.name}</Table.Cell>
+                                            </Table.Row>
+                                        ))}
+                                    </Table.Body>
+                                </Table.Content>
+                            </Table.ScrollContainer>
+                        </Table>
+                    </Tabs.Panel>
+                    <Tabs.Panel className="pt-2" id="contributions">
+                            <Table variant={"secondary"}>
+                                <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
+                                    <Table.Content aria-label={"User's contributions table"} className={"min-w-xl"}>
+                                        <Table.Header className={"sticky top-0 z-10"}>
+                                            <Table.Column isRowHeader>Action</Table.Column>
+                                            <Table.Column>Date</Table.Column>
+                                            <Table.Column>Table</Table.Column>
+                                            <Table.Column>Column</Table.Column>
+                                            <Table.Column>Confirmed</Table.Column>
+                                            <Table.Column>Before</Table.Column>
+                                            <Table.Column>After</Table.Column>
+                                        </Table.Header>
+                                        <Table.Body
+                                            renderEmptyState={() => (
+                                                <EmptyState
+                                                    className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                    <Tray className="size-6 text-muted"/>
+                                                    <span className="text-sm text-muted">No contributions</span>
+                                                </EmptyState>
+                                            )}
+                                        >
+                                            {contributionList.map((item,i) => {
+                                                const action=item.action?.name_1.toString().toLowerCase().replace(/(^|\s)[a-z]/gi,(l: string) => l.toUpperCase())
+                                                return (
+                                                    <Table.Row key={i} className={"relative"}
+                                                               href={`/${item.changedTable}/${item.changedRecordId}`}>
+                                                        <Table.Cell>{action}</Table.Cell>
+                                                        <Table.Cell>{item.changedAt}</Table.Cell>
+                                                        <Table.Cell>{item.changedTable}</Table.Cell>
+                                                        <Table.Cell>{item.changedColumn}</Table.Cell>
+                                                        <Table.Cell>{item.confirmed==true?"✔️":"️✖️"}</Table.Cell>
+                                                        <Table.Cell>{item.oldValue?item.oldValue:"-"}</Table.Cell>
+                                                        <Table.Cell>{item.newValue}</Table.Cell>
+                                                    </Table.Row>
+                                                )
+                                            })}
+                                        </Table.Body>
+                                    </Table.Content>
+                                </Table.ScrollContainer>
+                            </Table>
+                    </Tabs.Panel>
+                </Tabs>
+            </div>
+        </div>
+    )
+}

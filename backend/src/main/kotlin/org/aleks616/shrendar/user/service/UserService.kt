@@ -29,17 +29,18 @@ class UserService(
     private val bandsMemberService:BandsMemberService,
 ) {
 
-    fun getUserProfile(login:String):UserProfileDto {
+    fun getUserProfile(login:String,userLogin:String):UserProfileDto {
         val user:User=userRepository.findByLogin(login)?:throw IllegalArgumentException("User not found")
         if(user.deleted==true) return UserProfileDto(
-            "deleted","deleted",0,"none","deleted"
+            "deleted","deleted",0,"none",0,"deleted"
         )
         val favoriteBandsRaw=userBandRepository.findByUser(user)
         val favoriteBands:List<FavoriteBandDto> =favoriteBandsRaw.map {d->
             FavoriteBandDto(
                 id=d.band.id,
                 name=d.band.name,
-                country=countryRepository.findById(d.band.country!!).get().name!!
+                country=countryRepository.findById(d.band.country!!).get().name!!,
+                activeYears="${d.band.formedYear} - ${d.band.disbandedYear?:""}"
             )
         }
 
@@ -67,13 +68,15 @@ class UserService(
             user.username,
             user.rank.id,
             user.rank.name,
+            user.xp,
             user.bio,
             timeSinceAccountCreated(user.id),
             timeSinceLogin(user.id),
             favoriteBands,
             favoriteArtists,
             favoriteGenres,
-            contributions
+            contributions,
+            userLogin==user.login
         )
     }
 
@@ -94,7 +97,7 @@ class UserService(
         val now=Instant.now()
         val diff=ChronoUnit.DAYS.between(raw,now)
 
-        val time=if(diff>365) diff/365 else if(diff>30) diff%30 else diff
+        val time=if(diff>365) diff/365 else if(diff>30) diff/30 else diff
         val unit:String=if(diff>365) "years" else if(diff>30) "months" else if(diff==0L) "today" else "days"
         return "$time $unit ago"
     }
