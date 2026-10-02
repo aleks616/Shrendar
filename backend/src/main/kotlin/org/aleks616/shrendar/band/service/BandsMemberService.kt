@@ -159,7 +159,7 @@ class BandsMemberService(
     }
 
     fun getArtistBandsList(id:Long):List<ArtistBandsStatusDto>{
-        val dataRaw=bandsMemberRepository.findBandsByArtistId(id).distinctBy {it.bandId}
+        val dataRaw=bandsMemberRepository.findBandsByArtistId(id).sortedByDescending { it.leftYear?:9999}.distinctBy {it.bandId}
         return dataRaw.map { d->
             ArtistBandsStatusDto(
                 artistId=d.artistId,

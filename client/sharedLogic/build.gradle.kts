@@ -33,7 +33,12 @@ kotlin {
         compilerOptions {
             target="es2015"
             optIn.add("kotlin.js.ExperimentalJsExport")
+            freeCompilerArgs.add("-Xes-long-as-bigint")
         }
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
     android {

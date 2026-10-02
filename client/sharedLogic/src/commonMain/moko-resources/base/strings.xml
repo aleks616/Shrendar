@@ -167,4 +167,22 @@
     <string name="reset_password">Reset password</string>
     <string name="create_new_password">Create new password</string>
     <string name="change_password">Change password</string>
+    <string name="rank1">Newbie</string>
+    <string name="rank2">Kindermetal</string>
+    <string name="rank3">CD Borrower</string>
+    <string name="rank4">Classics Fan</string>
+    <string name="rank5">Metalhead</string>
+    <string name="rank6">Showgoer</string>
+    <string name="rank7">Blasphemer</string>
+    <string name="rank8">Collector</string>
+    <string name="rank9">Real fan</string>
+    <string name="rank10">Satan's little helper</string>
+    <string name="rank11">Pick catcher</string>
+    <string name="rank12">Veteran</string>
+    <string name="rank13">No.1 Fan</string>
+    <string name="rank14">Cowboy from Hell</string>
+    <string name="rank15">Hellraiser</string>
+    <string name="rank16">Holier than Thou</string>
+    <string name="rank17">Right hand of Lucifer (Moderator)</string>
+    <string name="rank18">Prince of Darkness (Webmaster)</string>
 </resources>

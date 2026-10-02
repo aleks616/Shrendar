@@ -18,8 +18,9 @@ export function CreatePassword(){
         try{
             const urlParams=new URLSearchParams(window.location.search)
             const code=urlParams.get("code")
-            const email=urlParams.get("email")
+            const email=urlParams.get("account")
             if(code==null||email==null){
+                console.log("code or email missing")
                 setErrorText(translate("something_wrong"))
                 return
             }
@@ -52,7 +53,7 @@ export function CreatePassword(){
         if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
             const params=new URLSearchParams(window.location.search)
             const code=params.get("code")
-            const email=params.get("email")
+            const email=params.get("account")
             if(!code||!email){
                 setErrorText(translate("something_wrong"))
                 return

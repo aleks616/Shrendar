@@ -313,7 +313,7 @@ class BandController (
     }
 
     @PostMapping("/favorite")
-    fun favoriteBand(@RequestBody bandId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun favoriteBand(@RequestBody bandId:Int,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name

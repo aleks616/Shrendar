@@ -30,7 +30,7 @@ class AccountApiTest {
 
             assertEquals("login_success",result)
             assertEquals(HttpMethod.Post,request?.method)
-            assertEquals("$BASE_URL/user-account/login",request?.url?.toString())
+            assertEquals("http://localhost:9876/user-account/login",request?.url?.toString())
             assertTrue((request?.body as TextContent).text.contains("\"login\":\"alice\""))
         }
         finally {
@@ -81,7 +81,7 @@ class AccountApiTest {
         try {
             assertEquals("logged_out",AccountApi(client).logout("token"))
             assertEquals(HttpMethod.Post,request?.method)
-            assertEquals("$BASE_URL/user-account/logout",request?.url?.toString())
+            assertEquals("http://localhost:9876/user-account/logout",request?.url?.toString())
         }
         finally {
             client.close()
@@ -117,7 +117,7 @@ class AccountApiTest {
                     "password_link_sent",AccountApi(client).requestPasswordReset("alice@example.com","EN")
                 )
                 assertEquals(HttpMethod.Post,request?.method)
-                assertEquals("/user-account/requestPasswordReset",request?.url?.encodedPath)
+                assertEquals("/api/user-account/requestPasswordReset",request?.url?.encodedPath)
                 assertEquals("alice@example.com",request?.url?.parameters?.get("accountKey"))
                 assertEquals("EN",request?.url?.parameters?.get("language"))
             }
@@ -177,7 +177,7 @@ class AccountApiTest {
                     )
                 )
                 assertEquals(HttpMethod.Post,request?.method)
-                assertEquals("/user-account/resetPassword",request?.url?.encodedPath)
+                assertEquals("/api/user-account/resetPassword",request?.url?.encodedPath)
                 val body=(request?.body as TextContent).text
                 assertTrue(body.contains("\"email\":\"alice@example.com\""))
                 assertTrue(body.contains("\"newPassword\":\"NewPassword1!\""))
