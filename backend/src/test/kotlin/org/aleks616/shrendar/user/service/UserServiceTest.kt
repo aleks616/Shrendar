@@ -78,7 +78,7 @@ class UserServiceTest {
             lastLoginTime=Instant.now().minus(45, ChronoUnit.DAYS)
         })
 
-        val profile=userService.getUserProfile("james")
+        val profile=userService.getUserProfile("james","james")
 
         assertEquals("james", profile.login)
         assertEquals("Metallica vocalist", profile.bio)
@@ -96,7 +96,7 @@ class UserServiceTest {
         val deletedUser=User().apply {id=7; login="former-user"; deleted=true}
         `when`(userRepository.findByLogin("former-user")).thenReturn(deletedUser)
 
-        val profile=userService.getUserProfile("former-user")
+        val profile=userService.getUserProfile("former-user","former-user")
 
         assertEquals("deleted",profile.login)
         assertEquals("deleted",profile.username)
@@ -188,7 +188,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(45, ChronoUnit.DAYS) }
         )
 
-        assertEquals("15 months ago", userService.timeSinceLogin(10))
+        assertEquals("1 months ago", userService.timeSinceLogin(10))
     }
 
     @Test
@@ -215,7 +215,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(365, ChronoUnit.DAYS) }
         )
 
-        assertEquals("5 months ago", userService.timeSinceLogin(13))
+        assertEquals("12 months ago", userService.timeSinceLogin(13))
     }
 
     @Test
@@ -251,7 +251,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(100, ChronoUnit.DAYS) }
         )
 
-        assertEquals("10 months ago", userService.timeSinceLogin(17))
+        assertEquals("3 months ago", userService.timeSinceLogin(17))
     }
 
     @Test

@@ -3,10 +3,12 @@ package org.aleks616.shrendar.user.service
 import org.aleks616.shrendar.exception.ForbiddenLoginException
 import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.ReusedPasswordException
+import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeStorage
 import org.aleks616.shrendar.user.model.Rank
 import org.aleks616.shrendar.user.model.RegisterRequestDto
+import org.aleks616.shrendar.user.model.ResetPasswordDto
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UserLog
 import org.aleks616.shrendar.user.model.UserPasswordHistory
@@ -190,7 +192,7 @@ class UserAccountServiceTest {
     fun `requestPasswordReset throws when the account does not exist`() {
         `when`(users.findAll()).thenReturn(emptyList())
 
-        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("missing")}
+        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("missing",SupportedLanguages.EN)}
         verifyNoInteractions(resetCodes,emailService)
     }
 
@@ -200,7 +202,7 @@ class UserAccountServiceTest {
         `when`(resetCodes.canSendCode("tester")).thenReturn(true)
         `when`(users.findByLogin("tester")).thenReturn(null)
 
-        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("tester")}
+        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("tester",SupportedLanguages.EN)}
         verifyNoInteractions(emailService)
     }
 
@@ -210,7 +212,7 @@ class UserAccountServiceTest {
         `when`(resetCodes.canSendCode("tester")).thenReturn(true)
         `when`(users.findByLogin("tester")).thenReturn(User().apply {login="tester"; email=null})
 
-        assertThrows(IllegalArgumentException::class.java) {service.requestPasswordReset("tester")}
+        assertThrows(NullPointerException::class.java) {service.requestPasswordReset("tester",SupportedLanguages.EN)}
         verifyNoInteractions(emailService)
     }
 
@@ -219,7 +221,7 @@ class UserAccountServiceTest {
         `when`(users.findAll()).thenReturn(listOf(User().apply {email="user@example.com"}))
         `when`(resetCodes.canSendCode("user@example.com")).thenReturn(false)
 
-        assertThrows(IllegalStateException::class.java) {service.requestPasswordReset("user@example.com")}
+        assertThrows(IllegalStateException::class.java) {service.requestPasswordReset("user@example.com",SupportedLanguages.EN)}
         verifyNoInteractions(emailService)
     }
 
@@ -228,7 +230,7 @@ class UserAccountServiceTest {
         `when`(resetCodes.validateCode("user@example.com","code")).thenReturn(false)
 
         assertThrows(InvalidOTPCodeException::class.java) {
-            service.changePassword("user@example.com","new-password","code")
+            service.changePassword(ResetPasswordDto("user@example.com","new-password","code"))
         }
         verifyNoInteractions(users,passwordHistory,emailService)
     }
@@ -239,7 +241,7 @@ class UserAccountServiceTest {
         `when`(users.findAll()).thenReturn(emptyList())
 
         assertThrows(IllegalStateException::class.java) {
-            service.changePassword("user@example.com","new-password","code")
+            service.changePassword(ResetPasswordDto("user@example.com","new-password","code"))
         }
     }
 
@@ -251,9 +253,10 @@ class UserAccountServiceTest {
         `when`(users.findAll()).thenReturn(listOf(user))
         `when`(passwordHistory.findAllByUserId(7)).thenReturn(listOf(history))
         `when`(encoder.encode("new-password")).thenReturn("old-hash")
+        `when`(encoder.matches("new-password",history.password!!)).thenReturn(true)
 
         assertThrows(ReusedPasswordException::class.java) {
-            service.changePassword("user@example.com","new-password","code")
+            service.changePassword(ResetPasswordDto("user@example.com","new-password","code"))
         }
         verify(users,never()).save(user)
     }

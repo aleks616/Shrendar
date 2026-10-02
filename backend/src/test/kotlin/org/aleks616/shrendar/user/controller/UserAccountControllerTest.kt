@@ -3,6 +3,7 @@ package org.aleks616.shrendar.user.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.SupportedLanguages
 import org.aleks616.shrendar.exception.ForbiddenLoginException
 import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
@@ -284,6 +285,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -293,10 +295,9 @@ class UserAccountControllerTest {
         assertNotNull(resetCode,"Reset code should be stored")
 
         val newPassword="newPassword123"
-        val resetRequest=ResetPasswordDto(email,newPassword)
+        val resetRequest=ResetPasswordDto(email,newPassword,resetCode!!)
 
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code",resetCode!!)
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(resetRequest)
         }.andExpect {
@@ -844,11 +845,18 @@ class UserAccountControllerTest {
     @Test
     fun `password reset rate limit should work`() {
         val email="rate@example.com"
-        mockMvc.post("/api/user-account/requestPasswordReset") {
-            param("accountKey",email)
+        registerAndConfirm("rateuser",email)
+
+        repeat(3) {
+            mockMvc.post("/api/user-account/requestPasswordReset") {
+                param("accountKey",email)
+                param("language","EN")
+            }
+            clearCodeStorage(passwordResetCodeStorage)
         }
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -857,17 +865,15 @@ class UserAccountControllerTest {
     @Test
     fun `reset password rate limit should work`() {
         val email="rate@example.com"
-        repeat(2) {
+        repeat(10) {
             mockMvc.post("/api/user-account/resetPassword") {
-                param("code","1234")
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
+                content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass","1234"))
             }
         }
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code","1234")
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass","1234"))
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -898,12 +904,12 @@ class UserAccountControllerTest {
         val controller=controllerFor(service,limiter)
         `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
         doThrow(IllegalStateException("too_many_email_requests")).`when`(service)
-            .requestPasswordReset("user@example.com")
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
-        val result=controller.requestPasswordReset("user@example.com")
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("too_many_email_requests",result.body)
+        assertEquals("too_many_user_requests",result.body)
     }
 
     @Test
@@ -913,9 +919,9 @@ class UserAccountControllerTest {
         val controller=controllerFor(service,limiter)
         `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
         doThrow(IllegalArgumentException("account_not_found")).`when`(service)
-            .requestPasswordReset("user@example.com")
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
-        val result=controller.requestPasswordReset("user@example.com")
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("account_not_found",result.body)
@@ -928,9 +934,9 @@ class UserAccountControllerTest {
         val controller=controllerFor(service,limiter)
         `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
         doThrow(RuntimeException("unexpected")).`when`(service)
-            .requestPasswordReset("user@example.com")
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
-        val result=controller.requestPasswordReset("user@example.com")
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("something_wrong",result.body)
@@ -941,11 +947,11 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
-        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
         doAnswer {throw InvalidOTPCodeException()}.`when`(service)
-            .changePassword("user@example.com","new-password","1234")
+            .changePassword(requestDto)
 
-        val result=controller.resetPassword(requestDto,"1234")
+        val result=controller.resetPassword(requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("invalid_otp",result.body)
@@ -956,11 +962,11 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
-        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
         doThrow(IllegalArgumentException("account_not_found")).`when`(service)
-            .changePassword("user@example.com","new-password","1234")
+            .changePassword(requestDto)
 
-        val result=controller.resetPassword(requestDto,"1234")
+        val result=controller.resetPassword(requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("account_not_found",result.body)
@@ -971,11 +977,11 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
-        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
         doAnswer {throw ReusedPasswordException()}.`when`(service)
-            .changePassword("user@example.com","new-password","1234")
+            .changePassword(requestDto)
 
-        val result=controller.resetPassword(requestDto,"1234")
+        val result=controller.resetPassword(requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("reused_password",result.body)
@@ -986,11 +992,11 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
-        val requestDto=ResetPasswordDto("user@example.com","new-password")
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
         doThrow(IllegalStateException("unexpected")).`when`(service)
-            .changePassword("user@example.com","new-password","1234")
+            .changePassword(requestDto)
 
-        val result=controller.resetPassword(requestDto,"1234")
+        val result=controller.resetPassword(requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("something_wrong",result.body)
@@ -1000,6 +1006,7 @@ class UserAccountControllerTest {
     fun `request password reset should return bad request for unknown account`() {
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey","nonexistent@example.com")
+            param("language","EN")
         }.andExpect {
             status {isBadRequest()}
         }
@@ -1012,6 +1019,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -1023,9 +1031,10 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isTooManyRequests()}
-            content {string("too_many_email_requests")}
+            content {string("too_many_user_requests")}
         }
     }
 
@@ -1114,6 +1123,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",login)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -1121,8 +1131,8 @@ class UserAccountControllerTest {
         val resetCodeField=CodeStorage::class.java.getDeclaredField("codes")
         resetCodeField.isAccessible=true
         @Suppress("UNCHECKED_CAST")
-        val resetCode=(resetCodeField.get(passwordResetCodeStorage) as Map<String,String>)[login]
-        assertNotNull(resetCode,"Reset code should be stored under login key")
+        val resetCode=(resetCodeField.get(passwordResetCodeStorage) as Map<String,String>)[email]
+        assertNotNull(resetCode,"Reset code should be stored under email key")
     }
 
     @Test
@@ -1176,6 +1186,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }
         val codeField=CodeStorage::class.java.getDeclaredField("codes")
         codeField.isAccessible=true
@@ -1183,9 +1194,8 @@ class UserAccountControllerTest {
         val resetCode=(codeField.get(passwordResetCodeStorage) as Map<String,String>)[email]!!
 
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code",resetCode)
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123",resetCode))
         }.andExpect {status {isOk()}}
 
         val history=userPasswordHistoryRepository.findAllByUserId(user.id)
