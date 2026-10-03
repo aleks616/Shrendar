@@ -4,7 +4,7 @@ import {ProfileClient,UserProfileDto} from "sharedLogic"
 import {getLanguage} from "../getLanguage.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
-import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,ToggleButton} from "@heroui/react"
+import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,ToggleButton,Surface} from "@heroui/react"
 import {Link as HerouiLink} from "@heroui/react"
 import {Person,Star,StarFill,Tray} from "@gravity-ui/icons"
 import {loremIpsum} from "lorem-ipsum"
@@ -90,6 +90,7 @@ export function UserProfile(){
         if(result!="genre_toggled") console.error(result)
     }
 
+    //todo: move to shared
     const translateDate=(date: string) => {
         if(date==="today") return translate("today")
         const dateParts=date.split(" ")
@@ -143,9 +144,9 @@ export function UserProfile(){
                 </ProgressBar>}
             <div>
                 <p>{translate("bio")}</p>
-                <div className={"h-52 w-full border-accent bg-accent-soft rounded-xl p-2 overflow-y-auto"}>
+                <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
                     {user.bio??loremIpsum({count: 8,units: "sentences"})}
-                </div>
+                </Surface>
             </div>
             <div className={mobile?"w-96":"w-full"}>
                 <Tabs variant={"secondary"}>
