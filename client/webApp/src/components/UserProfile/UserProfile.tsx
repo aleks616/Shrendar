@@ -8,6 +8,7 @@ import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,Tog
 import {Link as HerouiLink} from "@heroui/react"
 import {Person,Star,StarFill,Tray} from "@gravity-ui/icons"
 import {loremIpsum} from "lorem-ipsum"
+import {isMobile} from "react-device-detect"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
@@ -89,8 +90,18 @@ export function UserProfile(){
         if(result!="genre_toggled") console.error(result)
     }
 
+    const translateDate=(date: string) => {
+        if(date==="today") return translate("today")
+        const dateParts=date.split(" ")
+        const unit=dateParts[1]
+        const amount=parseInt(dateParts[0])
+        return `${amount} ${translate(unit)} ${translate("time_ago")}`
+    }
+
+    const mobile=isMobile
+
     return (
-        <div className={"flex flex-col gap-4 max-w-4xl"}>
+        <div className={"flex flex-col gap-4 max-w-4xl mx-3"}>
             <div className={"flex gap-3"}>
                 <div>
                     <Badge.Anchor>
@@ -105,7 +116,7 @@ export function UserProfile(){
                                 <Badge color={isOnline?"success":"default"} placement="bottom-right" size="md"/>
                             </Tooltip.Trigger>
                             <Tooltip.Content showArrow>
-                                <p>last online {user.lastLogin}</p>
+                                <p>{translate("last_online")} {translateDate(user.lastLogin!)}</p>
                             </Tooltip.Content>
                         </Tooltip>
                     </Badge.Anchor>
@@ -113,47 +124,47 @@ export function UserProfile(){
                 <div>
                     <p className={"text-2xl font-bold"}>{user.login}</p>
                     <p className={"text-lg text-muted"}>@{user.username}</p>
-                    <p className={"text-sm"}>Member since: {user.accountAge}</p>
+                    <p className={"text-sm"}>{translate("member_since")} {translateDate(user.accountAge!)}</p>
                 </div>
             </div>
             {calculateRankProgress()!= -1&&
                 <ProgressBar value={calculateRankProgress()*100}>
                     <Label>
                         <div>
-                            Level {user.rankId} <br/>{translate("rank"+user.rankId)}
+                            {translate("level")} {user.rankId} <br/>{translate("rank"+user.rankId)}
                         </div>
                     </Label>
                     <ProgressBar.Output>
-                        Level {user.rankId+1} <br/>{translate("rank"+(user.rankId+1))}
+                        {translate("level")} {user.rankId+1} <br/>{translate("rank"+(user.rankId+1))}
                     </ProgressBar.Output>
                     <ProgressBar.Track>
                         <ProgressBar.Fill/>
                     </ProgressBar.Track>
                 </ProgressBar>}
             <div>
-                <p>Bio:</p>
-                <div className={"h-52 border-accent bg-accent-soft"}>
-                    {loremIpsum({count: 1,units: "paragraphs"})}
+                <p>{translate("bio")}</p>
+                <div className={"h-52 w-full border-accent bg-accent-soft rounded-xl p-2 overflow-y-auto"}>
+                    {user.bio??loremIpsum({count: 8,units: "sentences"})}
                 </div>
             </div>
-            <div>
-                <Tabs className="w-full text-lg" variant={"secondary"}>
+            <div className={mobile?"w-96":"w-full"}>
+                <Tabs variant={"secondary"}>
                     <Tabs.ListContainer>
                         <Tabs.List aria-label="Options">
-                            <Tabs.Tab id="favorite_bands">
-                                Favorite bands
+                            <Tabs.Tab id="favorite_bands" className={"whitespace-nowrap"}>
+                                {translate("favorite_bands")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
-                            <Tabs.Tab id="favorite_artists">
-                                Favorite artists
+                            <Tabs.Tab id="favorite_artists" className={"whitespace-nowrap"}>
+                                {translate("favorite_artists")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
-                            <Tabs.Tab id="favorite_genres">
-                                Favorite genres
+                            <Tabs.Tab id="favorite_genres" className={"whitespace-nowrap"}>
+                                {translate("favorite_genres")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
-                            <Tabs.Tab id="contributions">
-                                Contributions
+                            <Tabs.Tab id="contributions" className={"whitespace-nowrap"}>
+                                {translate("contributions")}
                                 <Tabs.Separator/>
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
@@ -162,20 +173,23 @@ export function UserProfile(){
                     <Tabs.Panel className="pt-2" id="favorite_bands">
                         <Table variant={"secondary"}>
                             <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
-                                <Table.Content aria-label={"Favorite bands table"} className={"min-w-xl"}>
+                                <Table.Content aria-label={translate("favorite_bands_table")} className={"w-full"}>
                                     <Table.Header className={"sticky top-0 z-10"}>
                                         {isOwnProfile&&
-                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
-                                        <Table.Column isRowHeader>Band name</Table.Column>
-                                        <Table.Column>Country</Table.Column>
-                                        <Table.Column>Active</Table.Column>
+                                            <Table.Column isRowHeader className={"w-16"}>
+                                                {translate("toggle")}
+                                            </Table.Column>}
+                                        <Table.Column isRowHeader>{translate("band_name")}</Table.Column>
+                                        <Table.Column>{translate("country")}</Table.Column>
+                                        <Table.Column>{translate("active")}</Table.Column>
                                     </Table.Header>
                                     <Table.Body
                                         renderEmptyState={() => (
                                             <EmptyState
-                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                className="flex h-full flex-col items-center justify-center gap-4 text-center">
                                                 <Tray className="size-6 text-muted"/>
-                                                <span className="text-sm text-muted">No favorite bands</span>
+                                                <span
+                                                    className="text-sm text-muted">{translate("no_favorite_bands")}</span>
                                             </EmptyState>
                                         )}
                                     >
@@ -188,9 +202,9 @@ export function UserProfile(){
                                                                 variant={"ghost"}
                                                                 defaultSelected
                                                                 isIconOnly
-                                                                aria-label="favorite"
+                                                                aria-label={translate("favorite")}
                                                                 onPress={() => toggleBandFavorite(item.id!)}
-                                                                className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                                className={"bg-transparent! data-[selected=true]:bg-transparent! hover:bg-transparent!"}
                                                             >
                                                                 {({isSelected}) => (
                                                                     isSelected?(
@@ -211,7 +225,7 @@ export function UserProfile(){
                                                         {item.name}
                                                     </HerouiLink>
                                                 </Table.Cell>
-                                                <Table.Cell>{item.country}</Table.Cell>
+                                                <Table.Cell>{translate(item.country!)}</Table.Cell>
                                                 <Table.Cell>{item.activeYears}</Table.Cell>
                                             </Table.Row>
                                         ))}
@@ -223,19 +237,21 @@ export function UserProfile(){
                     <Tabs.Panel className="pt-2" id="favorite_artists">
                         <Table variant={"secondary"}>
                             <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
-                                <Table.Content aria-label={"Favorite artists table"} className={"min-w-xl"}>
+                                <Table.Content aria-label={translate("favorite_artists_table")} className={"w-full"}>
                                     <Table.Header className={"sticky top-0 z-10"}>
                                         {isOwnProfile&&
-                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
-                                        <Table.Column isRowHeader>Artist name</Table.Column>
-                                        <Table.Column>Bands</Table.Column>
+                                            <Table.Column isRowHeader
+                                                          className={"w-16"}>{translate("toggle")}</Table.Column>}
+                                        <Table.Column isRowHeader>{translate("artist_name")}</Table.Column>
+                                        <Table.Column>{translate("bands")}</Table.Column>
                                     </Table.Header>
                                     <Table.Body
                                         renderEmptyState={() => (
                                             <EmptyState
-                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                className="flex h-full flex-col items-center justify-center gap-4 text-center">
                                                 <Tray className="size-6 text-muted"/>
-                                                <span className="text-sm text-muted">No favorite artists</span>
+                                                <span
+                                                    className="text-sm text-muted">{translate("no_favorite_artists")}</span>
                                             </EmptyState>
                                         )}
                                     >
@@ -258,9 +274,9 @@ export function UserProfile(){
                                                                     variant={"ghost"}
                                                                     defaultSelected
                                                                     isIconOnly
-                                                                    aria-label="favorite"
+                                                                    aria-label={translate("favorite")}
                                                                     onPress={() => toggleArtistFavorite(item.id!)}
-                                                                    className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                                    className={"bg-transparent! data-[selected=true]:bg-transparent! hover:bg-transparent!"}
                                                                 >
                                                                     {({isSelected}) => (
                                                                         isSelected?(
@@ -294,7 +310,7 @@ export function UserProfile(){
                                                         {currentBands.length>0&&<br/>}
                                                         {pastBands.length>0&&(
                                                             <span className={"text-muted"}>
-                                                                    <span>Past: </span>
+                                                                    <span>{translate("past")}: </span>
                                                                 {pastBands.map((band,j) => (
                                                                     <HerouiLink
                                                                         key={j}
@@ -318,18 +334,20 @@ export function UserProfile(){
                     <Tabs.Panel className="pt-2" id="favorite_genres">
                         <Table variant={"secondary"}>
                             <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
-                                <Table.Content aria-label={"Favorite genres table"} className={"min-w-xl"}>
+                                <Table.Content aria-label={translate("favorite_genres_table")} className={"w-full"}>
                                     <Table.Header className={"sticky top-0 z-10"}>
                                         {isOwnProfile&&
-                                            <Table.Column isRowHeader className={"w-16"}>Toggle</Table.Column>}
-                                        <Table.Column isRowHeader>Genre</Table.Column>
+                                            <Table.Column isRowHeader
+                                                          className={"w-16"}>{translate("toggle")}</Table.Column>}
+                                        <Table.Column isRowHeader>{translate("genre")}</Table.Column>
                                     </Table.Header>
                                     <Table.Body
                                         renderEmptyState={() => (
                                             <EmptyState
-                                                className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+                                                className="flex h-full flex-col items-center justify-center gap-4 text-center">
                                                 <Tray className="size-6 text-muted"/>
-                                                <span className="text-sm text-muted">No favorite genres</span>
+                                                <span
+                                                    className="text-sm text-muted">{translate("no_favorite_genres")}</span>
                                             </EmptyState>
                                         )}
                                     >
@@ -342,9 +360,9 @@ export function UserProfile(){
                                                                 variant={"ghost"}
                                                                 defaultSelected
                                                                 isIconOnly
-                                                                aria-label="favorite"
+                                                                aria-label={translate("favorite")}
                                                                 onPress={() => toggleGenreFavorite(item.id!)}
-                                                                className={"!bg-transparent data-[selected=true]:!bg-transparent hover:!bg-transparent"}
+                                                                className={"bg-transparent! data-[selected=true]:bg-transparent! hover:bg-transparent!"}
                                                             >
                                                                 {({isSelected}) => (
                                                                     isSelected?(
@@ -366,46 +384,48 @@ export function UserProfile(){
                         </Table>
                     </Tabs.Panel>
                     <Tabs.Panel className="pt-2" id="contributions">
-                            <Table variant={"secondary"}>
-                                <Table.ScrollContainer className={"max-h-96 overflow-y-auto"}>
-                                    <Table.Content aria-label={"User's contributions table"} className={"min-w-xl"}>
-                                        <Table.Header className={"sticky top-0 z-10"}>
-                                            <Table.Column isRowHeader>Action</Table.Column>
-                                            <Table.Column>Date</Table.Column>
-                                            <Table.Column>Table</Table.Column>
-                                            <Table.Column>Column</Table.Column>
-                                            <Table.Column>Confirmed</Table.Column>
-                                            <Table.Column>Before</Table.Column>
-                                            <Table.Column>After</Table.Column>
-                                        </Table.Header>
-                                        <Table.Body
-                                            renderEmptyState={() => (
-                                                <EmptyState
-                                                    className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
-                                                    <Tray className="size-6 text-muted"/>
-                                                    <span className="text-sm text-muted">No contributions</span>
-                                                </EmptyState>
-                                            )}
-                                        >
-                                            {contributionList.map((item,i) => {
-                                                const action=item.action?.name_1.toString().toLowerCase().replace(/(^|\s)[a-z]/gi,(l: string) => l.toUpperCase())
-                                                return (
-                                                    <Table.Row key={i} className={"relative"}
-                                                               href={`/${item.changedTable}/${item.changedRecordId}`}>
-                                                        <Table.Cell>{action}</Table.Cell>
-                                                        <Table.Cell>{item.changedAt}</Table.Cell>
-                                                        <Table.Cell>{item.changedTable}</Table.Cell>
-                                                        <Table.Cell>{item.changedColumn}</Table.Cell>
-                                                        <Table.Cell>{item.confirmed==true?"✔️":"️✖️"}</Table.Cell>
-                                                        <Table.Cell>{item.oldValue?item.oldValue:"-"}</Table.Cell>
-                                                        <Table.Cell>{item.newValue}</Table.Cell>
-                                                    </Table.Row>
-                                                )
-                                            })}
-                                        </Table.Body>
-                                    </Table.Content>
-                                </Table.ScrollContainer>
-                            </Table>
+                        <Table variant={"secondary"}>
+                            <Table.ScrollContainer className={"max-h-96 overflow-auto"}>
+                                <Table.Content aria-label={translate("user_contributions_table")}
+                                               className={"w-full"}>
+                                    <Table.Header className={"sticky top-0 z-10"}>
+                                        <Table.Column isRowHeader>{translate("action")}</Table.Column>
+                                        <Table.Column>{translate("date")}</Table.Column>
+                                        <Table.Column>{translate("table")}</Table.Column>
+                                        <Table.Column>{translate("column")}</Table.Column>
+                                        <Table.Column>{translate("confirmed")}</Table.Column>
+                                        <Table.Column>{translate("before")}</Table.Column>
+                                        <Table.Column>{translate("after")}</Table.Column>
+                                    </Table.Header>
+                                    <Table.Body
+                                        renderEmptyState={() => (
+                                            <EmptyState
+                                                className="flex h-full flex-col items-center justify-center gap-4 text-center">
+                                                <Tray className="size-6 text-muted"/>
+                                                <span
+                                                    className="text-sm text-muted">{translate("no_contributions")}</span>
+                                            </EmptyState>
+                                        )}
+                                    >
+                                        {contributionList.map((item,i) => {
+                                            const action=item.action?.name_1.toString().toLowerCase().replace(/(^|\s)[a-z]/gi,(l: string) => l.toUpperCase())
+                                            return (
+                                                <Table.Row key={i} className={"relative"}
+                                                           href={`/${item.changedTable}/${item.changedRecordId}`}>
+                                                    <Table.Cell>{action}</Table.Cell>
+                                                    <Table.Cell>{item.changedAt}</Table.Cell>
+                                                    <Table.Cell>{item.changedTable}</Table.Cell>
+                                                    <Table.Cell>{item.changedColumn}</Table.Cell>
+                                                    <Table.Cell>{item.confirmed==true?"✔️":"️✖️"}</Table.Cell>
+                                                    <Table.Cell>{item.oldValue?item.oldValue:"-"}</Table.Cell>
+                                                    <Table.Cell>{item.newValue}</Table.Cell>
+                                                </Table.Row>
+                                            )
+                                        })}
+                                    </Table.Body>
+                                </Table.Content>
+                            </Table.ScrollContainer>
+                        </Table>
                     </Tabs.Panel>
                 </Tabs>
             </div>

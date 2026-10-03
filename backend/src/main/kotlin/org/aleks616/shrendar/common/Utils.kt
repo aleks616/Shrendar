@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit
 
 object Utils{
     const val LIMIT_BASIC=3
-    const val LIMIT_HIGH=20
+    const val LIMIT_HIGH=30
     /**
      * @param month value 1-12 NOT 0-11
      * @param day value 1-31

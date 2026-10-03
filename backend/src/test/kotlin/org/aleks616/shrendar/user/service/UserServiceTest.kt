@@ -115,7 +115,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(400, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 year 1 months", userService.timeSinceAccountCreated(7))
+        assertEquals("1 time_Y", userService.timeSinceAccountCreated(7))
     }
 
 
@@ -125,7 +125,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(365, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 year 0 months", userService.timeSinceAccountCreated(2))
+        assertEquals("1 time_Y", userService.timeSinceAccountCreated(2))
     }
 
     @Test
@@ -134,7 +134,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(95, ChronoUnit.DAYS) }
         )
 
-        assertEquals("3 months 5 days", userService.timeSinceAccountCreated(4))
+        assertEquals("3 time_M", userService.timeSinceAccountCreated(4))
     }
 
     @Test
@@ -143,7 +143,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(90, ChronoUnit.DAYS) }
         )
 
-        assertEquals("3 months 0 days", userService.timeSinceAccountCreated(5))
+        assertEquals("3 time_M", userService.timeSinceAccountCreated(5))
     }
 
     @Test
@@ -152,7 +152,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(15, ChronoUnit.DAYS) }
         )
 
-        assertEquals("15 days", userService.timeSinceAccountCreated(6))
+        assertEquals("2 time_W", userService.timeSinceAccountCreated(6))
     }
 
     @Test
@@ -161,7 +161,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(1, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 days", userService.timeSinceAccountCreated(8))
+        assertEquals("1 time_D", userService.timeSinceAccountCreated(8))
     }
 
     @Test
@@ -170,7 +170,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(0, ChronoUnit.DAYS) }
         )
 
-        assertEquals("0 days", userService.timeSinceAccountCreated(9))
+        assertEquals("0 time_D", userService.timeSinceAccountCreated(9))
     }
 
     @Test
@@ -179,7 +179,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(730, ChronoUnit.DAYS) }
         )
 
-        assertEquals("2 years ago", userService.timeSinceLogin(7))
+        assertEquals("2 time_Y", userService.timeSinceLogin(7))
     }
 
     @Test
@@ -188,7 +188,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(45, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 months ago", userService.timeSinceLogin(10))
+        assertEquals("1 time_M", userService.timeSinceLogin(10))
     }
 
     @Test
@@ -197,7 +197,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(15, ChronoUnit.DAYS) }
         )
 
-        assertEquals("15 days ago", userService.timeSinceLogin(11))
+        assertEquals("15 time_Dp", userService.timeSinceLogin(11))
     }
 
     @Test
@@ -206,7 +206,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(0, ChronoUnit.DAYS) }
         )
 
-        assertEquals("0 today ago", userService.timeSinceLogin(12))
+        assertEquals("today", userService.timeSinceLogin(12))
     }
 
     @Test
@@ -215,7 +215,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(365, ChronoUnit.DAYS) }
         )
 
-        assertEquals("12 months ago", userService.timeSinceLogin(13))
+        assertEquals("12 time_Mp", userService.timeSinceLogin(13))
     }
 
     @Test
@@ -224,7 +224,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(1460, ChronoUnit.DAYS) }
         )
 
-        assertEquals("4 years ago", userService.timeSinceLogin(14))
+        assertEquals("4 time_Yp", userService.timeSinceLogin(14))
     }
 
     @Test
@@ -233,7 +233,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(30, ChronoUnit.DAYS) }
         )
 
-        assertEquals("30 days ago", userService.timeSinceLogin(15))
+        assertEquals("30 time_Dp", userService.timeSinceLogin(15))
     }
 
     @Test
@@ -242,7 +242,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(1, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 days ago", userService.timeSinceLogin(16))
+        assertEquals("1 time_D", userService.timeSinceLogin(16))
     }
 
     @Test
@@ -251,7 +251,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(100, ChronoUnit.DAYS) }
         )
 
-        assertEquals("3 months ago", userService.timeSinceLogin(17))
+        assertEquals("3 time_Mp", userService.timeSinceLogin(17))
     }
 
     @Test
@@ -260,7 +260,7 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(31, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 months ago", userService.timeSinceLogin(18))
+        assertEquals("1 time_M", userService.timeSinceLogin(18))
     }
 
     @Test
@@ -269,6 +269,6 @@ class UserServiceTest {
             UserLog().apply { lastLoginTime=Instant.now().minus(366, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 years ago", userService.timeSinceLogin(19))
+        assertEquals("1 time_Y", userService.timeSinceLogin(19))
     }
 }
