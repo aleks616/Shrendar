@@ -416,6 +416,37 @@ class LocalText {
             "yemen"->MR.strings.yemen
             "zambia"->MR.strings.zambia
             "zimbabwe"->MR.strings.zimbabwe
+            "last_online"->MR.strings.last_online
+            "member_since"->MR.strings.member_since
+            "level"->MR.strings.level
+            "bio"->MR.strings.bio
+            "favorite_bands"->MR.strings.favorite_bands
+            "favorite_artists"->MR.strings.favorite_artists
+            "favorite_genres"->MR.strings.favorite_genres
+            "contributions"->MR.strings.contributions
+            "toggle"->MR.strings.toggle
+            "band_name"->MR.strings.band_name
+            "country"->MR.strings.country
+            "active"->MR.strings.active
+            "no_favorite_bands"->MR.strings.no_favorite_bands
+            "favorite"->MR.strings.favorite
+            "artist_name"->MR.strings.artist_name
+            "bands"->MR.strings.bands
+            "past"->MR.strings.past
+            "no_favorite_artists"->MR.strings.no_favorite_artists
+            "genre"->MR.strings.genre
+            "no_favorite_genres"->MR.strings.no_favorite_genres
+            "user_contributions_table"->MR.strings.user_contributions_table
+            "action"->MR.strings.action
+            "date"->MR.strings.date
+            "table"->MR.strings.table
+            "column"->MR.strings.column
+            "before"->MR.strings.before
+            "after"->MR.strings.after
+            "no_contributions"->MR.strings.no_contributions
+            "favorite_bands_table"->MR.strings.favorite_bands_table
+            "favorite_artists_table"->MR.strings.favorite_artists_table
+            "favorite_genres_table"->MR.strings.favorite_genres_table
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

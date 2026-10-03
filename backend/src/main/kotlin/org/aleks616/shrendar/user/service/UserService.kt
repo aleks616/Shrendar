@@ -86,10 +86,16 @@ class UserService(
         val diff=ChronoUnit.DAYS.between(raw,now)
         val years=diff/365
         val months=diff%365/30
-        val days=diff%365%30
-        return if(years>0) "$years year $months months"
-        else if(months>0) "$months months $days days"
-        else "$days days"
+        val weeks=diff%365%30/7
+        val days=diff%365%30%7
+        return if(years>1) "$years time_Yp"
+        else if(years>0) "$years time_Y"
+        else if(months>1) "$months time_Mp"
+        else if(months>0) "$months time_M"
+        else if(weeks>1) "$weeks time_Wp"
+        else if(weeks>0) "$weeks time_W"
+        else if(days>1) "$days time_Dp"
+        else "$days time_D"
     }
 
     fun timeSinceLogin(userId:Int):String {
@@ -98,7 +104,15 @@ class UserService(
         val diff=ChronoUnit.DAYS.between(raw,now)
 
         val time=if(diff>365) diff/365 else if(diff>30) diff/30 else diff
-        val unit:String=if(diff>365) "years" else if(diff>30) "months" else if(diff==0L) "today" else "days"
-        return "$time $unit ago"
+        if(diff==0L) return "today"
+        val unit:String=
+            if(diff>730) "time_Yp"
+            else if(diff>365) "time_Y"
+            else if(diff>61) "time_Mp"
+            else if(diff>30) "time_M"
+            else if(diff>1) "time_Dp"
+            else "time_D"
+
+        return "$time $unit"
     }
 }
