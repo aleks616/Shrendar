@@ -21,6 +21,8 @@ import androidx.core.content.edit
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.account.components.LabelledDivider
+import com.example.client.account.components.SignInWithGoogleView
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -129,6 +131,8 @@ fun SignInView(
                             Text(stringResource(MR.strings.reset_password))
                         }
                     }
+                    LabelledDivider(text=stringResource(MR.strings.or))
+                    SignInWithGoogleView()
                 }
             }
         }

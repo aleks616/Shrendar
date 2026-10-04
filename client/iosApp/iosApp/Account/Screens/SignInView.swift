@@ -7,6 +7,7 @@
 
 import SharedLogic
 import SwiftUI
+import GoogleSignInSwift
 
 struct SignInView: View {
 	let lang = Locale.current.language.languageCode ?? "EN"
@@ -61,6 +62,17 @@ struct SignInView: View {
 				}
 				.accessibilityIdentifier("signin.resetPassword")
 			}.padding(.top, 10)
+			
+			LabelledDivider(label: localize(key: "or"))
+			GoogleSignInButton(
+				scheme: .light,
+				state: .normal,
+				action: { handleGoogleSignInButton() }
+			)
+			.frame(width: 280, height: 45)
+			
+			
+			
 		}.padding(.top, 15)
 	}
 

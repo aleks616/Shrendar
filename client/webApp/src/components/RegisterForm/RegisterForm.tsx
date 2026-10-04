@@ -1,8 +1,11 @@
 import {getLanguage} from "../getLanguage.ts"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REGEXP_ONLY_DIGITS} from '@heroui/react'
-import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
-import {useEffect,useState} from "react"
+import {AccountClient,RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
+import React,{useEffect,useState} from "react"
 import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx"
+import {GoogleLogin,GoogleOAuthProvider} from "@react-oauth/google";
+import {Navigate} from "react-router-dom";
+import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx";
 
 export function RegisterForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
@@ -18,6 +21,7 @@ export function RegisterForm({strings}: { strings: Record<string,string> }){
     const [timerOn,setTimerOn]=useState(false)
     const [resendCountdown,setResendCountdown]=useState(60)
     const [confirmed,setConfirmed]=useState(false)
+
 
     const createAccount=async () => {
         setResendCountdown(60)
@@ -176,7 +180,9 @@ export function RegisterForm({strings}: { strings: Record<string,string> }){
                 }
             </Form>
             <LabelledDivider text={translate("or")}/>
-            <p>{translate("special_sign_in_later")}</p>
+            <div className={"flex justify-center"}>
+                <SignInWithGoogle/>
+            </div>
         </div>
     )
 }

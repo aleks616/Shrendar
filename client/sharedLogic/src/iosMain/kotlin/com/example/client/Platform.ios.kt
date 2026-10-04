@@ -8,5 +8,4 @@ class IOSPlatform:Platform {
 
 actual fun getPlatform():Platform=IOSPlatform()
 
-actual val BASE_URL:String="https://chairs-diet-carries-voting.trycloudflare.com/api"
-//actual val BASE_URL:String="https://shrendar.shares.zrok.io/api"
+actual val BASE_URL:String="https://shrendar.shares.zrok.io/api"

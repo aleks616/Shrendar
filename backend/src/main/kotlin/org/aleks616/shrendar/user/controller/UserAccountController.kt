@@ -15,6 +15,7 @@ import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.ResetPasswordDto
 import org.aleks616.shrendar.user.model.UserDto
 import org.aleks616.shrendar.user.model.UsersDto
+import org.aleks616.shrendar.security.GoogleLoginRequestDto
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -137,6 +138,21 @@ class UserAccountController(
 
         val subject=userAccountService.authenticate(request)?:return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body("invalid_credentials")
+        val token=JwtUtil.createToken(subject)
+        return ResponseEntity.ok(mapOf("token" to token))
+    }
+
+    @PostMapping("/with-google")
+    fun loginWithGoogle(
+        @RequestBody request:GoogleLoginRequestDto,
+        servletRequest:HttpServletRequest
+    ):ResponseEntity<Any> {
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("login:ip:$ip",Utils.LIMIT_BASIC,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+
+        val subject=userAccountService.authenticateWithGoogle(request.googleToken)
+            ?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("google_error")
         val token=JwtUtil.createToken(subject)
         return ResponseEntity.ok(mapOf("token" to token))
     }

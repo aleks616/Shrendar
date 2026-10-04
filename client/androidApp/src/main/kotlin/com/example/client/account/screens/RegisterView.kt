@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.client.*
 import com.example.client.account.components.LabelledDivider
 import com.example.client.account.components.OtpInputField
+import com.example.client.account.components.SignInWithGoogleView
 import com.example.client.account.components.pxToDp
 import com.example.client.register.RegisterClient
 import com.example.client.register.RegisterRequestDto
@@ -262,16 +263,14 @@ fun RegisterView(
                     if(confirmed)
                         Text(stringResource(MR.strings.account_created))
 
-
-                    LabelledDivider(text=stringResource(MR.strings.or))
                     Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
                         Text(text=stringResource(MR.strings.already_have_an_account))
                         TextButton(onClick=signInScreen,modifier=Modifier.padding(0.dp)) {
                             Text(text=stringResource(MR.strings.sign_in),modifier=Modifier.padding(0.dp))
                         }
                     }
-                    Text(text=stringResource(MR.strings.special_sign_in_later))
-
+                    LabelledDivider(text=stringResource(MR.strings.or))
+                    SignInWithGoogleView()
                 }
             }
         }

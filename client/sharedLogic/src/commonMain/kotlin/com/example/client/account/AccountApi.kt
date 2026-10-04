@@ -90,6 +90,19 @@ class AccountApi private constructor(
         }
     }
 
+    suspend fun authWithGoogle(googleToken:String):String {
+        return try {
+            client.post("$BASE_URL/user-account/with-google") {
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("googleToken" to googleToken))
+            }.body()
+        }
+        catch(e:Exception) {
+            print(e)
+            return "error"
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -113,4 +126,5 @@ object AccountClient {
     suspend fun requestPasswordReset(accountKey:String,language:String):String=AccountApi().requestPasswordReset(accountKey,language)
     suspend fun resetPassword(request:ResetPasswordDto):String=AccountApi().resetPassword(request)
     suspend fun getUserData(token:String):UserDto=AccountApi().getUserData(token)
+    suspend fun authWithGoogle(googleToken:String):String=AccountApi().authWithGoogle(googleToken)
 }

@@ -20,11 +20,13 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.security:spring-security-crypto:6.4.5")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.google.api-client:google-api-client:2.7.2")
     runtimeOnly("com.mysql:mysql-connector-j:9.3.0")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

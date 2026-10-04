@@ -13,7 +13,9 @@ kotlin {
 }
 dependencies {
     implementation(project(":sharedLogic"))
-
+    implementation("androidx.credentials:credentials:1.7.0-alpha03")
+    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha03")
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
     implementation("dev.icerock.moko:resources-compose:0.27.0")
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
@@ -22,6 +24,7 @@ dependencies {
     implementation(libs.compose.components.resources)
     implementation(libs.androidx.lifecycle.viewmodelCompose)
     implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.googleid)
     androidTestImplementation(libs.kotlin.testJunit)
     implementation("com.kiwi.navigation-compose.typed:core:0.10.0")
     androidTestImplementation("org.jetbrains.compose.ui:ui-test:1.10.0")

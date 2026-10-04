@@ -447,6 +447,7 @@ class LocalText {
             "favorite_bands_table"->MR.strings.favorite_bands_table
             "favorite_artists_table"->MR.strings.favorite_artists_table
             "favorite_genres_table"->MR.strings.favorite_genres_table
+            "google_error"->MR.strings.google_error
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
