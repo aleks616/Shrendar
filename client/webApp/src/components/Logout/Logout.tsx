@@ -7,6 +7,7 @@ export const logout=async () => {
             const result=await AccountClient.getInstance().logout(token)
             if(result=="logged_out"){
                 localStorage.removeItem("token")
+                localStorage.removeItem("login")
                 window.location.reload()
             }
             else{

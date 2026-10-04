@@ -32,13 +32,6 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>chairs-diet-carries-voting.trycloudflare.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
 			<key>shrendar.shares.zrok.io</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>

@@ -447,4 +447,5 @@
     <string name="time_Dp">dni</string>
     <string name="time_D">dzień</string>
     <string name="time_ago">temu</string>
+    <string name="google_error">Logowanie z Google się nie powiodło, spróbuj ponownie później.</string>
 </resources>

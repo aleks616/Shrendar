@@ -445,4 +445,5 @@
     <string name="time_Dp">days</string>
     <string name="time_D">day</string>
     <string name="time_ago">ago</string>
+    <string name="google_error">Signing in with Google failed, try again later.</string>
 </resources>
