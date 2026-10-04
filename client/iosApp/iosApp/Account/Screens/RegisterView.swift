@@ -159,21 +159,21 @@ struct RegisterView: View {
 				)
 				.frame(width: 280, height: 45)
 
-				SignInWithAppleButton(.continue) {
-					request in
-					request.requestedScopes = [.email]
-				} onCompletion: { result in
-					switch result {
-					case .success(let authorization):
-						print(
-							"\(localize(key: "authorization_successful")): \(authorization)"
-						)
-					case .failure(let error):
-						print(
-							"\(localize(key: "authorization_failed"))): \(error.localizedDescription)"
-						)
-					}
-				}.frame(width: 280, height: 45)
+//				SignInWithAppleButton(.continue) {
+//					request in
+//					request.requestedScopes = [.email]
+//				} onCompletion: { result in
+//					switch result {
+//					case .success(let authorization):
+//						print(
+//							"\(localize(key: "authorization_successful")): \(authorization)"
+//						)
+//					case .failure(let error):
+//						print(
+//							"\(localize(key: "authorization_failed"))): \(error.localizedDescription)"
+//						)
+//					}
+//				}.frame(width: 280, height: 45)
 
 				//Text(localize(key: "special_sign_in_later"))
 				Spacer()
