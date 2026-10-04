@@ -1,12 +1,7 @@
-import {getLanguage} from "../getLanguage.ts"
-import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
-import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {useState} from "react"
 import {Button,ErrorMessage,Form,Heading,Input,Label,TextField} from "@heroui/react"
 import {AccountClient,LoginRequestDto} from "sharedLogic"
-export function SignIn(){
-    const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+export function SignInForm({strings}: { strings: Record<string,string> }){
     const translate=(key:string)=>strings[key]??key
     const [login,setLogin]=useState("")
     const [password,setPassword]=useState("")

@@ -1,13 +1,9 @@
 import {getLanguage} from "../getLanguage.ts"
-import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
-import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {useEffect,useState} from "react"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link} from '@heroui/react'
 import {AccountClient} from "sharedLogic";
 
-export function RequestPasswordReset(){
-    const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+export function RequestPasswordReset({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
     const [login,setLogin]=useState("")
     const [errorText,setErrorText]=useState<string | null>(null)
@@ -18,6 +14,7 @@ export function RequestPasswordReset(){
     const requestPasswordReset=async () => {
         setResendCountdown(60)
         try{
+            const lang=getLanguage().toUpperCase()
             const result=await AccountClient.getInstance().requestPasswordReset(login,lang)
             if(result!="password_link_sent"){
                 if(result=="too_many_user_requests"){

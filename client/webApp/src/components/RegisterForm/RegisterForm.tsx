@@ -1,17 +1,11 @@
-import './Register.css'
 import {getLanguage} from "../getLanguage.ts"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REGEXP_ONLY_DIGITS} from '@heroui/react'
 import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
-import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
-import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {useEffect,useState} from "react"
 import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx"
 
-//GenreClient.getInstance().getAll().then((genres)=>console.log(genres))
-export function Register(){
-    const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
-    const translate=(key:string)=>strings[key]??key
+export function RegisterForm({strings}: { strings: Record<string,string> }){
+    const translate=(key: string) => strings[key]??key
 
     const [email,setEmail]=useState("")
     const [login,setLogin]=useState("")
@@ -53,6 +47,7 @@ export function Register(){
             setErrorText(null)
             setCodeSent(true)
             setTimerOn(true)
+            const lang=getLanguage().toUpperCase()
             const registerRequest=new RegisterRequestDto(login,login,email,password,lang)
             const result=await RegisterClient.getInstance().register(registerRequest)
             if(result=="verification_code_sent"){
@@ -69,8 +64,9 @@ export function Register(){
         }
     }
 
-    const confirmAccount=async ()=>{
+    const confirmAccount=async () => {
         try{
+            const lang=getLanguage().toUpperCase()
             const registerRequest=new RegisterRequestDto(login,login,email,password,lang)
             const confirmationResult=await RegisterClient.getInstance().registerConfirm(registerRequest,code)
             if(confirmationResult=="account_created"){
@@ -81,7 +77,8 @@ export function Register(){
             else{
                 setErrorText(translate(confirmationResult))
             }
-        }catch(e){
+        }
+        catch(e){
             console.log(e)
             setErrorText(translate("something_wrong"))
         }
@@ -92,16 +89,16 @@ export function Register(){
             return
         }
 
-        const timeoutId=setTimeout(()=>{
+        const timeoutId=setTimeout(() => {
             if(resendCountdown>0){
-                setResendCountdown(currentCountdown=>currentCountdown-1)
+                setResendCountdown(currentCountdown => currentCountdown-1)
             }
             else{
                 setTimerOn(false)
             }
         },1000)
 
-        return()=>clearTimeout(timeoutId)
+        return () => clearTimeout(timeoutId)
     },[timerOn,resendCountdown])
 
     return (
@@ -121,20 +118,21 @@ export function Register(){
                     <Label>{translate("password")}</Label>
                     <Input autoComplete="new-password"/>
                 </TextField>
-                <TextField isRequired name="repeatPassword" type="password" value={repeatPassword} onChange={setRepeatPassword}>
+                <TextField isRequired name="repeatPassword" type="password" value={repeatPassword}
+                           onChange={setRepeatPassword}>
                     <Label>{translate("re_enter_password")}</Label>
                     <Input autoComplete="new-password"/>
                 </TextField>
                 {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
-                <div className={"flex justify-center"}>
+                <div className={"flex"}>
                     <Button
                         isDisabled={email.length===0||login.length===0||password.length===0
                             ||repeatPassword.length===0||confirmed||(resendCountdown>0&&codeSent)}
                         onPress={createAccount}>{translate("sign_up")}</Button>
                 </div>
 
-                {(codeSent&&!confirmed)&&<>
-                <p>{translate("verification_code_sent")}</p>
+                {(codeSent&& !confirmed)&&<>
+                    <p>{translate("verification_code_sent")}</p>
                     <div className={"flex justify-center gap-1"}>
                         <p>{translate("no_code")} </p>
                         <Link onPress={createAccount} isDisabled={timerOn}>
