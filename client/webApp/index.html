@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,30 +16,6 @@
             color: var(--foreground);
         }
     </style>
-    <script>
-        <script>
-            (function () {
-            try {
-            const savedTheme = localStorage.getItem("theme");
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-            const isDark =
-            savedTheme === "dark" ||
-            ((!savedTheme || savedTheme === "system") && prefersDark);
-
-            if (isDark) {
-            document.documentElement.classList.add("dark");
-            document.documentElement.setAttribute("data-theme", "dark");
-        }
-            else {
-            document.documentElement.classList.remove("dark");
-            document.documentElement.setAttribute("data-theme", "light");
-        }
-        }
-        catch (e) {}
-        })();
-    </script>
-    </script>
     <link href="/src/styles/globals.css" rel="stylesheet">
 </head>
 <body>

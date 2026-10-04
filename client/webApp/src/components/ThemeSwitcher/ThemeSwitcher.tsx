@@ -1,4 +1,4 @@
-import React from "react"
+import React,{useEffect,useState} from "react"
 import {Button,useTheme} from "@heroui/react"
 import {MoonIcon,SunIcon,ComputerDesktopIcon} from '@heroicons/react/24/solid'
 
@@ -11,8 +11,14 @@ const themes: { id: ThemeOption;label: string;icon: React.ElementType }[]=[
 ]
 
 export function ThemeSwitcher(){
-    const system=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"
-    const {theme,setTheme}=useTheme(system)
+    const [mounted,setMounted]=useState(false)
+    const {theme,setTheme}=useTheme("system")
+
+    useEffect(() => {
+        setMounted(true)
+    },[])
+
+    if(!mounted) return null
 
     return (
         <div className="flex items-center">
@@ -34,7 +40,7 @@ export function ThemeSwitcher(){
                             onPress={() => setTheme(item.id)}
                             className={`relative size-8 rounded-full p-0! outline-none focus-visible:ring-2 focus-visible:ring-focus ${
                                 isSelected
-                                    ?"bg-overlay! hover:bg-transparent!"
+                                    ?"bg-overlay! hover:bg-overlay!"
                                     :"bg-secondary! hover:bg-secondary!"
                             }`}
                         >

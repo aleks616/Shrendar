@@ -1,22 +1,18 @@
 import React,{useEffect,useState} from 'react'
 import {Navigate,useParams} from "react-router-dom"
 import {ProfileClient,UserProfileDto} from "sharedLogic"
-import {getLanguage} from "../getLanguage.ts"
-import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
-import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,ToggleButton,Surface} from "@heroui/react"
 import {Link as HerouiLink} from "@heroui/react"
-import {Person,Star,StarFill,Tray} from "@gravity-ui/icons"
+import {UserIcon,StarIcon,InboxIcon} from '@heroicons/react/24/solid'
+import {StarIcon as StarIconOutline} from '@heroicons/react/24/outline'
 import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
-export function UserProfile(){
+export function UserProfile({strings}: { strings: Record<string,string> }){
     const [user,setUser]=useState<UserProfileDto | null>(new UserProfileDto())
     const [isLoading,setIsLoading]=useState(true)
-    const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
     const translate=(key: string) => strings[key]??key
     const params=useParams()
     const userParam=params.user
@@ -109,7 +105,7 @@ export function UserProfile(){
                         <Avatar size={"lg"} color="accent" variant="soft" className={"size-20"}>
                             <Avatar.Image src={BLUE_AVATAR_URL}/>
                             <Avatar.Fallback>
-                                <Person className={"size-12"}/>
+                                <UserIcon className={"size-12"}/>
                             </Avatar.Fallback>
                         </Avatar>
                         <Tooltip delay={5}>
@@ -188,7 +184,7 @@ export function UserProfile(){
                                         renderEmptyState={() => (
                                             <EmptyState
                                                 className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                                                <Tray className="size-6 text-muted"/>
+                                                <InboxIcon className="size-6 text-muted"/>
                                                 <span
                                                     className="text-sm text-muted">{translate("no_favorite_bands")}</span>
                                             </EmptyState>
@@ -209,9 +205,9 @@ export function UserProfile(){
                                                             >
                                                                 {({isSelected}) => (
                                                                     isSelected?(
-                                                                        <StarFill className={"size-5"}/>
+                                                                        <StarIcon className={"size-6"}/>
                                                                     ):(
-                                                                        <Star className={"size-5"}/>
+                                                                        <StarIconOutline className={"size-6"}/>
                                                                     )
                                                                 )}
                                                             </ToggleButton>
@@ -250,7 +246,7 @@ export function UserProfile(){
                                         renderEmptyState={() => (
                                             <EmptyState
                                                 className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                                                <Tray className="size-6 text-muted"/>
+                                                <InboxIcon className="size-6 text-muted"/>
                                                 <span
                                                     className="text-sm text-muted">{translate("no_favorite_artists")}</span>
                                             </EmptyState>
@@ -281,9 +277,9 @@ export function UserProfile(){
                                                                 >
                                                                     {({isSelected}) => (
                                                                         isSelected?(
-                                                                            <StarFill className={"size-5"}/>
+                                                                            <StarIcon className={"size-6"}/>
                                                                         ):(
-                                                                            <Star className={"size-5"}/>
+                                                                            <StarIconOutline className={"size-6"}/>
                                                                         )
                                                                     )}
                                                                 </ToggleButton>
@@ -346,7 +342,7 @@ export function UserProfile(){
                                         renderEmptyState={() => (
                                             <EmptyState
                                                 className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                                                <Tray className="size-6 text-muted"/>
+                                                <InboxIcon className="size-6 text-muted"/>
                                                 <span
                                                     className="text-sm text-muted">{translate("no_favorite_genres")}</span>
                                             </EmptyState>
@@ -367,9 +363,9 @@ export function UserProfile(){
                                                             >
                                                                 {({isSelected}) => (
                                                                     isSelected?(
-                                                                        <StarFill className={"size-5"}/>
+                                                                        <StarIcon className={"size-6"}/>
                                                                     ):(
-                                                                        <Star className={"size-5"}/>
+                                                                        <StarIconOutline className={"size-6"}/>
                                                                     )
                                                                 )}
                                                             </ToggleButton>
@@ -402,7 +398,7 @@ export function UserProfile(){
                                         renderEmptyState={() => (
                                             <EmptyState
                                                 className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                                                <Tray className="size-6 text-muted"/>
+                                                <InboxIcon className="size-6 text-muted"/>
                                                 <span
                                                     className="text-sm text-muted">{translate("no_contributions")}</span>
                                             </EmptyState>

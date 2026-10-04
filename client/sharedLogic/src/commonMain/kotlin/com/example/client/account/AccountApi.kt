@@ -1,6 +1,7 @@
 package com.example.client.account
 
 import com.example.client.BASE_URL
+import com.example.client.common.UserDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -8,6 +9,7 @@ import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -25,55 +27,66 @@ class AccountApi private constructor(
     constructor():this(BASE_URL,createHttpClient())
     internal constructor(testClient:HttpClient):this(BASE_URL,testClient)
 
-    suspend fun login(loginRequest:LoginRequestDto):String{
-        return try{
-            client.post("$BASE_URL/user-account/login"){
+    suspend fun login(loginRequest:LoginRequestDto):String {
+        return try {
+            client.post("$BASE_URL/user-account/login") {
                 contentType(ContentType.Application.Json)
                 setBody(loginRequest)
             }.body()
         }
-        catch(e:ClientRequestException){
+        catch(e:ClientRequestException) {
             if(e.response.status.value==404) "not_found"
             else e.response.bodyAsText()
         }
     }
 
-    suspend fun logout(token:String):String{
-        return try{
-            client.post("$BASE_URL/user-account/logout"){
+    suspend fun logout(token:String):String {
+        return try {
+            client.post("$BASE_URL/user-account/logout") {
                 contentType(ContentType.Application.Json)
                 header("Authorization","Bearer $token")
             }.body()
         }
-        catch(e:ClientRequestException){
+        catch(e:ClientRequestException) {
             if(e.response.status.value==404) "not_found"
             else e.response.bodyAsText()
         }
     }
 
-   suspend fun requestPasswordReset(accountKey:String,language:String):String{
-        return try{
-            client.post("$BASE_URL/user-account/requestPasswordReset"){
+    suspend fun requestPasswordReset(accountKey:String,language:String):String {
+        return try {
+            client.post("$BASE_URL/user-account/requestPasswordReset") {
                 parameter("accountKey",accountKey)
                 parameter("language",language)
             }.body()
         }
-        catch(e:ClientRequestException){
+        catch(e:ClientRequestException) {
             if(e.response.status.value==404) "not_found"
             else e.response.bodyAsText()
         }
     }
 
-    suspend fun resetPassword(passwordRequest:ResetPasswordDto):String{
-        return try{
-            client.post("$BASE_URL/user-account/resetPassword"){
+    suspend fun resetPassword(passwordRequest:ResetPasswordDto):String {
+        return try {
+            client.post("$BASE_URL/user-account/resetPassword") {
                 contentType(ContentType.Application.Json)
                 setBody(passwordRequest)
             }.body()
         }
-        catch(e:ClientRequestException){
+        catch(e:ClientRequestException) {
             if(e.response.status.value==404) "not_found"
             else e.response.bodyAsText()
+        }
+    }
+
+    suspend fun getUserData(token:String):UserDto {
+        return try{
+            client.get("$BASE_URL/user-account/me"){
+                header("Authorization","Bearer $token")
+            }.body()
+        }
+        catch(e:ClientRequestException) {
+            return UserDto()
         }
     }
 
@@ -81,7 +94,7 @@ class AccountApi private constructor(
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
             install(DefaultRequest) {
-                header("skip_zrok_interstitial", "1")
+                header("skip_zrok_interstitial","1")
             }
             install(ContentNegotiation) {
                 json(Json {
@@ -99,4 +112,5 @@ object AccountClient {
     suspend fun logout(token:String):String=AccountApi().logout(token)
     suspend fun requestPasswordReset(accountKey:String,language:String):String=AccountApi().requestPasswordReset(accountKey,language)
     suspend fun resetPassword(request:ResetPasswordDto):String=AccountApi().resetPassword(request)
+    suspend fun getUserData(token:String):UserDto=AccountApi().getUserData(token)
 }

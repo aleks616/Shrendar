@@ -9,7 +9,6 @@
     "test": "node --test --test-concurrency=1 tests/*.test.mjs"
   },
   "dependencies": {
-    "@gravity-ui/icons": "^2.22.0",
     "@heroicons/react": "^2.2.0",
     "@heroui/react": "^3.2.5",
     "jiti": "^2.7.0",

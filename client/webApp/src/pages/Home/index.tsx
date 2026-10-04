@@ -5,7 +5,9 @@ export function Home() {
     return (
         <>
             <AppHeader />
-            <Heading level={1}></Heading>
+            <div className={"flex justify-center w-svw h-screen"}>
+                <Heading level={1}>Home page</Heading>
+            </div>
         </>
     )
 }

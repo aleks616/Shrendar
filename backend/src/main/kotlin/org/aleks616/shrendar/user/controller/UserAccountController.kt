@@ -13,6 +13,7 @@ import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.user.model.LoginRequestDto
 import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.ResetPasswordDto
+import org.aleks616.shrendar.user.model.UserDto
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
@@ -250,6 +251,19 @@ class UserAccountController(
         if(user.rank.id<10) throw RankTooLowException("cant_view")
 
         return ResponseEntity.ok(userAccountService.getUsersDto())
+    }
+
+    @GetMapping("/me")
+    fun getUserData():UserDto {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        return UserDto(
+            login=user.login,
+            username=user.username,
+            rankId=user.rank.id,
+            xp=user.xp
+        )
     }
 
     @ExceptionHandler(RankTooLowException::class)

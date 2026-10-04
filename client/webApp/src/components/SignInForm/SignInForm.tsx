@@ -1,11 +1,13 @@
-import {useState} from "react"
+import React,{useState} from "react"
 import {Button,ErrorMessage,Form,Heading,Input,Label,TextField} from "@heroui/react"
 import {AccountClient,LoginRequestDto} from "sharedLogic"
+import {Navigate} from "react-router-dom";
 export function SignInForm({strings}: { strings: Record<string,string> }){
     const translate=(key:string)=>strings[key]??key
     const [login,setLogin]=useState("")
     const [password,setPassword]=useState("")
     const [errorText,setErrorText]=useState<string|null>(null)
+    const [redirect,setRedirect]=useState(false)
 
     const signIn=async ()=>{
         try{
@@ -16,7 +18,7 @@ export function SignInForm({strings}: { strings: Record<string,string> }){
                 const token=JSON.parse(result).token
                 localStorage.setItem("token",token)
                 setErrorText(null)
-                window.location.reload()
+                setRedirect(true)
             }
             catch(e){
                 setErrorText(translate(result))
@@ -26,6 +28,10 @@ export function SignInForm({strings}: { strings: Record<string,string> }){
             console.log(e)
             setErrorText(translate("something_wrong"))
         }
+    }
+
+    if(redirect){
+        return <Navigate to={"/"}/>
     }
 
     return (
@@ -42,7 +48,7 @@ export function SignInForm({strings}: { strings: Record<string,string> }){
                 </TextField>
                 {errorText&&<ErrorMessage>{errorText}</ErrorMessage>}
                 <Button
-                isDisabled={login.length==0||password.length===0}
+                isDisabled={login.length===0||password.length===0}
                 onPress={signIn}>
                     {translate("sign_in")}
                 </Button>
