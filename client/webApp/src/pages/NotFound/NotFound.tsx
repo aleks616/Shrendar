@@ -1,7 +1,13 @@
+import {AppHeader} from "../../components/AppHeader/AppHeader.tsx";
+import {Heading} from "@heroui/react";
+
 export function NotFound() {
     return (
-        <div>
-            <h1>404 - Not Found</h1>
-        </div>
+        <>
+            <AppHeader/>
+            <main className={"flex justify-center w-svw h-svh"}>
+                <Heading level={1}>Not found 404</Heading>
+            </main>
+        </>
     )
 }

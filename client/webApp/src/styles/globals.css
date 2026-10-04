@@ -10,3 +10,7 @@
 :root[data-theme="dark"]{
     --accent: #7A91FA;
 }
+
+html{
+    scrollbar-gutter: stable;
+}
