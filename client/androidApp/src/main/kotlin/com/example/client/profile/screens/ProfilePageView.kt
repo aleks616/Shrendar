@@ -1,4 +1,4 @@
-package com.example.client.account.screens
+package com.example.client.profile.screens
 
 import android.content.Context
 import android.util.Log

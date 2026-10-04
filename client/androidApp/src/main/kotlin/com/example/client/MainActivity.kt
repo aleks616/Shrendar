@@ -18,7 +18,7 @@ import com.example.client.account.screens.RegisterView
 import com.example.client.account.screens.RequestPasswordResetView
 import com.example.client.account.screens.SignInView
 import com.example.client.account.screens.PasswordResetView
-import com.example.client.account.screens.ProfilePageView
+import com.example.client.profile.screens.ProfilePageView
 import kotlinx.serialization.ExperimentalSerializationApi
 
 class MainActivity:ComponentActivity() {
