@@ -67,6 +67,8 @@ fun DataTable(
         }
     }
     val measuredTableWidth=columnWidths.fold(0.dp) {total,width-> total+width}
+    val horizontalScrollState=rememberScrollState()
+    val verticalScrollState=rememberScrollState()
 
     Card(
         colors=CardDefaults.cardColors(containerColor=Color.Transparent),
@@ -83,20 +85,12 @@ fun DataTable(
             val tableWidth=tableWidths.fold(0.dp) {total,width-> total+width}
 
             Column(
-                modifier=Modifier
-                    .width(tableWidth)
-                    .then(
-                        maxHeight?.let {
-                            Modifier
-                                .heightIn(max=it)
-                                .verticalScroll(rememberScrollState())
-                        }?:Modifier
-                    )
-                    .horizontalScroll(rememberScrollState())
+                modifier=Modifier.width(tableWidth)
             ) {
                 Row(
                     modifier=Modifier
                         .width(tableWidth)
+                        .horizontalScroll(horizontalScrollState)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(vertical=8.dp),
                     verticalAlignment=Alignment.CenterVertically
@@ -111,52 +105,65 @@ fun DataTable(
                     }
                 }
                 Divider()
-                if(rows.isEmpty()) {
-                    Column(
-                        modifier=Modifier
-                            .width(tableWidth)
-                            .padding(vertical=24.dp),
-                        horizontalAlignment=Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            painter=painterResource(MR.images.tray),
-                            contentDescription="no data",
-                            modifier=Modifier.size(28.dp),
-                            tint=MaterialTheme.colorScheme.onSurfaceVariant
+                Column(
+                    modifier=Modifier
+                        .width(tableWidth)
+                        .then(
+                            maxHeight?.let {
+                                Modifier
+                                    .heightIn(max=it)
+                                    .verticalScroll(verticalScrollState)
+                            }?:Modifier
                         )
-                        Text(
-                            emptyText,
-                            color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign=TextAlign.Center
-                        )
+                        .horizontalScroll(horizontalScrollState)
+                ) {
+                    if(rows.isEmpty()) {
+                        Column(
+                            modifier=Modifier
+                                .width(tableWidth)
+                                .padding(vertical=24.dp),
+                            horizontalAlignment=Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                painter=painterResource(MR.images.tray),
+                                contentDescription="no data",
+                                modifier=Modifier.size(28.dp),
+                                tint=MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                emptyText,
+                                color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign=TextAlign.Center
+                            )
+                        }
                     }
-                }
-                rows.forEachIndexed {rowIndex,row->
-                    DataTableRow(tableWidth) {
-                        row.forEachIndexed {columnIndex,value->
-                            DataTableCell(tableWidths[columnIndex],cellPadding) {
-                                if(favoriteEnabled&&columnIndex==0&&rowIndex in favoriteRows) {
-                                    IconButton(onClick={onFavoriteClick(rowIndex)}) {
-                                        Icon(
-                                            painter=painterResource(MR.images.star_filled),
-                                            contentDescription="favorite",
-                                            modifier=Modifier.size(24.dp),
-                                            tint=MaterialTheme.colorScheme.primary
-                                        )
+                    rows.forEachIndexed {rowIndex,row->
+                        DataTableRow(tableWidth) {
+                            row.forEachIndexed {columnIndex,value->
+                                DataTableCell(tableWidths[columnIndex],cellPadding) {
+                                    if(favoriteEnabled&&columnIndex==0&&rowIndex in favoriteRows) {
+                                        IconButton(onClick={onFavoriteClick(rowIndex)}) {
+                                            Icon(
+                                                painter=painterResource(MR.images.star_filled),
+                                                contentDescription="favorite",
+                                                modifier=Modifier.size(24.dp),
+                                                tint=MaterialTheme.colorScheme.primary
+                                            )
+                                        }
                                     }
-                                }
-                                else if(favoriteEnabled&&columnIndex==0) {
-                                    IconButton(onClick={onFavoriteClick(rowIndex)}) {
-                                        Icon(
-                                            painter=painterResource(MR.images.star),
-                                            contentDescription="favorite",
-                                            modifier=Modifier.size(24.dp),
-                                            tint=MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                    else if(favoriteEnabled&&columnIndex==0) {
+                                        IconButton(onClick={onFavoriteClick(rowIndex)}) {
+                                            Icon(
+                                                painter=painterResource(MR.images.star),
+                                                contentDescription="favorite",
+                                                modifier=Modifier.size(24.dp),
+                                                tint=MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
-                                }
-                                else {
-                                    Text(value,color=MaterialTheme.colorScheme.onSurface)
+                                    else {
+                                        Text(value,color=MaterialTheme.colorScheme.onSurface)
+                                    }
                                 }
                             }
                         }
