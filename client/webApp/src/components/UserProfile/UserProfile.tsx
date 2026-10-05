@@ -7,12 +7,15 @@ import {UserIcon,StarIcon,InboxIcon} from '@heroicons/react/24/solid'
 import {StarIcon as StarIconOutline} from '@heroicons/react/24/outline'
 import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
+import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
 export function UserProfile({strings}: { strings: Record<string,string> }){
     const [user,setUser]=useState<UserProfileDto | null>(new UserProfileDto())
     const [isLoading,setIsLoading]=useState(true)
+    const [bioInput,setBioInput]=useState(user?.bio??"")
+    const [isEditingBio,setIsEditingBio]=useState(false)
     const translate=(key: string) => strings[key]??key
     const params=useParams()
     const userParam=params.user
@@ -67,6 +70,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
     const artistList=user.favoriteArtists!.asJsReadonlyArrayView()
     const genreList=user.favoriteGenres!.asJsReadonlyArrayView()
     const contributionList=user.contributions!.asJsReadonlyArrayView()
+    console.log(contributionList)
 
     const toggleBandFavorite=async (id: number) => {
         const token=localStorage.getItem("token")
@@ -93,6 +97,10 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
         const unit=dateParts[1]
         const amount=parseInt(dateParts[0])
         return `${amount} ${translate(unit)} ${translate("time_ago")}`
+    }
+
+    const updateBio=async (newBio: string) => {
+        //todo
     }
 
     const mobile=isMobile
@@ -138,11 +146,18 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         <ProgressBar.Fill/>
                     </ProgressBar.Track>
                 </ProgressBar>}
-            <div>
+            <div className={"w-3xl"}>
                 <p>{translate("bio")}</p>
-                <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
-                    {user.bio??loremIpsum({count: 8,units: "sentences"})}
-                </Surface>
+                {user.user?(
+                    <EditableSurface
+                        value={user.bio??""}
+                        onSave={updateBio}
+                    />
+                ):(
+                    <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
+                        {user.bio??loremIpsum({count: 8,units: "sentences"})}
+                    </Surface>
+                )}
             </div>
             <div className={mobile?"w-96":"w-full"}>
                 <Tabs variant={"secondary"}>
