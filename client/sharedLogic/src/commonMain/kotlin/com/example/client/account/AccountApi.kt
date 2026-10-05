@@ -142,9 +142,10 @@ class AccountApi private constructor(
         }
     }
 
-    suspend fun deleteAccount(token:String,request:LoginRequestDto):String{
+    suspend fun deleteAccount(token:String,request:LoginRequestDto,lang:String):String{
         return try {
             client.post("$BASE_URL/user-account/deleteAccount") {
+                parameter("lang",lang)
                 header("Authorization","Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -182,5 +183,5 @@ object AccountClient {
     suspend fun updateUsername(token:String,newUsername:String):String=AccountApi().updateUsername(token,newUsername)
     suspend fun updateEmail(token:String,newEmail:String):String=AccountApi().updateEmail(token,newEmail)
     suspend fun addBirthday(token:String,birthday:Date):String=AccountApi().addBirthday(token,birthday)
-    suspend fun deleteAccount(token:String,request:LoginRequestDto):String=AccountApi().deleteAccount(token,request)
+    suspend fun deleteAccount(token:String,request:LoginRequestDto,lang:String):String=AccountApi().deleteAccount(token,request,lang)
 }

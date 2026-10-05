@@ -1,4 +1,4 @@
-import {AccountClient,Date as KotlinDate,UserDto} from "sharedLogic"
+import {AccountClient,Date as KotlinDate,LoginRequestDto,UserDto} from "sharedLogic"
 import React,{useEffect,useState} from "react"
 import {
     Button,
@@ -8,15 +8,18 @@ import {
     DateValue,
     ErrorMessage,
     FieldError,
+    Form,
     Input,
     Label,
+    Modal,
     Spinner,
     TextField
 } from "@heroui/react"
 import {Link} from "react-router-dom"
 import {CalendarDate,getLocalTimeZone,today} from "@internationalized/date"
+import {getLanguage} from "../getLanguage.ts";
 
-export function Settings({strings}: {strings: Record<string,string>}){
+export function Settings({strings}: { strings: Record<string,string> }){
     const translate=(key: string): string => {
         return strings[key]??key
     }
@@ -47,6 +50,11 @@ export function Settings({strings}: {strings: Record<string,string>}){
     const isBirthdateInvalid=birthdate!==null&&(birthdate<minDate||birthdate>maxDate)
     const birthdateAsKotlinDate=toKotlinDate(birthdate)
     const [errorText,setErrorText]=useState("")
+
+    const [modalEmail,setModalEmail]=useState("")
+    const [login,setLogin]=useState("")
+    const [password,setPassword]=useState("")
+    const [modalOpen,setModalOpen]=useState(false)
 
     const handleBirthdateChange=(value: DateValue | null) => {
         setBirthdate(value)
@@ -94,6 +102,26 @@ export function Settings({strings}: {strings: Record<string,string>}){
         }
         if(birthdate!==userData.birthDate){
             await updateBirthdate()
+        }
+    }
+
+    const deleteAccount=async () => {
+        const request=new LoginRequestDto(login,modalEmail,password)
+        const token=localStorage.getItem("token")
+        setModalOpen(false)
+        setModalEmail("")
+        setLogin("")
+        setPassword("")
+        if(token!==null&&token!==undefined){
+            const result=await AccountClient.getInstance().deleteAccount(token,request,getLanguage())
+            console.log(result)
+            if(result==="confirmed"){
+                localStorage.removeItem("token")
+                window.location.href="/"
+            }
+            else{
+                setErrorText(translate(result))
+            }
         }
     }
 
@@ -208,6 +236,51 @@ export function Settings({strings}: {strings: Record<string,string>}){
             <Link to={"/forgot-password"}>
                 <Button>{translate("change_password")}</Button>
             </Link>
+
+            <Button onPress={() => setModalOpen(true)}>
+                Delete account
+            </Button>
+
+            <Modal.Backdrop isOpen={modalOpen} onOpenChange={setModalOpen}>
+                <Modal.Container>
+                    <Modal.Dialog className="sm:max-w-md">
+                        <Modal.CloseTrigger/>
+                        <Modal.Header>
+                            <Modal.Heading>Delete account</Modal.Heading>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form className="flex flex-col gap-4">
+                                <TextField isRequired name="email" value={modalEmail} onChange={setModalEmail}>
+                                    <Label>{translate("email")}</Label>
+                                    <Input autoComplete="email"/>
+                                </TextField>
+                                <TextField isRequired name="login" value={login} onChange={setLogin}>
+                                    <Label>{translate("login")}</Label>
+                                    <Input autoComplete="username"/>
+                                </TextField>
+                                <TextField
+                                    isRequired
+                                    name="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={setPassword}
+                                >
+                                    <Label>{translate("password")}</Label>
+                                    <Input autoComplete="current-password"/>
+                                </TextField>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button
+                                onPress={deleteAccount}
+                                isDisabled={login.length===0||password.length===0}
+                            >
+                                Delete account
+                            </Button>
+                        </Modal.Footer>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </div>
     )
 }

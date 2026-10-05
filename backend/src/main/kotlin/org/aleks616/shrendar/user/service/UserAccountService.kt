@@ -271,12 +271,12 @@ class UserAccountService(
             .orElseThrow {IllegalStateException("UserLog not found for user id $userId")}
     }
 
-    fun requestDeletion(userEmail:String) {
+    fun requestDeletion(userEmail:String,lang:SupportedLanguages) {
         val user=userRepository.findByEmail(userEmail)?:throw IllegalStateException("account_not_found")
         val userLog=findUserLog(user.id)
         userLog.accountDeletionScheduledTime=Instant.now()
         userLogRepository.save(userLog)
-        emailService.sendAccountScheduledForDeletionMessage(user.email!!)
+        emailService.sendAccountScheduledForDeletionMessage(user.email!!,lang)
     }
 
     @Scheduled(fixedRate=24*60*60*1000)

@@ -225,14 +225,17 @@ class UserAccountController(
 
     /**requires email**/
     @PostMapping("/deleteAccount")
-    fun deleteAccount(@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
+    fun deleteAccount(@RequestParam lang:SupportedLanguages,@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=userAuth.name
         val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(user.login!=userLogin)
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("invalid_credentials")
 
-        userAccountService.authenticate(request,false)
+        if(userAccountService.authenticate(request,false)==null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid_credentials")
         try{
-            userAccountService.requestDeletion(user.email!!)
+            userAccountService.requestDeletion(user.email!!,lang)
         }
         catch(e:IllegalStateException){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)

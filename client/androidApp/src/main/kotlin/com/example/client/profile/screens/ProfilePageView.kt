@@ -221,9 +221,9 @@ fun ProfilePageView(
                                     }
                                 }
                                 Column {
-                                    Text(userData.login,fontSize=24.sp,fontWeight=FontWeight.Bold)
+                                    Text(userData.username,fontSize=24.sp,fontWeight=FontWeight.Bold)
                                     Text(
-                                        "@${userData.username}",
+                                        "@${userData.login}",
                                         fontSize=18.sp,
                                         color=MaterialTheme.colorScheme.onSurfaceVariant
                                     )

@@ -145,9 +145,9 @@ struct UserProfileView: View {
 								}
 
 								VStack(alignment: .leading, spacing: 2) {
-									Text(user.login)
+									Text(user.username)
 										.font(.title2.bold())
-									Text("@\(user.username)")
+									Text("@\(user.login)")
 										.font(.title3)
 										.foregroundStyle(.secondary)
 									Text(
