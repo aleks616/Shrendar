@@ -34,7 +34,7 @@ class UserAccountService(
     private val emailService:EmailService,
     private val encoder:BCryptPasswordEncoder,
     private val xpService:XpService,
-    private val googleOAuthProperties:GoogleOAuthProperties,
+    googleOAuthProperties:GoogleOAuthProperties,
 ) {
     private val googleIdTokenVerifier=GoogleIdTokenVerifier.Builder(
         GoogleNetHttpTransport.newTrustedTransport(),

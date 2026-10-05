@@ -447,6 +447,16 @@ class LocalText {
             "favorite_bands_table"->MR.strings.favorite_bands_table
             "favorite_artists_table"->MR.strings.favorite_artists_table
             "favorite_genres_table"->MR.strings.favorite_genres_table
+            "today"->MR.strings.today
+            "time_Yp"->MR.strings.time_Yp
+            "time_Y"->MR.strings.time_Y
+            "time_Mp"->MR.strings.time_Mp
+            "time_M"->MR.strings.time_M
+            "time_Wp"->MR.strings.time_Wp
+            "time_W"->MR.strings.time_W
+            "time_Dp"->MR.strings.time_Dp
+            "time_D"->MR.strings.time_D
+            "time_ago"->MR.strings.time_ago
             "google_error"->MR.strings.google_error
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }

@@ -405,11 +405,10 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                         )}
                                     >
                                         {contributionList.map((item,i) => {
-                                            const action=item.action?.name_1.toString().toLowerCase().replace(/(^|\s)[a-z]/gi,(l: string) => l.toUpperCase())
                                             return (
                                                 <Table.Row key={i} className={"relative"}
                                                            href={`/${item.changedTable}/${item.changedRecordId}`}>
-                                                    <Table.Cell>{action}</Table.Cell>
+                                                    <Table.Cell>{item.action}</Table.Cell>
                                                     <Table.Cell>{item.changedAt}</Table.Cell>
                                                     <Table.Cell>{item.changedTable}</Table.Cell>
                                                     <Table.Cell>{item.changedColumn}</Table.Cell>

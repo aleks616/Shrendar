@@ -60,20 +60,20 @@ class ContributionService(
     }
 
     fun mapContributionToContributionDto(contributions:List<Contribution>):List<ContributionDto>{
-        return contributions.map{
+        return contributions.map{c->
             ContributionDto(
-                id=it.id,
-                changeId=it.changeId,
-                userId=it.user.id,
-                action=it.action,
-                changedTable=it.changedTable,
-                changedColumn=it.changedColumn,
-                changedRecordId=it.changedRecordId,
-                oldValue=it.oldValue,
-                newValue=it.newValue,
-                changedAt=it.changedAt.toString(),
-                confirmed=it.confirmed,
-                confirmedBy=it.confirmedBy
+                id=c.id,
+                changeId=c.changeId,
+                userId=c.user.id,
+                action=c.action.toString().replaceFirstChar { it.uppercase() },
+                changedTable=c.changedTable,
+                changedColumn=c.changedColumn,
+                changedRecordId=c.changedRecordId,
+                oldValue=c.oldValue,
+                newValue=c.newValue,
+                changedAt=c.changedAt.toString(),
+                confirmed=c.confirmed,
+                confirmedBy=c.confirmedBy
             )
         }
     }
