@@ -145,7 +145,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         <ProgressBar.Fill/>
                     </ProgressBar.Track>
                 </ProgressBar>}
-            <div className={"w-3xl"}>
+            <div className={"md:min-w-2xl"}>
                 <p>{translate("bio")}</p>
                 {user.user?(
                     <EditableSurface
@@ -396,9 +396,10 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                     </Tabs.Panel>
                     <Tabs.Panel className="pt-2" id="contributions">
                         <Table variant={"secondary"}>
-                            <Table.ScrollContainer className={"max-h-96 overflow-auto"}>
+                            <Table.ScrollContainer
+                                className={"max-h-96 w-full min-w-0 max-w-full overflow-x-auto overflow-y-auto"}>
                                 <Table.Content aria-label={translate("user_contributions_table")}
-                                               className={"w-full"}>
+                                               className={"w-full whitespace-nowrap"}>
                                     <Table.Header className={"sticky top-0 z-10"}>
                                         <Table.Column isRowHeader>{translate("action")}</Table.Column>
                                         <Table.Column>{translate("date")}</Table.Column>

@@ -65,7 +65,7 @@ class ContributionService(
                 id=c.id,
                 changeId=c.changeId,
                 userId=c.user.id,
-                action=c.action.toString().replaceFirstChar { it.uppercase() },
+                action=c.action.toString().lowercase().replaceFirstChar { it.uppercase() },
                 changedTable=c.changedTable,
                 changedColumn=c.changedColumn,
                 changedRecordId=c.changedRecordId,

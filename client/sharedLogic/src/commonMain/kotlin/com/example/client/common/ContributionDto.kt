@@ -11,7 +11,7 @@ data class ContributionDto(
     val id:Long?=null,
     val changeId:Long?=null,
     val userId:Int?=null,
-    val action:Action?=null,
+    val action:String?=null,
     val changedTable:String?=null,
     val changedColumn:String?=null,
     val changedRecordId:Long?=null,
