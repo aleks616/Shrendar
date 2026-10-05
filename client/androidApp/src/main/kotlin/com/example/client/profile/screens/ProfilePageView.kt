@@ -308,7 +308,7 @@ fun ProfilePageView(
                                 stringResource(LocalText().getStringResource("contributions")),
                                 fontWeight=FontWeight.Bold
                             )
-                            ContributionsTable(userData)
+                            ContributionsTable(userData.contributions)
                             Spacer(modifier=Modifier.height(4.dp))
                         }
                     }
