@@ -14,8 +14,6 @@ const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/ava
 export function UserProfile({strings}: { strings: Record<string,string> }){
     const [user,setUser]=useState<UserProfileDto | null>(new UserProfileDto())
     const [isLoading,setIsLoading]=useState(true)
-    const [bioInput,setBioInput]=useState(user?.bio??"")
-    const [isEditingBio,setIsEditingBio]=useState(false)
     const translate=(key: string) => strings[key]??key
     const params=useParams()
     const userParam=params.user
@@ -70,7 +68,6 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
     const artistList=user.favoriteArtists!.asJsReadonlyArrayView()
     const genreList=user.favoriteGenres!.asJsReadonlyArrayView()
     const contributionList=user.contributions!.asJsReadonlyArrayView()
-    console.log(contributionList)
 
     const toggleBandFavorite=async (id: number) => {
         const token=localStorage.getItem("token")
@@ -100,7 +97,9 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
     }
 
     const updateBio=async (newBio: string) => {
-        //todo
+        const token=localStorage.getItem("token")
+        const result=await ProfileClient.getInstance().updateBio(newBio,token)
+        if(result!="bio_added") console.log(result)
     }
 
     const mobile=isMobile
@@ -127,8 +126,8 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                     </Badge.Anchor>
                 </div>
                 <div>
-                    <p className={"text-2xl font-bold"}>{user.login}</p>
-                    <p className={"text-lg text-muted"}>@{user.username}</p>
+                    <p className={"text-2xl font-bold"}>{user.username}</p>
+                    <p className={"text-lg text-muted"}>@{user.login}</p>
                     <p className={"text-sm"}>{translate("member_since")} {translateDate(user.accountAge!)}</p>
                 </div>
             </div>

@@ -5,6 +5,8 @@ import java.io.Serializable
 data class UserDto(
     val login:String?=null,
     val username:String?=null,
+    val email:String?=null,
+    val birthDate:CustomDate?=null,
     val rankId:Int?=null,
     val xp:Int?=null,
 ):Serializable

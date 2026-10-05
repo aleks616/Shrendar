@@ -79,6 +79,20 @@ class ProfileApi private constructor(
         }
     }
 
+    suspend fun updateBio(bio:String,token:String?):String?{
+        return try{
+            client.post("$BASE_URL/user-account/bio/add"){
+                header("Authorization","Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(bio)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) "not_found"
+            else e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -101,4 +115,5 @@ object ProfileClient {
     suspend fun toggleFavoriteBand(bandId:Int,token:String?):String?=ProfileApi().toggleFavoriteBand(bandId,token)
     suspend fun toggleFavoriteArtist(artistId:Long,token:String?):String?=ProfileApi().toggleFavoriteArtist(artistId,token)
     suspend fun toggleFavoriteGenre(genreId:Int,token:String?):String?=ProfileApi().toggleFavoriteGenre(genreId,token)
+    suspend fun updateBio(bio:String,token:String?):String?=ProfileApi().updateBio(bio,token)
 }

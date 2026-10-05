@@ -1,6 +1,7 @@
 package com.example.client.account
 
 import com.example.client.BASE_URL
+import com.example.client.common.Date
 import com.example.client.common.UserDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -79,6 +80,7 @@ class AccountApi private constructor(
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     suspend fun getUserData(token:String):UserDto {
         return try{
             client.get("$BASE_URL/user-account/me"){
@@ -97,9 +99,59 @@ class AccountApi private constructor(
                 setBody(mapOf("googleToken" to googleToken))
             }.body()
         }
-        catch(e:Exception) {
-            print(e)
-            return "error"
+        catch(e:ClientRequestException) {
+            return e.response.bodyAsText()
+        }
+    }
+
+    suspend fun updateUsername(token:String,newUsername:String):String {
+        return try {
+            client.post("$BASE_URL/user-account/updateUsername") {
+                header("Authorization","Bearer $token")
+                parameter("newUsername",newUsername)
+            }.body()
+        }
+        catch(e:ClientRequestException) {
+            return e.response.bodyAsText()
+        }
+    }
+
+    suspend fun updateEmail(token:String,newEmail:String):String {
+        return try {
+            client.post("$BASE_URL/user-account/updateEmail") {
+                header("Authorization","Bearer $token")
+                parameter("newEmail",newEmail)
+            }.body()
+        }
+        catch(e:ClientRequestException) {
+            return e.response.bodyAsText()
+        }
+    }
+
+    @OptIn(ExperimentalJsExport::class)
+    suspend fun addBirthday(token:String,birthday:Date):String {
+        val birthdayString="${birthday.year}-${if(birthday.month<10) "0${birthday.month}" else birthday.month}-${if(birthday.day<10) "0${birthday.day}" else birthday.day}"
+        return try {
+            client.post("$BASE_URL/user-account/addBirthday") {
+                header("Authorization","Bearer $token")
+                parameter("stringDate",birthdayString)
+            }.body()
+        }
+        catch(e:ClientRequestException) {
+            return e.response.bodyAsText()
+        }
+    }
+
+    suspend fun deleteAccount(token:String,request:LoginRequestDto):String{
+        return try {
+            client.post("$BASE_URL/user-account/deleteAccount") {
+                header("Authorization","Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+        }
+        catch(e:ClientRequestException) {
+            return e.response.bodyAsText()
         }
     }
 
@@ -127,4 +179,8 @@ object AccountClient {
     suspend fun resetPassword(request:ResetPasswordDto):String=AccountApi().resetPassword(request)
     suspend fun getUserData(token:String):UserDto=AccountApi().getUserData(token)
     suspend fun authWithGoogle(googleToken:String):String=AccountApi().authWithGoogle(googleToken)
+    suspend fun updateUsername(token:String,newUsername:String):String=AccountApi().updateUsername(token,newUsername)
+    suspend fun updateEmail(token:String,newEmail:String):String=AccountApi().updateEmail(token,newEmail)
+    suspend fun addBirthday(token:String,birthday:Date):String=AccountApi().addBirthday(token,birthday)
+    suspend fun deleteAccount(token:String,request:LoginRequestDto):String=AccountApi().deleteAccount(token,request)
 }
