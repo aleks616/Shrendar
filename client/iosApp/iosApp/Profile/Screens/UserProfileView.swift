@@ -106,6 +106,20 @@ struct UserProfileView: View {
 
 	func updateBio(_ value: String) {
 		bio = value
+		Task { @MainActor in
+			do {
+				let result = try await ProfileClient().updateBio(
+					bio: value,
+					token: KeychainService.retrieveToken()
+				)
+				guard result == "bio_added" else {
+					errorText = result ?? localize(key: "something_wrong")
+					return
+				}
+			} catch {
+				errorText = localize(key: "something_wrong")
+			}
+		}
 	}
 
 	var body: some View {

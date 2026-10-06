@@ -18,6 +18,7 @@ import com.example.client.account.screens.RegisterView
 import com.example.client.account.screens.RequestPasswordResetView
 import com.example.client.account.screens.SignInView
 import com.example.client.account.screens.PasswordResetView
+import com.example.client.account.screens.SettingsView
 import com.example.client.profile.screens.ProfilePageView
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -84,6 +85,16 @@ class MainActivity:ComponentActivity() {
                 }
                 composable<Destinations.Profile> {
                     ProfilePageView()
+                }
+                composable<Destinations.Settings> {
+                    SettingsView(
+                        onBack={navController.popBackStack()},
+                        onChangePassword={
+                            navController.navigate(
+                                createRoutePattern<Destinations.RequestPasswordReset>()
+                            )
+                        },
+                    )
                 }
 
             }

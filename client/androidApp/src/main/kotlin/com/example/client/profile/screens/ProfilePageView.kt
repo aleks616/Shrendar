@@ -23,6 +23,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.example.client.AppTheme
 import com.example.client.LocalText
+import com.example.client.common.EditableSurface
 import com.example.client.common.ProgressBar
 import com.example.client.common.Tabs
 import com.example.client.common.translatedDate
@@ -114,6 +115,20 @@ fun ProfilePageView(
             }
             catch(e:Exception) {
                 Log.e("profile favorite genre",e.localizedMessage?:"")
+            }
+        }
+    }
+
+    fun updateBio(newBio:String) {
+        scope.launch {
+            try {
+                val result=ProfileClient.updateBio(newBio,token())
+                if(result!="bio_added") {
+                    Log.e("profile bio",result?:"")
+                }
+            }
+            catch(e:Exception) {
+                Log.e("profile bio",e.localizedMessage?:"")
             }
         }
     }
@@ -250,21 +265,32 @@ fun ProfilePageView(
                                     stringResource(LocalText().getStringResource("bio")),
                                     fontWeight=FontWeight.Bold
                                 )
-                                Surface(
-                                    modifier=Modifier
-                                        .fillMaxWidth()
-                                        .height(80.dp),
-                                    shape=MaterialTheme.shapes.medium,
-                                    border=BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant),
-                                    color=MaterialTheme.colorScheme.surfaceVariant
-                                ) {
-                                    Text(
-                                        text=userData.bio?.takeIf {it.isNotBlank()}?:"",
-                                        modifier=Modifier
-                                            .fillMaxSize()
-                                            .verticalScroll(rememberScrollState())
-                                            .padding(10.dp)
+                                if(userData.user) {
+                                    EditableSurface(
+                                        value=userData.bio.orEmpty(),
+                                        onSave=::updateBio
                                     )
+                                }
+                                else {
+                                    Surface(
+                                        modifier=Modifier
+                                            .fillMaxWidth()
+                                            .height(80.dp),
+                                        shape=MaterialTheme.shapes.medium,
+                                        border=BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant
+                                        ),
+                                        color=MaterialTheme.colorScheme.surfaceVariant
+                                    ) {
+                                        Text(
+                                            text=userData.bio?.takeIf {it.isNotBlank()}?:"",
+                                            modifier=Modifier
+                                                .fillMaxSize()
+                                                .verticalScroll(rememberScrollState())
+                                                .padding(10.dp)
+                                        )
+                                    }
                                 }
                             }
 
