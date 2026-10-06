@@ -17,7 +17,7 @@ import {
 } from "@heroui/react"
 import {Link} from "react-router-dom"
 import {CalendarDate,getLocalTimeZone,today} from "@internationalized/date"
-import {getLanguage} from "../getLanguage.ts";
+import {getLanguage} from "../getLanguage.ts"
 
 export function Settings({strings}: { strings: Record<string,string> }){
     const translate=(key: string): string => {
