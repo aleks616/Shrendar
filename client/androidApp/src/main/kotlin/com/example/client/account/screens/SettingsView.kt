@@ -17,29 +17,31 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import com.example.client.AppTheme
-import com.example.client.BackButton
+import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.common.UserDto
+import dev.icerock.moko.resources.StringResource
+import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import kotlin.js.ExperimentalJsExport
 import com.example.client.common.Date as KotlinDate
 
-private val minimumSettingsBirthdate=LocalDate.now().minusYears(120)
-private val maximumSettingsBirthdate=LocalDate.now().minusYears(13)
+private val minDate=LocalDate.now().minusYears(120)
+private val maxDate=LocalDate.now().minusYears(13)
 
-private fun LocalDate.toSettingsEpochMillis():Long=
+private fun LocalDate.toEpochMillis():Long=
     atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
-private fun Long.toSettingsLocalDate():LocalDate=
+private fun Long.toLocalDate():LocalDate=
     Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 fun SettingsView(
     onBack:()->Unit={},
     onChangePassword:()->Unit={},
@@ -47,96 +49,107 @@ fun SettingsView(
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
 
+    var userData by remember {mutableStateOf<UserDto?>(null)}
     var username by remember {mutableStateOf("")}
     var email by remember {mutableStateOf("")}
     var birthdate by remember {mutableStateOf<LocalDate?>(null)}
-    var originalUsername by remember {mutableStateOf("")}
-    var originalEmail by remember {mutableStateOf("")}
-    var originalBirthdate by remember {mutableStateOf<LocalDate?>(null)}
     var isLoading by remember {mutableStateOf(true)}
-    var isSaving by remember {mutableStateOf(false)}
-    var errorText by remember {mutableStateOf<String?>(null)}
-    var showDeleteDialog by remember {mutableStateOf(false)}
+    var errorText:StringResource? by remember {mutableStateOf(null)}
+
+    var modalOpen by remember {mutableStateOf(false)}
     var showDatePicker by remember {mutableStateOf(false)}
-    var deleteEmail by remember {mutableStateOf("")}
-    var deleteLogin by remember {mutableStateOf("")}
-    var deletePassword by remember {mutableStateOf("")}
+    var modalEmail by remember {mutableStateOf("")}
+    var login by remember {mutableStateOf("")}
+    var password by remember {mutableStateOf("")}
 
     val usernameInvalid=username.isNotEmpty()&&(username.length<4||username.length>50)
     val emailInvalid=email.isNotEmpty()&&!email.contains("@")
     val birthdateInvalid=birthdate!=null&&(
-            birthdate!!<minimumSettingsBirthdate||birthdate!!>maximumSettingsBirthdate
+            birthdate!!<minDate||birthdate!!>maxDate
                                           )
 
     fun token():String?=
         context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
             .getString("authToken",null)
 
-    suspend fun saveChanges() {
+    suspend fun updateUsername() {
         val authToken=token()
-        if(authToken.isNullOrBlank()) {
-            errorText="Something went wrong"
-            return
+        if(!authToken.isNullOrBlank()) {
+            val result=AccountClient.updateUsername(authToken,username)
+            if(result!="username_changed") {
+                errorText=LocalText().getStringResource(result)
+            }
+            else {
+                userData=userData?.copy(username=username)
+            }
         }
+    }
 
-        isSaving=true
+    suspend fun updateEmail() {
+        val authToken=token()
+        if(!authToken.isNullOrBlank()) {
+            val result=AccountClient.updateEmail(authToken,email)
+            if(result!="email_changed") {
+                errorText=LocalText().getStringResource(result)
+            }
+            else {
+                userData=userData?.copy(email=email)
+            }
+        }
+    }
+
+    suspend fun updateBirthdate() {
+        val authToken=token()
+        val birthdateAsKotlinDate=birthdate?.let {
+            KotlinDate(it.year,it.monthValue,it.dayOfMonth)
+        }
+        if(!authToken.isNullOrBlank()&&birthdateAsKotlinDate!=null) {
+            val result=AccountClient.addBirthday(authToken,birthdateAsKotlinDate)
+            if(result!="birthday_added") {
+                errorText=LocalText().getStringResource(result)
+            }
+            else {
+                userData=userData?.copy(birthDate=birthdateAsKotlinDate)
+            }
+        }
+    }
+
+    suspend fun submitChanges() {
         errorText=null
         try {
-            if(username!=originalUsername) {
-                val result=AccountClient.updateUsername(authToken,username)
-                if(result!="username_changed") {
-                    errorText=result
-                    isSaving=false
-                    return
-                }
-                originalUsername=username
+            if(username!=userData?.username) {
+                updateUsername()
             }
-
-            if(email!=originalEmail) {
-                val result=AccountClient.updateEmail(authToken,email)
-                if(result!="email_changed") {
-                    errorText=result
-                    isSaving=false
-                    return
-                }
-                originalEmail=email
+            if(email!=userData?.email) {
+                updateEmail()
             }
-
-            if(birthdate!=originalBirthdate&&birthdate!=null) {
-                val date=birthdate!!
-                val result=AccountClient.addBirthday(
-                    authToken,
-                    KotlinDate(date.year,date.monthValue,date.dayOfMonth)
-                )
-                if(result!="birthday_added") {
-                    errorText=result
-                    isSaving=false
-                    return
-                }
-                originalBirthdate=date
+            if(birthdate!=userData?.birthDate?.let {LocalDate.of(it.year,it.month,it.day)}) {
+                updateBirthdate()
             }
         }
         catch(e:Exception) {
-            Log.e("settings save",e.localizedMessage?:"")
-            errorText=e.localizedMessage?:"Something went wrong"
+            Log.e("settings",e.toString())
+            errorText=MR.strings.something_wrong
         }
-        isSaving=false
     }
 
     suspend fun deleteAccount() {
         val authToken=token()
         if(authToken.isNullOrBlank()) {
-            errorText="Something went wrong"
-            showDeleteDialog=false
+            errorText=MR.strings.something_wrong
+            modalOpen=false
             return
         }
 
         val request=LoginRequestDto(
-            login=deleteLogin.ifEmpty {null},
-            email=deleteEmail.ifEmpty {null},
-            password=deletePassword,
+            login=login.ifEmpty {null},
+            email=modalEmail.ifEmpty {null},
+            password=password,
         )
-        showDeleteDialog=false
+        modalOpen=false
+        modalEmail=""
+        login=""
+        password=""
         try {
             val language=java.util.Locale.getDefault().language
                              .takeIf {it.isNotBlank()}?.uppercase()?:"EN"
@@ -147,42 +160,40 @@ fun SettingsView(
                 onBack()
             }
             else {
-                errorText=result
+                errorText=LocalText().getStringResource(result)
             }
         }
         catch(e:Exception) {
-            Log.e("settings delete account",e.localizedMessage?:"")
-            errorText=e.localizedMessage?:"Something went wrong"
+            Log.e("settings",e.toString())
+            errorText=MR.strings.something_wrong
         }
     }
 
     LaunchedEffect(Unit) {
         val authToken=token()
         if(authToken.isNullOrBlank()) {
-            errorText="Something went wrong"
+            errorText=MR.strings.something_wrong
             isLoading=false
         }
         else {
             try {
                 val user=AccountClient.getUserData(authToken)
                 if(user.login.isNullOrBlank()) {
-                    errorText="Something went wrong"
+                    errorText=MR.strings.something_wrong
                 }
                 else {
+                    userData=user
                     username=user.username.orEmpty()
                     email=user.email.orEmpty()
                     birthdate=user.birthDate?.let {
                         LocalDate.of(it.year,it.month,it.day)
                     }
-                    originalUsername=username
-                    originalEmail=email
-                    originalBirthdate=birthdate
                     errorText=null
                 }
             }
             catch(e:Exception) {
-                Log.e("settings load",e.localizedMessage?:"")
-                errorText=e.localizedMessage?:"Something went wrong"
+                Log.e("settings",e.toString())
+                errorText=MR.strings.something_wrong
             }
             isLoading=false
         }
@@ -212,10 +223,10 @@ fun SettingsView(
                             .padding(horizontal=20.dp,vertical=16.dp),
                         verticalArrangement=Arrangement.spacedBy(16.dp),
                     ) {
-                        OutlinedTextField(
+                        Text("Username")
+                        TextField(
                             value=username,
                             onValueChange={username=it},
-                            label={Text("Username")},
                             isError=usernameInvalid,
                             supportingText={
                                 if(usernameInvalid) {
@@ -225,32 +236,27 @@ fun SettingsView(
                             modifier=Modifier.fillMaxWidth(),
                         )
 
-                        OutlinedTextField(
+                        Text("Email")
+                        TextField(
                             value=email,
                             onValueChange={},
-                            label={Text("Email")},
                             enabled=false,
                             isError=emailInvalid,
                             supportingText={
                                 if(emailInvalid) {
-                                    Text("Invalid email address")
+                                    Text(text=stringResource(MR.strings.invalid_email))
                                 }
                             },
                             keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Email),
                             modifier=Modifier.fillMaxWidth(),
                         )
 
+                        Text("Birthdate")
                         OutlinedButton(
                             onClick={showDatePicker=true},
                             modifier=Modifier.fillMaxWidth(),
                         ) {
-                            Column(horizontalAlignment=Alignment.Start) {
-                                Text("Date")
-                                Text(
-                                    birthdate?.format(DateTimeFormatter.ISO_LOCAL_DATE)
-                                    ?:"Select date"
-                                )
-                            }
+                            Text(birthdate?.toString()?:"Select birthdate")
                         }
 
                         if(birthdateInvalid) {
@@ -261,29 +267,39 @@ fun SettingsView(
                         }
 
                         errorText?.let {
-                            Text(it,color=Color.Red)
+                            Text(
+                                text=stringResource(it),
+                                color=Color.Red,
+                            )
                         }
+
+                        Spacer(modifier=Modifier.height(48.dp))
 
                         Button(
                             onClick={
-                                scope.launch {saveChanges()}
+                                scope.launch {submitChanges()}
                             },
-                            enabled=!isSaving&&!usernameInvalid&&!emailInvalid&&!birthdateInvalid,
+                            enabled=!usernameInvalid&&!emailInvalid&&!birthdateInvalid,
                             modifier=Modifier.fillMaxWidth(),
                         ) {
-                            Text(if(isSaving) "Saving..." else "Save changes")
+                            Text("Save changes")
                         }
 
                         Button(
                             onClick=onChangePassword,
                             modifier=Modifier.fillMaxWidth(),
+                            colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.onSurfaceVariant)
                         ) {
-                            Text("Change password")
+                            Text(
+                                text=stringResource(MR.strings.change_password),
+                                color=MaterialTheme.colorScheme.surface
+                            )
                         }
 
                         Button(
-                            onClick={showDeleteDialog=true},
+                            onClick={modalOpen=true},
                             modifier=Modifier.fillMaxWidth(),
+                            colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error)
                         ) {
                             Text("Delete account")
                         }
@@ -293,75 +309,77 @@ fun SettingsView(
         }
     }
 
-    if(showDatePicker) {
-        val datePickerState=rememberDatePickerState(
-            initialSelectedDateMillis=birthdate?.toSettingsEpochMillis(),
-            yearRange=minimumSettingsBirthdate.year..maximumSettingsBirthdate.year,
-        )
-        DatePickerDialog(
-            onDismissRequest={showDatePicker=false},
-            confirmButton={
-                TextButton(
-                    onClick={
-                        birthdate=datePickerState.selectedDateMillis?.toSettingsLocalDate()
-                        showDatePicker=false
-                    },
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton={
-                TextButton(onClick={showDatePicker=false}) {
-                    Text("Cancel")
-                }
-            },
-        ) {
-            DatePicker(state=datePickerState)
+    AppTheme {
+        if(showDatePicker) {
+            val datePickerState=rememberDatePickerState(
+                initialSelectedDateMillis=birthdate?.toEpochMillis(),
+                yearRange=minDate.year..maxDate.year,
+            )
+            DatePickerDialog(
+                onDismissRequest={showDatePicker=false},
+                confirmButton={
+                    TextButton(
+                        onClick={
+                            birthdate=datePickerState.selectedDateMillis?.toLocalDate()
+                            showDatePicker=false
+                        },
+                    ) {
+                        Text("OK")
+                    }
+                },
+                dismissButton={
+                    TextButton(onClick={showDatePicker=false}) {
+                        Text("Cancel")
+                    }
+                },
+            ) {
+                DatePicker(state=datePickerState)
+            }
         }
-    }
 
-    if(showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest={showDeleteDialog=false},
-            title={Text("Delete account")},
-            text={
-                Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value=deleteEmail,
-                        onValueChange={deleteEmail=it},
-                        label={Text("Email")},
-                        keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Email),
-                        singleLine=true,
-                    )
-                    OutlinedTextField(
-                        value=deleteLogin,
-                        onValueChange={deleteLogin=it},
-                        label={Text("Login")},
-                        singleLine=true,
-                    )
-                    OutlinedTextField(
-                        value=deletePassword,
-                        onValueChange={deletePassword=it},
-                        label={Text("Password")},
-                        keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),
-                        visualTransformation=PasswordVisualTransformation(),
-                        singleLine=true,
-                    )
-                }
-            },
-            dismissButton={
-                TextButton(onClick={showDeleteDialog=false}) {
-                    Text("Cancel")
-                }
-            },
-            confirmButton={
-                TextButton(
-                    onClick={scope.launch {deleteAccount()}},
-                    enabled=deleteLogin.isNotEmpty()&&deletePassword.isNotEmpty(),
-                ) {
-                    Text("Delete account")
-                }
-            },
-        )
+        if(modalOpen) {
+            AlertDialog(
+                onDismissRequest={modalOpen=false},
+                title={Text("Delete account")},
+                text={
+                    Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Text(text=stringResource(MR.strings.email_address))
+                        TextField(
+                            value=modalEmail,
+                            onValueChange={modalEmail=it},
+                            keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Email),
+                            singleLine=true,
+                        )
+                        Text(text=stringResource(MR.strings.login))
+                        TextField(
+                            value=login,
+                            onValueChange={login=it},
+                            singleLine=true,
+                        )
+                        Text(text=stringResource(MR.strings.password))
+                        TextField(
+                            value=password,
+                            onValueChange={password=it},
+                            keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),
+                            visualTransformation=PasswordVisualTransformation(),
+                            singleLine=true,
+                        )
+                    }
+                },
+                dismissButton={
+                    TextButton(onClick={modalOpen=false}) {
+                        Text("Cancel")
+                    }
+                },
+                confirmButton={
+                    TextButton(
+                        onClick={scope.launch {deleteAccount()}},
+                        enabled=login.isNotEmpty()&&password.isNotEmpty(),
+                    ) {
+                        Text("Delete account",color=MaterialTheme.colorScheme.error)
+                    }
+                },
+            )
+        }
     }
 }

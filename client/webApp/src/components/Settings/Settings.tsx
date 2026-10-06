@@ -234,10 +234,10 @@ export function Settings({strings}: { strings: Record<string,string> }){
             </Button>
 
             <Link to={"/forgot-password"}>
-                <Button>{translate("change_password")}</Button>
+                <Button variant={"secondary"}>{translate("change_password")}</Button>
             </Link>
 
-            <Button onPress={() => setModalOpen(true)}>
+            <Button onPress={() => setModalOpen(true)} variant={"danger-soft"}>
                 Delete account
             </Button>
 
@@ -273,6 +273,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
                         <Modal.Footer>
                             <Button
                                 onPress={deleteAccount}
+                                variant={"danger"}
                                 isDisabled={login.length===0||password.length===0}
                             >
                                 Delete account

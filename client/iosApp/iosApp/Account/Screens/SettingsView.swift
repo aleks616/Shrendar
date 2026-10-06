@@ -15,23 +15,20 @@ struct SettingsView: View {
 
 	@Environment(\.dismiss) private var dismiss
 
+	@State private var userData: UserDto?
 	@State private var username = ""
 	@State private var email = ""
 	@State private var birthdate: Foundation.Date?
-	@State private var originalUsername = ""
-	@State private var originalEmail = ""
-	@State private var originalBirthdate: Foundation.Date?
 
 	@State private var isLoading = true
-	@State private var isSaving = false
 	@State private var errorText = ""
 
-	@State private var showingDeleteSheet = false
-	@State private var deleteEmail = ""
-	@State private var deleteLogin = ""
-	@State private var deletePassword = ""
+	@State private var modalOpen = false
+	@State private var modalEmail = ""
+	@State private var login = ""
+	@State private var password = ""
 
-	var minimumBirthdate: Foundation.Date {
+	var minDate: Foundation.Date {
 		calendar.startOfDay(
 			for: calendar.date(
 				byAdding: .year,
@@ -41,7 +38,7 @@ struct SettingsView: View {
 		)
 	}
 
-	var maximumBirthdate: Foundation.Date {
+	var maxDate: Foundation.Date {
 		calendar.startOfDay(
 			for: calendar.date(byAdding: .year, value: -13, to: Foundation.Date())!
 		)
@@ -57,22 +54,7 @@ struct SettingsView: View {
 
 	var isBirthdateInvalid: Bool {
 		guard let birthdate else { return false }
-		return birthdate < minimumBirthdate || birthdate > maximumBirthdate
-	}
-
-	var hasBirthdateChanged: Bool {
-		guard let birthdate else {
-			return originalBirthdate != nil
-		}
-		guard let originalBirthdate else { return true }
-		return calendar.dateComponents(
-			[.year, .month, .day],
-			from: birthdate
-		)
-			!= calendar.dateComponents(
-				[.year, .month, .day],
-				from: originalBirthdate
-			)
+		return birthdate < minDate || birthdate > maxDate
 	}
 
 	var body: some View {
@@ -113,10 +95,10 @@ struct SettingsView: View {
 							DatePicker(
 								localize(key: "date"),
 								selection: Binding(
-									get: { birthdate ?? maximumBirthdate },
+									get: { birthdate ?? maxDate },
 									set: { birthdate = $0 }
 								),
-								in: minimumBirthdate...maximumBirthdate,
+								in: minDate...maxDate,
 								displayedComponents: .date
 							)
 							.accessibilityIdentifier("settings.birthdate")
@@ -127,12 +109,11 @@ struct SettingsView: View {
 								.foregroundStyle(.red)
 						}
 
-						Button(action: saveChanges) {
+						Button(action: submitChanges) {
 							Text("Save changes").frame(maxWidth: .infinity)
 						}
 						.disabled(
-							isSaving
-								|| isUsernameInvalid
+							isUsernameInvalid
 								|| isEmailInvalid
 								|| isBirthdateInvalid
 						)
@@ -161,7 +142,7 @@ struct SettingsView: View {
 						Spacer()
 
 						Button {
-							showingDeleteSheet = true
+							modalOpen = true
 						} label: {
 							Text("Delete account").frame(maxWidth: .infinity)
 						}
@@ -176,47 +157,47 @@ struct SettingsView: View {
 				}
 			}
 			.navigationTitle("Settings")
-			.sheet(isPresented: $showingDeleteSheet) {
+			.sheet(isPresented: $modalOpen) {
 				NavigationStack {
 					Form {
-						TextField("Email", text: $deleteEmail)
+						TextField(localize(key: "email"), text: $modalEmail)
 							.textContentType(.emailAddress)
 							.keyboardType(.emailAddress)
 							.autocorrectionDisabled()
 							.accessibilityIdentifier("settings.delete.email")
 
-						TextField(localize(key: "login"), text: $deleteLogin)
+						TextField(localize(key: "login"), text: $login)
 							.textContentType(.username)
 							.autocorrectionDisabled()
 							.accessibilityIdentifier("settings.delete.login")
 
-						SecureField(localize(key: "password"), text: $deletePassword)
+						SecureField(localize(key: "password"), text: $password)
 							.textContentType(.password)
 							.accessibilityIdentifier("settings.delete.password")
 					}
 					.toolbar {
 						ToolbarItem(placement: .cancellationAction) {
 							Button("Cancel") {
-								showingDeleteSheet = false
+								modalOpen = false
 							}
 						}
 						ToolbarItem(placement: .confirmationAction) {
 							Button("Delete account") {
 								deleteAccount()
 							}
-							.disabled(deleteLogin.isEmpty || deletePassword.isEmpty)
+							.disabled(login.isEmpty || password.isEmpty)
 						}
 					}
 				}
 				.presentationDetents([.large])
 			}
 			.task {
-				await loadUserData()
+				await getUserData()
 			}
 		}
 	}
 
-	func loadUserData() async {
+	func getUserData() async {
 		guard isLoading else { return }
 		guard let token = KeychainService.retrieveToken(), !token.isEmpty else {
 			errorText = localize(key: "something_wrong")
@@ -232,12 +213,10 @@ struct SettingsView: View {
 				return
 			}
 
+			userData = user
 			username = user.username ?? ""
 			email = user.email ?? ""
 			birthdate = foundationDate(from: user.birthDate)
-			originalUsername = username
-			originalEmail = email
-			originalBirthdate = birthdate
 			errorText = ""
 		} catch {
 			errorText = error.localizedDescription
@@ -245,60 +224,61 @@ struct SettingsView: View {
 		isLoading = false
 	}
 
-	func saveChanges() {
+	func updateUsername(token: String) async throws {
+		let result = try await AccountClient().updateUsername(
+			token: token,
+			newUsername: username
+		)
+		if result != "username_changed" {
+			errorText = localize(key: result)
+		}
+	}
+
+	func updateEmail(token: String) async throws {
+		let result = try await AccountClient().updateEmail(
+			token: token,
+			newEmail: email
+		)
+		if result != "email_changed" {
+			errorText = localize(key: result)
+		}
+	}
+
+	func updateBirthdate(token: String, birthdate: Foundation.Date) async throws {
+		let result = try await AccountClient().addBirthday(
+			token: token,
+			birthday: kotlinDate(from: birthdate)
+		)
+		if result != "birthday_added" {
+			errorText = localize(key: result)
+		}
+	}
+
+	func submitChanges() {
 		guard let token = KeychainService.retrieveToken(), !token.isEmpty else {
 			errorText = localize(key: "something_wrong")
 			return
 		}
 
-		isSaving = true
 		errorText = ""
 
 		Task {
 			do {
-				if username != originalUsername {
-					let result = try await AccountClient().updateUsername(
-						token: token,
-						newUsername: username
-					)
-					guard result == "username_changed" else {
-						errorText = localize(key: result)
-						isSaving = false
-						return
-					}
-					originalUsername = username
+				if username != userData?.username {
+					try await updateUsername(token: token)
 				}
 
-				if email != originalEmail {
-					let result = try await AccountClient().updateEmail(
-						token: token,
-						newEmail: email
-					)
-					guard result == "email_changed" else {
-						errorText = localize(key: result)
-						isSaving = false
-						return
-					}
-					originalEmail = email
+				if email != userData?.email {
+					try await updateEmail(token: token)
 				}
 
-				if hasBirthdateChanged, let birthdate {
-					let result = try await AccountClient().addBirthday(
-						token: token,
-						birthday: kotlinDate(from: birthdate)
-					)
-					guard result == "birthday_added" else {
-						errorText = localize(key: result)
-						isSaving = false
-						return
-					}
-					originalBirthdate = birthdate
+				if birthdate != foundationDate(from: userData?.birthDate),
+					let birthdate
+				{
+					try await updateBirthdate(token: token, birthdate: birthdate)
 				}
-
-				isSaving = false
 			} catch {
 				errorText = error.localizedDescription
-				isSaving = false
 			}
 		}
 	}
@@ -306,19 +286,22 @@ struct SettingsView: View {
 	func deleteAccount() {
 		guard let token = KeychainService.retrieveToken(), !token.isEmpty else {
 			errorText = localize(key: "something_wrong")
-			showingDeleteSheet = false
+			modalOpen = false
 			return
 		}
 
 		let request = LoginRequestDto(
-			login: deleteLogin.isEmpty ? nil : deleteLogin,
-			email: deleteEmail.isEmpty ? nil : deleteEmail,
-			password: deletePassword
+			login: login.isEmpty ? nil : login,
+			email: modalEmail.isEmpty ? nil : modalEmail,
+			password: password
 		)
+		modalEmail = ""
+		login = ""
+		password = ""
 
 		Task {
 			do {
-                showingDeleteSheet = false
+				modalOpen = false
 				let langCode: String = lang.identifier.uppercased()
 				let result = try await AccountClient().deleteAccount(
 					token: token,
@@ -327,15 +310,12 @@ struct SettingsView: View {
 				)
 				if result == "confirmed" {
 					KeychainService.removeToken()
-					showingDeleteSheet = false
 					dismiss()
 				} else {
 					errorText = localize(key: result)
-					showingDeleteSheet = false
 				}
 			} catch {
 				errorText = error.localizedDescription
-				showingDeleteSheet = false
 			}
 		}
 	}

@@ -26,7 +26,7 @@ fun ContributionsTable(contributions:List<ContributionDto>?) {
     )
     val tableRows=rows.map {item->
         listOf(
-            item.action?.name?:"-",
+            item.action?:"-",
             item.changedAt?:"-",
             item.changedTable?:"-",
             item.changedColumn?:"-",
