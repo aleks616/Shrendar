@@ -7,6 +7,7 @@ import {UserIcon,StarIcon,InboxIcon} from '@heroicons/react/24/solid'
 import {StarIcon as StarIconOutline} from '@heroicons/react/24/outline'
 import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
+import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
@@ -95,6 +96,12 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
         return `${amount} ${translate(unit)} ${translate("time_ago")}`
     }
 
+    const updateBio=async (newBio: string) => {
+        const token=localStorage.getItem("token")
+        const result=await ProfileClient.getInstance().updateBio(newBio,token)
+        if(result!="bio_added") console.log(result)
+    }
+
     const mobile=isMobile
 
     return (
@@ -119,8 +126,8 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                     </Badge.Anchor>
                 </div>
                 <div>
-                    <p className={"text-2xl font-bold"}>{user.login}</p>
-                    <p className={"text-lg text-muted"}>@{user.username}</p>
+                    <p className={"text-2xl font-bold"}>{user.username}</p>
+                    <p className={"text-lg text-muted"}>@{user.login}</p>
                     <p className={"text-sm"}>{translate("member_since")} {translateDate(user.accountAge!)}</p>
                 </div>
             </div>
@@ -138,11 +145,18 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         <ProgressBar.Fill/>
                     </ProgressBar.Track>
                 </ProgressBar>}
-            <div>
+            <div className={"md:min-w-2xl"}>
                 <p>{translate("bio")}</p>
-                <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
-                    {user.bio??loremIpsum({count: 8,units: "sentences"})}
-                </Surface>
+                {user.user?(
+                    <EditableSurface
+                        value={user.bio??""}
+                        onSave={updateBio}
+                    />
+                ):(
+                    <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
+                        {user.bio??loremIpsum({count: 8,units: "sentences"})}
+                    </Surface>
+                )}
             </div>
             <div className={mobile?"w-96":"w-full"}>
                 <Tabs variant={"secondary"}>
@@ -382,9 +396,10 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                     </Tabs.Panel>
                     <Tabs.Panel className="pt-2" id="contributions">
                         <Table variant={"secondary"}>
-                            <Table.ScrollContainer className={"max-h-96 overflow-auto"}>
+                            <Table.ScrollContainer
+                                className={"max-h-96 w-full min-w-0 max-w-full overflow-x-auto overflow-y-auto"}>
                                 <Table.Content aria-label={translate("user_contributions_table")}
-                                               className={"w-full"}>
+                                               className={"w-full whitespace-nowrap"}>
                                     <Table.Header className={"sticky top-0 z-10"}>
                                         <Table.Column isRowHeader>{translate("action")}</Table.Column>
                                         <Table.Column>{translate("date")}</Table.Column>

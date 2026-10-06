@@ -12,6 +12,7 @@ struct UserProfileView: View {
 	@State var favoriteArtistIDs = Set<String>()
 	@State var favoriteGenreIDs = Set<String>()
 	@State var showLastOnline = false
+	@State var bio = ""
 
 	let ranks = [
 		1, 15, 40, 120, 270, 520, 820, 1200, 1700,
@@ -103,6 +104,24 @@ struct UserProfileView: View {
 		}
 	}
 
+	func updateBio(_ value: String) {
+		bio = value
+		Task { @MainActor in
+			do {
+				let result = try await ProfileClient().updateBio(
+					bio: value,
+					token: KeychainService.retrieveToken()
+				)
+				guard result == "bio_added" else {
+					errorText = result ?? localize(key: "something_wrong")
+					return
+				}
+			} catch {
+				errorText = localize(key: "something_wrong")
+			}
+		}
+	}
+
 	var body: some View {
 		NavigationStack {
 			Group {
@@ -145,9 +164,9 @@ struct UserProfileView: View {
 								}
 
 								VStack(alignment: .leading, spacing: 2) {
-									Text(user.login)
+									Text(user.username)
 										.font(.title2.bold())
-									Text("@\(user.username)")
+									Text("@\(user.login)")
 										.font(.title3)
 										.foregroundStyle(.secondary)
 									Text(
@@ -183,22 +202,29 @@ struct UserProfileView: View {
 								Text(localize(key: "bio"))
 									.font(.headline)
 
-								ScrollView {
-									Text(user.bio ?? "")
-										.frame(maxWidth: .infinity, alignment: .leading)
-										.padding(10)
+								if user.user {
+									EditableSurface(
+										value: $bio,
+										onSave: updateBio
+									)
+								} else {
+									ScrollView {
+										Text(user.bio ?? "")
+											.frame(maxWidth: .infinity, alignment: .leading)
+											.padding(10)
+									}
+									.frame(
+										maxWidth: .infinity,
+										minHeight: 80,
+										maxHeight: 208
+									)
+									.background(Color.secondary.opacity(0.12))
+									.overlay(
+										RoundedRectangle(cornerRadius: 12)
+											.stroke(Color.accentColor, lineWidth: 1)
+									)
+									.clipShape(RoundedRectangle(cornerRadius: 12))
 								}
-								.frame(
-									maxWidth: .infinity,
-									minHeight: 80,
-									maxHeight: 208
-								)
-								.background(Color.secondary.opacity(0.12))
-								.overlay(
-									RoundedRectangle(cornerRadius: 12)
-										.stroke(Color.accentColor, lineWidth: 1)
-								)
-								.clipShape(RoundedRectangle(cornerRadius: 12))
 							}
 
 							if let errorText {
@@ -287,6 +313,7 @@ struct UserProfileView: View {
 				token: KeychainService.retrieveToken()
 			)
 			user = profile
+			bio = profile?.bio ?? ""
 			favoriteBandIDs = Set(
 				profile?.favoriteBands?.compactMap {
 					$0.id.map { String(describing: $0) }

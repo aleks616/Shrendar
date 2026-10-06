@@ -1,10 +1,8 @@
 import {getLanguage} from "../getLanguage.ts"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REGEXP_ONLY_DIGITS} from '@heroui/react'
-import {AccountClient,RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
+import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
 import React,{useEffect,useState} from "react"
 import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx"
-import {GoogleLogin,GoogleOAuthProvider} from "@react-oauth/google";
-import {Navigate} from "react-router-dom";
 import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx";
 
 export function RegisterForm({strings}: { strings: Record<string,string> }){

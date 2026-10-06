@@ -1,12 +1,15 @@
 import React from 'react'
-import {CreatePassword} from "../../components/CreatePassword/CreatePassword.tsx";
+import {CreatePassword} from "../../components/CreatePassword/CreatePassword.tsx"
+import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 
-export default function SetPassword(){
-
+export function SetPassword(){
 
     return(
         <>
-            <CreatePassword/>
+            <AppHeader/>
+            <div className={"flex justify-center w-svw h-screen"}>
+                <CreatePassword />
+            </div>
         </>
     )
 }

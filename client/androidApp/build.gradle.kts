@@ -15,8 +15,8 @@ dependencies {
     implementation(project(":sharedLogic"))
     implementation("androidx.credentials:credentials:1.7.0-alpha03")
     implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha03")
-    implementation("com.google.android.gms:play-services-auth:21.1.1")
-    implementation("dev.icerock.moko:resources-compose:0.27.0")
+    implementation("com.google.android.gms:play-services-auth:22.0.0")
+    implementation("dev.icerock.moko:resources-compose:0.27.1")
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
@@ -30,6 +30,7 @@ dependencies {
     androidTestImplementation("org.jetbrains.compose.ui:ui-test:1.10.0")
     androidTestImplementation(libs.androidx.espresso.core)
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
 
     implementation(libs.androidx.activity.compose)
 

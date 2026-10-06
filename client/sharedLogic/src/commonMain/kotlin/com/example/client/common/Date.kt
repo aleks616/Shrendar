@@ -7,11 +7,8 @@ import kotlinx.serialization.Serializable
 @ExperimentalJsExport
 @JsExport
 @Serializable
-data class UserDto(
-    val login:String?=null,
-    val username:String?=null,
-    val email:String?=null,
-    val birthDate:Date?=null,
-    val rankId:Int?=null,
-    val xp:Int?=null,
+data class Date(
+    val year:Int,
+    val month:Int,
+    val day:Int
 )

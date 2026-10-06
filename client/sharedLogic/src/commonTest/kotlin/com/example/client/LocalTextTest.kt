@@ -171,7 +171,7 @@ class LocalTextTest {
             "account_not_found",
             "email_change",
             "new_email_exists",
-            "usernamed_changed",
+            "username_changed",
             "username_change_limit",
             "username_taken",
             "logged_out",

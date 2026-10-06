@@ -16,6 +16,8 @@ import org.aleks616.shrendar.user.model.ResetPasswordDto
 import org.aleks616.shrendar.user.model.UserDto
 import org.aleks616.shrendar.user.model.UsersDto
 import org.aleks616.shrendar.security.GoogleLoginRequestDto
+import org.aleks616.shrendar.user.model.CustomDate
+import org.aleks616.shrendar.user.model.toCustomDate
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -171,13 +173,12 @@ class UserAccountController(
     }
 
     @PostMapping("/updateUsername")
-    fun updateUsername(@RequestParam email:String,@RequestParam newUsername:String):ResponseEntity<String> {
-        if(!userAccountService.doesAccountExist(email))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
-        else if(userAccountService.doesAccountExist(newUsername))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("username_taken")
+    fun updateUsername(@RequestParam newUsername:String):ResponseEntity<String> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
         try{
-            userAccountService.changeUsername(email,newUsername)
+            userAccountService.changeUsername(user.email!!,newUsername)
             return ResponseEntity.ok("username_changed")
         }
         catch(e:IllegalStateException){
@@ -190,24 +191,27 @@ class UserAccountController(
     }
 
     @PostMapping("/updateEmail")
-    fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
-        if(!userAccountService.doesAccountExist(email))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
-        else if(userAccountService.doesAccountExist(newEmail))
+    fun updateEmail(@RequestParam newEmail:String):ResponseEntity<String> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(userAccountService.doesAccountExist(newEmail))
             return ResponseEntity.status(HttpStatus.CONFLICT).body("new_email_exists")
-        userAccountService.changeEmail(email,newEmail)
+        userAccountService.changeEmail(user.email!!,newEmail)
         return ResponseEntity.ok("email_change")
     }
 
     @PostMapping("/addBirthday")
-    fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
-        if(!userAccountService.doesAccountExist(email))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("account_not_found")
+    fun addBirthday(@RequestParam stringDate:String):ResponseEntity<String>{
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        val date=LocalDate.parse(stringDate)
         if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("user_too_young")
         }
         try{
-            userAccountService.addBirthday(email,date)
+            userAccountService.addBirthday(user.email!!,date)
             return ResponseEntity.ok("birthday_added")
         }
         catch(e:IllegalStateException){
@@ -221,10 +225,17 @@ class UserAccountController(
 
     /**requires email**/
     @PostMapping("/deleteAccount")
-    fun deleteAccount(@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
-        userAccountService.authenticate(request,false)
+    fun deleteAccount(@RequestParam lang:SupportedLanguages,@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(user.login!=userLogin)
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("invalid_credentials")
+
+        if(userAccountService.authenticate(request,false)==null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid_credentials")
         try{
-            userAccountService.requestDeletion(request.email!!)
+            userAccountService.requestDeletion(user.email!!,lang)
         }
         catch(e:IllegalStateException){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
@@ -277,6 +288,8 @@ class UserAccountController(
         return UserDto(
             login=user.login,
             username=user.username,
+            email=user.email,
+            birthDate=user.birthDate?.toCustomDate(),
             rankId=user.rank.id,
             xp=user.xp
         )

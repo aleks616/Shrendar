@@ -125,7 +125,7 @@
     <string name="account_not_found">Nie znaleziono konta</string>
     <string name="email_change">Adres e-mail został zmieniony</string>
     <string name="new_email_exists">Konto powiązane z podanym nowym adresem e-mail już istnieje</string>
-    <string name="usernamed_changed">Nazwa użytkownika została zmieniona</string>
+    <string name="username_changed">Nazwa użytkownika została zmieniona</string>
     <string name="username_change_limit">Nazwa użytkownika została zmieniona w ciągu ostatnich 90 dni</string>
     <string name="username_taken">Nowa nazwa użytkownika jest zajęta</string>
     <string name="logged_out">Wylogowano</string>
@@ -448,4 +448,16 @@
     <string name="time_D">dzień</string>
     <string name="time_ago">temu</string>
     <string name="google_error">Logowanie z Google się nie powiodło, spróbuj ponownie później.</string>
+    <string name="settings">Ustawienia</string>
+    <string name="profile">Profil</string>
+    <string name="save_changes">Zapisz zmiany</string>
+    <string name="delete_account">Usuń konto</string>
+    <string name="username_invalid">Nazwa użytkownika musi mieć długość od 4 do 25 znaków</string>
+    <string name="username">Nazwa użytkownika</string>
+    <string name="email">E-mail</string>
+    <string name="invalid_user_birthdate">Użytkownik musi mieć od 13 do 120 lat</string>
+    <string name="cancel">Anuluj</string>
+    <string name="birthdate">Data urodzenia</string>
+    <string name="select_birthdate">Wybierz datę urodzenia</string>
+    <string name="ok">Ok</string>
 </resources>

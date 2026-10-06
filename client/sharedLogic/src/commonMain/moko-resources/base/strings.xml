@@ -124,7 +124,7 @@
     <string name="account_not_found">Account not found</string>
     <string name="email_change">E-mail address has been changed</string>
     <string name="new_email_exists">There's already an account associated with provided new email</string>
-    <string name="usernamed_changed">Usernamed has been changed</string>
+    <string name="username_changed">Username has been changed</string>
     <string name="username_change_limit">Username has been changed in the last 90 days</string>
     <string name="username_taken">New username taken</string>
     <string name="logged_out">Logged out</string>
@@ -446,4 +446,16 @@
     <string name="time_D">day</string>
     <string name="time_ago">ago</string>
     <string name="google_error">Signing in with Google failed, try again later.</string>
+    <string name="settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="save_changes">Save changes</string>
+    <string name="delete_account">Delete account</string>
+    <string name="username_invalid">Username length must be between 4 and 25 characters</string>
+    <string name="username">Username</string>
+    <string name="email">E-mail</string>
+    <string name="invalid_user_birthdate">User must be between 13 and 120 years old</string>
+    <string name="cancel">Cancel</string>
+    <string name="birthdate">Birthdate</string>
+    <string name="select_birthdate">Select birthdate</string>
+    <string name="ok">Ok</string>
 </resources>
