@@ -137,7 +137,7 @@ class LocalText {
             "account_not_found"->MR.strings.account_not_found
             "email_change"->MR.strings.email_change
             "new_email_exists"->MR.strings.new_email_exists
-            "usernamed_changed"->MR.strings.usernamed_changed
+            "username_changed"->MR.strings.username_changed
             "username_change_limit"->MR.strings.username_change_limit
             "username_taken"->MR.strings.username_taken
             "logged_out"->MR.strings.logged_out
@@ -458,6 +458,18 @@ class LocalText {
             "time_D"->MR.strings.time_D
             "time_ago"->MR.strings.time_ago
             "google_error"->MR.strings.google_error
+            "settings"->MR.strings.settings
+            "profile"->MR.strings.profile
+            "save_changes"->MR.strings.save_changes
+            "delete_account"->MR.strings.delete_account
+            "username_invalid"->MR.strings.username_invalid
+            "username"->MR.strings.username
+            "email"->MR.strings.email
+            "invalid_user_birthdate"->MR.strings.invalid_user_birthdate
+            "cancel"->MR.strings.cancel
+            "birthdate"->MR.strings.birthdate
+            "select_birthdate"->MR.strings.select_birthdate
+            "ok"->MR.strings.ok
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

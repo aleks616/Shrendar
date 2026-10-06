@@ -155,24 +155,24 @@ export function Settings({strings}: { strings: Record<string,string> }){
     return (
         <div className="flex flex-col gap-5">
             <TextField className={"w-64"} isInvalid={isUsernameInvalid}>
-                <Label htmlFor={"username"}>Username</Label>
+                <Label htmlFor={"username"}>{translate("username")}</Label>
                 <Input
                     id="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
-                <FieldError>Username length must be between 4 and 25 characters</FieldError>
+                <FieldError>{translate("username_invalid")}</FieldError>
             </TextField>
 
             <TextField className={"w-64"} isInvalid={isEmailInvalid} isDisabled={true}>
-                <Label htmlFor={"email"}>Email</Label>
+                <Label htmlFor={"email"}>{translate("email")}</Label>
                 <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
-                <FieldError>Invalid email address</FieldError>
+                <FieldError>{translate("invalid_email")}</FieldError>
             </TextField>
 
             <DatePicker
@@ -185,7 +185,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
                 shouldForceLeadingZeros
                 isInvalid={isBirthdateInvalid}
             >
-                <Label>Date</Label>
+                <Label>{translate("birthdate")}</Label>
                 <DateField.Group fullWidth>
                     <DateField.Input>
                         {(segment) => <DateField.Segment segment={segment}/>}
@@ -196,7 +196,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
                         </DatePicker.Trigger>
                     </DateField.Suffix>
                 </DateField.Group>
-                <FieldError>User must be between 13 and 120 years old</FieldError>
+                <FieldError>{translate("invalid_user_birthdate")}</FieldError>
 
                 <DatePicker.Popover>
                     <Calendar aria-label="birthdate">
@@ -230,7 +230,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
             <ErrorMessage>{errorText}</ErrorMessage>
 
             <Button onPress={submitChanges} isDisabled={isUsernameInvalid||isEmailInvalid||isBirthdateInvalid}>
-                Save changes
+                {translate("save_changes")}
             </Button>
 
             <Link to={"/forgot-password"}>
@@ -238,7 +238,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
             </Link>
 
             <Button onPress={() => setModalOpen(true)} variant={"danger-soft"}>
-                Delete account
+                {translate("delete_account")}
             </Button>
 
             <Modal.Backdrop isOpen={modalOpen} onOpenChange={setModalOpen}>
@@ -246,7 +246,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
                     <Modal.Dialog className="sm:max-w-md">
                         <Modal.CloseTrigger/>
                         <Modal.Header>
-                            <Modal.Heading>Delete account</Modal.Heading>
+                            <Modal.Heading>{translate("delete_account")}</Modal.Heading>
                         </Modal.Header>
                         <Modal.Body>
                             <Form className="flex flex-col gap-4">
@@ -276,7 +276,7 @@ export function Settings({strings}: { strings: Record<string,string> }){
                                 variant={"danger"}
                                 isDisabled={login.length===0||password.length===0}
                             >
-                                Delete account
+                                {translate("delete_account")}
                             </Button>
                         </Modal.Footer>
                     </Modal.Dialog>

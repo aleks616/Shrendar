@@ -203,7 +203,7 @@ fun SettingsView(
         Surface(modifier=Modifier.fillMaxSize()) {
             Column(modifier=Modifier.fillMaxSize()) {
                 TopAppBar(
-                    title={Text("Settings")},
+                    title={Text(text=stringResource(MR.strings.settings))},
                     navigationIcon={BackButton {onBack()}},
                 )
 
@@ -223,20 +223,20 @@ fun SettingsView(
                             .padding(horizontal=20.dp,vertical=16.dp),
                         verticalArrangement=Arrangement.spacedBy(16.dp),
                     ) {
-                        Text("Username")
+                        Text(text=stringResource(MR.strings.username))
                         TextField(
                             value=username,
                             onValueChange={username=it},
                             isError=usernameInvalid,
                             supportingText={
                                 if(usernameInvalid) {
-                                    Text("Username length must be between 4 and 50 characters")
+                                    Text(text=stringResource(MR.strings.username_invalid))
                                 }
                             },
                             modifier=Modifier.fillMaxWidth(),
                         )
 
-                        Text("Email")
+                        Text(text=stringResource(MR.strings.email_address))
                         TextField(
                             value=email,
                             onValueChange={},
@@ -251,17 +251,17 @@ fun SettingsView(
                             modifier=Modifier.fillMaxWidth(),
                         )
 
-                        Text("Birthdate")
+                        Text(text=stringResource(MR.strings.birthdate))
                         OutlinedButton(
                             onClick={showDatePicker=true},
                             modifier=Modifier.fillMaxWidth(),
                         ) {
-                            Text(birthdate?.toString()?:"Select birthdate")
+                            Text(birthdate?.toString()?:stringResource(MR.strings.select_birthdate))
                         }
 
                         if(birthdateInvalid) {
                             Text(
-                                "User must be between 13 and 120 years old",
+                                text=stringResource(MR.strings.invalid_user_birthdate),
                                 color=Color.Red,
                             )
                         }
@@ -282,7 +282,7 @@ fun SettingsView(
                             enabled=!usernameInvalid&&!emailInvalid&&!birthdateInvalid,
                             modifier=Modifier.fillMaxWidth(),
                         ) {
-                            Text("Save changes")
+                            Text(text=stringResource(MR.strings.save_changes))
                         }
 
                         Button(
@@ -301,7 +301,7 @@ fun SettingsView(
                             modifier=Modifier.fillMaxWidth(),
                             colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error)
                         ) {
-                            Text("Delete account")
+                            Text(text=stringResource(MR.strings.delete_account))
                         }
                     }
                 }
@@ -324,12 +324,12 @@ fun SettingsView(
                             showDatePicker=false
                         },
                     ) {
-                        Text("OK")
+                        Text(text=stringResource(MR.strings.ok))
                     }
                 },
                 dismissButton={
                     TextButton(onClick={showDatePicker=false}) {
-                        Text("Cancel")
+                        Text(text=stringResource(MR.strings.cancel))
                     }
                 },
             ) {
@@ -340,7 +340,7 @@ fun SettingsView(
         if(modalOpen) {
             AlertDialog(
                 onDismissRequest={modalOpen=false},
-                title={Text("Delete account")},
+                title={Text(text=stringResource(MR.strings.delete_account))},
                 text={
                     Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                         Text(text=stringResource(MR.strings.email_address))
@@ -368,7 +368,7 @@ fun SettingsView(
                 },
                 dismissButton={
                     TextButton(onClick={modalOpen=false}) {
-                        Text("Cancel")
+                        Text(text=stringResource(MR.strings.cancel))
                     }
                 },
                 confirmButton={
@@ -376,7 +376,7 @@ fun SettingsView(
                         onClick={scope.launch {deleteAccount()}},
                         enabled=login.isNotEmpty()&&password.isNotEmpty(),
                     ) {
-                        Text("Delete account",color=MaterialTheme.colorScheme.error)
+                        Text(text=stringResource(MR.strings.delete_account),color=MaterialTheme.colorScheme.error)
                     }
                 },
             )

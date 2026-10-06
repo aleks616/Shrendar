@@ -5,10 +5,7 @@ import androidx.compose.ui.unit.dp
 import com.example.client.LocalText
 import com.example.client.common.ContributionDto
 import com.example.client.common.DataTable
-import com.example.client.profile.UserProfileDto
 import dev.icerock.moko.resources.compose.stringResource
-import kotlin.collections.map
-import kotlin.collections.orEmpty
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class)

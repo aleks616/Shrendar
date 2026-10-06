@@ -80,13 +80,13 @@ export function AppHeader(){
                                     <Dropdown.Item>
                                         <Link to={"/u/"+login} className={"relative flex gap-3 w-full"}>
                                             <UserCircleIcon className={"relative size-7"}/>
-                                            <p className={"text-lg"}>Profile</p>
+                                            <p className={"text-lg"}>{translate("profile")}</p>
                                         </Link>
                                     </Dropdown.Item>
                                     <Dropdown.Item>
                                         <Link to={"/settings"} className={"relative flex gap-3 w-full"}>
                                             <SettingsIcon className={"size-7"}/>
-                                            <p className={"text-lg"}>Settings</p>
+                                            <p className={"text-lg"}>{translate("settings")}</p>
                                         </Link>
                                     </Dropdown.Item>
                                     <Dropdown.Item onPress={logout}>

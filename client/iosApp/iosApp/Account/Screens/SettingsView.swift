@@ -67,20 +67,20 @@ struct SettingsView: View {
 				} else {
 					VStack {
 						Form {
-							TextField("Username", text: $username)
+							TextField(localize(key: "username"), text: $username)
 								.textContentType(.username)
 								.autocorrectionDisabled()
 								.accessibilityIdentifier("settings.username")
 
 							if isUsernameInvalid {
 								Text(
-									"Username length must be between 4 and 50 characters"
+									localize(key: "username_invalid")
 								)
 								.font(.footnote)
 								.foregroundStyle(.red)
 							}
 
-							TextField("Email", text: $email)
+							TextField(localize(key: "email"), text: $email)
 								.textContentType(.emailAddress)
 								.keyboardType(.emailAddress)
 								.disabled(true)
@@ -110,7 +110,7 @@ struct SettingsView: View {
 						}
 
 						Button(action: submitChanges) {
-							Text("Save changes").frame(maxWidth: .infinity)
+							Text(localize(key:"save_changes")).frame(maxWidth: .infinity)
 						}
 						.disabled(
 							isUsernameInvalid
@@ -144,7 +144,7 @@ struct SettingsView: View {
 						Button {
 							modalOpen = true
 						} label: {
-							Text("Delete account").frame(maxWidth: .infinity)
+							Text(localize(key:"delete_account")).frame(maxWidth: .infinity)
 						}
 						.accessibilityIdentifier("settings.deleteAccount")
 						.padding()
@@ -156,7 +156,7 @@ struct SettingsView: View {
 					}
 				}
 			}
-			.navigationTitle("Settings")
+			.navigationTitle(localize(key: "settings"))
 			.sheet(isPresented: $modalOpen) {
 				NavigationStack {
 					Form {
@@ -177,12 +177,12 @@ struct SettingsView: View {
 					}
 					.toolbar {
 						ToolbarItem(placement: .cancellationAction) {
-							Button("Cancel") {
+							Button(localize(key: "cancel")) {
 								modalOpen = false
 							}
 						}
 						ToolbarItem(placement: .confirmationAction) {
-							Button("Delete account") {
+							Button(localize(key: "delete_account")) {
 								deleteAccount()
 							}
 							.disabled(login.isEmpty || password.isEmpty)
