@@ -72,20 +72,6 @@ class BandService(
         return bandRepository.findBandById(id)
     }
 
-    fun getBandByIdWiki(id:Int):BandWikiDto {
-        val dataRaw=bandRepository.findById(id)
-
-        return BandWikiDto(
-            name=dataRaw.get().name,
-            formedYear=dataRaw.get().formedYear,
-            disbandedYear=dataRaw.get().disbandedYear,
-            status=dataRaw.get().status,
-            country=getBandsCountry(dataRaw.get().id),
-            description=dataRaw.get().description,
-            imageUrl=dataRaw.get().imageUrl,
-            computedGenres=genreService.getBandAlbumGenresList(dataRaw.get().id)
-        )
-    }
 
     fun getCountryByName(name:String):CountryDto? {
         val country=countryRepository.getCountryByName(name)
@@ -179,10 +165,7 @@ class BandService(
                 id=it.second.id
                 name=it.second.name!!
                 formedYear=it.second.formedYear!!
-                country=CountryDto().apply {
-                    id=it.second.country!!
-                    name=countryRepository.getCountryNameById(it.second.country)
-                }
+                country=countryRepository.getCountryNameById(it.second.country)
                 similarity=it.first
             }
         }

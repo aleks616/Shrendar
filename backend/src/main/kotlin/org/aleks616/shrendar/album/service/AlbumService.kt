@@ -79,8 +79,7 @@ class AlbumService(
     }
 
     fun getAlbumsByBandId(bandId:Int):List<Album> {
-        val albums=albumRepository.findByBandId(bandId)
-        return albums
+        return albumRepository.findByBandId(bandId)
     }
 
     fun getAlbumsByBandName(name:String):List<Album> {

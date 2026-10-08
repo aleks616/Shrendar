@@ -16,6 +16,7 @@ import org.aleks616.shrendar.user.repository.RankRepository
 import org.aleks616.shrendar.user.repository.UserLogRepository
 import org.aleks616.shrendar.user.repository.UserPasswordHistoryRepository
 import org.aleks616.shrendar.user.repository.UserRepository
+import org.aleks616.shrendar.user.service.GoogleOAuthProperties
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -47,7 +48,8 @@ class UserAccountServiceTest {
     @BeforeEach
     fun setup() {
         service=UserAccountService(
-            users,userLogs,ranks,passwordHistory,registrationCodes,resetCodes,emailService,encoder,xpService
+            users,userLogs,ranks,passwordHistory,registrationCodes,resetCodes,emailService,encoder,xpService,
+            GoogleOAuthProperties()
         )
     }
 
@@ -309,7 +311,7 @@ class UserAccountServiceTest {
         `when`(users.findByEmail("missing@example.com")).thenReturn(null)
 
         assertThrows(IllegalStateException::class.java) {
-            service.requestDeletion("missing@example.com")
+            service.requestDeletion("missing@example.com",SupportedLanguages.EN)
         }
     }
 

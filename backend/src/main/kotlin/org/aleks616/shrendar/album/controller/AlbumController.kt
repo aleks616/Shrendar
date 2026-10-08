@@ -47,14 +47,6 @@ class AlbumController (
         return albumService.getAlbumAnniversariesByDate(month,day)
     }
 
-    //WIKI BAND PAGE 3/4
-    @Throws(IllegalArgumentException::class)
-    @GetMapping("/band/{bandId}")
-    fun getAlbumsByBandId(@PathVariable bandId:Int):List<Album>{
-        if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("band_not_exist")
-        return albumService.getAlbumsByBandId(bandId)
-    }
-
     @GetMapping("/band/like/{name}")
     fun getAlbumsByBandNameLike(@PathVariable name:String):List<Album>{
         return albumService.getAlbumsByBandName(name)

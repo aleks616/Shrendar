@@ -22,15 +22,12 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
             if(userParam==null) return
             const token=localStorage.getItem("token")
             const userData=await ProfileClient.getInstance().getUserProfile(userParam,token??null)
+            setIsLoading(false)
             if(userData!=null){
                 setUser(userData)
-                setIsLoading(false)
             }
             else{
-                if(userData==null){
-                    setUser(null)
-                    setIsLoading(false)
-                }
+                setUser(null)
             }
         }
         fetchUserData()
@@ -230,7 +227,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                                 }
                                                 <Table.Cell>
                                                     <HerouiLink
-                                                        href={`band/${item.id}/${item.name}`}
+                                                        href={`../band/${item.id}`}
                                                         className="before:absolute before:inset-0"
                                                     >
                                                         {item.name}
@@ -302,7 +299,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                                     }
                                                     <Table.Cell>
                                                         <HerouiLink
-                                                            href={`artist/${item.id}/${item.name}`}
+                                                            href={`../artist/${item.id}`}
                                                             className="before:absolute before:inset-0"
                                                         >
                                                             {item.name}
@@ -312,7 +309,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                                         {currentBands.map((band,j) => (
                                                             <HerouiLink
                                                                 key={j}
-                                                                href={`band/${band.bandId}/${band.bandName}`}
+                                                                href={`../band/${band.bandId}`}
                                                                 className="text-inherit before:absolute before:inset-0"
                                                             >
                                                                 {band.bandName}
@@ -325,7 +322,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                                                 {pastBands.map((band,j) => (
                                                                     <HerouiLink
                                                                         key={j}
-                                                                        href={`band/${band.bandId}/${band.bandName}`}
+                                                                        href={`../band/${band.bandId}`}
                                                                         className="text-inherit before:absolute before:inset-0"
                                                                     >
                                                                         {band.bandName}

@@ -10,7 +10,7 @@ export function Register(){
     return (
         <>
             <AppHeader/>
-            <div className={"flex justify-center w-svw h-screen"}>
+            <div className={"flex justify-center w-svw"}>
                 <RegisterForm strings={strings} />
             </div>
         </>

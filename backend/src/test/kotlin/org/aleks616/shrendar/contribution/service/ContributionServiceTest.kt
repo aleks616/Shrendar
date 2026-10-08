@@ -85,7 +85,7 @@ class ContributionServiceTest {
         assertEquals(contribution.id,result.id)
         assertEquals(contribution.changeId,result.changeId)
         assertEquals(user.id,result.userId)
-        assertEquals(contribution.action,result.action)
+        assertEquals("Update",result.action)
         assertEquals(contribution.changedTable,result.changedTable)
         assertEquals(contribution.changedColumn,result.changedColumn)
         assertEquals(contribution.changedRecordId,result.changedRecordId)

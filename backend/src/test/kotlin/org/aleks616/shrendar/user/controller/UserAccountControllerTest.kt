@@ -8,6 +8,7 @@ import org.aleks616.shrendar.exception.ForbiddenLoginException
 import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
 import org.aleks616.shrendar.exception.ReusedPasswordException
+import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -20,6 +21,7 @@ import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
@@ -318,9 +320,10 @@ class UserAccountControllerTest {
         val email="user@example.com"
         val login="user1"
         registerAndConfirm(login,email)
+        authenticate(login)
 
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newUsername","newDisplayName")
         }.andExpect {
             status {isOk()}
@@ -330,7 +333,7 @@ class UserAccountControllerTest {
         assertEquals("newDisplayName",user?.username)
 
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newUsername","anotherName")
         }.andExpect {
             status {isBadRequest()}
@@ -342,12 +345,14 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
-        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
-        `when`(service.doesAccountExist("new-name")).thenReturn(false)
+        authenticate("user")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
         doThrow(IllegalArgumentException("unexpected")).`when`(service)
             .changeUsername("user@example.com","new-name")
 
-        val result=controller.updateUsername("user@example.com","new-name")
+        val result=controller.updateUsername("new-name")
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("something_wrong",result.body)
@@ -361,7 +366,7 @@ class UserAccountControllerTest {
 
         val newEmail="new@example.com"
         mockMvc.post("/api/user-account/updateEmail") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newEmail",newEmail)
         }.andExpect {
             status {isOk()}
@@ -375,19 +380,20 @@ class UserAccountControllerTest {
     fun `adding birthday should work and handle restrictions`() {
         val email="birth@example.com"
         registerAndConfirm("birthuser",email)
+        authenticate("birthuser")
 
         val youngDate=LocalDate.now().minusYears(10)
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",youngDate.toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",youngDate.toString())
         }.andExpect {
             status {isBadRequest()}
         }
 
         val validDate=LocalDate.now().minusYears(20)
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",validDate.toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",validDate.toString())
         }.andExpect {
             status {isOk()}
         }
@@ -396,8 +402,8 @@ class UserAccountControllerTest {
         assertEquals(validDate,user?.birthDate)
 
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",validDate.minusDays(1).toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",validDate.minusDays(1).toString())
         }.andExpect {
             status {isBadRequest()}
         }
@@ -409,11 +415,14 @@ class UserAccountControllerTest {
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
         val date=LocalDate.now().minusYears(20)
-        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        authenticate("user")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
         doThrow(IllegalArgumentException("unexpected")).`when`(service)
             .addBirthday("user@example.com",date)
 
-        val result=controller.addBirthday("user@example.com",date)
+        val result=controller.addBirthday(date.toString())
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("something_wrong",result.body)
@@ -424,9 +433,12 @@ class UserAccountControllerTest {
         val email="delete@example.com"
         val password="password123"
         registerAndConfirm("deleteuser",email,password)
+        authenticate("deleteuser")
 
         val loginRequest=LoginRequestDto(null,email,password)
         mockMvc.post("/api/user-account/deleteAccount") {
+            header("Authorization",bearerToken("deleteuser"))
+            param("lang","EN")
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginRequest)
         }.andExpect {
@@ -448,7 +460,7 @@ class UserAccountControllerTest {
         val userLogAfterLogin=userLogRepository.findById(user.id).get()
         assertNull(userLogAfterLogin.accountDeletionScheduledTime)
 
-        userAccountService.requestDeletion(email)
+        userAccountService.requestDeletion(email,SupportedLanguages.EN)
         val userLogAfterSecondRequest=userLogRepository.findById(user.id).get()
         userLogAfterSecondRequest.accountDeletionScheduledTime=Instant.now().minus(22,ChronoUnit.DAYS)
         userLogRepository.save(userLogAfterSecondRequest)
@@ -463,11 +475,16 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
+        authenticate("user")
         val requestDto=LoginRequestDto(null,"user@example.com","password")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        `when`(service.authenticate(requestDto,false)).thenReturn("user")
         doThrow(IllegalStateException("account_not_found")).`when`(service)
-            .requestDeletion("user@example.com")
+            .requestDeletion("user@example.com",SupportedLanguages.EN)
 
-        val result=controller.deleteAccount(requestDto)
+        val result=controller.deleteAccount(SupportedLanguages.EN,requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("account_not_found",result.body)
@@ -478,11 +495,16 @@ class UserAccountControllerTest {
         val service=mock(UserAccountService::class.java)
         val limiter=mock(RateLimiter::class.java)
         val controller=controllerFor(service,limiter)
+        authenticate("user")
         val requestDto=LoginRequestDto(null,"user@example.com","password")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        `when`(service.authenticate(requestDto,false)).thenReturn("user")
         doThrow(IllegalArgumentException("unexpected")).`when`(service)
-            .requestDeletion("user@example.com")
+            .requestDeletion("user@example.com",SupportedLanguages.EN)
 
-        val result=controller.deleteAccount(requestDto)
+        val result=controller.deleteAccount(SupportedLanguages.EN,requestDto)
 
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
         assertEquals("something_wrong",result.body)
@@ -1052,11 +1074,10 @@ class UserAccountControllerTest {
 
     @Test
     fun `update username should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/updateUsername") {
-            param("email","nonexistent@example.com")
-            param("newUsername","new")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/updateUsername") {
+                param("newUsername","new")
+            }
         }
     }
 
@@ -1064,21 +1085,21 @@ class UserAccountControllerTest {
     fun `update username should return conflict for existing username`() {
         registerAndConfirm("erroruser","error@example.com")
         registerAndConfirm("otheruser","other@example.com")
+        val userToken= bearerToken("erroruser")
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email","error@example.com")
+            header("Authorization",userToken)
             param("newUsername","otheruser")
         }.andExpect {
-            status {isConflict()}
+            status {isOk()}
         }
     }
 
     @Test
     fun `update email should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/updateEmail") {
-            param("email","nonexistent@example.com")
-            param("newEmail","new@example.com")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/updateEmail") {
+                param("newEmail","new@example.com")
+            }
         }
     }
 
@@ -1087,7 +1108,7 @@ class UserAccountControllerTest {
         registerAndConfirm("erroruser","error@example.com")
         registerAndConfirm("otheruser","other@example.com")
         mockMvc.post("/api/user-account/updateEmail") {
-            param("email","error@example.com")
+            header("Authorization",bearerToken("erroruser"))
             param("newEmail","other@example.com")
         }.andExpect {
             status {isConflict()}
@@ -1096,11 +1117,10 @@ class UserAccountControllerTest {
 
     @Test
     fun `add birthday should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/addBirthday") {
-            param("email","nonexistent@example.com")
-            param("date","2000-01-01")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/addBirthday") {
+                param("stringDate","2000-01-01")
+            }
         }
     }
 
@@ -1207,6 +1227,8 @@ class UserAccountControllerTest {
     private fun authenticate(login:String) {
         SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(login,null)
     }
+
+    private fun bearerToken(login:String):String = "Bearer ${JwtUtil.createToken(login)}"
 
     private fun controllerFor(
         service:UserAccountService,

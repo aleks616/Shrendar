@@ -70,30 +70,6 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getAllBandMembersWiki should return member data`() {
-        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,mutableListOf("Vocals (1981-)"))
-        `when`(repository.findAllByBandName(3)).thenReturn(
-            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
-        )
-        assertEquals(
-            listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,source.yearRole)),
-            bandsMemberService.getAllBandMembersWiki(3)
-        )
-    }
-
-    @Test
-    fun `getAllBandMembersWiki should work for missing yearRole`() {
-        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,null)
-        `when`(repository.findAllByBandName(3)).thenReturn(
-            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
-        )
-        assertEquals(
-            listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,mutableListOf("Vocals (1981-)"))),
-            bandsMemberService.getAllBandMembersWiki(3)
-        )
-    }
-
-    @Test
     fun `getCurrentBandMembers should return open ended roles`() {
         val current=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
         val past=BandsMembersDataDto(11,4,"Lars Ulrich",3,"Metallica","Drums",1981,1990,null)

@@ -395,7 +395,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByRequestingUserAndAction should delegate valid action`() {
-        val expected=listOf(ContributionDto(action=Action.CREATE))
+        val expected=listOf(ContributionDto(action="Create"))
         `when`(contributionService.getContributionsByActionAndRequestingUser(7,Action.CREATE)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByRequestingUserAndAction(7,Action.CREATE))
     }

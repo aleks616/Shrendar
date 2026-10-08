@@ -7,7 +7,7 @@ export function SetPassword(){
     return(
         <>
             <AppHeader/>
-            <div className={"flex justify-center w-svw h-screen"}>
+            <div className={"flex justify-center w-svw"}>
                 <CreatePassword />
             </div>
         </>

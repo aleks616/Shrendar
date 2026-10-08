@@ -10,7 +10,7 @@ export function ForgotPassword(){
     return (
         <>
             <AppHeader/>
-            <div className={"flex justify-center w-svw h-screen"}>
+            <div className={"flex justify-center w-svw"}>
                 <RequestPasswordReset strings={strings}/>
             </div>
 

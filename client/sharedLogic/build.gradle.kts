@@ -64,12 +64,13 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             api("dev.icerock.moko:resources:0.27.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation("dev.icerock.moko:resources:0.27.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+            implementation("dev.icerock.moko:resources:0.27.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
             implementation("io.ktor:ktor-client-mock:3.1.3")
         }
         jsMain.dependencies {

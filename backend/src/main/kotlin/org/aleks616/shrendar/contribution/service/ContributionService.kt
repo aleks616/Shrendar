@@ -5,6 +5,7 @@ import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
+import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.model.ContributionDto
@@ -65,7 +66,7 @@ class ContributionService(
                 id=c.id,
                 changeId=c.changeId,
                 userId=c.user.id,
-                action=c.action.toString().lowercase().replaceFirstChar { it.uppercase() },
+                action=c.action.toString().titleCase(),
                 changedTable=c.changedTable,
                 changedColumn=c.changedColumn,
                 changedRecordId=c.changedRecordId,

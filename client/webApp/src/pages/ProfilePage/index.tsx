@@ -10,7 +10,7 @@ export function ProfilePage(){
     return (
         <>
             <AppHeader/>
-            <div className={"flex justify-center w-svw h-screen"}>
+            <div className={"flex justify-center w-svw"}>
                 <UserProfile strings={strings}/>
             </div>
         </>

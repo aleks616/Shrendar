@@ -43,4 +43,8 @@ object Utils{
             return false
         }
     }
+
+    fun String.titleCase():String{
+        return this.lowercase().replaceFirstChar{it.uppercase()}
+    }
 }
