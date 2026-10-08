@@ -14,7 +14,7 @@ func FavoriteArtistsTable(
 	favoriteIds: Set<String>,
 	onToggle: @escaping (FavoriteArtistDto) -> Void
 ) -> some View {
-	DataTable(
+	FavoritesTable(
 		emptyKey: "no_favorite_artists",
 		isEmpty: favoriteArtists?.isEmpty ?? true
 	) {

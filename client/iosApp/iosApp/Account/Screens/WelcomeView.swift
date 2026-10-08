@@ -41,7 +41,7 @@ struct WelcomeView: View {
 				.cornerRadius(25)
 				.padding(.horizontal, 20)
 
-				NavigationLink(destination: SignInView()) {
+				NavigationLink(destination: UserProfileView(login:"aleks")) {
 					Text(localize(key: "account_already")).frame(maxWidth: .infinity)
 				}
 				.accessibilityIdentifier("welcome.signIn")

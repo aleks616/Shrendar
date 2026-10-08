@@ -2,24 +2,10 @@ package com.example.client.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,7 +24,7 @@ import com.example.client.tray
 import dev.icerock.moko.resources.compose.painterResource
 
 @Composable
-fun DataTable(
+fun FavoritesTable(
     headers:List<String>,
     rows:List<List<String>>,
     maxHeight:Dp?=null,
@@ -96,7 +82,12 @@ fun DataTable(
                     verticalAlignment=Alignment.CenterVertically
                 ) {
                     headers.forEachIndexed {index,title->
-                        DataTableCell(tableWidths[index],cellPadding) {
+                        Box(
+                            modifier=Modifier
+                                .width(tableWidths[index])
+                                .padding(horizontal=cellPadding),
+                            contentAlignment=Alignment.CenterStart
+                        ) {
                             Text(
                                 title,
                                 color=MaterialTheme.colorScheme.onSurfaceVariant
@@ -138,9 +129,19 @@ fun DataTable(
                         }
                     }
                     rows.forEachIndexed {rowIndex,row->
-                        DataTableRow(tableWidth) {
+                        Row(
+                            modifier=Modifier
+                                .width(tableWidth)
+                                .padding(vertical=8.dp),
+                            verticalAlignment=Alignment.CenterVertically,
+                        ) {
                             row.forEachIndexed {columnIndex,value->
-                                DataTableCell(tableWidths[columnIndex],cellPadding) {
+                                Box(
+                                    modifier=Modifier
+                                        .width(tableWidths[columnIndex])
+                                        .padding(horizontal=cellPadding),
+                                    contentAlignment=Alignment.CenterStart
+                                ) {
                                     if(favoriteEnabled&&columnIndex==0&&rowIndex in favoriteRows) {
                                         IconButton(onClick={onFavoriteClick(rowIndex)}) {
                                             Icon(

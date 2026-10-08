@@ -3,7 +3,7 @@ package com.example.client.profile.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.example.client.LocalText
-import com.example.client.common.DataTable
+import com.example.client.common.FavoritesTable
 import com.example.client.common.FavoriteGenreDto
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.collections.contains
@@ -31,7 +31,7 @@ fun FavoriteGenresTable(
             add(item.name.orEmpty())
         }
     }
-    DataTable(
+    FavoritesTable(
         headers=headers,
         rows=tableRows,
         maxHeight=480.dp,
