@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct DataTable<Content: View>: View {
+struct FavoritesTable<Content: View>: View {
 	let emptyKey: String
 	let isEmpty: Bool
 	let content: () -> Content
@@ -33,8 +33,7 @@ struct DataTable<Content: View>: View {
 						.foregroundStyle(.secondary)
 				}
 				.frame(maxWidth: .infinity, minHeight: 100)
-			}
-			else {
+			} else {
 				ScrollView(.vertical, showsIndicators: true) {
 					ScrollView(.horizontal, showsIndicators: true) {
 						content()
