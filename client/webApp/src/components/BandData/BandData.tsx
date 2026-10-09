@@ -78,7 +78,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("years_active")}: </span>
-                                {band.formedYear} - {band.disbandedYear??"present"}
+                                {band.formedYear} - {band.disbandedYear??translate("present")}
                             </p>
                         </div>
                         <div className={"w-4/9"}>
@@ -174,11 +174,10 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             <DataTable
                                 columns={[
                                     {title: translate("person_name"),value: (
-                                            item => <Link href={"../artist/"+item.id}>{item.artistName}</Link>
+                                            item => <Link href={"../artist/"+item.artistId}>{item.artistName}</Link>
                                         )},
                                     {
                                         title: translate("role"),
-                                        //replace guitar -> translate{"guitar"}}, bass -> transalte bass, same for drums vocals and backing vocals
                                         value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n').replace(/guitar/gi, translate("guitar"))
                                             .replace(/bass/gi, translate("bass"))
                                             .replace(/drums/gi, translate("drums"))

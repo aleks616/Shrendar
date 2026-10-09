@@ -488,4 +488,5 @@
     <string name="drums">perkusja</string>
     <string name="vocals">wokal</string>
     <string name="backing_vocals">chórki</string>
+    <string name="present">obecnie</string>
 </resources>
