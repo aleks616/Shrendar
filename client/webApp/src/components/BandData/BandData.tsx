@@ -69,20 +69,20 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     <div className={"flex min-h-32"}>
                         <div className={"w-5/9"}> {/*data column 1*/}
                             <p>
-                                <span className={"text-muted"}>Country: </span>
+                                <span className={"text-muted"}>{translate("country")}: </span>
                                 {translate(band.country!)}
                             </p>
                             <p>
-                                <span className={"text-muted"}>Status: </span>
+                                <span className={"text-muted"}>{translate("status")}: </span>
                                 <span className={statusColor}>{band.status}</span>
                             </p>
                             <p>
-                                <span className={"text-muted"}>Years active: </span>
+                                <span className={"text-muted"}>{translate("years_active")}: </span>
                                 {band.formedYear} - {band.disbandedYear??"present"}
                             </p>
                         </div>
                         <div className={"w-4/9"}>
-                            <span className={"text-muted"}>Top genres: </span>
+                            <span className={"text-muted"}>{translate("top_genres")}: </span>
                             <Tooltip delay={0}>
                                 <Tooltip.Trigger>
                                     <Button isIconOnly aria-label="More information" variant="ghost"
@@ -123,15 +123,15 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     <Tabs.ListContainer>
                         <Tabs.List aria-label={"data tables"}>
                             <Tabs.Tab id={"members"} className={"whitespace-nowrap"}>
-                                Members
+                                {translate("members")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
                             <Tabs.Tab id={"albums"} className={"whitespace-nowrap"}>
-                                Albums
+                                {translate("albums")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
                             <Tabs.Tab id={"similar"} className={"whitespace-nowrap"}>
-                                Similar bands
+                                {translate("similar_bands")}
                                 <Tabs.Indicator/>
                             </Tabs.Tab>
                         </Tabs.List>
@@ -165,7 +165,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                                         :"bg-secondary! hover:bg-secondary!"
                                                 }`}
                                             >
-                                                {item}
+                                                {translate(item.toLowerCase()+"_members")}
                                             </Button>
                                         )
                                     })}
@@ -173,16 +173,21 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             </div>
                             <DataTable
                                 columns={[
-                                    {title: translate("name"),value: (
+                                    {title: translate("person_name"),value: (
                                             item => <Link href={"../artist/"+item.id}>{item.artistName}</Link>
                                         )},
                                     {
                                         title: translate("role"),
-                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n')
+                                        //replace guitar -> translate{"guitar"}}, bass -> transalte bass, same for drums vocals and backing vocals
+                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n').replace(/guitar/gi, translate("guitar"))
+                                            .replace(/bass/gi, translate("bass"))
+                                            .replace(/drums/gi, translate("drums"))
+                                            .replace(/vocals/gi, translate("vocals"))
+                                            .replace(/backing vocals/gi, translate("backing_vocals"))
                                     },
                                 ]}
                                 data={showingBandMembers!}
-                                emptyText={"No band members"}
+                                emptyText={translate("no_band_members")}
                             />
                         </div>
                     </Tabs.Panel>
@@ -213,7 +218,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                                         :"bg-secondary! hover:bg-secondary!"
                                                 }`}
                                             >
-                                                {item}
+                                                {translate(item.toLowerCase())}
                                             </Button>
                                         )
                                     })}
@@ -230,21 +235,21 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                     {title: translate("main_genre"),value: item => item.genreName},
                                 ]}
                                 data={showingAlbums!}
-                                emptyText={"No albums"}
+                                emptyText={translate("no_albums")}
                             />
                         </div>
                     </Tabs.Panel>
                     <Tabs.Panel id={"similar"}>
                         <DataTable
                         columns={[
-                            {title: translate("name"),value: (
+                            {title: translate("thing_name"),value: (
                                     item => <Link href={"../band/"+item.id}>{item.name}</Link>
                                 )},
-                            {title: translate("formedYear"),value: item => item.formedYear},
+                            {title: translate("formed_year"),value: item => item.formedYear},
                             {title: translate("country"),value: item => translate(item.country!)}
                         ]}
                             data={similarBandsList}
-                        emptyText={"No similar bands"}
+                        emptyText={translate("no_similar_bands")}
                         />
 
                     </Tabs.Panel>
