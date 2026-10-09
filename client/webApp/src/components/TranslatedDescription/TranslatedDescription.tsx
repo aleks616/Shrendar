@@ -50,7 +50,7 @@ export function TranslatedDescription({description,translateDescription}: {
     }
 
     return (
-        <div className={"border p-4 border-gray-500 rounded-md mt-4 relative"}>
+        <div className={"border p-4 border-gray-500 rounded-md mt-3 relative"} style={{fontSize:"12pt"}}>
             <div className={"whitespace-pre-wrap pr-8"}>
                 {translatedDescription}
             </div>

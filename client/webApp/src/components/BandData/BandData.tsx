@@ -1,17 +1,23 @@
 import React,{useEffect,useState} from 'react'
-import {BandClient,BandWikiDto} from "sharedLogic"
+import {AlbumDto,BandClient,BandsMembersWikiDto,BandWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Button,Heading,Spinner,Tooltip} from "@heroui/react"
+import {Button,Heading,Link,Spinner,Tabs,Tooltip} from "@heroui/react"
 import {InformationCircleIcon} from "@heroicons/react/24/outline"
 import {isMobile} from "react-device-detect"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx";
+import {DataTable} from "../DataTable/DataTable.tsx";
 
 export function BandData({strings}: { strings: Record<string,string> }){
     const [band,setBand]=useState<BandWikiDto | null>(new BandWikiDto())
     const [isLoading,setIsLoading]=useState(true)
+    const [showingBandMembers,setShowingBandMembers]=useState<readonly BandsMembersWikiDto[] | null>(null)
+    const [showingAlbums,setShowingAlbums]=useState<readonly AlbumDto[] | null>(null)
     const translate=(key: string) => strings[key]??key
     const params=useParams()
     const bandIdParam=parseInt(params.band?params.band:"0")
+
+    const memberFilterOptions=["All","Current","Past"]
+    const albumFilterOptions=["All","Studio"]
 
     useEffect(() => {
         const fetchData=async () => {
@@ -21,6 +27,8 @@ export function BandData({strings}: { strings: Record<string,string> }){
             setIsLoading(false)
             if(bandData!=null){
                 setBand(bandData)
+                setShowingBandMembers(bandData.bandMembers!.asJsReadonlyArrayView())
+                setShowingAlbums(bandData.albums!.asJsReadonlyArrayView())
             }
             else{
                 setBand(null)
@@ -41,26 +49,32 @@ export function BandData({strings}: { strings: Record<string,string> }){
         return <Navigate to="/404"/>
     }
 
-    const bandMembersList=band.bandMembers!.asJsReadonlyArrayView()
     const bandGenres=band.computedGenres!.asJsReadonlyArrayView()
-    const albumsList=band.albums!.asJsReadonlyArrayView()
-    const similarBandsList=band.similar!.asJsReadonlyArrayView()
 
-    const statusColor=band.status==="Active"?"text-success":band.status==="Disbanded"?"text-error":"text-warning"
+    const bandMembersList=band.bandMembers!.asJsReadonlyArrayView()
+    const currentMembersList=bandMembersList.filter(member => member.yearRole!!.asJsReadonlyArrayView().some(yearRole => yearRole.includes("-)")))
+    const pastMembersList=bandMembersList.filter(member => member.yearRole!!.asJsReadonlyArrayView().every(yearRole => !yearRole.includes("-)")))
+
+    const albumsList=band.albums!.asJsReadonlyArrayView()
+    const studioAlbumsList=albumsList.filter(album => album.type==="Studio")
+
+    const similarBandsList=band.similar!.asJsReadonlyArrayView()
+    const statusColor=band.status==="Active"?"text-success":band.status==="Disbanded"?"text-danger":"text-warning"
+
     return (
         <div className={"flex flex-col gap-4 w-5xl mx-3"}>
             <Heading level={1}>{band.name}</Heading>
-            <div className={"flex w-full min-h-32 text-lg gap-4"}>
+            <div className={"flex w-full min-h-32 gap-6"}>
                 <div className={"flex flex-col"+(!isMobile?" w-9/12":"")}>
-                    <div className={"flex min-h-32 text-lg"}>
-                        <div className={"w-5/9"}>
+                    <div className={"flex min-h-32"}>
+                        <div className={"w-5/9"}> {/*data column 1*/}
                             <p>
                                 <span className={"text-muted"}>Country: </span>
                                 {translate(band.country!)}
                             </p>
                             <p>
                                 <span className={"text-muted"}>Status: </span>
-                                <span>{band.status}</span>
+                                <span className={statusColor}>{band.status}</span>
                             </p>
                             <p>
                                 <span className={"text-muted"}>Years active: </span>
@@ -82,18 +96,20 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                 </Tooltip.Content>
                             </Tooltip>
                             {bandGenres.map((genre,index) =>
-                                <p key={index}>{genre.name} </p>
+                                <p key={index}>-{genre.name} </p>
                             )}
                         </div>
+                        {/*data column 2*/}
                     </div>
 
-                    {isMobile&&<div className={"max-w-xl flex justify-center my-6"}>
+                    {isMobile&&<div className={"max-w-xl flex justify-center my-6"}> {/*mobile image*/}
                         <img src={band.imageUrl!} alt={band.name!} className={"rounded-md"}/>
                     </div>}
 
                     <TranslatedDescription
                         description={band.description??""}
-                        translateDescription={() => {}}
+                        translateDescription={() => {
+                        }}
                     />
                 </div>
                 {!isMobile&&
@@ -103,8 +119,136 @@ export function BandData({strings}: { strings: Record<string,string> }){
                 }
             </div>
             <div className={isMobile?"w-96":"w-full"}>
+                <Tabs variant={"secondary"}>
+                    <Tabs.ListContainer>
+                        <Tabs.List aria-label={"data tables"}>
+                            <Tabs.Tab id={"members"} className={"whitespace-nowrap"}>
+                                Members
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                            <Tabs.Tab id={"albums"} className={"whitespace-nowrap"}>
+                                Albums
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                            <Tabs.Tab id={"similar"} className={"whitespace-nowrap"}>
+                                Similar bands
+                                <Tabs.Indicator/>
+                            </Tabs.Tab>
+                        </Tabs.List>
+                    </Tabs.ListContainer>
+                    <Tabs.Panel id={"members"}>
+                        <div className={"flex flex-col gap-4"}>
+                            <div className="flex items-center">
+                                <div
+                                    role="radiogroup"
+                                    aria-label="Theme selector"
+                                    className="inline-flex h-fit items-center gap-1 rounded-full border bg-background-secondary"
+                                >
+                                    {memberFilterOptions.map((item) => {
+                                        const isSelected=(item==="All"&&showingBandMembers?.every((member,index) => member===bandMembersList[index])&&showingBandMembers.length===bandMembersList.length)||
+                                            (item==="Current"&&showingBandMembers?.every((member,index) => member===currentMembersList[index])&&showingBandMembers.length===currentMembersList.length)||
+                                            (item==="Past"&&showingBandMembers?.every((member,index) => member===pastMembersList[index])&&showingBandMembers.length===pastMembersList.length)
+                                        return (
+                                            <Button
+                                                key={item}
+                                                aria-checked={isSelected}
+                                                aria-label={item}
+                                                variant="ghost"
+                                                onPress={() => {
+                                                    if(item==="All") setShowingBandMembers(bandMembersList)
+                                                    else if(item==="Current") setShowingBandMembers(currentMembersList)
+                                                    else if(item==="Past") setShowingBandMembers(pastMembersList)
+                                                }}
+                                                className={`h-8 w-fit text-md p-2 min-w-16 ${
+                                                    isSelected
+                                                        ?"bg-overlay! hover:bg-overlay!"
+                                                        :"bg-secondary! hover:bg-secondary!"
+                                                }`}
+                                            >
+                                                {item}
+                                            </Button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <DataTable
+                                columns={[
+                                    {title: translate("name"),value: (
+                                            item => <Link href={"../artist/"+item.id}>{item.artistName}</Link>
+                                        )},
+                                    {
+                                        title: translate("role"),
+                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n')
+                                    },
+                                ]}
+                                data={showingBandMembers!}
+                                emptyText={"No band members"}
+                            />
+                        </div>
+                    </Tabs.Panel>
+                    <Tabs.Panel id={"albums"}>
+                        <div className={"flex flex-col gap-4"}>
+                            <div className="flex items-center">
+                                <div
+                                    role="radiogroup"
+                                    aria-label="Theme selector"
+                                    className="inline-flex h-fit items-center gap-1 rounded-full border bg-background-secondary"
+                                >
+                                    {albumFilterOptions.map((item) => {
+                                        const isSelected=(item==="All"&&showingAlbums?.every((album,index) => album===albumsList[index])&&showingAlbums.length===albumsList.length)||
+                                            (item==="Studio"&&showingAlbums?.every((album,index) => album===studioAlbumsList[index])&&showingAlbums.length===studioAlbumsList.length)
+                                        return (
+                                            <Button
+                                                key={item}
+                                                aria-checked={isSelected}
+                                                aria-label={item}
+                                                variant="ghost"
+                                                onPress={() => {
+                                                    if(item==="All") setShowingAlbums(albumsList)
+                                                    else if(item==="Studio") setShowingAlbums(studioAlbumsList)
+                                                }}
+                                                className={`h-8 w-fit text-md p-2 min-w-16 ${
+                                                    isSelected
+                                                        ?"bg-overlay! hover:bg-overlay!"
+                                                        :"bg-secondary! hover:bg-secondary!"
+                                                }`}
+                                            >
+                                                {item}
+                                            </Button>
+                                        )
+                                    })}
 
+                                </div>
+                            </div>
+                            <DataTable
+                                columns={[
+                                    {title: translate("title"),value: (
+                                            item => <Link href={"../album/"+item.id}>{item.title}</Link>
+                                        )},
+                                    {title: translate("release_date"),value: item => item.releaseDate.toString()},
+                                    {title: translate("album_type"),value: item => item.type},
+                                    {title: translate("main_genre"),value: item => item.genreName},
+                                ]}
+                                data={showingAlbums!}
+                                emptyText={"No albums"}
+                            />
+                        </div>
+                    </Tabs.Panel>
+                    <Tabs.Panel id={"similar"}>
+                        <DataTable
+                        columns={[
+                            {title: translate("name"),value: (
+                                    item => <Link href={"../band/"+item.id}>{item.name}</Link>
+                                )},
+                            {title: translate("formedYear"),value: item => item.formedYear},
+                            {title: translate("country"),value: item => translate(item.country!)}
+                        ]}
+                            data={similarBandsList}
+                        emptyText={"No similar bands"}
+                        />
 
+                    </Tabs.Panel>
+                </Tabs>
             </div>
 
 

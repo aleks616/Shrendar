@@ -1,13 +1,26 @@
 import React,{useEffect,useState} from 'react'
 import {Navigate,useParams} from "react-router-dom"
 import {ProfileClient,UserProfileDto} from "sharedLogic"
-import {Avatar,Badge,EmptyState,Label,ProgressBar,Spinner,Tabs,Tooltip,Table,ToggleButton,Surface} from "@heroui/react"
-import {Link as HerouiLink} from "@heroui/react"
-import {UserIcon,StarIcon,InboxIcon} from '@heroicons/react/24/solid'
+import {
+    Avatar,
+    Badge,
+    EmptyState,
+    Label,
+    Link as HerouiLink,
+    ProgressBar,
+    Spinner,
+    Surface,
+    Table,
+    Tabs,
+    ToggleButton,
+    Tooltip
+} from "@heroui/react"
+import {InboxIcon,StarIcon,UserIcon} from '@heroicons/react/24/solid'
 import {StarIcon as StarIconOutline} from '@heroicons/react/24/outline'
 import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
 import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
+import {DataTable} from "../DataTable/DataTable.tsx"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
@@ -150,7 +163,8 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         onSave={updateBio}
                     />
                 ):(
-                    <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"} variant={"secondary"}>
+                    <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"}
+                             variant={"secondary"}>
                         {user.bio??loremIpsum({count: 8,units: "sentences"})}
                     </Surface>
                 )}
@@ -392,48 +406,19 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         </Table>
                     </Tabs.Panel>
                     <Tabs.Panel className="pt-2" id="contributions">
-                        <Table variant={"secondary"}>
-                            <Table.ScrollContainer
-                                className={"max-h-96 w-full min-w-0 max-w-full overflow-x-auto overflow-y-auto"}>
-                                <Table.Content aria-label={translate("user_contributions_table")}
-                                               className={"w-full whitespace-nowrap"}>
-                                    <Table.Header className={"sticky top-0 z-10"}>
-                                        <Table.Column isRowHeader>{translate("action")}</Table.Column>
-                                        <Table.Column>{translate("date")}</Table.Column>
-                                        <Table.Column>{translate("table")}</Table.Column>
-                                        <Table.Column>{translate("column")}</Table.Column>
-                                        <Table.Column>{translate("confirmed")}</Table.Column>
-                                        <Table.Column>{translate("before")}</Table.Column>
-                                        <Table.Column>{translate("after")}</Table.Column>
-                                    </Table.Header>
-                                    <Table.Body
-                                        renderEmptyState={() => (
-                                            <EmptyState
-                                                className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                                                <InboxIcon className="size-6 text-muted"/>
-                                                <span
-                                                    className="text-sm text-muted">{translate("no_contributions")}</span>
-                                            </EmptyState>
-                                        )}
-                                    >
-                                        {contributionList.map((item,i) => {
-                                            return (
-                                                <Table.Row key={i} className={"relative"}
-                                                           href={`/${item.changedTable}/${item.changedRecordId}`}>
-                                                    <Table.Cell>{item.action}</Table.Cell>
-                                                    <Table.Cell>{item.changedAt}</Table.Cell>
-                                                    <Table.Cell>{item.changedTable}</Table.Cell>
-                                                    <Table.Cell>{item.changedColumn}</Table.Cell>
-                                                    <Table.Cell>{item.confirmed==true?"✔️":"️✖️"}</Table.Cell>
-                                                    <Table.Cell>{item.oldValue?item.oldValue:"-"}</Table.Cell>
-                                                    <Table.Cell>{item.newValue}</Table.Cell>
-                                                </Table.Row>
-                                            )
-                                        })}
-                                    </Table.Body>
-                                </Table.Content>
-                            </Table.ScrollContainer>
-                        </Table>
+                        <DataTable
+                            columns={[
+                                {title: translate("action"),value: item => item.action},
+                                {title: translate("date"),value: item => item.changedAt},
+                                {title: translate("table"),value: item => item.changedTable},
+                                {title: translate("column"),value: item => item.changedColumn},
+                                {title: translate("confirmed"),value: item => item.confirmed==true?"✔️":"️✖️"},
+                                {title: translate("before"),value: item => item.oldValue?item.oldValue:"-"},
+                                {title: translate("after"),value: item => item.newValue}
+                            ]}
+                            data={contributionList}
+                            emptyText={translate("no_contributions")}
+                        />
                     </Tabs.Panel>
                 </Tabs>
             </div>

@@ -69,6 +69,6 @@ class BandWikiService(
             nickname=it.nickname,
             yearRole=it.yearRole
         )}
-        return data
+        return data.sortedBy { it.artistName }
     }
 }
