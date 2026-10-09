@@ -72,7 +72,7 @@ struct Table<Row>: View {
 							GridRow {
 								ForEach(columns.indices, id: \.self) { index in
 									Text(columns[index].value(item) ?? "-")
-										.lineLimit(1)
+										.lineLimit(nil)
 										.fixedSize(horizontal: true, vertical: false)
 										.padding(.horizontal, 8)
 										.padding(.vertical, 10)
@@ -86,6 +86,11 @@ struct Table<Row>: View {
 						}
 					}
 				}
+				.frame(
+					minWidth: UIScreen.main.bounds.width - 24,
+					maxWidth: .infinity,
+					alignment: .leading
+				)
 				.background(alignment: .top) {
 					RoundedRectangle(cornerRadius: 16)
 						.fill(Color("BackgroundVariantColor"))

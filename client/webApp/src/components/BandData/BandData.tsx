@@ -178,11 +178,12 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                         )},
                                     {
                                         title: translate("role"),
-                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n').replace(/guitar/gi, translate("guitar"))
+                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n')
+                                            .replace(/guitar/gi, translate("guitar"))
                                             .replace(/bass/gi, translate("bass"))
                                             .replace(/drums/gi, translate("drums"))
-                                            .replace(/vocals/gi, translate("vocals"))
                                             .replace(/backing vocals/gi, translate("backing_vocals"))
+                                            .replace(/vocals/gi, translate("vocals"))
                                     },
                                 ]}
                                 data={showingBandMembers!}
