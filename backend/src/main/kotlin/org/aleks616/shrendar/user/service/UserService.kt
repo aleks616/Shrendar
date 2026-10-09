@@ -5,7 +5,7 @@ import org.aleks616.shrendar.band.model.FavoriteBandDto
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.service.ContributionService
-import org.aleks616.shrendar.genre.model.FavoriteGenreDto
+import org.aleks616.shrendar.genre.model.SimpleGenreDto
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UserProfileDto
 import org.aleks616.shrendar.user.repository.UserArtistRepository
@@ -55,7 +55,7 @@ class UserService(
 
         val favoriteGenresRaw=userGenreRepository.findByUser(user)
         val favoriteGenres=favoriteGenresRaw.map {d->
-            FavoriteGenreDto(
+            SimpleGenreDto(
                 id=d.genre.id,
                 name=d.genre.name,
             )

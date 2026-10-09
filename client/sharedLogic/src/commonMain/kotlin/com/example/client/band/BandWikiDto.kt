@@ -1,8 +1,14 @@
-package org.aleks616.shrendar.band.model
+package com.example.client.band
 
-import org.aleks616.shrendar.genre.model.SimpleGenreDto
-import java.io.Serializable
+import com.example.client.common.AlbumDto
+import com.example.client.common.SimpleGenreDto
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
+import kotlinx.serialization.Serializable
 
+@ExperimentalJsExport
+@JsExport
+@Serializable
 data class BandWikiDto(
     val name:String?=null,
     val formedYear:Int?=null,
@@ -15,4 +21,4 @@ data class BandWikiDto(
     val bandMembers:List<BandsMembersWikiDto>?=null,
     val albums:List<AlbumDto>?=null,
     val similar:List<BandGenreDto>?=null,
-):Serializable
+)

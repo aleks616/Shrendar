@@ -3,6 +3,8 @@ package org.aleks616.shrendar.band.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
@@ -10,6 +12,7 @@ import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.band.service.BandWikiService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.model.Country
@@ -53,6 +56,8 @@ class BandControllerTest {
 
     private val bandService:BandService=mock(BandService::class.java)
     private val bandsMemberService:BandsMemberService=mock(BandsMemberService::class.java)
+    private val albumService:AlbumService=mock(AlbumService::class.java)
+    private val bandWikiService:BandWikiService=mock(BandWikiService::class.java)
     private val countryService:CountryService=mock(CountryService::class.java)
     private val artistService:ArtistService=mock(ArtistService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
@@ -64,7 +69,9 @@ class BandControllerTest {
         rateLimiter,
         countryService,
         artistService,
-        userBanService
+        userBanService,
+        albumService,
+        bandWikiService
     )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(bandController).build()
     private val request=mock(HttpServletRequest::class.java)
@@ -113,7 +120,7 @@ class BandControllerTest {
     @Test
     fun `getBandByIdWiki should return wiki data`() {
         val wikiData=BandWikiDto(name="Metallica")
-        `when`(bandService.getBandByIdWiki(1)).thenReturn(wikiData)
+        `when`(bandWikiService.getBandByIdWiki(1)).thenReturn(wikiData)
 
         mockMvc.get("/api/band/wiki/1")
             .andExpect {
@@ -125,12 +132,25 @@ class BandControllerTest {
     @Test
     fun `getAllBandMembersWiki should return wiki members`() {
         val members=listOf(BandsMembersWikiDto(id=1,artistName="James Hetfield"))
-        `when`(bandsMemberService.getAllBandMembersWiki(1)).thenReturn(members)
+        `when`(bandWikiService.getAllBandMembersWiki(1)).thenReturn(members)
 
         mockMvc.get("/api/band/wiki/1/members")
             .andExpect {
                 status {isOk()}
                 content {json("[{'id':1,'artistName':'James Hetfield'}]")}
+            }
+    }
+
+    @Test
+    fun `getAlbumsByBandId should return albums for existing band`() {
+        val albums=listOf(Album().apply {id=1; title="Master of Puppets"})
+        `when`(albumService.doesBandExist(1)).thenReturn(true)
+        `when`(albumService.getAlbumsByBandId(1)).thenReturn(albums)
+
+        mockMvc.get("/api/band/1/albums")
+            .andExpect {
+                status {isOk()}
+                content {json("[{'id':1,'title':'Master of Puppets'}]")}
             }
     }
 

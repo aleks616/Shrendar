@@ -17,7 +17,7 @@ export function AppHeader(){
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
     const translate=(key: string) => strings[key]??key
     //todo get notifications, hide the icon in 1.0
-    const notifications=5
+    const notifications=Math.floor(Math.random()*10)
     //profile picture
     const token=localStorage.getItem("token")
     const isLoggedIn=token!==null&&token!==undefined&&token.length>0
@@ -66,7 +66,7 @@ export function AppHeader(){
                         <Badge.Anchor>
                             <div className={"size-11 rounded-full bg-background-secondary flex items-center justify-center"}>
                                 <BellIcon className={"size-7"}/>
-                                <Badge color="danger" size={"md"}>5</Badge>
+                                <Badge color="danger" size={"md"}>{notifications}</Badge>
                             </div>
                         </Badge.Anchor>
                         <Dropdown>

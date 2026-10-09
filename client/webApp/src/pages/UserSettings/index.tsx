@@ -9,7 +9,7 @@ export function UserSettings(){
     return (
         <>
             <AppHeader/>
-            <div className={"flex justify-center w-svw h-screen"}>
+            <div className={"flex justify-center w-svw"}>
                 <Settings strings={strings}/>
             </div>
         </>

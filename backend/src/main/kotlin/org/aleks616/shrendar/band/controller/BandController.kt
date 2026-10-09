@@ -1,9 +1,12 @@
 package org.aleks616.shrendar.band.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import org.aleks616.shrendar.album.model.Album
+import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.band.service.BandWikiService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.service.CountryService
@@ -24,7 +27,9 @@ class BandController (
     private val rateLimiter:RateLimiter,
     private val countryService:CountryService,
     private val artistService:ArtistService,
-    private val userBanService:UserBanService
+    private val userBanService:UserBanService,
+    private val albumService:AlbumService,
+    private val bandWikiService:BandWikiService
 ){
     @GetMapping("/")
     fun getAll():List<BandDto>{
@@ -39,13 +44,27 @@ class BandController (
     //WIKI BAND PAGE 1/4
     @GetMapping("/wiki/{id}")
     fun getBandByIdWiki(@PathVariable id:Int):BandWikiDto {
-        return bandService.getBandByIdWiki(id)
+        return bandWikiService.getBandByIdWiki(id)
     }
 
     //WIKI BAND PAGE 2/4
     @GetMapping("wiki/{bandId}/members")
     fun getAllBandMembersWiki(@PathVariable bandId:Int):List<BandsMembersWikiDto>{
-        return bandsMemberService.getAllBandMembersWiki(bandId)
+        return bandWikiService.getAllBandMembersWiki(bandId)
+    }
+
+    //WIKI BAND PAGE 3/4
+    @Throws(IllegalArgumentException::class)
+    @GetMapping("/{bandId}/albums")
+    fun getAlbumsByBandId(@PathVariable bandId:Int):List<Album>{
+        if(!albumService.doesBandExist(bandId)) throw IllegalArgumentException("band_not_exist")
+        return albumService.getAlbumsByBandId(bandId)
+    }
+
+    //WIKI BAND PAGE 4/4
+    @GetMapping("/similar/{bandId}")
+    fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int?):List<BandGenreDto>{
+        return bandService.getSimilarBands(bandId,quantity?:5)
     }
 
     @GetMapping("/{bandId}/members")
@@ -101,12 +120,6 @@ class BandController (
     @GetMapping("/artist/{id}")
     fun getBandsByArtistId(@PathVariable id:Long):List<ArtistBandsHistoryDto>{
         return bandsMemberService.getBandsByArtistId(id)
-    }
-
-    //WIKI BAND PAGE 4/4
-    @GetMapping("/similar/{bandId}")
-    fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int?):List<BandGenreDto>{
-        return bandService.getSimilarBands(bandId,quantity?:5)
     }
 
     fun statusStringToEnum(statusString:String):Status {

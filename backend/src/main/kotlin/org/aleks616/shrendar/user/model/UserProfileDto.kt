@@ -3,7 +3,7 @@ package org.aleks616.shrendar.user.model
 import org.aleks616.shrendar.artist.model.FavoriteArtistDto
 import org.aleks616.shrendar.band.model.FavoriteBandDto
 import org.aleks616.shrendar.contribution.model.ContributionDto
-import org.aleks616.shrendar.genre.model.FavoriteGenreDto
+import org.aleks616.shrendar.genre.model.SimpleGenreDto
 import java.io.Serializable
 
 /**
@@ -21,7 +21,7 @@ data class UserProfileDto(
 
     val favoriteBands:List<FavoriteBandDto>?=null,
     val favoriteArtists:List<FavoriteArtistDto>?=null,
-    val favoriteGenres:List<FavoriteGenreDto>?=null,
+    val favoriteGenres:List<SimpleGenreDto>?=null,
 
     val contributions:List<ContributionDto>?=null,
     val isUser:Boolean?=null

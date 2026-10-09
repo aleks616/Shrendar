@@ -83,24 +83,10 @@ class BandsMemberService(
         return result
     }
 
-    fun getAllBandMembersWiki(id:Int):List<BandsMembersWikiDto>{
-        val dataRaw=getAllBandMembers(id)
-        val data=dataRaw.map {BandsMembersWikiDto(
-            id=it.id,
-            artistId=it.artistId,
-            artistName=it.artistName,
-            bandId=it.bandId,
-            nickname=it.nickname,
-            yearRole=it.yearRole
-        )}
-        return data
-    }
-
     fun getCurrentBandMembers(band:Int):List<BandsMembersDto> {
        val allData=getAllBandMembers(band)
         return allData.filter {d-> d.yearRole?.any {it.contains("-)")} ?: false}
     }
-
 
     fun getPastBandMembers(band:Int):List<BandsMembersDto> {
         val allData=getAllBandMembers(band)

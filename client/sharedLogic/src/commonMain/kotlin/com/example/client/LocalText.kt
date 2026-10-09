@@ -470,6 +470,34 @@ class LocalText {
             "birthdate"->MR.strings.birthdate
             "select_birthdate"->MR.strings.select_birthdate
             "ok"->MR.strings.ok
+            "thing_name"->MR.strings.thing_name
+            "person_name"->MR.strings.person_name
+            "role"->MR.strings.role
+            "all"->MR.strings.all
+            "current"->MR.strings.current
+            "all_members"->MR.strings.all_members
+            "current_members"->MR.strings.current_members
+            "past_members"->MR.strings.past_members
+            "members"->MR.strings.members
+            "albums"->MR.strings.albums
+            "similar_bands"->MR.strings.similar_bands
+            "status"->MR.strings.status
+            "years_active"->MR.strings.years_active
+            "top_genres"->MR.strings.top_genres
+            "studio"->MR.strings.studio
+            "title"->MR.strings.title
+            "release_date"->MR.strings.release_date
+            "album_type"->MR.strings.album_type
+            "main_genre"->MR.strings.main_genre
+            "formed_year"->MR.strings.formed_year
+            "no_similar_bands"->MR.strings.no_similar_bands
+            "no_band_members"->MR.strings.no_band_members
+            "no_albums"->MR.strings.no_albums
+            "guitar"->MR.strings.guitar
+            "bass"->MR.strings.bass
+            "drums"->MR.strings.drums
+            "vocals"->MR.strings.vocals
+            "backing_vocals"->MR.strings.backing_vocals
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

@@ -19,3 +19,4 @@ captures
 node_modules/
 /webApp/dist/
 /package-lock.json
+.env
