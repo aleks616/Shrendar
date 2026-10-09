@@ -24,4 +24,7 @@ sealed interface Destinations:Destination {
 
     @Serializable
     data object Settings:Destinations
+
+    @Serializable
+    data object BandDataView:Destinations
 }

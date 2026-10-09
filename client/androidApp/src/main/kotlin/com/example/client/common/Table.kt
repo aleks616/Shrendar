@@ -73,17 +73,30 @@ fun <T> Table(
         }
     }
 
-    val tableWidth=columnWidths.fold(0.dp) {total,width->
+    val measuredTableWidth=columnWidths.fold(0.dp) {total,width->
         total+width
     }
 
-    Box(
+    BoxWithConstraints(
         modifier=Modifier.fillMaxWidth(),
         contentAlignment=Alignment.Center,
     ) {
+        val extraWidth=if(measuredTableWidth<maxWidth) {
+            (maxWidth-measuredTableWidth)/columnWidths.size
+        }
+        else {
+            0.dp
+        }
+        val tableWidths=columnWidths.map {it+extraWidth}
+        val tableWidth=tableWidths.fold(0.dp) {total,width->
+            total+width
+        }
+
         Surface(
             modifier=Modifier.fillMaxWidth(),
             shape=RoundedCornerShape(16.dp),
+            color=MaterialTheme.colorScheme.surface,
+            tonalElevation=0.dp,
         ) {
             Column(
                 modifier=Modifier
@@ -95,18 +108,18 @@ fun <T> Table(
                         .width(tableWidth)
                         .height(IntrinsicSize.Min)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.secondary),
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     columns.forEachIndexed {index,_->
                         Box(
                             modifier=Modifier
-                                .width(columnWidths[index])
+                                .width(tableWidths[index])
                                 .height(IntrinsicSize.Min),
                         ) {
                             Text(
                                 modifier=Modifier.padding(horizontal=8.dp,vertical=12.dp),
                                 text=headers[index],
-                                color=MaterialTheme.colorScheme.onSecondary,
+                                color=MaterialTheme.colorScheme.onSurfaceVariant,
                                 style=headerTextStyle,
                             )
                             if(index<columns.lastIndex) {
@@ -156,11 +169,12 @@ fun <T> Table(
                             columns.forEachIndexed {index,column->
                                 Box(
                                     modifier=Modifier
-                                        .width(columnWidths[index])
+                                        .width(tableWidths[index])
                                         .padding(horizontal=8.dp,vertical=12.dp),
                                 ) {
                                     Text(
                                         text=column.second.get(item).tableText(),
+                                        color=MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             }

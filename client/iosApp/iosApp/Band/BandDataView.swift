@@ -345,7 +345,6 @@ struct BandDataView: View {
 						.padding()
 				}
 			}
-			.navigationTitle(band?.name ?? "")
 			.navigationBarTitleDisplayMode(.inline)
 			.task(id: bandId) {
 				await loadBand()
