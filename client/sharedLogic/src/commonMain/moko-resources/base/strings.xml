@@ -486,4 +486,5 @@
     <string name="drums">drums</string>
     <string name="vocals">vocals</string>
     <string name="backing_vocals">backing vocals</string>
+    <string name="present">Present</string>
 </resources>

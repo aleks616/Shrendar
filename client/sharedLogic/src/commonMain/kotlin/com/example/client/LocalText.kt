@@ -498,6 +498,7 @@ class LocalText {
             "drums"->MR.strings.drums
             "vocals"->MR.strings.vocals
             "backing_vocals"->MR.strings.backing_vocals
+            "present"->MR.strings.present
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
