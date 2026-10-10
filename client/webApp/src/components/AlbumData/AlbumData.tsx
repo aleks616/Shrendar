@@ -53,7 +53,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                         <div className={"w-5/9"}>
                             <p>
                                 <span className={"text-muted"}>{translate("band")}: </span>
-                                {album.band?.name?translate(album.band.name):"-"}
+                                {album.band?.name??"-"}
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("release_date")}: </span>
@@ -64,7 +64,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("years_since")}: </span>
-                                {album.albumAge}
+                                {album.albumAge??"-"}
                             </p>
                         </div>
                         <div className={"w-4/9"}>

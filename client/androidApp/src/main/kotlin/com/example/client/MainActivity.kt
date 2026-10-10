@@ -19,6 +19,7 @@ import com.example.client.account.screens.RequestPasswordResetView
 import com.example.client.account.screens.SignInView
 import com.example.client.account.screens.PasswordResetView
 import com.example.client.account.screens.SettingsView
+import com.example.client.album.screens.AlbumDataView
 import com.example.client.artist.ArtistDataView
 import com.example.client.band.BandDataView
 import com.example.client.profile.screens.ProfilePageView
@@ -44,7 +45,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.ArtistDataView>(),
+                startDestination=createRoutePattern<Destinations.AlbumDataView>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(
@@ -99,6 +100,9 @@ class MainActivity:ComponentActivity() {
                 }
                 composable<Destinations.ArtistDataView>{
                     ArtistDataView()
+                }
+                composable<Destinations.AlbumDataView> {
+                    AlbumDataView()
                 }
 
             }
