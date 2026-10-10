@@ -93,9 +93,9 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                             </p>
                             {isDead&&<p>
                                 <span className={"text-muted"}>{translate("death_anniversary")}: </span>
-                                {artist.deathDate.toString()?artist.deathDate.toString():"-"}
+                                {artist.deathDate.toString()}
                                 <span className={"text-muted"}> {translate("next_in")}</span>
-                                {artist.daysTillDeathAnniversary?artist.daysTillDeathAnniversary:"-"}
+                                {artist.daysTillDeathAnniversary}
                                 <span> days</span>
                             </p>}
                         </div>
@@ -135,11 +135,11 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                 <Heading level={3}>{translate("bands")}</Heading>
                 <DataTable
                     columns={[{
-                            title: translate("bands"),
-                            value: (
-                                item => <Link href={`../band/${item.bandId}`}>{item.bandName}</Link>
-                            )
-                        },
+                        title: translate("bands"),
+                        value: (
+                            item => <Link href={`../band/${item.bandId}`}>{item.bandName}</Link>
+                        )
+                    },
                         {
                             title: translate("role"),
                             value: item => (
