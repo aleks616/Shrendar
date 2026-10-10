@@ -6,8 +6,8 @@ final class SignInViewTests: XCTestCase {
 	override func setUpWithError() throws {
 		continueAfterFailure = false
 		app = XCUIApplication()
+		app.launchArguments = ["--test-view=signIn"]
 		app.launch()
-		app.buttons["welcome.signIn"].tap()
 	}
 	
 	func testSignInFormRequiresBothFieldsBeforeSubmission() {

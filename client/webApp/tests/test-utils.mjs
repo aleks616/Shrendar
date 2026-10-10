@@ -1,5 +1,6 @@
 import React from "react"
 import {renderToStaticMarkup} from "react-dom/server"
+import {MemoryRouter} from "react-router-dom"
 import react from "@vitejs/plugin-react"
 import {createServer} from "vite"
 import {fileURLToPath} from "node:url"
@@ -22,6 +23,13 @@ const testMocks={
     load(id){
         if(id==="\0shrendar-test-shared-logic"){
             return `
+        class EmptyDto {}
+        export class UserDto extends EmptyDto {}
+        export class UserProfileDto extends EmptyDto {}
+        export class ArtistWikiDto extends EmptyDto { constructor() { super(); this.bands = []; } }
+        export class BandWikiDto extends EmptyDto { constructor() { super(); this.bandMembers = []; this.albums = []; this.computedGenres = []; this.similar = []; } }
+        export class AlbumWikiDto extends EmptyDto {}
+        export class EventWikiDto extends EmptyDto {}
         export class RegisterValidator {
           async validateLogin() { return null }
           async validateEmail() { return null }
@@ -40,8 +48,34 @@ const testMocks={
           getInstance: () => ({
             login: async () => JSON.stringify({ token: "test-token" }),
             logout: async () => "logged_out",
+            getUserData: async () => null,
             requestPasswordReset: async () => "password_link_sent",
             resetPassword: async () => "password_changed"
+          })
+        }
+        export const ProfileClient = {
+          getInstance: () => ({
+            getUserProfile: async () => null
+          })
+        }
+        export const ArtistClient = {
+          getInstance: () => ({
+            getArtistWikiPageDataById: async () => null
+          })
+        }
+        export const BandClient = {
+          getInstance: () => ({
+            getBandWikiPageDataById: async () => null
+          })
+        }
+        export const AlbumClient = {
+          getInstance: () => ({
+            getAlbumWikiPageData: async () => null
+          })
+        }
+        export const EventClient = {
+          getInstance: () => ({
+            getEventData: async () => null
           })
         }
       `
@@ -94,6 +128,10 @@ export async function createComponentTestServer(){
 export async function renderComponent(server,modulePath,exportName,props={}){
     const componentModule=await server.ssrLoadModule(modulePath)
     return renderToStaticMarkup(
-        React.createElement(componentModule[exportName],props),
+        React.createElement(
+            MemoryRouter,
+            null,
+            React.createElement(componentModule[exportName],props),
+        ),
     )
 }
