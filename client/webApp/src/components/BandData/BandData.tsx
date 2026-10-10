@@ -1,11 +1,13 @@
 import React,{useEffect,useState} from 'react'
 import {AlbumDto,BandClient,BandsMembersWikiDto,BandWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Button,Heading,Link,Spinner,Tabs,Tooltip} from "@heroui/react"
-import {InformationCircleIcon} from "@heroicons/react/24/outline"
+import {Button,Heading,Link,Spinner,Tabs,ToggleButton,Tooltip} from "@heroui/react"
+import {InformationCircleIcon,StarIcon as StarIconOutline} from "@heroicons/react/24/outline"
 import {isMobile} from "react-device-detect"
-import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx";
-import {DataTable} from "../DataTable/DataTable.tsx";
+import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
+import {DataTable} from "../DataTable/DataTable.tsx"
+import {StarIcon} from "@heroicons/react/24/solid"
+import {toggleArtistFavoriteAll,toggleBandFavorite} from "../../helpers/toggleFavorite.tsx"
 
 export function BandData({strings}: { strings: Record<string,string> }){
     const [band,setBand]=useState<BandWikiDto | null>(new BandWikiDto())
@@ -23,7 +25,8 @@ export function BandData({strings}: { strings: Record<string,string> }){
         const fetchData=async () => {
             setIsLoading(true)
             if(bandIdParam==null) return
-            const bandData=await BandClient.getInstance().getBandWikiPageDataById(bandIdParam)
+            const token=localStorage.getItem("token")
+            const bandData=await BandClient.getInstance().getBandWikiPageDataById(bandIdParam,token)
             setIsLoading(false)
             if(bandData!=null){
                 setBand(bandData)
@@ -61,9 +64,29 @@ export function BandData({strings}: { strings: Record<string,string> }){
     const similarBandsList=band.similar!.asJsReadonlyArrayView()
     const statusColor=band.status==="Active"?"text-success":band.status==="Disbanded"?"text-danger":"text-warning"
 
+    const loggedIn=localStorage.getItem("token")!=null
     return (
         <div className={"flex flex-col gap-4 w-5xl mx-3"}>
-            <Heading level={1}>{band.name}</Heading>
+            <div className={"flex gap-2"}>
+                <Heading level={1}>{band.name}</Heading>
+                <ToggleButton
+                    isDisabled={!loggedIn}
+                    variant={"ghost"}
+                    isIconOnly
+                    defaultSelected={band.favorite??false}
+                    aria-label={translate("favorite")}
+                    onPress={() => toggleBandFavorite(bandIdParam!)}
+                    className={"bg-transparent! data-[selected=true]:bg-transparent! hover:bg-transparent!"}
+                >
+                    {({isSelected}) => (
+                        isSelected?(
+                            <StarIcon className={"size-8"}/>
+                        ):(
+                            <StarIconOutline className={"size-8"}/>
+                        )
+                    )}
+                </ToggleButton>
+            </div>
             <div className={"flex w-full min-h-32 gap-6"}>
                 <div className={"flex flex-col"+(!isMobile?" w-9/12":"")}>
                     <div className={"flex min-h-32"}>
@@ -74,7 +97,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("status")}: </span>
-                                <span className={statusColor}>{band.status}</span>
+                                <span className={statusColor}>{translate(band.status!.toLowerCase())}</span>
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("years_active")}: </span>
@@ -85,14 +108,13 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             <span className={"text-muted"}>{translate("top_genres")}: </span>
                             <Tooltip delay={0}>
                                 <Tooltip.Trigger>
-                                    <Button isIconOnly aria-label="More information" variant="ghost"
+                                    <Button isIconOnly aria-label="Genre info" variant="ghost"
                                             className={"border-none shadow-none h-auto w-auto min-w-0 p-0 inline-flex align-text-bottom"}>
                                         <InformationCircleIcon/>
                                     </Button>
                                 </Tooltip.Trigger>
                                 <Tooltip.Content>
-                                    <p>these are computed automatically based on album's genres and importance, so they
-                                        might be unexpected</p>
+                                    <p>{translate("band_genre_info")}</p>
                                 </Tooltip.Content>
                             </Tooltip>
                             {bandGenres.map((genre,index) =>
@@ -138,10 +160,10 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     </Tabs.ListContainer>
                     <Tabs.Panel id={"members"}>
                         <div className={"flex flex-col gap-4"}>
-                            <div className="flex items-center">
+                            <div className="flex items-center justify-between">
                                 <div
                                     role="radiogroup"
-                                    aria-label="Theme selector"
+                                    aria-label="select band member type"
                                     className="inline-flex h-fit items-center gap-1 rounded-full border bg-background-secondary"
                                 >
                                     {memberFilterOptions.map((item) => {
@@ -170,19 +192,29 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                         )
                                     })}
                                 </div>
+                                <Button
+                                    isDisabled={!loggedIn}
+                                    variant={"secondary"}
+                                    onPress={() => toggleArtistFavoriteAll(bandIdParam)}
+                                >
+                                    {translate("favorite_all")}
+                                </Button>
                             </div>
                             <DataTable
                                 columns={[
-                                    {title: translate("person_name"),value: (
+                                    {
+                                        title: translate("person_name"),value: (
                                             item => <Link href={"../artist/"+item.artistId}>{item.artistName}</Link>
-                                        )},
+                                        )
+                                    },
                                     {
                                         title: translate("role"),
-                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n').replace(/guitar/gi, translate("guitar"))
-                                            .replace(/bass/gi, translate("bass"))
-                                            .replace(/drums/gi, translate("drums"))
-                                            .replace(/vocals/gi, translate("vocals"))
-                                            .replace(/backing vocals/gi, translate("backing_vocals"))
+                                        value: item => item.yearRole!!.asJsReadonlyArrayView().join('\n')
+                                            .replace(/guitar/gi,translate("guitar"))
+                                            .replace(/bass/gi,translate("bass"))
+                                            .replace(/drums/gi,translate("drums"))
+                                            .replace(/backing vocals/gi,translate("backing_vocals"))
+                                            .replace(/vocals/gi,translate("vocals"))
                                     },
                                 ]}
                                 data={showingBandMembers!}
@@ -195,7 +227,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             <div className="flex items-center">
                                 <div
                                     role="radiogroup"
-                                    aria-label="Theme selector"
+                                    aria-label="select album type"
                                     className="inline-flex h-fit items-center gap-1 rounded-full border bg-background-secondary"
                                 >
                                     {albumFilterOptions.map((item) => {
@@ -226,9 +258,11 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             </div>
                             <DataTable
                                 columns={[
-                                    {title: translate("title"),value: (
+                                    {
+                                        title: translate("title"),value: (
                                             item => <Link href={"../album/"+item.id}>{item.title}</Link>
-                                        )},
+                                        )
+                                    },
                                     {title: translate("release_date"),value: item => item.releaseDate.toString()},
                                     {title: translate("album_type"),value: item => item.type},
                                     {title: translate("main_genre"),value: item => item.genreName},
@@ -240,21 +274,22 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     </Tabs.Panel>
                     <Tabs.Panel id={"similar"}>
                         <DataTable
-                        columns={[
-                            {title: translate("thing_name"),value: (
-                                    item => <Link href={"../band/"+item.id}>{item.name}</Link>
-                                )},
-                            {title: translate("formed_year"),value: item => item.formedYear},
-                            {title: translate("country"),value: item => translate(item.country!)}
-                        ]}
+                            columns={[
+                                {
+                                    title: translate("thing_name"),value: (
+                                        item => <Link href={"../band/"+item.id}>{item.name}</Link>
+                                    )
+                                },
+                                {title: translate("formed_year"),value: item => item.formedYear},
+                                {title: translate("country"),value: item => translate(item.country!)}
+                            ]}
                             data={similarBandsList}
-                        emptyText={translate("no_similar_bands")}
+                            emptyText={translate("no_similar_bands")}
                         />
 
                     </Tabs.Panel>
                 </Tabs>
             </div>
-
 
         </div>
     )

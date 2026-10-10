@@ -8,6 +8,7 @@ import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.genre.model.SimpleGenreDto
 import org.aleks616.shrendar.genre.service.GenreService
+import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,9 +17,10 @@ class BandWikiService(
     private val genreService:GenreService,
     private val bandService:BandService,
     private val bandsMemberService:BandsMemberService,
-    private val albumRepository:AlbumRepository
+    private val albumRepository:AlbumRepository,
+    private val userBandRepository:UserBandRepository
 ) {
-    fun getBandByIdWiki(id:Int):BandWikiDto {
+    fun getBandByIdWiki(id:Int,userLogin:String?):BandWikiDto {
         if(!bandService.doesBandExist(id)) throw IllegalArgumentException("band_not_exist")
         val dataRaw=bandRepository.findBandById(id)
         val countryName=bandService.getBandsCountry(id)?.name?:"unknown"
@@ -28,6 +30,8 @@ class BandWikiService(
                 name=it.name
             )
         }
+
+        val isInFavorites=if(userLogin==null) false else userBandRepository.findByBandIdAndUser_Login(id,userLogin).isNotEmpty()
 
         return BandWikiDto(
             name=dataRaw.name,
@@ -40,7 +44,8 @@ class BandWikiService(
             computedGenres=genres,
             bandMembers=getAllBandMembersWiki(id),
             albums=getBandsAlbums(id),
-            similar=bandService.getSimilarBands(id,8)
+            similar=bandService.getSimilarBands(id,8),
+            isFavorite=isInFavorites
         )
     }
 

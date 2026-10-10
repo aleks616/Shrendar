@@ -2,14 +2,15 @@ package com.example.client.common
 
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,15 +28,15 @@ fun Tabs(
     val currentIndex=selectedIndex.coerceIn(0,labels.lastIndex)
 
     Column(
-        modifier=modifier,
+        modifier=modifier.fillMaxWidth(),
         verticalArrangement=Arrangement.spacedBy(16.dp)
     ) {
-        ScrollableTabRow(
+        TabRow(
+            modifier=Modifier.fillMaxWidth(),
             selectedTabIndex=currentIndex,
-            edgePadding=0.dp,
             containerColor=Color.Transparent,
             divider={
-                Divider(color=MaterialTheme.colorScheme.outlineVariant)
+                Divider(color=MaterialTheme.colorScheme.primary)
             },
             indicator={tabPositions ->
                 TabRowDefaults.Indicator(

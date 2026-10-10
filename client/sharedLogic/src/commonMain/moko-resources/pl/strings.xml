@@ -489,4 +489,9 @@
     <string name="vocals">wokal</string>
     <string name="backing_vocals">chórki</string>
     <string name="present">obecnie</string>
+    <string name="disbanded">Rozwiązany</string>
+    <string name="on_hold">Wstrzymany</string>
+    <string name="unknown">Nieznany</string>
+    <string name="favorite_all">Dodaj wszystkich\nzespołu do ulubionych</string>
+    <string name="band_genre_info">Są one obliczane automatycznie na podstawie gatunków i wagi albumu, więc mogą być nieoczekiwane.</string>
 </resources>

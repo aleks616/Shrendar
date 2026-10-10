@@ -19,6 +19,7 @@ import com.example.client.account.screens.RequestPasswordResetView
 import com.example.client.account.screens.SignInView
 import com.example.client.account.screens.PasswordResetView
 import com.example.client.account.screens.SettingsView
+import com.example.client.band.BandDataView
 import com.example.client.profile.screens.ProfilePageView
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -31,10 +32,6 @@ class MainActivity:ComponentActivity() {
         super.onCreate(savedInstanceState)
         resetUrl.value=intent?.data?.toString()
 
-        /*CoroutineScope(Dispatchers.Main).launch {
-            Log.d("GenreApi", GenreApi().getAll().toString())
-        }*/
-
         setContent {
             val navController=rememberNavController()
             LaunchedEffect(resetUrl.value) {
@@ -46,7 +43,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.Welcome>(),
+                startDestination=createRoutePattern<Destinations.BandDataView>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(
@@ -95,6 +92,9 @@ class MainActivity:ComponentActivity() {
                             )
                         },
                     )
+                }
+                composable<Destinations.BandDataView> {
+                    BandDataView()
                 }
 
             }
