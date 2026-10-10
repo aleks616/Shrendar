@@ -37,6 +37,8 @@ class AlbumController (
     //WIKI ALBUM PAGE 1/1
     @GetMapping("wiki/{id}")
     fun getAlbumByIdWiki(@PathVariable id:Long):AlbumWikiDto{
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
         return albumService.getByIdWiki(id)
     }
 

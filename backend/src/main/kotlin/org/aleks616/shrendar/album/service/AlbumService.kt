@@ -6,6 +6,7 @@ import org.aleks616.shrendar.album.repository.AlbumRepository
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
@@ -70,7 +71,7 @@ class AlbumService(
             releaseDate=dataRaw.releaseDate,
             albumAge=age,
             daysTillAnniversary=daysTillAnniversary,
-            type=dataRaw.type,
+            type=dataRaw.type.toString().titleCase(),
             genre=dataRaw.genre,
             description=dataRaw.description,
             artworkUrl=dataRaw.artworkUrl,
