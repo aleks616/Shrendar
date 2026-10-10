@@ -1,9 +1,9 @@
 import React,{useEffect,useState} from "react"
 import {AlbumClient,AlbumWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Heading,Link,Spinner} from "@heroui/react";
-import {isMobile} from "react-device-detect";
-import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx";
+import {Heading,Link,Spinner} from "@heroui/react"
+import {isMobile} from "react-device-detect"
+import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
 
 export function AlbumData({strings}: { strings: Record<string,string> }){
     const [album,setAlbum]=useState<AlbumWikiDto | null>(new AlbumWikiDto())
@@ -60,7 +60,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                                 {album.releaseDate?album.releaseDate.toString():"-"}
                                 <span className={"text-muted"}> {translate("anniversary_in")} </span>
                                 {album.daysTillAnniversary?album.daysTillAnniversary:"-"}
-                                <span> days</span>
+                                <span> {translate("days")}</span>
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("years_since")}: </span>

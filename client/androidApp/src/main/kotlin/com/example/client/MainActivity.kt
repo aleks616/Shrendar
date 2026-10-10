@@ -11,18 +11,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.kiwi.navigationcompose.typed.composable
-import com.kiwi.navigationcompose.typed.createRoutePattern
-import com.example.client.account.screens.WelcomeView
-import com.example.client.account.screens.RegisterView
-import com.example.client.account.screens.RequestPasswordResetView
-import com.example.client.account.screens.SignInView
-import com.example.client.account.screens.PasswordResetView
-import com.example.client.account.screens.SettingsView
+import com.example.client.account.screens.*
 import com.example.client.album.screens.AlbumDataView
 import com.example.client.artist.ArtistDataView
 import com.example.client.band.BandDataView
 import com.example.client.profile.screens.ProfilePageView
+import com.kiwi.navigationcompose.typed.composable
+import com.kiwi.navigationcompose.typed.createRoutePattern
 import kotlinx.serialization.ExperimentalSerializationApi
 
 class MainActivity:ComponentActivity() {
@@ -45,7 +40,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.AlbumDataView>(),
+                startDestination=createRoutePattern<Destinations.EventDataView>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(
@@ -98,13 +93,15 @@ class MainActivity:ComponentActivity() {
                 composable<Destinations.BandDataView> {
                     BandDataView()
                 }
-                composable<Destinations.ArtistDataView>{
+                composable<Destinations.ArtistDataView> {
                     ArtistDataView()
                 }
                 composable<Destinations.AlbumDataView> {
                     AlbumDataView()
                 }
-
+                composable<Destinations.EventDataView> {
+                    com.example.client.event.screens.EventDataView()
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.event.model.EventAddDto
+import org.aleks616.shrendar.event.model.EventWikiDto
 import org.aleks616.shrendar.event.service.EventService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
@@ -23,6 +24,10 @@ class EventController(
     private val bandService:BandService,
 ) {
 
+    @GetMapping("/{id}")
+    fun getEvent(@PathVariable id:Int):EventWikiDto {
+        return eventService.getEventDataById(id)
+    }
     @PostMapping("/add")
     fun addEvent(@RequestBody event:EventAddDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val user=SecurityContextHolder.getContext().authentication?:

@@ -89,14 +89,14 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                                 {artist.birthDate?artist.birthDate.toString():"-"}
                                 <span className={"text-muted"}> {translate("next_in")}</span>
                                 {artist.daysTillBirthday?artist.daysTillBirthday:"-"}
-                                <span> days</span>
+                                <span> {translate("days")}</span>
                             </p>
                             {isDead&&<p>
                                 <span className={"text-muted"}>{translate("death_anniversary")}: </span>
                                 {artist.deathDate.toString()}
                                 <span className={"text-muted"}> {translate("next_in")}</span>
                                 {artist.daysTillDeathAnniversary}
-                                <span> days</span>
+                                <span> {translate("days")}</span>
                             </p>}
                         </div>
                         <div className={"w-4/9"}>

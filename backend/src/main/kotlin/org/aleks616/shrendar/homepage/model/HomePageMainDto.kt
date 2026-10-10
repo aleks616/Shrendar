@@ -2,7 +2,7 @@ package org.aleks616.shrendar.homepage.model
 
 import org.aleks616.shrendar.album.model.AlbumByDateDto
 import org.aleks616.shrendar.artist.model.ArtistAnniversaryDto
-import org.aleks616.shrendar.event.model.EventDto
+import org.aleks616.shrendar.event.model.EventWikiDto
 import java.io.Serializable
 
 /**
@@ -17,5 +17,5 @@ data class HomePageMainDto(
     val recommendedArtistBirthdays:List<ArtistAnniversaryDto>?=null,
     val recommendedArtistDeathAnniversaries:List<ArtistAnniversaryDto>?=null,
     val recommendedAlbumsAnniversaries:List<AlbumByDateDto>?=null,
-    val eventAnniversaries:List<EventDto>?=null,
+    val eventAnniversaries:List<EventWikiDto>?=null,
 ):Serializable
