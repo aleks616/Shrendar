@@ -10,6 +10,7 @@ import {UserSettings} from "./pages/UserSettings"
 import {BandWikiPage} from "./pages/BandWikiPage"
 import {ArtistWikiPage} from "./pages/ArtistWikiPage";
 import {AlbumWikiPage} from "./pages/AlbumWikiPage";
+import {EventWikiPage} from "./pages/EventWikiPage";
 
 const routes=[
     {path:'/',element:<Home/>},
@@ -21,6 +22,7 @@ const routes=[
     {path:'/band/:band',element:<BandWikiPage/>},
     {path:'/artist/:artist',element:<ArtistWikiPage/>},
     {path:'/album/:album',element:<AlbumWikiPage/>},
+    {path:'/event/:event',element:<EventWikiPage/>},
     {path:'/settings',element:<UserSettings/>},
     {path:'*',element:<NotFound/>},
 ]

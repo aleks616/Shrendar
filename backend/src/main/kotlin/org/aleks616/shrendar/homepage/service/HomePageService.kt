@@ -19,7 +19,7 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
-import org.aleks616.shrendar.event.model.EventDto
+import org.aleks616.shrendar.event.model.EventWikiDto
 import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
@@ -420,12 +420,12 @@ class HomePageService(
             }
     }
 
-    fun getEventAnniversariesToday():List<EventDto>{
+    fun getEventAnniversariesToday():List<EventWikiDto>{
         val month=LocalDate.now().monthValue
         val day=LocalDate.now().dayOfMonth
         val eventData=eventRepository.findEventsByAnniversary(month,day)
         return eventData.filter{it.date!=null}.map{d->
-            EventDto(
+            EventWikiDto(
                 id=d.id,
                 bandId=d.band.id,
                 bandName=d.band.name,
