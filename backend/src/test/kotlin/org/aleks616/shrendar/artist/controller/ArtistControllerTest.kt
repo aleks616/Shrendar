@@ -10,6 +10,7 @@ import org.aleks616.shrendar.artist.model.ArtistGenreDto
 import org.aleks616.shrendar.artist.model.ArtistWikiDto
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.artist.service.ArtistWikiService
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
@@ -52,6 +53,7 @@ import java.time.LocalDate
 class ArtistControllerTest {
 
     private val artistService:ArtistService=mock(ArtistService::class.java)
+    private val artistWikiService:ArtistWikiService=mock(ArtistWikiService::class.java)
     private val countryService:CountryService=mock(CountryService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
     private val bandsMemberService=mock(BandsMemberService::class.java)
@@ -61,6 +63,7 @@ class ArtistControllerTest {
     private val bandService=mock(BandService::class.java)
     private val artistController=ArtistController(
         artistService,
+        artistWikiService,
         rateLimiter,
         countryService,
         bandsMemberService,
@@ -121,7 +124,7 @@ class ArtistControllerTest {
     @Test
     fun `getByIdWiki should return wiki data`() {
         val wikiData=ArtistWikiDto(name="James Hetfield")
-        `when`(artistService.getByIdWiki(1)).thenReturn(wikiData)
+        `when`(artistWikiService.getByIdWiki(1,"user")).thenReturn(wikiData)
 
         mockMvc.get("/api/artist/wiki/1")
             .andExpect {

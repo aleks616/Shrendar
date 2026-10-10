@@ -95,17 +95,6 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getBandsByArtistId should group roles`() {
-        val first=ArtistBandsDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
-        val second=ArtistBandsDto(12,2,"James Hetfield",3,"Metallica","Guitar",1985,1990,null)
-        `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second))
-
-        val result=bandsMemberService.getBandsByArtistId(2)
-        assertEquals(1,result.size)
-        assertEquals(listOf("Vocals (1981-)", "Guitar (1985-1990)"),result.first().yearRole)
-    }
-
-    @Test
     fun `addBandMember should throw ContributionLimitExceededException when user reaches contribution limit`() {
         val dto=ArtistBandAddDto(artistId=2,bandId=3,role="Vocals",joinedYear=1981)
         `when`(userAccountService.getUserByLogin("user")).thenReturn(user)
@@ -182,21 +171,6 @@ class BandsMemberServiceTest {
         val sameYear=BandsMembersDataDto(12,4,"Lars Ulrich",3,"Metallica","Drums",1990,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(sameYear))
         assertEquals(listOf("Drums (1990)"),bandsMemberService.getAllBandMembers(3).first().yearRole)
-    }
-
-    @Test
-    fun `getBandsByArtistId should return empty list for empty repository`() {
-        `when`(repository.findBandsByArtistId(2)).thenReturn(emptyList())
-        assertTrue(bandsMemberService.getBandsByArtistId(2).isEmpty())
-    }
-
-    @Test
-    fun `getBandsByArtistId should format same-year roles`() {
-        val sameYear=ArtistBandsDto(
-            10,2,"James Hetfield",3,"Metallica","Vocals",1981,1981,null
-        )
-        `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(sameYear))
-        assertEquals(listOf("1981"),bandsMemberService.getBandsByArtistId(2).first().yearRole)
     }
 
     @Test

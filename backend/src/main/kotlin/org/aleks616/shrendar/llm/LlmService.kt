@@ -10,11 +10,13 @@ import org.springframework.web.client.RestTemplate
 
 
 @Service
-class LlmService {
+class LlmService{
 
     @Value("\${gemini.api.url}")
     private val apiUrl:String?=null
 
+    @Value("\${gemini.api.url.backup}")
+    private val apiUrlBackup:String?=null
     @Value("\${gemini.api.key}")
     private val apiKey:String?=null
 

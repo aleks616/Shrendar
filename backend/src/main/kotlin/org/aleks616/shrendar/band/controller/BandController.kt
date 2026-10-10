@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.album.model.Album
 import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.artist.service.ArtistWikiService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandWikiService
@@ -29,7 +30,8 @@ class BandController (
     private val artistService:ArtistService,
     private val userBanService:UserBanService,
     private val albumService:AlbumService,
-    private val bandWikiService:BandWikiService
+    private val bandWikiService:BandWikiService,
+    private val artistWikiService:ArtistWikiService
 ){
     @GetMapping("/")
     fun getAll():List<BandDto>{
@@ -41,7 +43,6 @@ class BandController (
         return bandService.getBandDataById(id)
     }
 
-    //WIKI BAND PAGE 1/4
     @GetMapping("/wiki/{id}")
     fun getBandByIdWiki(@PathVariable id:Int):BandWikiDto {
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
@@ -49,13 +50,11 @@ class BandController (
         return bandWikiService.getBandByIdWiki(id,userLogin)
     }
 
-    //WIKI BAND PAGE 2/4
     @GetMapping("wiki/{bandId}/members")
     fun getAllBandMembersWiki(@PathVariable bandId:Int):List<BandsMembersWikiDto>{
         return bandWikiService.getAllBandMembersWiki(bandId)
     }
 
-    //WIKI BAND PAGE 3/4
     @Throws(IllegalArgumentException::class)
     @GetMapping("/{bandId}/albums")
     fun getAlbumsByBandId(@PathVariable bandId:Int):List<Album>{
@@ -63,7 +62,6 @@ class BandController (
         return albumService.getAlbumsByBandId(bandId)
     }
 
-    //WIKI BAND PAGE 4/4
     @GetMapping("/similar/{bandId}")
     fun getSimilarBands(@PathVariable bandId:Int, @RequestParam quantity:Int?):List<BandGenreDto>{
         return bandService.getSimilarBands(bandId,quantity?:5)
@@ -118,10 +116,9 @@ class BandController (
         return bandService.getBandsByStatus(statusStringToEnum(status))
     }
 
-    //WIKI ARTIST PAGE 2/2
     @GetMapping("/artist/{id}")
     fun getBandsByArtistId(@PathVariable id:Long):List<ArtistBandsHistoryDto>{
-        return bandsMemberService.getBandsByArtistId(id)
+        return artistWikiService.getBandsByArtistId(id)
     }
 
     fun statusStringToEnum(statusString:String):Status {
