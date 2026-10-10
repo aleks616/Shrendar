@@ -2,9 +2,9 @@ package com.example.client.band
 
 import com.example.client.common.AlbumDto
 import com.example.client.common.SimpleGenreDto
+import kotlinx.serialization.Serializable
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
-import kotlinx.serialization.Serializable
 
 @ExperimentalJsExport
 @JsExport
@@ -21,4 +21,5 @@ data class BandWikiDto(
     val bandMembers:List<BandsMembersWikiDto>?=null,
     val albums:List<AlbumDto>?=null,
     val similar:List<BandGenreDto>?=null,
+    val favorite:Boolean?=false
 )

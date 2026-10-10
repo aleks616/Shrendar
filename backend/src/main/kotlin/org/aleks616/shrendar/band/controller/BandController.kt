@@ -44,7 +44,9 @@ class BandController (
     //WIKI BAND PAGE 1/4
     @GetMapping("/wiki/{id}")
     fun getBandByIdWiki(@PathVariable id:Int):BandWikiDto {
-        return bandWikiService.getBandByIdWiki(id)
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        return bandWikiService.getBandByIdWiki(id,userLogin)
     }
 
     //WIKI BAND PAGE 2/4

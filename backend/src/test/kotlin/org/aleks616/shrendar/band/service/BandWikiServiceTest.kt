@@ -29,6 +29,7 @@ class BandWikiServiceTest {
             bandService,
             bandsMemberService,
             albumRepository,
+            userBandRepository,
         )
     }
 

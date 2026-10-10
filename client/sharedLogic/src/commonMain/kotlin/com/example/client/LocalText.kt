@@ -499,6 +499,11 @@ class LocalText {
             "vocals"->MR.strings.vocals
             "backing_vocals"->MR.strings.backing_vocals
             "present"->MR.strings.present
+            "disbanded"->MR.strings.disbanded
+            "on_hold"->MR.strings.on_hold
+            "unknown"->MR.strings.unknown
+            "favorite_all"->MR.strings.favorite_all
+            "band_genre_info"->MR.strings.band_genre_info
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

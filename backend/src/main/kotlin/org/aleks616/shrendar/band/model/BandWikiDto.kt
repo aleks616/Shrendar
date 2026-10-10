@@ -15,4 +15,5 @@ data class BandWikiDto(
     val bandMembers:List<BandsMembersWikiDto>?=null,
     val albums:List<AlbumDto>?=null,
     val similar:List<BandGenreDto>?=null,
+    val isFavorite:Boolean?=null
 ):Serializable

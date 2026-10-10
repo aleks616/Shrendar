@@ -13,11 +13,11 @@ struct BandDataView: View {
 
 	@State private var band: BandWikiDto?
 	@State private var isLoading = true
-	@State private var errorText = ""
 	@State private var selectedTab: BandTab = .members
 	@State private var selectedMemberFilter: MemberFilter = .all
 	@State private var selectedAlbumFilter: AlbumFilter = .all
 	@State private var showingGenreInformation = false
+	@State private var isFavorite = false
 
 	enum BandTab: String, CaseIterable {
 		case members
@@ -63,6 +63,47 @@ struct BandDataView: View {
 				return "all"
 			case .studio:
 				return "studio"
+			}
+		}
+	}
+
+	let isLoggedIn:Bool = {
+		let token = KeychainService.retrieveToken()
+		return token != nil && !token!.isEmpty
+	}()
+	
+	func toggleBandFavorite() {
+		Task { @MainActor in
+			do {
+				let result = try await ProfileClient().toggleFavoriteBand(
+					bandId: Int32(truncating: bandId as NSNumber),
+					token: KeychainService.retrieveToken()
+				)
+				guard result == "band_toggled" else {
+					print("Failed to toggle band favorite status")
+					return
+				}
+				isFavorite.toggle()
+			} catch {
+				print(error.localizedDescription)
+			}
+		}
+	}
+	
+	func toggleArtistFavoriteAll(){
+		Task{@MainActor in
+			do {
+				let result = try await ProfileClient().toggleFavoriteArtistAll(
+					bandId: Int32(truncating: bandId as NSNumber),
+					token: KeychainService.retrieveToken()
+				)
+				guard result == "artist_toggle" else {
+					print("Failed to toggle artists favorite status")
+					return
+				}
+				isFavorite.toggle()
+			} catch {
+				print(error.localizedDescription)
 			}
 		}
 	}
@@ -174,8 +215,19 @@ struct BandDataView: View {
 
 					ScrollView {
 						VStack(alignment: .leading, spacing: 16) {
-							Text(band.name ?? "")
-								.font(.largeTitle.bold())
+							HStack{
+								Text(band.name ?? "")
+									.font(.largeTitle.bold())
+								
+								Button(action: toggleBandFavorite) {
+									Image(systemName: isFavorite ? "star.fill" : "star")
+										.foregroundStyle(isFavorite ? Color.accentColor : .secondary)
+										.frame(width: 40, height: 40)
+								}
+								.disabled(!isLoggedIn)
+								.buttonStyle(.plain)
+								.accessibilityLabel(localize(key: "favorite"))
+							}
 
 							AnyView(
 								HStack(alignment: .top, spacing: 20) {
@@ -188,7 +240,7 @@ struct BandDataView: View {
 									HStack(alignment: .firstTextBaseline, spacing: 4) {
 										Text("\(localize(key: "status")):")
 											.foregroundStyle(.secondary)
-										Text(band.status ?? "-")
+										Text(localize(key:(band.status?.lowercased())!))
 											.foregroundStyle(statusColor)
 									}
 									HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -261,29 +313,38 @@ struct BandDataView: View {
 
 							switch selectedTab {
 							case .members:
-								HStack(spacing: 4) {
-									ForEach(MemberFilter.allCases, id: \.self) { filter in
-										Button {
-											selectedMemberFilter = filter
-										} label: {
-											Text(localize(key: filter.localizationKey))
-												.frame(minWidth: 64)
-												.padding(.vertical, 6)
-												.padding(.horizontal, 4)
+									HStack{
+										HStack(spacing: 4) {
+											ForEach(MemberFilter.allCases, id: \.self) { filter in
+												Button {
+													selectedMemberFilter = filter
+												} label: {
+													Text(localize(key: filter.localizationKey))
+														.frame(minWidth: 64)
+														.padding(.vertical, 6)
+														.padding(.horizontal, 4)
+												}
+												.buttonStyle(.plain)
+												.background(
+													selectedMemberFilter == filter
+													? Color.primary.opacity(0.18)
+													: Color.clear
+												)
+												.clipShape(Capsule())
+											}
 										}
-										.buttonStyle(.plain)
-										.background(
-											selectedMemberFilter == filter
-												? Color.primary.opacity(0.18)
-												: Color.clear
-										)
+										.padding(4)
+										.background(Color.secondary.opacity(0.08))
 										.clipShape(Capsule())
+										.fixedSize(horizontal: true, vertical: false)
+										
+										Spacer()
+										Button(action:toggleArtistFavoriteAll){
+											Text(localize(key: "favorite_all"))
+										}.disabled(!isLoggedIn)
+											.buttonStyle(.glass)
 									}
-								}
-								.padding(4)
-								.background(Color.secondary.opacity(0.08))
-								.clipShape(Capsule())
-								.fixedSize(horizontal: true, vertical: false)
+									
 
 								Table(
 									columns: memberColumns,
@@ -337,12 +398,6 @@ struct BandDataView: View {
 						.padding(.horizontal, 12)
 						.padding(.vertical, 16)
 					}
-				} else {
-					Text(errorText.isEmpty ? localize(key: "something_wrong") : errorText)
-						.foregroundStyle(.red)
-						.frame(maxWidth: .infinity, maxHeight: .infinity)
-						.multilineTextAlignment(.center)
-						.padding()
 				}
 			}
 			.navigationBarTitleDisplayMode(.inline)
@@ -355,20 +410,20 @@ struct BandDataView: View {
 			) {
 				Button(localize(key: "ok"), role: .cancel) {}
 			} message: {
-				Text("These genres are computed automatically based on album genres and importance, so they might be unexpected.")
+				Text(localize(key:"band_genre_info"))
 			}
 		}
 	}
 
 	private func loadBand() async {
 		isLoading = true
-		errorText = ""
 
 		do {
-			band = try await BandClient().getBandWikiPageDataById(id: Int32(bandId))
+			let token = KeychainService.retrieveToken()
+			band = try await BandClient().getBandWikiPageDataById(id: Int32(bandId),token:token)
+			isFavorite = band?.favorite==true
 		} catch {
 			band = nil
-			errorText = error.localizedDescription
 		}
 		isLoading = false
 	}

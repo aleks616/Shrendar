@@ -487,4 +487,9 @@
     <string name="vocals">vocals</string>
     <string name="backing_vocals">backing vocals</string>
     <string name="present">Present</string>
+    <string name="disbanded">Disbanded</string>
+    <string name="on_hold">On hold</string>
+    <string name="unknown">Unknown</string>
+    <string name="favorite_all">Add all members\nto favorite</string>
+    <string name="band_genre_info">These are computed automatically based on album's genres and importance, so they might be unexpected.</string>
 </resources>

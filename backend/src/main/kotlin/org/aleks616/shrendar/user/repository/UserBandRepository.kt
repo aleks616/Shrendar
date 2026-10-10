@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface UserBandRepository:JpaRepository<UsersBands,Long> {
     fun findByBandAndUser(band:Band,user:User):UsersBands?
     fun findByUser(user:User):MutableList<UsersBands>
+    fun findByBandIdAndUser_Login(bandId:Int,userLogin:String):MutableList<UsersBands>
 }

@@ -1,6 +1,8 @@
 package com.example.client.band
 
 import com.example.client.BASE_URL
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -20,9 +22,15 @@ class BandApi private constructor(
     constructor():this(BASE_URL,createHttpClient())
     internal constructor(testClient:HttpClient):this(BASE_URL,testClient)
 
-    suspend fun getBandWikiPageDataById(id:Int):BandWikiDto{
-        return try{
-            client.get("$BASE_URL/band/wiki/$id").body()
+    init{
+        Napier.base(DebugAntilog("napier js"))
+    }
+    suspend fun getBandWikiPageDataById(id:Int,token:String?):BandWikiDto{
+        try{
+            val response:BandWikiDto=client.get("$BASE_URL/band/wiki/$id"){
+                header("Authorization","Bearer $token")
+            }.body()
+            return response
         }
         catch(e:ClientRequestException){
             if(e.response.status.value==404) throw Exception("not_found")
@@ -48,5 +56,5 @@ class BandApi private constructor(
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 object BandClient {
-    suspend fun getBandWikiPageDataById(id:Int):BandWikiDto=BandApi().getBandWikiPageDataById(id)
+    suspend fun getBandWikiPageDataById(id:Int,token:String?):BandWikiDto=BandApi().getBandWikiPageDataById(id,token)
 }

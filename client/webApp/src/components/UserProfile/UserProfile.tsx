@@ -21,6 +21,7 @@ import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
 import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
 import {DataTable} from "../DataTable/DataTable.tsx"
+import {toggleBandFavorite,toggleArtistFavorite,toggleGenreFavorite} from "../../helpers/toggleFavorite.tsx"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
@@ -78,24 +79,6 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
     const artistList=user.favoriteArtists!.asJsReadonlyArrayView()
     const genreList=user.favoriteGenres!.asJsReadonlyArrayView()
     const contributionList=user.contributions!.asJsReadonlyArrayView()
-
-    const toggleBandFavorite=async (id: number) => {
-        const token=localStorage.getItem("token")
-        const result=await ProfileClient.getInstance().toggleFavoriteBand(id,token)
-        if(result!="band_toggled") console.error(result)
-    }
-
-    const toggleArtistFavorite=async (id: bigint) => {
-        const token=localStorage.getItem("token")
-        const result=await ProfileClient.getInstance().toggleFavoriteArtist(id,token)
-        if(result!="artist_toggled") console.error(result)
-    }
-
-    const toggleGenreFavorite=async (id: number) => {
-        const token=localStorage.getItem("token")
-        const result=await ProfileClient.getInstance().toggleFavoriteGenre(id,token)
-        if(result!="genre_toggled") console.error(result)
-    }
 
     //todo: move to shared
     const translateDate=(date: string) => {
