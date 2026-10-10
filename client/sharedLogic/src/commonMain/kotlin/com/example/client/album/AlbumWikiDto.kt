@@ -1,8 +1,15 @@
-package org.aleks616.shrendar.album.model
+package com.example.client.album
 
-import org.aleks616.shrendar.genre.model.Genre
-import java.time.LocalDate
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
+import kotlinx.serialization.Serializable
+import kotlinx.datetime.LocalDate
+import com.example.client.Genre
+import com.example.client.common.BandDto
 
+@ExperimentalJsExport
+@JsExport
+@Serializable
 data class AlbumWikiDto(
     val id:Long?=null,
     val albumName:String?=null,

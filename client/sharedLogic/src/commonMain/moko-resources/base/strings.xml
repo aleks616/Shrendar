@@ -528,4 +528,7 @@
     <string name="chinese_zodiac_dog">Dog</string>
     <string name="chinese_zodiac_pig">Pig</string>
     <string name="days">days</string>
+    <string name="band">Band</string>
+    <string name="years_since">Years since</string>
+    <string name="anniversary_in">anniversary in</string>
 </resources>

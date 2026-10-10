@@ -540,6 +540,9 @@ class LocalText {
             "chinese_zodiac_dog"->MR.strings.chinese_zodiac_dog
             "chinese_zodiac_pig"->MR.strings.chinese_zodiac_pig
             "days"->MR.strings.days
+            "band"->MR.strings.band
+            "years_since"->MR.strings.years_since
+            "anniversary_in"->MR.strings.anniversary_in
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

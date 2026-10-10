@@ -530,4 +530,7 @@
     <string name="chinese_zodiac_dog">Pies</string>
     <string name="chinese_zodiac_pig">Świnia</string>
     <string name="days">dni</string>
+    <string name="band">Zespół</string>
+    <string name="years_since">Lata od wydania</string>
+    <string name="anniversary_in">rocznica za </string>
 </resources>
