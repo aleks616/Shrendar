@@ -8,6 +8,7 @@ import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.artist.service.ArtistWikiService
 import org.aleks616.shrendar.band.model.*
 import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
@@ -60,6 +61,7 @@ class BandControllerTest {
     private val bandWikiService:BandWikiService=mock(BandWikiService::class.java)
     private val countryService:CountryService=mock(CountryService::class.java)
     private val artistService:ArtistService=mock(ArtistService::class.java)
+    private val artistWikiService:ArtistWikiService=mock(ArtistWikiService::class.java)
     private val rateLimiter:RateLimiter=mock(RateLimiter::class.java)
 
     private val userBanService=mock(UserBanService::class.java)
@@ -71,7 +73,8 @@ class BandControllerTest {
         artistService,
         userBanService,
         albumService,
-        bandWikiService
+        bandWikiService,
+        artistWikiService
     )
     private val mockMvc:MockMvc=MockMvcBuilders.standaloneSetup(bandController).build()
     private val request=mock(HttpServletRequest::class.java)
@@ -120,7 +123,7 @@ class BandControllerTest {
     @Test
     fun `getBandByIdWiki should return wiki data`() {
         val wikiData=BandWikiDto(name="Metallica")
-        `when`(bandWikiService.getBandByIdWiki(1)).thenReturn(wikiData)
+        `when`(bandWikiService.getBandByIdWiki(1,"user")).thenReturn(wikiData)
 
         mockMvc.get("/api/band/wiki/1")
             .andExpect {
@@ -358,13 +361,13 @@ class BandControllerTest {
 
     @Test
     fun `getBandsByArtistId should return bands for artist`() {
-        val history=listOf(ArtistBandsHistoryDto(id=1,artistName="James Hetfield",bandName="Metallica"))
-        `when`(bandsMemberService.getBandsByArtistId(1)).thenReturn(history)
+        val history=listOf(ArtistBandsHistoryDto(memberId=1,bandName="Metallica"))
+        `when`(artistWikiService.getBandsByArtistId(1)).thenReturn(history)
 
         mockMvc.get("/api/band/artist/1")
             .andExpect {
                 status {isOk()}
-                content {json("[{'id':1,'artistName':'James Hetfield','bandName':'Metallica'}]")}
+                content {json("[{'memberId':1,'bandName':'Metallica'}]")}
             }
     }
 

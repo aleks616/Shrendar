@@ -27,7 +27,6 @@ export function BandData({strings}: { strings: Record<string,string> }){
             if(bandIdParam==null) return
             const token=localStorage.getItem("token")
             const bandData=await BandClient.getInstance().getBandWikiPageDataById(bandIdParam,token)
-            setIsLoading(false)
             if(bandData!=null){
                 setBand(bandData)
                 setShowingBandMembers(bandData.bandMembers!.asJsReadonlyArrayView())
@@ -36,6 +35,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
             else{
                 setBand(null)
             }
+            setIsLoading(false)
         }
         fetchData()
     },[bandIdParam])
@@ -67,7 +67,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
     const loggedIn=localStorage.getItem("token")!=null
     return (
         <div className={"flex flex-col gap-4 w-5xl mx-3"}>
-            <div className={"flex gap-2"}>
+            <header className={"flex gap-2"}> {/*header*/}
                 <Heading level={1}>{band.name}</Heading>
                 <ToggleButton
                     isDisabled={!loggedIn}
@@ -86,11 +86,11 @@ export function BandData({strings}: { strings: Record<string,string> }){
                         )
                     )}
                 </ToggleButton>
-            </div>
-            <div className={"flex w-full min-h-32 gap-6"}>
+            </header>
+            <main className={"flex w-full min-h-32 gap-6"}>
                 <div className={"flex flex-col"+(!isMobile?" w-9/12":"")}>
-                    <div className={"flex min-h-32"}>
-                        <div className={"w-5/9"}> {/*data column 1*/}
+                    <section className={"flex min-h-28"}>
+                        <div className={"w-5/9"}>
                             <p>
                                 <span className={"text-muted"}>{translate("country")}: </span>
                                 {translate(band.country!)}
@@ -103,7 +103,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                 <span className={"text-muted"}>{translate("years_active")}: </span>
                                 {band.formedYear} - {band.disbandedYear??translate("present")}
                             </p>
-                        </div>
+                        </div> {/*data column 1*/}
                         <div className={"w-4/9"}>
                             <span className={"text-muted"}>{translate("top_genres")}: </span>
                             <Tooltip delay={0}>
@@ -120,9 +120,8 @@ export function BandData({strings}: { strings: Record<string,string> }){
                             {bandGenres.map((genre,index) =>
                                 <p key={index}>-{genre.name} </p>
                             )}
-                        </div>
-                        {/*data column 2*/}
-                    </div>
+                        </div>{/*data column 2*/}
+                    </section>
 
                     {isMobile&&<div className={"max-w-xl flex justify-center my-6"}> {/*mobile image*/}
                         <img src={band.imageUrl!} alt={band.name!} className={"rounded-md"}/>
@@ -139,7 +138,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                         <img src={band.imageUrl!} alt={band.name!} className={"rounded-md"}/>
                     </div>
                 }
-            </div>
+            </main>
             <div className={isMobile?"w-96":"w-full"}>
                 <Tabs variant={"secondary"}>
                     <Tabs.ListContainer>
@@ -160,7 +159,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     </Tabs.ListContainer>
                     <Tabs.Panel id={"members"}>
                         <div className={"flex flex-col gap-4"}>
-                            <div className="flex items-center justify-between">
+                            <section className="flex items-center justify-between">
                                 <div
                                     role="radiogroup"
                                     aria-label="select band member type"
@@ -199,7 +198,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                                 >
                                     {translate("favorite_all")}
                                 </Button>
-                            </div>
+                            </section>
                             <DataTable
                                 columns={[
                                     {

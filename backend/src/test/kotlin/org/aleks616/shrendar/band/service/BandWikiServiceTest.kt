@@ -6,6 +6,7 @@ import org.aleks616.shrendar.band.repository.BandRepository
 import org.aleks616.shrendar.common.model.CountryDto
 import org.aleks616.shrendar.genre.model.GenreDto
 import org.aleks616.shrendar.genre.service.GenreService
+import org.aleks616.shrendar.user.repository.UserBandRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -19,6 +20,7 @@ class BandWikiServiceTest {
     private val bandService=mock(BandService::class.java)
     private val bandsMemberService=mock(BandsMemberService::class.java)
     private val albumRepository=mock(AlbumRepository::class.java)
+    private val userBandRepository=mock(UserBandRepository::class.java)
     private lateinit var service:BandWikiService
 
     @BeforeEach
@@ -37,7 +39,7 @@ class BandWikiServiceTest {
     fun `getBandByIdWiki should reject a missing band`() {
         `when`(bandService.doesBandExist(1)).thenReturn(false)
 
-        val exception=assertThrows<IllegalArgumentException> {service.getBandByIdWiki(1)}
+        val exception=assertThrows<IllegalArgumentException> {service.getBandByIdWiki(1,null)}
 
         assertEquals("band_not_exist",exception.message)
     }
@@ -60,7 +62,7 @@ class BandWikiServiceTest {
         `when`(albumRepository.findByBandId(1)).thenReturn(emptyList())
         `when`(bandService.getSimilarBands(1,8)).thenReturn(emptyList())
 
-        val result=service.getBandByIdWiki(1)
+        val result=service.getBandByIdWiki(1,null)
 
         assertEquals("Metallica",result.name)
         assertEquals(1981,result.formedYear)

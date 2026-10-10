@@ -10,7 +10,8 @@ import kotlin.js.JsExport
 @JsExport
 class LocalText {
     fun getStringResource(resourceKey:String):StringResource {
-        return when(resourceKey){
+        val lowerResourceKey=resourceKey.lowercase()
+        return when(lowerResourceKey){
             "greeting"->MR.strings.greeting
             "login_too_short"->MR.strings.login_too_short
             "login_too_long"->MR.strings.login_too_long
@@ -504,6 +505,41 @@ class LocalText {
             "unknown"->MR.strings.unknown
             "favorite_all"->MR.strings.favorite_all
             "band_genre_info"->MR.strings.band_genre_info
+            "age"->MR.strings.age
+            "birthday"->MR.strings.birthday
+            "death_anniversary"->MR.strings.death_anniversary
+            "next_in"->MR.strings.next_in
+            "gender"->MR.strings.gender
+            "male"->MR.strings.male
+            "female"->MR.strings.female
+            "no_bands"->MR.strings.no_bands
+            "zodiac_sign"->MR.strings.zodiac_sign
+            "chinese_zodiac_sign"->MR.strings.chinese_zodiac_sign
+            "zodiac_aries"->MR.strings.zodiac_aries
+            "zodiac_taurus"->MR.strings.zodiac_taurus
+            "zodiac_gemini"->MR.strings.zodiac_gemini
+            "zodiac_cancer"->MR.strings.zodiac_cancer
+            "zodiac_leo"->MR.strings.zodiac_leo
+            "zodiac_virgo"->MR.strings.zodiac_virgo
+            "zodiac_libra"->MR.strings.zodiac_libra
+            "zodiac_scorpio"->MR.strings.zodiac_scorpio
+            "zodiac_sagittarius"->MR.strings.zodiac_sagittarius
+            "zodiac_capricorn"->MR.strings.zodiac_capricorn
+            "zodiac_aquarius"->MR.strings.zodiac_aquarius
+            "zodiac_pisces"->MR.strings.zodiac_pisces
+            "chinese_zodiac_rat"->MR.strings.chinese_zodiac_rat
+            "chinese_zodiac_ox"->MR.strings.chinese_zodiac_ox
+            "chinese_zodiac_tiger"->MR.strings.chinese_zodiac_tiger
+            "chinese_zodiac_rabbit"->MR.strings.chinese_zodiac_rabbit
+            "chinese_zodiac_dragon"->MR.strings.chinese_zodiac_dragon
+            "chinese_zodiac_snake"->MR.strings.chinese_zodiac_snake
+            "chinese_zodiac_horse"->MR.strings.chinese_zodiac_horse
+            "chinese_zodiac_goat"->MR.strings.chinese_zodiac_goat
+            "chinese_zodiac_monkey"->MR.strings.chinese_zodiac_monkey
+            "chinese_zodiac_rooster"->MR.strings.chinese_zodiac_rooster
+            "chinese_zodiac_dog"->MR.strings.chinese_zodiac_dog
+            "chinese_zodiac_pig"->MR.strings.chinese_zodiac_pig
+            "days"->MR.strings.days
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

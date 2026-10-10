@@ -1,10 +1,13 @@
-package org.aleks616.shrendar.artist.model
+package com.example.client.artist
 
-import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
-import java.io.Serializable
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
-
+@ExperimentalJsExport
+@JsExport
+@Serializable
 data class ArtistWikiDto(
     val id:Long?=null,
     val name:String?=null,
@@ -19,6 +22,6 @@ data class ArtistWikiDto(
     val chineseZodiacSign:ChineseZodiacSign?=null,
     val description:String?=null,
     val artistImageUrl:String?=null,
-    val bands:List<ArtistBandsHistoryDto>?=null,
-    val favorite:Boolean?=null
-):Serializable
+    val bands:List<ArtistsBandsHistoryDto>?=null,
+    val favorite:Boolean=false
+)

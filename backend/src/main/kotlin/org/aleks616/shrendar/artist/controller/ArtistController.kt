@@ -3,6 +3,7 @@ package org.aleks616.shrendar.artist.controller
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.service.ArtistService
+import org.aleks616.shrendar.artist.service.ArtistWikiService
 import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
@@ -21,6 +22,7 @@ import java.time.LocalDate
 @RequestMapping("/api/artist")
 class ArtistController(
     private val artistService:ArtistService,
+    private val artistWikiService:ArtistWikiService,
     private val rateLimiter:RateLimiter,
     private val countryService:CountryService,
     private val bandsMemberService:BandsMemberService,
@@ -37,10 +39,12 @@ class ArtistController(
         return artistService.getById(id)
     }
 
-    //WIKI ARTIST PAGE 1/2
+    //WIKI ARTIST PAGE
     @GetMapping("/wiki/{id}")
     fun getByIdWiki(@PathVariable id:Long):ArtistWikiDto{
-        return artistService.getByIdWiki(id)
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        return artistWikiService.getByIdWiki(id,userLogin)
     }
 
     @GetMapping("/name")

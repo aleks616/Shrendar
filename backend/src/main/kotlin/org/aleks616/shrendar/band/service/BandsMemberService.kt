@@ -94,56 +94,6 @@ class BandsMemberService(
         return allData.filter {d-> d.artistId !in currentData.map {it.artistId}}
     }
 
-    fun getBandsByArtistId(id:Long):List<ArtistBandsHistoryDto>{
-        val dataRaw=bandsMemberRepository.findBandsByArtistId(id)
-        val data:List<ArtistBandsExtendedDto> =dataRaw.map {d->
-            ArtistBandsExtendedDto(
-                id=d.id,
-                artistId=d.artistId,
-                artistName=d.artistName,
-                bandId=d.bandId,
-                bandName=d.bandName,
-                role=d.role,
-                joinedYear=d.joinedYear,
-                leftYear=d.leftYear,
-                nickname=d.nickname,
-                yearRole=mutableListOf(),
-            )
-        }
-
-        val result:MutableList<ArtistBandsHistoryDto> =mutableListOf()
-        var found:Boolean
-
-        data.forEach { d->
-            found=false
-            val left:String=if(d.leftYear==null) "" else d.leftYear.toString()
-            val yearRole:String=if(d.joinedYear!=d.leftYear) ("${d.role} (${d.joinedYear}-${left})") else d.joinedYear.toString()
-            result.forEach {r->
-                if(r.bandId==d.bandId) {
-                    found=true
-                    r.yearRole?.add(yearRole)
-                }
-            }
-            if(!found){
-                d.yearRole?.add(yearRole)
-                result.add(
-                    ArtistBandsHistoryDto(
-                        id=d.id,
-                        artistId=d.artistId,
-                        artistName=d.artistName,
-                        bandId=d.bandId,
-                        bandName=d.bandName,
-                        nickname=d.nickname,
-                        yearRole=d.yearRole
-                    )
-                )
-            }
-        }
-
-
-        return result
-    }
-
     fun getArtistBandsList(id:Long):List<ArtistBandsStatusDto>{
         val dataRaw=bandsMemberRepository.findBandsByArtistId(id).sortedByDescending { it.leftYear?:9999}.distinctBy {it.bandId}
         return dataRaw.map { d->

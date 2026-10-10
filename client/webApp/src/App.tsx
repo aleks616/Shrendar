@@ -8,6 +8,7 @@ import {ProfilePage} from "./pages/ProfilePage"
 import {SetPassword} from "./pages/SetPassword"
 import {UserSettings} from "./pages/UserSettings"
 import {BandWikiPage} from "./pages/BandWikiPage"
+import {ArtistWikiPage} from "./pages/ArtistWikiPage";
 
 const routes=[
     {path:'/',element:<Home/>},
@@ -17,6 +18,7 @@ const routes=[
     {path:'/reset-password',element:<SetPassword/>},
     {path:'/u/:user',element:<ProfilePage/>},
     {path:'/band/:band',element:<BandWikiPage/>},
+    {path:'/artist/:artist',element:<ArtistWikiPage/>},
     {path:'/settings',element:<UserSettings/>},
     {path:'*',element:<NotFound/>},
 ]
