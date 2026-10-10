@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from "react"
 import {AlbumClient,AlbumWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Heading,Spinner} from "@heroui/react";
+import {Heading,Link,Spinner} from "@heroui/react";
 import {isMobile} from "react-device-detect";
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx";
 
@@ -53,7 +53,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                         <div className={"w-5/9"}>
                             <p>
                                 <span className={"text-muted"}>{translate("band")}: </span>
-                                {album.band?.name??"-"}
+                                <Link href={`../band/${album.band?.id}`}>{album.band?.name??"-"}</Link>
                             </p>
                             <p>
                                 <span className={"text-muted"}>{translate("release_date")}: </span>
