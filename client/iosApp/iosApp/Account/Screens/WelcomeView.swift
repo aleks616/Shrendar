@@ -41,7 +41,7 @@ struct WelcomeView: View {
 				.cornerRadius(25)
 				.padding(.horizontal, 20)
 
-				NavigationLink(destination: BandDataView(bandId:21)) {
+				NavigationLink(destination: ArtistDataView(artistId:144)) {
 					Text(localize(key: "account_already")).frame(maxWidth: .infinity)
 				}
 				.accessibilityIdentifier("welcome.signIn")

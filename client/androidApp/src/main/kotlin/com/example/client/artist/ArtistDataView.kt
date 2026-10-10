@@ -164,6 +164,9 @@ fun ArtistDataView(
                             Text(
                                 text=if(artistData.daysTillBirthday!=null) artistData.daysTillBirthday.toString() else "-",
                             )
+                            Text(
+                                text=" "+stringResource(LocalText().getStringResource("days"))
+                            )
                         }
                         if(isDead) {
                             Row {
@@ -180,6 +183,9 @@ fun ArtistDataView(
                                 )
                                 Text(
                                     text=artistData.daysTillDeathAnniversary.toString(),
+                                )
+                                Text(
+                                    text=" "+stringResource(LocalText().getStringResource("days"))
                                 )
                             }
                         }

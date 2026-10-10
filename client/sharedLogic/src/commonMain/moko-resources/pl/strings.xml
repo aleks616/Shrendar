@@ -529,4 +529,5 @@
     <string name="chinese_zodiac_rooster">Kogut</string>
     <string name="chinese_zodiac_dog">Pies</string>
     <string name="chinese_zodiac_pig">Świnia</string>
+    <string name="days">dni</string>
 </resources>

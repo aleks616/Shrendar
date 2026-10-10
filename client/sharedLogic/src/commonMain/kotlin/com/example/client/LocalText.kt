@@ -10,7 +10,8 @@ import kotlin.js.JsExport
 @JsExport
 class LocalText {
     fun getStringResource(resourceKey:String):StringResource {
-        return when(resourceKey){
+        val lowerResourceKey=resourceKey.lowercase()
+        return when(lowerResourceKey){
             "greeting"->MR.strings.greeting
             "login_too_short"->MR.strings.login_too_short
             "login_too_long"->MR.strings.login_too_long
@@ -538,6 +539,7 @@ class LocalText {
             "chinese_zodiac_rooster"->MR.strings.chinese_zodiac_rooster
             "chinese_zodiac_dog"->MR.strings.chinese_zodiac_dog
             "chinese_zodiac_pig"->MR.strings.chinese_zodiac_pig
+            "days"->MR.strings.days
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
