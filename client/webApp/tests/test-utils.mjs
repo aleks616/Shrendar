@@ -7,6 +7,31 @@ import {fileURLToPath} from "node:url"
 
 const webAppRoot=fileURLToPath(new URL("..",import.meta.url))
 
+globalThis.localStorage={
+    getItem(){ return null },
+    setItem(){},
+    removeItem(){},
+}
+
+const defaultStrings={
+    logout: "Log out",
+    create_account: "Create account",
+    sign_up_to_continue: "Sign Up to Continue",
+    email_address: "E-mail address",
+    login: "Login",
+    password: "Password",
+    re_enter_password: "Repeat password",
+    sign_up: "Sign Up",
+    or: "or",
+    sign_in: "Sign in",
+    login_email: "Login or e-mail address",
+    forgot_password_question: "Forgot password?",
+    reset_password: "Reset password",
+    create_new_password: "Create new password",
+    change_password: "Change password",
+    something_wrong: "Something went wrong. Try again later.",
+}
+
 const testMocks={
     name: "shrendar-component-test-mocks",
     enforce: "pre",
@@ -127,11 +152,14 @@ export async function createComponentTestServer(){
 
 export async function renderComponent(server,modulePath,exportName,props={}){
     const componentModule=await server.ssrLoadModule(modulePath)
+    const componentProps=props.strings===undefined
+        ? {...props,strings: defaultStrings}
+        : props
     return renderToStaticMarkup(
         React.createElement(
             MemoryRouter,
             null,
-            React.createElement(componentModule[exportName],props),
+            React.createElement(componentModule[exportName],componentProps),
         ),
     )
 }

@@ -15,8 +15,8 @@ after(async () => {
 test("renders the registration fields and disables submission while empty",async function testRendersRegistrationFormInitiallyDisabled(){
     const markup=await renderComponent(
         server,
-        "/src/components/Register/Register.tsx",
-        "Register",
+        "/src/components/RegisterForm/RegisterForm.tsx",
+        "RegisterForm",
     )
 
     assert.match(markup,/Create account/)

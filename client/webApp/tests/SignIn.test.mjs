@@ -15,8 +15,8 @@ after(async () => {
 test("renders the sign-in fields and disables submission while empty",async function testRendersSignInFormInitiallyDisabled(){
     const markup=await renderComponent(
         server,
-        "/src/components/SignIn/SignIn.tsx",
-        "SignIn",
+        "/src/components/SignInForm/SignInForm.tsx",
+        "SignInForm",
     )
 
     assert.match(markup,/Sign in/)
