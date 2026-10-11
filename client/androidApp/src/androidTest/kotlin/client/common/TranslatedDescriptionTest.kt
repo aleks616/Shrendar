@@ -1,10 +1,6 @@
 package client.common
 
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.*
 import com.example.client.common.TranslatedDescription
 import kotlin.test.Test
 

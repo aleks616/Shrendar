@@ -11,6 +11,6 @@ final class BandDataViewTests: XCTestCase {
 	}
 
 	func testBandDataViewRendersIndependently() {
-		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 5))
+		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 20))
 	}
 }

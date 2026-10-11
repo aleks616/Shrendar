@@ -7,6 +7,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.test.runTest
+import kotlin.js.ExperimentalJsExport
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -38,6 +39,7 @@ class LlmApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun translateThrowsNotFoundWhenTheBackendReturns404() {
         runTest {

@@ -1,15 +1,7 @@
 package client.account.screens
 
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNode
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.*
+import com.example.client.account.screens.RequestPasswordResetView
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)

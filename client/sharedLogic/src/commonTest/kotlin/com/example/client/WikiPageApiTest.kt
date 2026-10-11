@@ -10,11 +10,13 @@ import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
+import kotlin.js.ExperimentalJsExport
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class WikiPageApiTest {
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun albumApiLoadsAlbumData() {
         runTest {
@@ -32,7 +34,7 @@ class WikiPageApiTest {
                 val result=AlbumApi(client).getAlbumWikiPageData(255)
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/album/wiki/255",request?.url?.toString())
+                assertEquals("https://shrendar.shares.zrok.io/api/album/wiki/255",request?.url?.toString())
                 assertEquals("Once",result.albumName)
                 assertEquals("Nightwish",result.band?.name)
                 assertEquals("2004-06-07",result.releaseDate.toString())
@@ -64,6 +66,7 @@ class WikiPageApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun albumApiThrowsTheResponseBodyForOtherClientErrors() {
         runTest {
@@ -84,6 +87,7 @@ class WikiPageApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun artistApiLoadsArtistData() {
         runTest {
@@ -101,8 +105,8 @@ class WikiPageApiTest {
                 val result=ArtistApi(client).getArtistWikiPageDataById(144L,"token")
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/artist/wiki/144",request?.url?.toString())
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("https://shrendar.shares.zrok.io/api/artist/wiki/144",request?.url?.toString())
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("Floor Jansen",result.name)
                 assertEquals("1981-02-21",result.birthDate.toString())
                 assertEquals(ZodiacSign.PISCES,result.zodiacSign)
@@ -136,6 +140,7 @@ class WikiPageApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun artistApiThrowsTheResponseBodyForOtherClientErrors() {
         runTest {
@@ -156,6 +161,7 @@ class WikiPageApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun bandApiLoadsBandData() {
         runTest {
@@ -173,8 +179,8 @@ class WikiPageApiTest {
                 val result=BandApi(client).getBandWikiPageDataById(21,"token")
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/band/wiki/21",request?.url?.toString())
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("https://shrendar.shares.zrok.io/api/band/wiki/21",request?.url?.toString())
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("Nightwish",result.name)
                 assertEquals("Symphonic metal",result.computedGenres?.single()?.name)
                 assertEquals("Floor Jansen",result.bandMembers?.single()?.artistName)
@@ -228,6 +234,7 @@ class WikiPageApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun eventApiLoadsEventData() {
         runTest {
@@ -245,7 +252,7 @@ class WikiPageApiTest {
                 val result=EventApi(client).getEventData(2)
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/event/2",request?.url?.toString())
+                assertEquals("https://shrendar.shares.zrok.io/api/event/2",request?.url?.toString())
                 assertEquals("Wacken 2005",result.name)
                 assertEquals("Nightwish",result.bandName)
                 assertEquals("2005-08-01",result.date.toString())

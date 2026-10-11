@@ -1,19 +1,6 @@
 package com.example.client.account.screens
 
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNode
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.*
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

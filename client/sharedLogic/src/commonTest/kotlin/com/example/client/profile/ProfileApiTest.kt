@@ -8,11 +8,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.test.runTest
+import kotlin.js.ExperimentalJsExport
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class ProfileApiTest {
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun getUserProfileSendsTheProfileRequestAndParsesTheResponse() {
         runTest {
@@ -43,8 +45,8 @@ class ProfileApiTest {
                 val result=ProfileApi(client).getUserProfile("alice","token")
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/user/@alice",request?.url?.toString())
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("https://shrendar.shares.zrok.io/api/user/@alice",request?.url?.toString())
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("alice",result?.login)
                 assertEquals("Alice",result?.username)
                 assertEquals(3,result?.rankId)
@@ -92,7 +94,7 @@ class ProfileApiTest {
                 assertEquals("band_toggled",ProfileApi(client).toggleFavoriteBand(21,"token"))
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/band/favorite",request?.url?.encodedPath)
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("21",(request?.body as TextContent).text)
             }
             finally {
@@ -130,7 +132,7 @@ class ProfileApiTest {
                 assertEquals("artist_toggled",ProfileApi(client).toggleFavoriteArtist(144L,"token"))
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/artist/favorite",request?.url?.encodedPath)
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("144",(request?.body as TextContent).text)
             }
             finally {
@@ -168,7 +170,7 @@ class ProfileApiTest {
                 assertEquals("genre_toggled",ProfileApi(client).toggleFavoriteGenre(7,"token"))
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/genre/favorite",request?.url?.encodedPath)
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("7",(request?.body as TextContent).text)
             }
             finally {
@@ -206,7 +208,7 @@ class ProfileApiTest {
                 assertEquals("artist_toggled",ProfileApi(client).toggleFavoriteArtistAll(21,"token"))
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/artist/favoriteAll",request?.url?.encodedPath)
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("21",(request?.body as TextContent).text)
             }
             finally {
@@ -244,8 +246,8 @@ class ProfileApiTest {
                 assertEquals("bio_added",ProfileApi(client).updateBio("Updated bio","token"))
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/user-account/bio/add",request?.url?.encodedPath)
-                assertEquals("******",request?.headers?.get("Authorization"))
-                assertEquals("\"Updated bio\"",(request?.body as TextContent).text)
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
+                assertEquals("Updated bio",(request?.body as TextContent).text)
             }
             finally {
                 client.close()

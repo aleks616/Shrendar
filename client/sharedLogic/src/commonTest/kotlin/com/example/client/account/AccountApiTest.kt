@@ -9,6 +9,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.test.runTest
+import kotlin.js.ExperimentalJsExport
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -31,7 +32,7 @@ class AccountApiTest {
 
                 assertEquals("login_success",result)
                 assertEquals(HttpMethod.Post,request?.method)
-                assertEquals("http://localhost:9876/user-account/login",request?.url?.toString())
+                assertEquals("https://shrendar.shares.zrok.io/api/user-account/login",request?.url?.toString())
                 assertTrue((request?.body as TextContent).text.contains("\"login\":\"alice\""))
             }
             finally {
@@ -90,8 +91,8 @@ class AccountApiTest {
             try {
                 assertEquals("logged_out",AccountApi(client).logout("token"))
                 assertEquals(HttpMethod.Post,request?.method)
-                assertEquals("http://localhost:9876/user-account/logout",request?.url?.toString())
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("https://shrendar.shares.zrok.io/api/user-account/logout",request?.url?.toString())
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
             }
             finally {
                 client.close()
@@ -205,6 +206,7 @@ class AccountApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun resetPasswordReturnsNotFoundForANotFoundResponse() {
         runTest {
@@ -247,6 +249,7 @@ class AccountApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun getUserDataSendsTheAuthorizedRequestAndParsesTheResponse() {
         runTest {
@@ -264,8 +267,8 @@ class AccountApiTest {
                 val result=AccountApi(client).getUserData("token")
 
                 assertEquals(HttpMethod.Get,request?.method)
-                assertEquals("http://localhost:9876/user-account/me",request?.url?.toString())
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("https://shrendar.shares.zrok.io/api/user-account/me",request?.url?.toString())
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 assertEquals("alice",result.login)
                 assertEquals("Alice",result.username)
                 assertEquals("alice@example.com",result.email)
@@ -279,6 +282,7 @@ class AccountApiTest {
         }
     }
 
+    @OptIn(ExperimentalJsExport::class)
     @Test
     fun getUserDataReturnsAnEmptyUserWhenTheRequestFails() {
         runTest {
@@ -355,7 +359,7 @@ class AccountApiTest {
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/user-account/updateUsername",request?.url?.encodedPath)
                 assertEquals("new-user",request?.url?.parameters?.get("newUsername"))
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
             }
             finally {
                 client.close()
@@ -393,7 +397,7 @@ class AccountApiTest {
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/user-account/updateEmail",request?.url?.encodedPath)
                 assertEquals("new@example.com",request?.url?.parameters?.get("newEmail"))
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
             }
             finally {
                 client.close()
@@ -431,7 +435,7 @@ class AccountApiTest {
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/user-account/addBirthday",request?.url?.encodedPath)
                 assertEquals("1995-02-03",request?.url?.parameters?.get("stringDate"))
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
             }
             finally {
                 client.close()
@@ -478,7 +482,7 @@ class AccountApiTest {
                 assertEquals(HttpMethod.Post,request?.method)
                 assertEquals("/api/user-account/deleteAccount",request?.url?.encodedPath)
                 assertEquals("EN",request?.url?.parameters?.get("lang"))
-                assertEquals("******",request?.headers?.get("Authorization"))
+                assertEquals("Bearer token",request?.headers?.get("Authorization"))
                 val body=(request?.body as TextContent).text
                 assertTrue(body.contains("\"login\":\"alice\""))
                 assertTrue(body.contains("\"password\":\"Password1!\""))

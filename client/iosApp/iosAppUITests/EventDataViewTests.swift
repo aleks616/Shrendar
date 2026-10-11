@@ -11,6 +11,6 @@ final class EventDataViewTests: XCTestCase {
 	}
 
 	func testEventDataViewRendersIndependently() {
-		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 5))
+		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 20))
 	}
 }

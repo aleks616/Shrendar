@@ -31,7 +31,7 @@ final class RegisterViewTests: XCTestCase {
 		
 		let password = app.secureTextFields["register.password"]
 		password.tap()
-		password.typeText("Test1234a")
+		password.typeText("Test1234a") //fails with  a weird error
 		let confirmPassword = app.secureTextFields["register.confirmPassword"]
 		confirmPassword.tap()
 		confirmPassword.typeText("Test1234a")

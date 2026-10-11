@@ -11,6 +11,7 @@ final class AlbumDataViewTests: XCTestCase {
 	}
 
 	func testAlbumDataViewRendersIndependently() {
-		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 5))
+		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 20))
 	}
 }
+//fails

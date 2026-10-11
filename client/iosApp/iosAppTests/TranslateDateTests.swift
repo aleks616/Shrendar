@@ -17,9 +17,9 @@ final class TranslateDateTests: XCTestCase {
     }
 
     func testTranslatesRelativeDates() {
-        XCTAssertEqual(
-            translateDate("5 days"),
-            "5 \(localize(key: \"days\")) \(localize(key: \"time_ago\"))"
-        )
+		 XCTAssertEqual(
+			translateDate("5 days"),
+			"5 \(localize(key: "days")) \(localize(key: "time_ago"))"
+		 )
     }
 }

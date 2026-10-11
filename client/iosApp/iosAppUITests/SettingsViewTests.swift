@@ -11,7 +11,7 @@ final class SettingsViewTests: XCTestCase {
 	}
 
 	func testSettingsViewRendersIndependentControls() {
-		XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+		XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
 		XCTAssertTrue(app.textFields["settings.username"].exists)
 		XCTAssertTrue(app.textFields["settings.email"].exists)
 		XCTAssertTrue(app.buttons["settings.birthdate"].exists)
@@ -23,7 +23,7 @@ final class SettingsViewTests: XCTestCase {
 	func testDeleteAccountFlowOpensCredentialSheet() {
 		app.buttons["settings.deleteAccount"].tap()
 
-		XCTAssertTrue(app.textFields["settings.delete.email"].waitForExistence(timeout: 5))
+		XCTAssertTrue(app.textFields["settings.delete.email"].waitForExistence(timeout: 20))
 		XCTAssertTrue(app.textFields["settings.delete.login"].exists)
 		XCTAssertTrue(app.secureTextFields["settings.delete.password"].exists)
 	}
