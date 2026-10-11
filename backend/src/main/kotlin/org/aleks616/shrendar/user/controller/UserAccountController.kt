@@ -2,14 +2,22 @@ package org.aleks616.shrendar.user.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.SupportedLanguages
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
+import org.aleks616.shrendar.exception.ReusedPasswordException
 import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.user.model.LoginRequestDto
 import org.aleks616.shrendar.user.model.RegisterRequestDto
 import org.aleks616.shrendar.user.model.ResetPasswordDto
+import org.aleks616.shrendar.user.model.UserDto
 import org.aleks616.shrendar.user.model.UsersDto
+import org.aleks616.shrendar.security.GoogleLoginRequestDto
+import org.aleks616.shrendar.user.model.CustomDate
+import org.aleks616.shrendar.user.model.toCustomDate
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,18 +33,33 @@ class UserAccountController(
     private val rateLimiter:RateLimiter,
     private val tokenBlacklistService:TokenBlacklistService
 ) {
+    @GetMapping("/loginCheck")
+    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(login))
+
+    @GetMapping("/emailCheck")
+    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
+
     @PostMapping("/register")
     fun register(@RequestBody request:RegisterRequestDto,servletRequest:HttpServletRequest):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
-        return if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts from this IP")
-        else if(!rateLimiter.allowRequest("reg:email:${request.email}",5,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many registration attempts for this email")
-        else if(userAccountService.initiateRegistration(request))
-            ResponseEntity.ok("Verification code sent to email if not already registered")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Cannot initiate registration: email/login may exist or rate-limited")
+        if(!rateLimiter.allowRequest("reg:ip:$ip",10,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+        if(!rateLimiter.allowRequest("reg:email:${request.email}",5,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+        try{
+            userAccountService.initiateRegistration(request)
+            return ResponseEntity.ok("verification_code_sent")
+        }
+        catch(_:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_email_requests")
+        }
+        catch(e:ForbiddenLoginException){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.message) //todo add strings
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/register/confirm")
@@ -46,46 +69,92 @@ class UserAccountController(
         servletRequest:HttpServletRequest
     ):ResponseEntity<String> {
         val ip=servletRequest.remoteAddr?:"unknown"
-        return if(!rateLimiter.allowRequest("regconfirm:ip:$ip",10,60))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many confirmation attempts from this IP")
-        else if(userAccountService.createUser(request,code))
-            ResponseEntity.ok("Account created and verified")
-        else
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid code or registration could not be completed")
+        if(!rateLimiter.allowRequest("regconfirm:ip:$ip",10,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+        try{
+            userAccountService.createUser(request,code)
+            return ResponseEntity.ok("account_created")
+        }
+        catch(e:InvalidOTPCodeException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/requestPasswordReset")
-    fun requestPasswordReset(@RequestParam accountKey:String):ResponseEntity<String> {
-        return if(!rateLimiter.allowRequest("reset:acct:$accountKey",1,240))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many reset passwords attempts")
+    fun requestPasswordReset(@RequestParam accountKey:String,@RequestParam language:SupportedLanguages):ResponseEntity<String> {
+        if(!rateLimiter.allowRequest("reset:acct:$accountKey",3,240))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         else if(!userAccountService.doesAccountExist(accountKey))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found")
-        else if(userAccountService.requestPasswordReset(accountKey))
-            ResponseEntity.ok("Password reset code sent to email")
-        else ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body("Could not send password reset code, try again in 5 minutes")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        try{
+            userAccountService.requestPasswordReset(accountKey,language)
+            return ResponseEntity.ok("password_link_sent")
+        }
+        catch(_:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
+        }
+        catch(_:IllegalArgumentException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/resetPassword")
-    fun resetPassword(@RequestBody request:ResetPasswordDto,@RequestParam code:String):ResponseEntity<String> {
-        return if(!rateLimiter.allowRequest("reset:acct:${request.email}",2,240))
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests")
-        else if(userAccountService.changePassword(request.email,request.newPassword,code))
-            ResponseEntity.ok("Password changed successfully")
-        else ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not change password, try again later")
+    fun resetPassword(@RequestBody request:ResetPasswordDto):ResponseEntity<String> {
+        if(!rateLimiter.allowRequest("reset:acct:${request.email}",10,240))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
+        try{
+            userAccountService.changePassword(request)
+            return ResponseEntity.ok("password_changed")
+        }
+        catch(e:InvalidOTPCodeException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(_:IllegalArgumentException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("account_not_found")
+        }
+        catch(e:ReusedPasswordException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/login")
     fun login(@RequestBody request:LoginRequestDto,servletRequest:HttpServletRequest):ResponseEntity<Any> {
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("login:ip:$ip",10,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(mapOf("error" to "Too many login attempts"))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         val accountKey=request.email?:request.login?:"unknown"
         if(!rateLimiter.allowRequest("login:acct:$accountKey",5,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(mapOf("error" to "Too many login attempts"))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         val subject=userAccountService.authenticate(request)?:return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(mapOf("error" to "Invalid credentials"))
+            .body("invalid_credentials")
+        val token=JwtUtil.createToken(subject)
+        return ResponseEntity.ok(mapOf("token" to token))
+    }
+
+    @PostMapping("/with-google")
+    fun loginWithGoogle(
+        @RequestBody request:GoogleLoginRequestDto,
+        servletRequest:HttpServletRequest
+    ):ResponseEntity<Any> {
+        val ip=servletRequest.remoteAddr?:"unknown"
+        if(!rateLimiter.allowRequest("login:ip:$ip",Utils.LIMIT_BASIC,60))
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
+
+        val subject=userAccountService.authenticateWithGoogle(request.googleToken)
+            ?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("google_error")
         val token=JwtUtil.createToken(subject)
         return ResponseEntity.ok(mapOf("token" to token))
     }
@@ -98,94 +167,136 @@ class UserAccountController(
             tokenBlacklistService.blacklistToken(token)
 
             SecurityContextHolder.clearContext()
-            return ResponseEntity.ok("Logged out")
+            return ResponseEntity.ok("logged_out")
         }
-        return ResponseEntity.badRequest().body("No token provided")
+        return ResponseEntity.badRequest().body("no_token")
     }
 
     @PostMapping("/updateUsername")
-    fun updateUsername(@RequestParam email:String,@RequestParam newUsername:String):ResponseEntity<String> {
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
-        else if(userAccountService.doesAccountExist(newUsername))
-            ResponseEntity.status(HttpStatus.CONFLICT).body("New username is taken")
-        else if(!userAccountService.changeUsername(email,newUsername))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username has been changed in last 90 days")
-        else
-            ResponseEntity.ok("Username changed")
+    fun updateUsername(@RequestParam newUsername:String):ResponseEntity<String> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        try{
+            userAccountService.changeUsername(user.email!!,newUsername)
+            return ResponseEntity.ok("username_changed")
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     @PostMapping("/updateEmail")
-    fun updateEmail(@RequestParam email:String,@RequestParam newEmail:String):ResponseEntity<String> {
-        if(!userAccountService.doesAccountExist(email))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
-        else if(userAccountService.doesAccountExist(newEmail))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("There's already an account associated with $newEmail.")
-        userAccountService.changeEmail(email,newEmail)
-        return ResponseEntity.ok("Email changed")
+    fun updateEmail(@RequestParam newEmail:String):ResponseEntity<String> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(userAccountService.doesAccountExist(newEmail))
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("new_email_exists")
+        userAccountService.changeEmail(user.email!!,newEmail)
+        return ResponseEntity.ok("email_change")
     }
 
     @PostMapping("/addBirthday")
-    fun addBirthday(@RequestParam email:String, @RequestParam date:LocalDate): ResponseEntity<String>{
-        return if(!userAccountService.doesAccountExist(email))
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found")
-        else if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User too young")
+    fun addBirthday(@RequestParam stringDate:String):ResponseEntity<String>{
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        val date=LocalDate.parse(stringDate)
+        if(ChronoUnit.YEARS.between(date,LocalDate.now())<13){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("user_too_young")
         }
-        else if(!userAccountService.addBirthday(email,date))
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong. Can't add birthday")
-        else ResponseEntity.ok("Birthday added")
+        try{
+            userAccountService.addBirthday(user.email!!,date)
+            return ResponseEntity.ok("birthday_added")
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
     }
 
     /**requires email**/
     @PostMapping("/deleteAccount")
-    fun deleteAccount(@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
-        userAccountService.authenticate(request,false)
-        userAccountService.requestDeletion(request.email!!)
+    fun deleteAccount(@RequestParam lang:SupportedLanguages,@RequestBody request:LoginRequestDto):ResponseEntity<Any> {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(user.login!=userLogin)
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("invalid_credentials")
 
-        return ResponseEntity.ok("Confirmed")
+        if(userAccountService.authenticate(request,false)==null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid_credentials")
+        try{
+            userAccountService.requestDeletion(user.email!!,lang)
+        }
+        catch(e:IllegalStateException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+        }
+        catch(e:Exception){
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
+        }
+
+        return ResponseEntity.ok("confirmed")
     }
 
     @PostMapping("/bio/add")
     fun addBio(@RequestBody bio:String, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_BASIC,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
 
         try{
             userAccountService.addBio(bio,userLogin)
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
 
-        return ResponseEntity.ok("Bio added")
+        return ResponseEntity.ok("bio_added")
     }
-
-    @GetMapping("/loginCheck")
-    fun doesLoginExist(@RequestParam login:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(login))
-
-    @GetMapping("/emailCheck")
-    fun doesEmailExist(@RequestParam email:String):ResponseEntity<Boolean> = ResponseEntity.ok(userAccountService.doesAccountExist(email))
 
     @GetMapping("/users")
     fun getUsers():ResponseEntity<List<UsersDto>>{
-        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something went wrong")
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=userAuth.name
-        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user not found")
-        if(user.rank.id < 10) throw RankTooLowException("You can't view this data")
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        if(user.rank.id<10) throw RankTooLowException("cant_view")
 
         return ResponseEntity.ok(userAccountService.getUsersDto())
     }
 
+    @GetMapping("/me")
+    fun getUserData():UserDto {
+        val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=userAuth.name
+        val user=userAccountService.getUserByLogin(userLogin)?:throw IllegalStateException("user_not_exist")
+        return UserDto(
+            login=user.login,
+            username=user.username,
+            email=user.email,
+            birthDate=user.birthDate?.toCustomDate(),
+            rankId=user.rank.id,
+            xp=user.xp
+        )
+    }
+
     @ExceptionHandler(RankTooLowException::class)
     fun handleRankTooLowException():ResponseEntity<String>{
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Page not found")
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("page_not_found")
     }
 }

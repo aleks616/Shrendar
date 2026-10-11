@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@custom-variant dark (&:is(.dark *));
+
+:root[data-theme="light"] {
+    --accent: #5F55EC;
+}
+
+:root[data-theme="dark"]{
+    --accent: #7A91FA;
+}
+
+html{
+    scrollbar-gutter: stable;
+}

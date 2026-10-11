@@ -18,6 +18,8 @@ import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
+import org.aleks616.shrendar.event.model.Event
+import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
 import org.aleks616.shrendar.user.model.User
@@ -50,6 +52,7 @@ class HomePageServiceTest {
     private val bandService=mock(BandService::class.java)
     private val artistRepository=mock(ArtistRepository::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
+    private val eventRepository=mock(EventRepository::class.java)
     private lateinit var service:HomePageService
     private lateinit var user:User
 
@@ -58,7 +61,7 @@ class HomePageServiceTest {
         service=HomePageService(
             albumService,artistService,bandsMemberRepository,userBandRepository,userAccountService,
             countryRepository,userArtistRepository,albumRepository,userGenreRepository,genreRepository,
-            bandService,artistRepository,contributionRepository
+            bandService,artistRepository,contributionRepository,eventRepository
         )
         user=User().apply { id=1; login="tester" }
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(user)
@@ -100,7 +103,7 @@ class HomePageServiceTest {
     }
 
     @Test
-    fun `favorite upcoming artists exclude todays birthday and death and include near and later anniversaries`() {
+    fun `favorite upcoming artists exclude today's birthday and death and include near and later anniversaries`() {
         val birthdayArtists=(1..4).map { artist(it.toLong(),LocalDate.now().plusDays(it.toLong())) }+
             listOf(
                 artist(5,LocalDate.now().plusDays(10)),
@@ -150,6 +153,28 @@ class HomePageServiceTest {
     }
 
     @Test
+    fun `event anniversaries map dated events, ignore undated events, and limit results`() {
+        val today=LocalDate.now()
+        val events=(1..6).map {event(it,today.minusYears(it.toLong()))}+event(7,null)
+        `when`(eventRepository.findEventsByAnniversary(today.monthValue,today.dayOfMonth)).thenReturn(events)
+
+        val result=service.getEventAnniversariesToday()
+
+        verify(eventRepository).findEventsByAnniversary(today.monthValue,today.dayOfMonth)
+        assertEquals(5,result.size)
+        assertFalse(result.any {it.id==7})
+        result.forEach {dto->
+            val source=events.single {it.id==dto.id}
+            assertEquals(source.band.id,dto.bandId)
+            assertEquals(source.band.name,dto.bandName)
+            assertEquals(source.date,dto.date)
+            assertEquals(source.name,dto.name)
+            assertEquals(source.description,dto.description)
+            assertEquals(source.date!!.until(today).years,dto.yearsSince)
+        }
+    }
+
+    @Test
     fun `favorite album anniversaries reject unknown users and return empty without favorite bands`() {
         `when`(userAccountService.getUserByLogin("missing")).thenReturn(null)
         assertThrows<IllegalArgumentException> {service.getUpcomingFavoriteAlbumAnniversaries("missing")}
@@ -182,9 +207,11 @@ class HomePageServiceTest {
         val album=album(1,band(1),today)
         val birthday=ArtistAnniversaryDto(id=2,name="Birthday")
         val death=ArtistAnniversaryDto(id=3,name="Death")
+        val event=event(4,today.minusYears(10))
         `when`(albumRepository.findByReleaseDateMonthAndDay(today.monthValue,today.dayOfMonth)).thenReturn(listOf(album))
         `when`(artistService.getByBirthday(today.monthValue,today.dayOfMonth)).thenReturn(mutableListOf(birthday))
         `when`(artistService.getByDeathDate(today.monthValue,today.dayOfMonth)).thenReturn(mutableListOf(death))
+        `when`(eventRepository.findEventsByAnniversary(today.monthValue,today.dayOfMonth)).thenReturn(listOf(event))
 
         val result=service.getTodayAnniversariesNoAuth()
 
@@ -192,6 +219,7 @@ class HomePageServiceTest {
         assertEquals(listOf(birthday),result.favoriteArtistsBirthdays)
         assertEquals(listOf(death),result.favoriteArtistsDeathAnniversaries)
         assertNull(result.recommendedArtistBirthdays)
+        assertEquals(listOf(4),result.eventAnniversaries!!.mapNotNull {it.id})
     }
 
     @Test
@@ -210,7 +238,7 @@ class HomePageServiceTest {
     }
 
     @Test
-    fun `other band member anniversaries include todays artists and birthday entries are distinct`() {
+    fun `other band member anniversaries include today's artists and birthday entries are distinct`() {
         val band=band(1)
         val birthday=artist(1,LocalDate.now(),country=1)
         val death=artist(2,LocalDate.now().minusYears(20).plusDays(1),LocalDate.now(),1)
@@ -295,12 +323,14 @@ class HomePageServiceTest {
         `when`(albumService.getAlbumAnniversariesByDate(today.monthValue,today.dayOfMonth)).thenReturn(mutableListOf(related.anniversary()))
         `when`(artistService.getByBirthday(today.monthValue,today.dayOfMonth)).thenReturn(mutableListOf(fallbackBirthday))
         `when`(artistService.getByDeathDate(today.monthValue,today.dayOfMonth)).thenReturn(mutableListOf(fallbackDeath))
+        `when`(eventRepository.findEventsByAnniversary(today.monthValue,today.dayOfMonth)).thenReturn(listOf(event(12,today.minusYears(10))))
 
         val result=service.getTodayAnniversaries("tester")
 
         assertEquals(listOf(fallbackBirthday),result.recommendedArtistBirthdays)
         assertEquals(listOf(fallbackDeath),result.recommendedArtistDeathAnniversaries)
         assertEquals(listOf(2L),result.recommendedAlbumsAnniversaries!!.mapNotNull {it.id})
+        assertEquals(listOf(12),result.eventAnniversaries!!.mapNotNull {it.id})
     }
 
     @Test
@@ -373,7 +403,7 @@ class HomePageServiceTest {
         assertEquals(listOf(1L),result.recommendedAlbumsAnniversaries!!.mapNotNull {it.id})
         assertEquals(listOf(10L),result.recommendedArtistBirthdays!!.mapNotNull {it.id})
         assertEquals(listOf(13L),result.recommendedArtistDeathAnniversaries!!.mapNotNull {it.id})
-        assertEquals("UK",result.recommendedArtistBirthdays!!.single().country)
+        assertEquals("UK",result.recommendedArtistBirthdays.single().country)
     }
 
     @Test
@@ -414,8 +444,11 @@ class HomePageServiceTest {
     private fun album(id:Long,band:Band,date:LocalDate,genre:Genre?=null)=Album().apply {
         this.id=id; this.band=band; title="Album $id"; releaseDate=date; this.genre=genre
     }
+    private fun event(id:Int,date:LocalDate?,band:Band=band(id))=Event().apply {
+        this.id=id; this.band=band; this.date=date; name="Event $id"; description="Description $id"
+    }
     private fun Album.anniversary()=AlbumByDateDto(
-        id=id,band=BandDto(band!!.id,band!!.name),title=title,releaseDate=releaseDate
+        id=id,band=BandDto(band.id,band.name),title=title,releaseDate=releaseDate
     )
     private fun favorite(artist:Artist)=UsersArtists().apply {this.artist=artist; user=this@HomePageServiceTest.user}
     private fun favoriteBand(band:Band)=UsersBands().apply {this.band=band; user=this@HomePageServiceTest.user}

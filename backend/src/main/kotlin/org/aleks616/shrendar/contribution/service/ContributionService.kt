@@ -5,6 +5,7 @@ import org.aleks616.shrendar.album.service.AlbumService
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
+import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.model.ContributionDto
@@ -35,7 +36,7 @@ class ContributionService(
     @Transactional
     fun confirmDataChangeRequest(changeId:Long,confirmedUserLogin:String){
         val confirmingUser:User=userRepository.findByLogin(confirmedUserLogin)!!
-        if(confirmingUser.rank.id < 10) throw Exception("User's rank is too low to confirm contribution request")
+        if(confirmingUser.rank.id<10) throw Exception("User's rank is too low to confirm contribution request")
         val contributions=contributionRepository.getByChangeId(changeId)
         if(contributions.any{it.confirmed==true}){
             val previousConfirmingUser=userRepository.findUserById(contributions.first().confirmedBy!!)
@@ -60,20 +61,20 @@ class ContributionService(
     }
 
     fun mapContributionToContributionDto(contributions:List<Contribution>):List<ContributionDto>{
-        return contributions.map{
+        return contributions.map{c->
             ContributionDto(
-                id=it.id,
-                changeId=it.changeId,
-                userId=it.user.id,
-                action=it.action,
-                changedTable=it.changedTable,
-                changedColumn=it.changedColumn,
-                changedRecordId=it.changedRecordId,
-                oldValue=it.oldValue,
-                newValue=it.newValue,
-                changedAt=it.changedAt.toString(),
-                confirmed=it.confirmed,
-                confirmedBy=it.confirmedBy
+                id=c.id,
+                changeId=c.changeId,
+                userId=c.user.id,
+                action=c.action.toString().titleCase(),
+                changedTable=c.changedTable,
+                changedColumn=c.changedColumn,
+                changedRecordId=c.changedRecordId,
+                oldValue=c.oldValue,
+                newValue=c.newValue,
+                changedAt=c.changedAt.toString(),
+                confirmed=c.confirmed,
+                confirmedBy=c.confirmedBy
             )
         }
     }

@@ -36,23 +36,23 @@ class GenreController(
     @PostMapping("/favorite")
     fun favoriteGenre(@RequestBody genreId:Int, servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something went wrong")
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
         val ip=servletRequest.remoteAddr?:"unknown"
         if(!rateLimiter.allowRequest("reg:ip:$ip",Utils.LIMIT_HIGH,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this IP")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_ip_requests")
         if(!rateLimiter.allowRequest("login:acct:$userLogin",Utils.LIMIT_HIGH,60))
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests from this user")
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too_many_user_requests")
         if(!genreService.doesGenreExist(genreId))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Genre with id $genreId does not exist")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("genre_not_exist")
 
         try{
             genreService.toggleFavoriteGenre(genreId,userLogin)
         }
         catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: ${e.message}")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
-        return ResponseEntity.ok("Genre favorite toggled successfully")
+        return ResponseEntity.ok("genre_toggled")
     }
 
 }

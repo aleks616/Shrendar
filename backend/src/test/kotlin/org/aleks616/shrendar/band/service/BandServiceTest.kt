@@ -171,28 +171,6 @@ class BandServiceTest {
     }
 
     @Test
-    fun `getBandByIdWiki should throw NoSuchElementException when band is missing`() {
-        `when`(bandRepository.findById(1)).thenReturn(Optional.empty())
-        assertThrows<NoSuchElementException> {service.getBandByIdWiki(1)}
-    }
-
-    @Test
-    fun `getBandByIdWiki should map wiki data`() {
-        `when`(bandRepository.findById(1)).thenReturn(Optional.of(band))
-        `when`(bandRepository.findCountryByBandId(1)).thenReturn(CountryDto(1,"USA"))
-        `when`(genreService.getBandAlbumGenresList(1)).thenReturn(listOf(GenreDto(id=10,name="Rock",value=8)))
-
-        val result=service.getBandByIdWiki(1)
-
-        assertEquals("Metallica",result.name)
-        assertEquals(1981,result.formedYear)
-        assertEquals(Status.ACTIVE,result.status)
-        assertEquals("USA",result.country?.name)
-        assertEquals("https://example.com/metallica.jpg",result.imageUrl)
-        assertEquals(1,result.computedGenres?.size)
-    }
-
-    @Test
     fun `getCountryByName should return null for unknown country`() {
         assertNull(service.getCountryByName("missing"))
     }

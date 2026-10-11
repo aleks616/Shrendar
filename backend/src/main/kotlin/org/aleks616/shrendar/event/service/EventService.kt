@@ -2,17 +2,20 @@ package org.aleks616.shrendar.event.service
 
 import jakarta.transaction.Transactional
 import org.aleks616.shrendar.band.service.BandService
+import org.aleks616.shrendar.common.Utils
 import org.aleks616.shrendar.contribution.model.Action
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.event.model.Event
 import org.aleks616.shrendar.event.model.EventAddDto
+import org.aleks616.shrendar.event.model.EventWikiDto
 import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.service.RankService
 import org.aleks616.shrendar.user.service.UserAccountService
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -25,6 +28,21 @@ class EventService(
 ){
     fun doesEventExist(eventId:Int):Boolean {
         return eventRepository.existsById(eventId)
+    }
+
+    fun getEventDataById(eventId:Int):EventWikiDto {
+        val event=eventRepository.findEventById(eventId)
+        return EventWikiDto(
+            id=event.id,
+            bandId=event.band.id,
+            bandName=event.band.name,
+            date=event.date,
+            daysTillAnniversary=Utils.getDaysTillNextAnniversary(event.date),
+            name=event.name,
+            description=event.description,
+            yearsSince=event.date!!.until(LocalDate.now()).years+1,
+        )
+
     }
 
     @Transactional

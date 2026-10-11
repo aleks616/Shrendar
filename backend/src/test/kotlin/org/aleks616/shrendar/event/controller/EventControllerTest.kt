@@ -75,7 +75,7 @@ class EventControllerTest {
             val result=controller.addEvent(dto,request)
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-            assertEquals("Too many requests from this user",result.body)
+            assertEquals("too_many_user_requests",result.body)
         }
 
         @Test
@@ -167,7 +167,7 @@ class EventControllerTest {
             val result=controller.addEvent(dto,request)
 
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-            assertEquals("An unexpected error occurred: broken",result.body)
+            assertEquals("unexpected_error: broken",result.body)
         }
 
         @Test

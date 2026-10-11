@@ -1,0 +1,54 @@
+package com.example.client
+
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
+
+@Serializable
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+data class Genre(
+    val id:Int,
+    val name:String,
+    val properties:String
+)
+
+class GenreApi private constructor(
+    private val baseUrl:String,
+    private val client:HttpClient
+) {
+    constructor():this(BASE_URL,createHttpClient())
+    constructor(baseUrl:String):this(baseUrl,createHttpClient())
+
+    suspend fun getAll():List<Genre> {
+        return client.get("$baseUrl/genre/all").body()
+    }
+
+    companion object {
+        private fun createHttpClient()=HttpClient {
+            expectSuccess=true
+            install(DefaultRequest) {
+                header("skip_zrok_interstitial", "1")
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys=true
+                })
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+object GenreClient {
+    suspend fun getAll():Array<Genre> =GenreApi().getAll().toTypedArray()
+}

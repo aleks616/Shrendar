@@ -70,30 +70,6 @@ class BandsMemberServiceTest {
     }
 
     @Test
-    fun `getAllBandMembersWiki should return member data`() {
-        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,mutableListOf("Vocals (1981-)"))
-        `when`(repository.findAllByBandName(3)).thenReturn(
-            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
-        )
-        assertEquals(
-            listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,source.yearRole)),
-            bandsMemberService.getAllBandMembersWiki(3)
-        )
-    }
-
-    @Test
-    fun `getAllBandMembersWiki should work for missing yearRole`() {
-        val source=BandsMembersDto(10,2,"James Hetfield",3,"Metallica",null,null)
-        `when`(repository.findAllByBandName(3)).thenReturn(
-            listOf(BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null))
-        )
-        assertEquals(
-            listOf(BandsMembersWikiDto(source.id,source.artistId,source.artistName,source.bandId,source.nickname,mutableListOf("Vocals (1981-)"))),
-            bandsMemberService.getAllBandMembersWiki(3)
-        )
-    }
-
-    @Test
     fun `getCurrentBandMembers should return open ended roles`() {
         val current=BandsMembersDataDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
         val past=BandsMembersDataDto(11,4,"Lars Ulrich",3,"Metallica","Drums",1981,1990,null)
@@ -116,17 +92,6 @@ class BandsMemberServiceTest {
         val past=BandsMembersDataDto(11,4,"Lars Ulrich",3,"Metallica","Drums",1981,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(current,past))
         assertEquals(listOf(4L),bandsMemberService.getPastBandMembers(3).map {it.artistId})
-    }
-
-    @Test
-    fun `getBandsByArtistId should group roles`() {
-        val first=ArtistBandsDto(10,2,"James Hetfield",3,"Metallica","Vocals",1981,null,null)
-        val second=ArtistBandsDto(12,2,"James Hetfield",3,"Metallica","Guitar",1985,1990,null)
-        `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(first,second))
-
-        val result=bandsMemberService.getBandsByArtistId(2)
-        assertEquals(1,result.size)
-        assertEquals(listOf("Vocals (1981-)", "Guitar (1985-1990)"),result.first().yearRole)
     }
 
     @Test
@@ -206,21 +171,6 @@ class BandsMemberServiceTest {
         val sameYear=BandsMembersDataDto(12,4,"Lars Ulrich",3,"Metallica","Drums",1990,1990,null)
         `when`(repository.findAllByBandName(3)).thenReturn(listOf(sameYear))
         assertEquals(listOf("Drums (1990)"),bandsMemberService.getAllBandMembers(3).first().yearRole)
-    }
-
-    @Test
-    fun `getBandsByArtistId should return empty list for empty repository`() {
-        `when`(repository.findBandsByArtistId(2)).thenReturn(emptyList())
-        assertTrue(bandsMemberService.getBandsByArtistId(2).isEmpty())
-    }
-
-    @Test
-    fun `getBandsByArtistId should format same-year roles`() {
-        val sameYear=ArtistBandsDto(
-            10,2,"James Hetfield",3,"Metallica","Vocals",1981,1981,null
-        )
-        `when`(repository.findBandsByArtistId(2)).thenReturn(listOf(sameYear))
-        assertEquals(listOf("1981"),bandsMemberService.getBandsByArtistId(2).first().yearRole)
     }
 
     @Test

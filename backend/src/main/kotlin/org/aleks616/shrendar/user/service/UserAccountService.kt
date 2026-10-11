@@ -1,5 +1,9 @@
 package org.aleks616.shrendar.user.service
 
+import org.aleks616.shrendar.common.model.SupportedLanguages
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
+import org.aleks616.shrendar.exception.ReusedPasswordException
 import org.aleks616.shrendar.mail.service.EmailService
 import org.aleks616.shrendar.securityCode.CodeGenerator
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -10,10 +14,14 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 @Service
 class UserAccountService(
@@ -26,7 +34,12 @@ class UserAccountService(
     private val emailService:EmailService,
     private val encoder:BCryptPasswordEncoder,
     private val xpService:XpService,
+    googleOAuthProperties:GoogleOAuthProperties,
 ) {
+    private val googleIdTokenVerifier=GoogleIdTokenVerifier.Builder(
+        GoogleNetHttpTransport.newTrustedTransport(),
+        GsonFactory.getDefaultInstance()
+    ).setAudience(googleOAuthProperties.clientIds).build()
 
     fun getUserByLogin(login:String):User? {
         return userRepository.findByLogin(login)
@@ -64,11 +77,12 @@ class UserAccountService(
     }
 
     @Transactional
-    fun addBio(bio:String,login:String){
+    fun addBio(bio:String,login:String) {
         val user=userRepository.findByLogin(login)?:throw IllegalStateException("User not found")
         user.bio=bio
         userRepository.save(user)
     }
+
     //region account
     fun authenticate(req:LoginRequestDto,log:Boolean=true):String? {
         val user=if(req.email!=""&&req.email!=null) userRepository.findByEmail(req.email)
@@ -78,12 +92,12 @@ class UserAccountService(
         if(user.deleted==true) return null
         val userLog=findUserLog(user.id)
 
-        if(userLog.accountDeletionScheduledTime!=null){
+        if(userLog.accountDeletionScheduledTime!=null) {
             userLog.accountDeletionScheduledTime=null
             userLogRepository.save(userLog)
             emailService.sendAccountDeletionCancelledMessage(user.email!!)
         }
-        if(log){
+        if(log) {
             userLog.lastLoginTime=Instant.now()
             userLogRepository.save(userLog)
         }
@@ -97,18 +111,74 @@ class UserAccountService(
         return if(matches(req.password,user.passwordHash?:"")) user.login else null
     }
 
-    fun initiateRegistration(req:RegisterRequestDto):Boolean {
-        if(req.login=="anonymousUser") return false
-        if(doesAccountExist(req.login)||doesAccountExist(req.email)) return false
-        if(!registrationCodeStorage.canSendCode(req.email)) return false
-        val code=CodeGenerator.generateCode()
-        registrationCodeStorage.storeCode(req.email,code)
-        emailService.sendVerificationCode(req.email,code)
-        return true
+    @Transactional
+    fun authenticateWithGoogle(idToken:String):String? {
+        val payload=
+            try {
+                googleIdTokenVerifier.verify(idToken)?.payload
+            }
+            catch(_:IllegalArgumentException) {
+                return null
+            }?:return null
+        if(payload.subject.isNullOrBlank()) return null
+
+        val email=payload.email?.trim()?.lowercase()?.takeIf {it.isNotEmpty()}?:return null
+        val emailIsAuthoritative=email.endsWith("@gmail.com")||
+                                 (payload.emailVerified==true&&!payload.hostedDomain.isNullOrBlank())
+        if(!emailIsAuthoritative) return null
+
+        val user=userRepository.findByEmail(email)?:createGoogleUser(email)
+        if(user.deleted==true) return null
+
+        val userLog=findUserLog(user.id)
+        if(userLog.accountDeletionScheduledTime!=null) {
+            userLog.accountDeletionScheduledTime=null
+            emailService.sendAccountDeletionCancelledMessage(user.email!!)
+        }
+        userLog.lastLoginTime=Instant.now()
+        userLogRepository.save(userLog)
+
+        return user.login
     }
 
-    fun createUser(req:RegisterRequestDto,code:String):Boolean {
-        if(!registrationCodeStorage.validateCode(req.email,code)) return false
+    private fun createGoogleUser(email:String):User {
+        val now=Instant.now()
+        val preferredLogin=email.substringBefore("@")
+            .lowercase()
+            .filter {it.isLetterOrDigit()||it=='_'}
+            .take(50)
+            .ifBlank {"google"}
+        var login=preferredLogin
+        while(ForbiddenLogins.isForbidden(login)||userRepository.findByLogin(login)!=null)
+            login="${preferredLogin.take(47)}${(100..999).random()}"
+        val user=userRepository.save(User().apply {
+            this.login=login
+            username=login
+            passwordHash=encoder.encode(UUID.randomUUID().toString())
+            this.email=email
+            rank=rankRepository.findById(1).orElseThrow()
+            xp=0
+            verified=true
+        })
+        userLogRepository.save(UserLog().apply {
+            this.user=user
+            accountCreatedTime=now
+            lastLoginTime=now
+        })
+        return user
+    }
+
+    fun initiateRegistration(req:RegisterRequestDto) {
+        if(ForbiddenLogins.isForbidden(req.login)) throw ForbiddenLoginException("forbidden_login")
+        if(doesAccountExist(req.login)||doesAccountExist(req.email)) throw IllegalArgumentException("Account with login/email already exists") //todo add strings
+        if(!registrationCodeStorage.canSendCode(req.email)) throw IllegalStateException("too_many_email_requests")
+        val code=CodeGenerator.generateCode(numericOnly=true)
+        registrationCodeStorage.storeCode(req.email,code)
+        emailService.sendVerificationCode(req.email,code,req.language?:SupportedLanguages.EN)
+    }
+
+    fun createUser(req:RegisterRequestDto,code:String) {
+        if(!registrationCodeStorage.validateCode(req.email,code)) throw InvalidOTPCodeException()
         val encryptedPassword=encoder.encode(req.password)
         userRepository.save(User().apply {
             login=req.login
@@ -125,30 +195,30 @@ class UserAccountService(
             passwordChangedTime=Instant.now()
         })
 
-        emailService.sendAccountCreatedMessage(req.email)
-        return true
+        emailService.sendAccountCreatedMessage(req.email,req.language?:SupportedLanguages.EN)
     }
 
-    fun requestPasswordReset(accountKey:String):Boolean {
-        if(!doesAccountExist(accountKey)) return false
-        if(!passwordResetCodeStorage.canSendCode(accountKey)) return false
+    fun requestPasswordReset(accountKey:String,language:SupportedLanguages) {
+        if(!doesAccountExist(accountKey)) throw IllegalArgumentException("account_not_found")
+        if(!passwordResetCodeStorage.canSendCode(accountKey)) throw IllegalStateException("too_many_email_requests")
         val code=CodeGenerator.generateCode(numericOnly=true)
-        passwordResetCodeStorage.storeCode(accountKey,code)
-        val email=if(accountKey.contains("@")) accountKey
-        else userRepository.findByLogin(accountKey)?.email?:return false
+        //store code for EMAIL, NEVER FOR LOGIN
+        val user=userRepository.findByLogin(accountKey)?:userRepository.findByEmail(accountKey)
+                 ?:throw IllegalArgumentException("account_not_found")
+        passwordResetCodeStorage.storeCode(user.email!!,code)
 
-        emailService.sendPasswordResetMessage(email,code)
-        return true
+        emailService.sendPasswordResetMessage(user.email!!,code,language)
     }
 
-    fun changePassword(email:String,newPassword:String,resetCode:String):Boolean {
-        if(!passwordResetCodeStorage.validateCode(email,resetCode)) return false
-        val encryptedPassword=encoder.encode(newPassword)
-        val userToChange=userRepository.findAll().firstOrNull {it.email.equals(email,ignoreCase=true)}?:return false
+    fun changePassword(request:ResetPasswordDto) {
+        if(!passwordResetCodeStorage.validateCode(request.email,request.code)) throw InvalidOTPCodeException()
+        val encryptedPassword=encoder.encode(request.newPassword)
+        val userToChange=userRepository.findAll().firstOrNull {it.email.equals(request.email,ignoreCase=true)}
+                         ?:throw IllegalStateException("account_not_found")
         val userPasswordHistory=UserPasswordHistory()
         val passwordHistory=userPasswordHistoryRepository.findAllByUserId(userToChange.id)
         passwordHistory.forEach {
-            if(it.password==encryptedPassword) return false
+            if(matches(request.newPassword,it.password!!)) throw ReusedPasswordException()
         }
         userPasswordHistory.user=userToChange
         userPasswordHistory.password=encryptedPassword
@@ -161,65 +231,62 @@ class UserAccountService(
         userLog.passwordChangedTime=Instant.now()
         userLogRepository.save(userLog)
 
-        emailService.sendPasswordHasBeenChangedMessage(email)
-        return true
+        emailService.sendPasswordHasBeenChangedMessage(request.email,request.language?:SupportedLanguages.EN)
     }
 
-    fun changeUsername(email:String, newUsername:String):Boolean{
-        val user=userRepository.findByEmail(email)?:return false
+    fun changeUsername(email:String,newUsername:String) {
+        val user=userRepository.findByEmail(email)?:throw IllegalStateException("account_not_found")
         user.username=newUsername
         userRepository.save(user)
         val userLog=findUserLog(user.id)
-        if(userLog.displayNameChangedTime!=null){
+        if(userLog.displayNameChangedTime!=null) {
             if(ChronoUnit.DAYS.between(userLog.displayNameChangedTime,Instant.now())<90)
-                return false
+                throw IllegalStateException("username_change_limit")
         }
         userLog.displayNameChangedTime=Instant.now()
         userLogRepository.save(userLog)
-        return true
     }
 
-    fun changeEmail(email:String, newEmail:String){
+    fun changeEmail(email:String,newEmail:String) {
         val user=userRepository.findByEmail(email)!!
         user.email=newEmail
         userRepository.save(user)
     }
 
-    fun addBirthday(email:String, date:LocalDate):Boolean{
-        val user=userRepository.findByEmail(email)?:return false
+    fun addBirthday(email:String,date:LocalDate) {
+        val user=userRepository.findByEmail(email)?:throw IllegalStateException("account_not_found")
         user.birthDate=date
         val userLog=findUserLog(user.id)
-        if(userLog.birthdayChangedTime!=null){
+        if(userLog.birthdayChangedTime!=null) {
             if(ChronoUnit.DAYS.between(userLog.birthdayChangedTime,Instant.now())<180)
-                return false
+                throw IllegalStateException("birthday_change_limit")
         }
         userLog.birthdayChangedTime=Instant.now()
         userRepository.save(user)
         userLogRepository.save(userLog)
-        return true
     }
 
-    fun findUserLog(userId:Int):UserLog{
-        return userLogRepository.findById(userId).orElseThrow {IllegalStateException("UserLog not found for user id $userId")}
+    fun findUserLog(userId:Int):UserLog {
+        return userLogRepository.findById(userId)
+            .orElseThrow {IllegalStateException("UserLog not found for user id $userId")}
     }
 
-    fun requestDeletion(userEmail:String):Boolean{
-        val user=userRepository.findByEmail(userEmail)?:return false
+    fun requestDeletion(userEmail:String,lang:SupportedLanguages) {
+        val user=userRepository.findByEmail(userEmail)?:throw IllegalStateException("account_not_found")
         val userLog=findUserLog(user.id)
         userLog.accountDeletionScheduledTime=Instant.now()
         userLogRepository.save(userLog)
-        emailService.sendAccountScheduledForDeletionMessage(user.email!!)
-        return true
+        emailService.sendAccountScheduledForDeletionMessage(user.email!!,lang)
     }
 
     @Scheduled(fixedRate=24*60*60*1000)
     @Transactional
-    fun checkAccountScheduledToBeDeleted(){
+    fun checkAccountScheduledToBeDeleted() {
         val users=userRepository.findAll()
-        users.forEach{user->
+        users.forEach {user->
             val userLog=findUserLog(user.id)
-            if(userLog.accountDeletionScheduledTime!=null){
-                if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21){
+            if(userLog.accountDeletionScheduledTime!=null) {
+                if(ChronoUnit.DAYS.between(userLog.accountDeletionScheduledTime,Instant.now())>=21) {
                     user.deleted=true
                     userRepository.save(user)
                     emailService.sendAccountDeletedMessage(user.email!!)
@@ -227,6 +294,7 @@ class UserAccountService(
             }
         }
     }
+
     fun deleteOldPasswordHistory(userId:Int) {
         val history=userPasswordHistoryRepository.findAllByUserId(userId)
         if(history.size>10) {

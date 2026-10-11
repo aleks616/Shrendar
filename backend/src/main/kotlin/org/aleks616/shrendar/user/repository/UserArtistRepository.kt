@@ -9,4 +9,5 @@ interface
 UserArtistRepository:JpaRepository<UsersArtists,Long> {
     fun findByArtistAndUser(artist:Artist,user:User):UsersArtists?
     fun findByUser(user:User):MutableList<UsersArtists>
+    fun existsByArtistIdAndUser_Login(artistId:Long,userLogin:String):Boolean
 }

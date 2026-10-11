@@ -10,7 +10,7 @@ data class AlbumWikiDto(
     val releaseDate:LocalDate?=null,
     val albumAge:Int?=null,
     val daysTillAnniversary:Int?=null,
-    val type:AlbumType?=null,
+    val type:String?=null,
     val genre:Genre?=null,
     val description:String?=null,
     val artworkUrl:String?=null,

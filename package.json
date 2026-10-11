@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "universal-cookie": "^8.1.2"
+  }
+}

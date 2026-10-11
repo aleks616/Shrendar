@@ -16,6 +16,7 @@ class WebConfig:WebMvcConfigurer{
                 "https://localhost:[*]",
                 "http://localhost:[*]",
             )
+            .allowedOrigins("https://shrendarclient.shares.zrok.io/")
             .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)

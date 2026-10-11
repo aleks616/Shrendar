@@ -52,7 +52,7 @@ class ContributionControllerTest {
     fun `confirmContributionRequest should succeed`() {
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Confirmation successful",result.body)
+        assertEquals("confirmation_success",result.body)
         verify(contributionService).confirmDataChangeRequest(1,"user")
     }
 
@@ -79,7 +79,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
         verifyNoInteractions(contributionService)
     }
 
@@ -88,7 +88,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
         verifyNoInteractions(contributionService)
     }
 
@@ -107,14 +107,14 @@ class ContributionControllerTest {
             .`when`(contributionService).confirmDataChangeRequest(1,"user")
         val result=controller.confirmContributionRequest(1,request)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("Something went wrong. broken",result.body)
+        assertEquals("something_wrong. broken",result.body)
     }
 
     @Test
     fun `revertAddRequest should succeed`() {
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.OK,result.statusCode)
-        assertEquals("Addition reverted successful",result.body)
+        assertEquals("addition_reverted",result.body)
         verify(revertService).revertAddition(1,"user")
     }
 
@@ -141,7 +141,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("reg:ip:127.0.0.1",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this IP",result.body)
+        assertEquals("too_many_ip_requests",result.body)
         verifyNoInteractions(revertService)
     }
 
@@ -150,7 +150,7 @@ class ContributionControllerTest {
         `when`(rateLimiter.allowRequest("login:acct:user",Utils.LIMIT_BASIC,60)).thenReturn(false)
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-        assertEquals("Too many requests from this user",result.body)
+        assertEquals("too_many_user_requests",result.body)
         verifyNoInteractions(revertService)
     }
 
@@ -168,14 +168,14 @@ class ContributionControllerTest {
         doThrow(IllegalStateException("broken")).`when`(revertService).revertAddition(1,"user")
         val result=controller.revertAddRequest(1,request)
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-        assertEquals("Something went wrong. broken",result.body)
+        assertEquals("something_wrong. broken",result.body)
     }
 
     @Test
     fun `handleLimitExceededException should return bad request`() {
         val result=controller.handleLimitExceededException(IllegalStateException("limit"))
         assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
-        assertEquals("Something went wrong. limit",result.body)
+        assertEquals("something_wrong. limit",result.body)
     }
 
     @Test
@@ -189,7 +189,7 @@ class ContributionControllerTest {
     fun `getContributionsByRequestingUser should throw IllegalStateException for unknown user`() {
         `when`(userAccountService.doesUserExist(7)).thenReturn(false)
         val exception=assertThrows<IllegalStateException> {controller.getContributionsByRequestingUser(7)}
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
 
@@ -213,7 +213,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByConfirmingUser(7)
         }
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
     @Test
@@ -221,7 +221,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalArgumentException> {
             controller.getContributionsByTableName("other")
         }
-        assertEquals("table \"other\" does not exist",exception.message)
+        assertEquals("table_not_exist",exception.message)
         verifyNoInteractions(contributionService)
     }
 
@@ -238,7 +238,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalArgumentException> {
             controller.getLastChangesByTableAndChangedRecordId("other",3)
         }
-        assertEquals("table \"other\" does not exist",exception.message)
+        assertEquals("table_not_exist",exception.message)
         verifyNoInteractions(contributionService)
     }
 
@@ -354,7 +354,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByChangedAtBetween(LocalDate.of(2025,2,1),LocalDate.of(2025,1,1))
         }
-        assertEquals("start date cannot be after end date",exception.message)
+        assertEquals("start_after_end",exception.message)
     }
 
     @Test
@@ -372,7 +372,7 @@ class ContributionControllerTest {
         val exception=assertThrows<IllegalStateException> {
             controller.getContributionsByRequestingUserAndChangedAtBetween(LocalDate.now(),LocalDate.now(),7)
         }
-        assertEquals("user with id 7 doesn't exist",exception.message)
+        assertEquals("user_not_exist",exception.message)
     }
 
     @Test
@@ -395,7 +395,7 @@ class ContributionControllerTest {
 
     @Test
     fun `getContributionsByRequestingUserAndAction should delegate valid action`() {
-        val expected=listOf(ContributionDto(action=Action.CREATE))
+        val expected=listOf(ContributionDto(action="Create"))
         `when`(contributionService.getContributionsByActionAndRequestingUser(7,Action.CREATE)).thenReturn(expected)
         assertSame(expected,controller.getContributionsByRequestingUserAndAction(7,Action.CREATE))
     }

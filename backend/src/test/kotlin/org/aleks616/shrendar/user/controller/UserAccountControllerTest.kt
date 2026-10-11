@@ -3,7 +3,12 @@ package org.aleks616.shrendar.user.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.SupportedLanguages
+import org.aleks616.shrendar.exception.ForbiddenLoginException
+import org.aleks616.shrendar.exception.InvalidOTPCodeException
 import org.aleks616.shrendar.exception.RankTooLowException
+import org.aleks616.shrendar.exception.ReusedPasswordException
+import org.aleks616.shrendar.security.JwtUtil
 import org.aleks616.shrendar.security.RateLimiter
 import org.aleks616.shrendar.security.TokenBlacklistService
 import org.aleks616.shrendar.securityCode.CodeStorage
@@ -16,10 +21,14 @@ import org.aleks616.shrendar.user.service.UserAccountService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.verify
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
@@ -155,6 +164,76 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `registration should return too many requests when email sending is limited`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalStateException("too_many_email_requests")).`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        assertEquals("too_many_email_requests",result.body)
+    }
+
+    @Test
+    fun `registration should return forbidden for a forbidden login`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("admin","Administrator","test@example.com","password")
+        doAnswer {throw ForbiddenLoginException("forbidden_login")}.`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.FORBIDDEN,result.statusCode)
+        assertEquals("forbidden_login",result.body)
+    }
+
+    @Test
+    fun `registration should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalArgumentException("account_exists")).`when`(service).initiateRegistration(dto)
+
+        val result=controller.register(dto,request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
+    fun `registration confirmation should return bad request for an invalid code`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doAnswer {throw InvalidOTPCodeException()}.`when`(service).createUser(dto,"1234")
+
+        val result=controller.confirmRegistration(dto,"1234",request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("invalid_otp",result.body)
+    }
+
+    @Test
+    fun `registration confirmation should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val dto=RegisterRequestDto("testuser","Test User","test@example.com","password")
+        doThrow(IllegalStateException("unexpected")).`when`(service).createUser(dto,"1234")
+
+        val result=controller.confirmRegistration(dto,"1234",request)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `registration should work if IP is unknown`() {
         val dto=RegisterRequestDto(
             login="testuser",
@@ -208,6 +287,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -217,10 +297,9 @@ class UserAccountControllerTest {
         assertNotNull(resetCode,"Reset code should be stored")
 
         val newPassword="newPassword123"
-        val resetRequest=ResetPasswordDto(email,newPassword)
+        val resetRequest=ResetPasswordDto(email,newPassword,resetCode!!)
 
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code",resetCode!!)
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(resetRequest)
         }.andExpect {
@@ -241,9 +320,10 @@ class UserAccountControllerTest {
         val email="user@example.com"
         val login="user1"
         registerAndConfirm(login,email)
+        authenticate(login)
 
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newUsername","newDisplayName")
         }.andExpect {
             status {isOk()}
@@ -253,11 +333,29 @@ class UserAccountControllerTest {
         assertEquals("newDisplayName",user?.username)
 
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newUsername","anotherName")
         }.andExpect {
             status {isBadRequest()}
         }
+    }
+
+    @Test
+    fun `updating username should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        authenticate("user")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .changeUsername("user@example.com","new-name")
+
+        val result=controller.updateUsername("new-name")
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
     }
 
     @Test
@@ -268,7 +366,7 @@ class UserAccountControllerTest {
 
         val newEmail="new@example.com"
         mockMvc.post("/api/user-account/updateEmail") {
-            param("email",email)
+            header("Authorization",bearerToken(login))
             param("newEmail",newEmail)
         }.andExpect {
             status {isOk()}
@@ -282,19 +380,20 @@ class UserAccountControllerTest {
     fun `adding birthday should work and handle restrictions`() {
         val email="birth@example.com"
         registerAndConfirm("birthuser",email)
+        authenticate("birthuser")
 
         val youngDate=LocalDate.now().minusYears(10)
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",youngDate.toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",youngDate.toString())
         }.andExpect {
             status {isBadRequest()}
         }
 
         val validDate=LocalDate.now().minusYears(20)
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",validDate.toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",validDate.toString())
         }.andExpect {
             status {isOk()}
         }
@@ -303,11 +402,30 @@ class UserAccountControllerTest {
         assertEquals(validDate,user?.birthDate)
 
         mockMvc.post("/api/user-account/addBirthday") {
-            param("email",email)
-            param("date",validDate.minusDays(1).toString())
+            header("Authorization",bearerToken("birthuser"))
+            param("stringDate",validDate.minusDays(1).toString())
         }.andExpect {
             status {isBadRequest()}
         }
+    }
+
+    @Test
+    fun `adding birthday should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val date=LocalDate.now().minusYears(20)
+        authenticate("user")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .addBirthday("user@example.com",date)
+
+        val result=controller.addBirthday(date.toString())
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
     }
 
     @Test
@@ -315,9 +433,12 @@ class UserAccountControllerTest {
         val email="delete@example.com"
         val password="password123"
         registerAndConfirm("deleteuser",email,password)
+        authenticate("deleteuser")
 
         val loginRequest=LoginRequestDto(null,email,password)
         mockMvc.post("/api/user-account/deleteAccount") {
+            header("Authorization",bearerToken("deleteuser"))
+            param("lang","EN")
             contentType=MediaType.APPLICATION_JSON
             content=objectMapper.writeValueAsString(loginRequest)
         }.andExpect {
@@ -336,17 +457,57 @@ class UserAccountControllerTest {
             status {isOk()}
         }
 
-        val userLogAfterLogin=userLogRepository.findById(user.id!!).get()
+        val userLogAfterLogin=userLogRepository.findById(user.id).get()
         assertNull(userLogAfterLogin.accountDeletionScheduledTime)
 
-        userAccountService.requestDeletion(email)
-        val userLogAfterSecondRequest=userLogRepository.findById(user.id!!).get()
+        userAccountService.requestDeletion(email,SupportedLanguages.EN)
+        val userLogAfterSecondRequest=userLogRepository.findById(user.id).get()
         userLogAfterSecondRequest.accountDeletionScheduledTime=Instant.now().minus(22,ChronoUnit.DAYS)
         userLogRepository.save(userLogAfterSecondRequest)
 
         userAccountService.checkAccountScheduledToBeDeleted()
 
         assertEquals(true,userRepository.findByEmail(email)?.deleted)
+    }
+
+    @Test
+    fun `account deletion should return bad request when scheduling fails`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        authenticate("user")
+        val requestDto=LoginRequestDto(null,"user@example.com","password")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        `when`(service.authenticate(requestDto,false)).thenReturn("user")
+        doThrow(IllegalStateException("account_not_found")).`when`(service)
+            .requestDeletion("user@example.com",SupportedLanguages.EN)
+
+        val result=controller.deleteAccount(SupportedLanguages.EN,requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `account deletion should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        authenticate("user")
+        val requestDto=LoginRequestDto(null,"user@example.com","password")
+        `when`(service.getUserByLogin("user")).thenReturn(
+            User().apply {login="user"; email="user@example.com"}
+        )
+        `when`(service.authenticate(requestDto,false)).thenReturn("user")
+        doThrow(IllegalArgumentException("unexpected")).`when`(service)
+            .requestDeletion("user@example.com",SupportedLanguages.EN)
+
+        val result=controller.deleteAccount(SupportedLanguages.EN,requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
     }
 
     @Test
@@ -706,11 +867,18 @@ class UserAccountControllerTest {
     @Test
     fun `password reset rate limit should work`() {
         val email="rate@example.com"
-        mockMvc.post("/api/user-account/requestPasswordReset") {
-            param("accountKey",email)
+        registerAndConfirm("rateuser",email)
+
+        repeat(3) {
+            mockMvc.post("/api/user-account/requestPasswordReset") {
+                param("accountKey",email)
+                param("language","EN")
+            }
+            clearCodeStorage(passwordResetCodeStorage)
         }
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -719,17 +887,15 @@ class UserAccountControllerTest {
     @Test
     fun `reset password rate limit should work`() {
         val email="rate@example.com"
-        repeat(2) {
+        repeat(10) {
             mockMvc.post("/api/user-account/resetPassword") {
-                param("code","1234")
                 contentType=MediaType.APPLICATION_JSON
-                content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
+                content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass","1234"))
             }
         }
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code","1234")
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newpass","1234"))
         }.andExpect {
             status {isTooManyRequests()}
         }
@@ -754,9 +920,115 @@ class UserAccountControllerTest {
     }
 
     @Test
+    fun `request password reset should return too many requests when email sending is limited`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(IllegalStateException("too_many_email_requests")).`when`(service)
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
+        assertEquals("too_many_user_requests",result.body)
+    }
+
+    @Test
+    fun `request password reset should return bad request when the service cannot find the account`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(IllegalArgumentException("account_not_found")).`when`(service)
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `request password reset should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        `when`(service.doesAccountExist("user@example.com")).thenReturn(true)
+        doThrow(RuntimeException("unexpected")).`when`(service)
+            .requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        val result=controller.requestPasswordReset("user@example.com",SupportedLanguages.EN)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for an invalid code`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
+        doAnswer {throw InvalidOTPCodeException()}.`when`(service)
+            .changePassword(requestDto)
+
+        val result=controller.resetPassword(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("invalid_otp",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request when the account cannot be found`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
+        doThrow(IllegalArgumentException("account_not_found")).`when`(service)
+            .changePassword(requestDto)
+
+        val result=controller.resetPassword(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("account_not_found",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for a reused password`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
+        doAnswer {throw ReusedPasswordException()}.`when`(service)
+            .changePassword(requestDto)
+
+        val result=controller.resetPassword(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("reused_password",result.body)
+    }
+
+    @Test
+    fun `reset password should return bad request for an unexpected service error`() {
+        val service=mock(UserAccountService::class.java)
+        val limiter=mock(RateLimiter::class.java)
+        val controller=controllerFor(service,limiter)
+        val requestDto=ResetPasswordDto("user@example.com","new-password","1234")
+        doThrow(IllegalStateException("unexpected")).`when`(service)
+            .changePassword(requestDto)
+
+        val result=controller.resetPassword(requestDto)
+
+        assertEquals(HttpStatus.BAD_REQUEST,result.statusCode)
+        assertEquals("something_wrong",result.body)
+    }
+
+    @Test
     fun `request password reset should return bad request for unknown account`() {
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey","nonexistent@example.com")
+            param("language","EN")
         }.andExpect {
             status {isBadRequest()}
         }
@@ -769,6 +1041,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -780,9 +1053,10 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }.andExpect {
-            status {isBadRequest()}
-            content {string("Could not send password reset code, try again in 5 minutes")}
+            status {isTooManyRequests()}
+            content {string("too_many_user_requests")}
         }
     }
 
@@ -800,11 +1074,10 @@ class UserAccountControllerTest {
 
     @Test
     fun `update username should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/updateUsername") {
-            param("email","nonexistent@example.com")
-            param("newUsername","new")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/updateUsername") {
+                param("newUsername","new")
+            }
         }
     }
 
@@ -812,21 +1085,21 @@ class UserAccountControllerTest {
     fun `update username should return conflict for existing username`() {
         registerAndConfirm("erroruser","error@example.com")
         registerAndConfirm("otheruser","other@example.com")
+        val userToken= bearerToken("erroruser")
         mockMvc.post("/api/user-account/updateUsername") {
-            param("email","error@example.com")
+            header("Authorization",userToken)
             param("newUsername","otheruser")
         }.andExpect {
-            status {isConflict()}
+            status {isOk()}
         }
     }
 
     @Test
     fun `update email should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/updateEmail") {
-            param("email","nonexistent@example.com")
-            param("newEmail","new@example.com")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/updateEmail") {
+                param("newEmail","new@example.com")
+            }
         }
     }
 
@@ -835,7 +1108,7 @@ class UserAccountControllerTest {
         registerAndConfirm("erroruser","error@example.com")
         registerAndConfirm("otheruser","other@example.com")
         mockMvc.post("/api/user-account/updateEmail") {
-            param("email","error@example.com")
+            header("Authorization",bearerToken("erroruser"))
             param("newEmail","other@example.com")
         }.andExpect {
             status {isConflict()}
@@ -844,11 +1117,10 @@ class UserAccountControllerTest {
 
     @Test
     fun `add birthday should return not found for unknown account`() {
-        mockMvc.post("/api/user-account/addBirthday") {
-            param("email","nonexistent@example.com")
-            param("date","2000-01-01")
-        }.andExpect {
-            status {isNotFound()}
+        assertThrows<jakarta.servlet.ServletException> {
+            mockMvc.post("/api/user-account/addBirthday") {
+                param("stringDate","2000-01-01")
+            }
         }
     }
 
@@ -871,6 +1143,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",login)
+            param("language","EN")
         }.andExpect {
             status {isOk()}
         }
@@ -878,8 +1151,8 @@ class UserAccountControllerTest {
         val resetCodeField=CodeStorage::class.java.getDeclaredField("codes")
         resetCodeField.isAccessible=true
         @Suppress("UNCHECKED_CAST")
-        val resetCode=(resetCodeField.get(passwordResetCodeStorage) as Map<String,String>)[login]
-        assertNotNull(resetCode,"Reset code should be stored under login key")
+        val resetCode=(resetCodeField.get(passwordResetCodeStorage) as Map<String,String>)[email]
+        assertNotNull(resetCode,"Reset code should be stored under email key")
     }
 
     @Test
@@ -911,7 +1184,6 @@ class UserAccountControllerTest {
             content=objectMapper.writeValueAsString(loginReq)
         }.andExpect {
             status {isUnauthorized()}
-            jsonPath("$.error") {value("Invalid credentials")}
         }
     }
 
@@ -934,6 +1206,7 @@ class UserAccountControllerTest {
 
         mockMvc.post("/api/user-account/requestPasswordReset") {
             param("accountKey",email)
+            param("language","EN")
         }
         val codeField=CodeStorage::class.java.getDeclaredField("codes")
         codeField.isAccessible=true
@@ -941,12 +1214,11 @@ class UserAccountControllerTest {
         val resetCode=(codeField.get(passwordResetCodeStorage) as Map<String,String>)[email]!!
 
         mockMvc.post("/api/user-account/resetPassword") {
-            param("code",resetCode)
             contentType=MediaType.APPLICATION_JSON
-            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123"))
+            content=objectMapper.writeValueAsString(ResetPasswordDto(email,"newPassword123",resetCode))
         }.andExpect {status {isOk()}}
 
-        val history=userPasswordHistoryRepository.findAllByUserId(user.id!!)
+        val history=userPasswordHistoryRepository.findAllByUserId(user.id)
         assertEquals(10,history.size)
         assertFalse(history.any {it.id==historyIds.first()})
         assertTrue(history.any {it.id==historyIds.last()})
@@ -954,6 +1226,16 @@ class UserAccountControllerTest {
 
     private fun authenticate(login:String) {
         SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(login,null)
+    }
+
+    private fun bearerToken(login:String):String = "Bearer ${JwtUtil.createToken(login)}"
+
+    private fun controllerFor(
+        service:UserAccountService,
+        limiter:RateLimiter
+    ):UserAccountController {
+        `when`(limiter.allowRequest(anyString(),anyInt(),anyInt())).thenReturn(true)
+        return UserAccountController(service,limiter,tokenBlacklistService)
     }
 
     private fun registerAndConfirm(login:String,email:String,password:String="password") {

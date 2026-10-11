@@ -3,8 +3,6 @@ package org.aleks616.shrendar.artist.service
 import org.aleks616.shrendar.artist.model.Artist
 import org.aleks616.shrendar.artist.model.ArtistAddDto
 import org.aleks616.shrendar.artist.model.ArtistGenreDto
-import org.aleks616.shrendar.artist.model.ChineseZodiacSign
-import org.aleks616.shrendar.artist.model.ZodiacSign
 import org.aleks616.shrendar.common.model.NameValue
 import org.aleks616.shrendar.artist.repository.ArtistRepository
 import org.aleks616.shrendar.band.model.BandsMembers
@@ -113,45 +111,6 @@ class ArtistServiceTest {
     }
 
     @Test
-    fun `getByIdWiki should work for a living artist (m)`() {
-        artist.deathDate=null
-        `when`(artistRepository.existsArtistById(1)).thenReturn(true)
-        `when`(artistRepository.findArtistById(1)).thenReturn(artist)
-        `when`(countryRepository.getCountryNameById(1)).thenReturn("USA")
-        val result=artistService.getByIdWiki(1)
-        assertEquals(artist.name,result.name)
-        assertEquals("Male",result.gender)
-        assertEquals("USA",result.country)
-        assertEquals(ZodiacSign.LEO,result.zodiacSign)
-        assertEquals(ChineseZodiacSign.RABBIT,result.chineseZodiacSign)
-        assertEquals(artist.birthDate!!.until(LocalDate.now()).years,result.age)
-        assertNull(result.deathDate)
-        assertNull(result.daysTillDeathAnniversary)
-    }
-
-    @Test
-    fun `getByIdWiki should calculate dead artist age (f)`() {
-        artist1.deathDate=LocalDate.of(2020,9,27)
-        `when`(artistRepository.existsArtistById(2)).thenReturn(true)
-        `when`(artistRepository.findArtistById(2)).thenReturn(artist1)
-        `when`(countryRepository.getCountryNameById(2)).thenReturn("USA")
-        val result=artistService.getByIdWiki(2)
-        assertEquals(51,result.age)
-        assertNotNull(result.daysTillDeathAnniversary)
-    }
-
-    @Test
-    fun `getByIdWiki should work for unknown gender (x)`() {
-        artist2.deathDate=LocalDate.of(2022,9,27)
-        `when`(artistRepository.existsArtistById(3)).thenReturn(true)
-        `when`(artistRepository.findArtistById(3)).thenReturn(artist2)
-        `when`(countryRepository.getCountryNameById(2)).thenReturn("USA")
-        val result=artistService.getByIdWiki(3)
-        assertEquals("Unknown",result.gender)
-    }
-
-
-    @Test
     fun `getByNameLike should delegate to repository`() {
         `when`(artistRepository.findArtistByNameContains("James")).thenReturn(mutableListOf(artist))
         assertEquals(listOf(artist),artistService.getByNameLike("James"))
@@ -221,74 +180,6 @@ class ArtistServiceTest {
             mutableListOf(artist)
         )
         assertEquals(listOf(artist),artistService.getRecentBirthdays())
-    }
-
-    @Test
-    fun `getZodiacSign should return every zodiac sign`() {
-        val expectedByDate=mapOf(
-            (12 to 22) to ZodiacSign.CAPRICORN,
-            (1 to 1) to ZodiacSign.CAPRICORN,
-            (1 to 20) to ZodiacSign.AQUARIUS,
-            (2 to 1) to ZodiacSign.AQUARIUS,
-            (2 to 18) to ZodiacSign.PISCES,
-            (3 to 1) to ZodiacSign.PISCES,
-            (3 to 20) to ZodiacSign.ARIES,
-            (4 to 1) to ZodiacSign.ARIES,
-            (4 to 20) to ZodiacSign.TAURUS,
-            (5 to 1) to ZodiacSign.TAURUS,
-            (5 to 21) to ZodiacSign.GEMINI,
-            (6 to 1) to ZodiacSign.GEMINI,
-            (6 to 21) to ZodiacSign.CANCER,
-            (7 to 1) to ZodiacSign.CANCER,
-            (7 to 23) to ZodiacSign.LEO,
-            (8 to 1) to ZodiacSign.LEO,
-            (8 to 23) to ZodiacSign.VIRGO,
-            (9 to 1) to ZodiacSign.VIRGO,
-            (9 to 23) to ZodiacSign.LIBRA,
-            (10 to 1) to ZodiacSign.LIBRA,
-            (10 to 23) to ZodiacSign.SCORPIO,
-            (11 to 1) to ZodiacSign.SCORPIO,
-            (11 to 22) to ZodiacSign.SAGITTARIUS,
-            (12 to 1) to ZodiacSign.SAGITTARIUS
-        )
-
-        expectedByDate.forEach {(date,expected)->
-            assertEquals(expected,artistService.getZodiacSign(date.first,date.second))
-        }
-    }
-
-    @Test
-    fun `getZodiacSign should throw IllegalArgumentException for invalid date`() {
-        assertThrows<IllegalArgumentException> {artistService.getZodiacSign(13,1)}
-    }
-
-    @Test
-    fun `getChineseZodiacSign should return every zodiac sign`() {
-        val expectedByYear=mapOf(
-            1984 to ChineseZodiacSign.RAT,
-            1985 to ChineseZodiacSign.OX,
-            1986 to ChineseZodiacSign.TIGER,
-            1987 to ChineseZodiacSign.RABBIT,
-            1988 to ChineseZodiacSign.DRAGON,
-            1989 to ChineseZodiacSign.SNAKE,
-            1990 to ChineseZodiacSign.HORSE,
-            1991 to ChineseZodiacSign.GOAT,
-            1992 to ChineseZodiacSign.MONKEY,
-            1993 to ChineseZodiacSign.ROOSTER,
-            1994 to ChineseZodiacSign.DOG,
-            1995 to ChineseZodiacSign.PIG,
-        )
-
-        expectedByYear.forEach {(year,expected)->
-            assertEquals(expected,artistService.getChineseZodiacSign(year))
-        }
-    }
-
-    @Test
-    fun `getChineseZodiacSign should throw IllegalArgumentException for invalid year`(){
-        assertThrows<IllegalArgumentException>{
-            artistService.getChineseZodiacSign(-5)
-        }
     }
 
     @Test

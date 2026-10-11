@@ -145,7 +145,7 @@ class UserBanControllerTest {
     @Test fun `getBansWithAppeal wraps a service exception`() {
         `when`(bans.getBansWithAppeal()).thenThrow(IllegalStateException("broken"))
         val exception=assertThrows<IllegalStateException> {controller.getBansWithAppeal()}
-        assertEquals("Something went wrong. broken",exception.message)
+        assertEquals("something_wrong. broken",exception.message)
     }
 
     @Test fun `banUser rejects a missing target id`() {
@@ -188,7 +188,7 @@ class UserBanControllerTest {
         assertEquals(history,controller.getAllBansOfUser(3))
         assertEquals(history,controller.getBansByMod(4))
         `when`(bans.getActiveBans()).thenThrow(IllegalStateException("broken"))
-        assertEquals("Something went wrong. broken",assertThrows<IllegalStateException> {controller.getActiveBans()}.message)
+        assertEquals("something_wrong. broken",assertThrows<IllegalStateException> {controller.getActiveBans()}.message)
     }
 
     @Test fun `moderator ban queries reject missing authentication moderator rank and target under current existence guard`() {
@@ -208,7 +208,7 @@ class UserBanControllerTest {
         controller.getCurrentUserBanData(3)
         verify(bans).getCurrentUserBan(3)
         doThrow(IllegalStateException("none")).`when`(bans).getCurrentUserBan(3)
-        assertEquals("Something went wrong. none",assertThrows<IllegalStateException> {controller.getCurrentUserBanData(3)}.message)
+        assertEquals("something_wrong. none",assertThrows<IllegalStateException> {controller.getCurrentUserBanData(3)}.message)
     }
 
     @Test fun `ban validates moderator input and target before saving`() {

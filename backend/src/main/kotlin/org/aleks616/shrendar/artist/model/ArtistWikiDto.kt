@@ -1,5 +1,6 @@
 package org.aleks616.shrendar.artist.model
 
+import org.aleks616.shrendar.band.model.ArtistBandsHistoryDto
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -17,5 +18,7 @@ data class ArtistWikiDto(
     val zodiacSign:ZodiacSign?=null,
     val chineseZodiacSign:ChineseZodiacSign?=null,
     val description:String?=null,
-    val artistImageUrl:String?=null
+    val artistImageUrl:String?=null,
+    val bands:List<ArtistBandsHistoryDto>?=null,
+    val favorite:Boolean?=null
 ):Serializable

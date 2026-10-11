@@ -172,13 +172,6 @@ class AlbumControllerTest {
         }
 
         @Test
-        fun `getAlbumsByBandId should return albums for existing band`() {
-            `when`(albumService.doesBandExist(1)).thenReturn(true)
-            controller.getAlbumsByBandId(1)
-            verify(albumService).getAlbumsByBandId(1)
-        }
-
-        @Test
         fun `getAlbumsByBandNameLike should return albums`() {
             controller.getAlbumsByBandNameLike("Metallica")
             verify(albumService).getAlbumsByBandName("Metallica")
@@ -251,7 +244,7 @@ class AlbumControllerTest {
             val result=controller.addAlbum(dto,request)
 
             assertEquals(HttpStatus.TOO_MANY_REQUESTS,result.statusCode)
-            assertEquals("Too many requests from this user",result.body)
+            assertEquals("too_many_user_requests",result.body)
         }
 
         @Test
@@ -339,7 +332,7 @@ class AlbumControllerTest {
             val result=controller.addAlbum(dto,request)
 
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,result.statusCode)
-            assertEquals("An unexpected error occurred: broken",result.body)
+            assertEquals("unexpected_error: broken",result.body)
         }
         //endregion
         //region editAlbum
@@ -761,7 +754,7 @@ class AlbumControllerTest {
             content=objectMapper.writeValueAsString(albumAddDto)
         }.andExpect {
             status {isOk()}
-            content {string("Album addition request received")}
+            content {string("album_addition_recieved")}
         }
 
         val album=albumRepository.findAll().find {it.title=="Ride the Lightning"}
@@ -887,7 +880,7 @@ class AlbumControllerTest {
             this.band=band
         })
 
-        mockMvc.get("/api/album/band/${band.id}")
+        mockMvc.get("/api/band/${band.id}/albums")
             .andExpect {
                 status {isOk()}
                 content {json("[{'title':'Band Album'}]")}
@@ -897,7 +890,7 @@ class AlbumControllerTest {
     @Test
     fun `getAlbumsByBandId should throw exception for non-existent band`() {
         assertThrows<jakarta.servlet.ServletException> {
-            mockMvc.get("/api/album/band/999")
+            mockMvc.get("/api/band/999/albums")
         }
     }
 
