@@ -14,4 +14,4 @@ final class AlbumDataViewTests: XCTestCase {
 		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 20))
 	}
 }
-//fails
+

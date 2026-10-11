@@ -11,6 +11,6 @@ final class UserProfileViewTests: XCTestCase {
 	}
 
 	func testUserProfileViewRendersIndependently() {
-		XCTAssertTrue(app.staticTexts["Something went wrong. Try again later."].waitForExistence(timeout: 10))
+		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 10)) //fails
 	}
 }

@@ -14,7 +14,7 @@ final class SettingsViewTests: XCTestCase {
 		XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
 		XCTAssertTrue(app.textFields["settings.username"].exists)
 		XCTAssertTrue(app.textFields["settings.email"].exists)
-		XCTAssertTrue(app.buttons["settings.birthdate"].exists)
+		XCTAssertTrue(app.datePickers["settings.birthdate"].exists)
 		XCTAssertTrue(app.buttons["settings.save"].exists)
 		XCTAssertTrue(app.buttons["settings.changePassword"].exists)
 		XCTAssertTrue(app.buttons["settings.deleteAccount"].exists)

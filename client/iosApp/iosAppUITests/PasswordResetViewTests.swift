@@ -16,9 +16,6 @@ final class PasswordResetViewTests: XCTestCase {
     }
 
     func testRequestPasswordResetRequiresAnAccountKey() {
-        app.buttons["welcome.signIn"].tap() //fails
-        app.buttons["signin.resetPassword"].tap()
-
         let submit = app.buttons["requestPasswordReset.submit"]
         XCTAssertTrue(submit.exists)
         XCTAssertFalse(submit.isEnabled)

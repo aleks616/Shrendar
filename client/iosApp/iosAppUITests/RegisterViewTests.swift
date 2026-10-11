@@ -31,7 +31,8 @@ final class RegisterViewTests: XCTestCase {
 		
 		let password = app.secureTextFields["register.password"]
 		password.tap()
-		password.typeText("Test1234a") //fails with  a weird error
+		password.waitForExistence(timeout: 2)
+		password.typeText("Test1234a") //refactor register screen and test again
 		let confirmPassword = app.secureTextFields["register.confirmPassword"]
 		confirmPassword.tap()
 		confirmPassword.typeText("Test1234a")
