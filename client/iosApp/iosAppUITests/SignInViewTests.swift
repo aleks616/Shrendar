@@ -6,8 +6,8 @@ final class SignInViewTests: XCTestCase {
 	override func setUpWithError() throws {
 		continueAfterFailure = false
 		app = XCUIApplication()
+		app.launchArguments = ["--test-view=signIn"]
 		app.launch()
-		app.buttons["welcome.signIn"].tap()
 	}
 	
 	func testSignInFormRequiresBothFieldsBeforeSubmission() {
@@ -17,6 +17,7 @@ final class SignInViewTests: XCTestCase {
 		
 		XCTAssertTrue(app.textFields["signIn.login"].exists)
 		XCTAssertTrue(app.secureTextFields["signIn.password"].exists)
+		XCTAssertTrue(app.buttons["signin.resetPassword"].exists)
 	}
 	
 	func testSignInFormEnablesSubmissionWhenCredentialsAreEntered() {

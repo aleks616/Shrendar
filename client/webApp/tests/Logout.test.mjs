@@ -1,24 +1,19 @@
 import assert from "node:assert/strict"
 import {after,before,test} from "node:test"
-import {createComponentTestServer,renderComponent} from "./test-utils.mjs"
+import {createComponentTestServer} from "./test-utils.mjs"
 
 let server
 
 before(async () => {
-    server= await createComponentTestServer()
+    server=await createComponentTestServer()
 })
 
 after(async () => {
     await server.close()
 })
 
-test("renders a localized logout button",async function testRendersLocalizedLogoutButton(){
-    const markup=await renderComponent(
-        server,
-        "/src/components/Logout/Logout.tsx",
-        "default",
-    )
+test("returns no_token when no account is signed in",async function testLogoutWithoutToken(){
+    const {logout}=await server.ssrLoadModule("/src/components/Logout/Logout.tsx")
 
-    assert.match(markup,/<button\b/)
-    assert.match(markup,/Log out/)
+    assert.equal(await logout(),"no_token")
 })

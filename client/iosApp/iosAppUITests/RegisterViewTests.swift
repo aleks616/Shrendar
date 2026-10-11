@@ -6,8 +6,8 @@ final class RegisterViewTests: XCTestCase {
 	override func setUpWithError() throws {
 		continueAfterFailure = false
 		app = XCUIApplication()
+		app.launchArguments = ["--test-view=register"]
 		app.launch()
-		app.buttons["welcome.createAccount"].tap()
 	}
 	
 	func testRegisterFormRequiresAllFieldsBeforeSubmission() {
@@ -31,7 +31,8 @@ final class RegisterViewTests: XCTestCase {
 		
 		let password = app.secureTextFields["register.password"]
 		password.tap()
-		password.typeText("Test1234a")
+		password.waitForExistence(timeout: 2)
+		password.typeText("Test1234a") //refactor register screen and test again
 		let confirmPassword = app.secureTextFields["register.confirmPassword"]
 		confirmPassword.tap()
 		confirmPassword.typeText("Test1234a")
