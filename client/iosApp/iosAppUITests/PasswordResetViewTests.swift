@@ -11,6 +11,7 @@ final class PasswordResetViewTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
+        app.launchArguments = ["--test-view=passwordReset"]
         app.launch()
     }
 
@@ -31,8 +32,6 @@ final class PasswordResetViewTests: XCTestCase {
     }
 
     func testCreatePasswordRequiresBothPasswordFields() {
-        app.open(URL(string: "shrendar://reset-password?code=123456&account=alice%40example.com")!)
-
         let submit = app.buttons["resetPassword.submit"]
         XCTAssertTrue(submit.exists)
         XCTAssertFalse(submit.isEnabled)
@@ -41,8 +40,6 @@ final class PasswordResetViewTests: XCTestCase {
     }
 
     func testCreatePasswordShowsMismatchError() {
-        app.open(URL(string: "shrendar://reset-password?code=123456&account=alice%40example.com")!)
-
         let password = app.secureTextFields["resetPassword.password"]
         XCTAssertTrue(password.waitForExistence(timeout: 5))
         XCTAssertTrue(password.isHittable)
