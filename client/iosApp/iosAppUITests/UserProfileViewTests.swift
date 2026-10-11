@@ -11,6 +11,7 @@ final class UserProfileViewTests: XCTestCase {
 	}
 
 	func testUserProfileViewRendersIndependently() {
-		XCTAssertTrue(app.activityIndicators.firstMatch.waitForExistence(timeout: 10)) //fails
+		let username = app.staticTexts["profile.username"]
+		XCTAssertTrue(username.waitForExistence(timeout: 10))
 	}
 }

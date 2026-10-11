@@ -106,7 +106,7 @@ struct RegisterView: View {
 							focusedField = nil
 						}
 					}
-				}.accessibilityIdentifier("register.form")
+				}
 
 				Text(errorText ?? "").foregroundStyle(.red)
 

@@ -166,6 +166,7 @@ struct UserProfileView: View {
 								VStack(alignment: .leading, spacing: 2) {
 									Text(user.username)
 										.font(.title2.bold())
+										.accessibilityIdentifier("profile.username")
 									Text("@\(user.login)")
 										.font(.title3)
 										.foregroundStyle(.secondary)

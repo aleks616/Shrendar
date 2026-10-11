@@ -35,7 +35,7 @@ struct iOSApp: App {
 					case "settings":
 						SettingsView()
 					case "profile":
-						UserProfileView(login: "")
+						UserProfileView(login: "admin")
 					case "artist":
 						ArtistDataView(artistId: 144)
 					case "band":
