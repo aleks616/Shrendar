@@ -17,6 +17,7 @@ final class SignInViewTests: XCTestCase {
 		
 		XCTAssertTrue(app.textFields["signIn.login"].exists)
 		XCTAssertTrue(app.secureTextFields["signIn.password"].exists)
+		XCTAssertTrue(app.buttons["signin.resetPassword"].exists)
 	}
 	
 	func testSignInFormEnablesSubmissionWhenCredentialsAreEntered() {
