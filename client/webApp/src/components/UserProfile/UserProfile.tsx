@@ -1,33 +1,40 @@
 import React,{useEffect,useState} from 'react'
 import {Navigate,useParams} from "react-router-dom"
-import {ProfileClient,UserProfileDto} from "sharedLogic"
+import {ProfileClient,ReportClient,ReportRequestDto,UserProfileDto} from "sharedLogic"
 import {
     Avatar,
     Badge,
+    Button,
     EmptyState,
+    FieldError,
     Label,
     Link as HerouiLink,
+    Modal,
     ProgressBar,
     Spinner,
-    Surface,
     Table,
     Tabs,
+    TextArea,
+    TextField,
     ToggleButton,
     Tooltip
 } from "@heroui/react"
 import {InboxIcon,StarIcon,UserIcon} from '@heroicons/react/24/solid'
 import {StarIcon as StarIconOutline} from '@heroicons/react/24/outline'
-import {loremIpsum} from "lorem-ipsum"
 import {isMobile} from "react-device-detect"
 import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
 import {DataTable} from "../DataTable/DataTable.tsx"
-import {toggleBandFavorite,toggleArtistFavorite,toggleGenreFavorite} from "../../helpers/toggleFavorite.tsx"
+import {toggleArtistFavorite,toggleBandFavorite,toggleGenreFavorite} from "../../helpers/toggleFavorite.tsx"
+import {loremIpsum} from "lorem-ipsum";
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 
 export function UserProfile({strings}: { strings: Record<string,string> }){
     const [user,setUser]=useState<UserProfileDto | null>(new UserProfileDto())
     const [isLoading,setIsLoading]=useState(true)
+    const [isOpen,setIsOpen]=useState(false)
+    const [reportReason,setReportReason]=useState("")
+    const [canReport,setCanReport]=useState(false)
     const translate=(key: string) => strings[key]??key
     const params=useParams()
     const userParam=params.user
@@ -39,6 +46,9 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
             setIsLoading(false)
             if(userData!=null){
                 setUser(userData)
+                if(token!=null){
+                    setCanReport(await ReportClient.getInstance().canReport(userData.userId,token))
+                }
             }
             else{
                 setUser(null)
@@ -95,12 +105,26 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
         if(result!="bio_added") console.log(result)
     }
 
+    const reportUser=async () => {
+        setIsOpen(false)
+        const token=localStorage.getItem("token")
+        if(token==null){
+            console.log("no token")
+            return
+        }
+        const reportRequest=new ReportRequestDto(user.userId,reportReason)
+        const result=await ReportClient.getInstance().reportUser(reportRequest,token)
+        if(result!="report_success") console.log(result)
+        setReportReason("")
+        return
+    }
+
     const mobile=isMobile
 
     return (
-        <div className={"flex flex-col gap-4 max-w-4xl mx-3"}>
-            <div className={"flex gap-3"}>
-                <div>
+        <div className={"flex flex-col gap-4 max-w-3xl mx-3"}>
+            <section className={"w-full flex content-around"}>
+                <div className={"flex gap-3 flex-1"}>
                     <Badge.Anchor>
                         <Avatar size={"lg"} color="accent" variant="soft" className={"size-20"}>
                             <Avatar.Image src={BLUE_AVATAR_URL}/>
@@ -117,13 +141,17 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                             </Tooltip.Content>
                         </Tooltip>
                     </Badge.Anchor>
+                    <div>
+                        <p className={"text-2xl font-bold"}>{user.username}</p>
+                        <p className={"text-lg text-muted"}>@{user.login}</p>
+                        <p className={"text-sm"}>{translate("member_since")} {translateDate(user.accountAge!)}</p>
+                    </div>
                 </div>
-                <div>
-                    <p className={"text-2xl font-bold"}>{user.username}</p>
-                    <p className={"text-lg text-muted"}>@{user.login}</p>
-                    <p className={"text-sm"}>{translate("member_since")} {translateDate(user.accountAge!)}</p>
-                </div>
-            </div>
+                {!isOwnProfile&&
+                    <Button variant={"danger-soft"} onPress={() => setIsOpen(true)} isDisabled={!canReport}>
+                        Report
+                    </Button>}
+            </section>
             {calculateRankProgress()!= -1&&
                 <ProgressBar value={calculateRankProgress()*100}>
                     <Label>
@@ -138,21 +166,15 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         <ProgressBar.Fill/>
                     </ProgressBar.Track>
                 </ProgressBar>}
-            <div className={"md:min-w-2xl"}>
+            <section className={"md:min-w-2xl"}>
                 <p>{translate("bio")}</p>
-                {user.user?(
-                    <EditableSurface
-                        value={user.bio??""}
-                        onSave={updateBio}
-                    />
-                ):(
-                    <Surface className={"h-52 w-full border-accent rounded-xl p-2 overflow-y-auto"}
-                             variant={"secondary"}>
-                        {user.bio??loremIpsum({count: 8,units: "sentences"})}
-                    </Surface>
-                )}
-            </div>
-            <div className={mobile?"w-96":"w-full"}>
+                <EditableSurface
+                    value={user.bio??loremIpsum({count: 5,units: "sentences"})}
+                    onSave={updateBio}
+                    canEdit={isOwnProfile}
+                />
+            </section>
+            <section className={mobile?"w-96":"w-full"}>
                 <Tabs variant={"secondary"}>
                     <Tabs.ListContainer>
                         <Tabs.List aria-label="Options">
@@ -404,7 +426,40 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                         />
                     </Tabs.Panel>
                 </Tabs>
-            </div>
+            </section>
+            <Modal.Backdrop isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={false}>
+                <Modal.Container size={"lg"}>
+                    <Modal.Dialog>
+                        <Modal.CloseTrigger/>
+                        <Modal.Header>
+                            <Modal.Heading>Report <span className={"italic"}>{user.username}</span>?</Modal.Heading>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div>
+                                <TextField isInvalid={reportReason.length>0&&reportReason.length<15} isRequired>
+                                    <Label>Reason for reporting</Label>
+                                    <TextArea
+                                        autoFocus
+                                        fullWidth
+                                        value={reportReason}
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        className="min-h-32 w-full resize-none p-2 rounded-xl border-accent focus:outline-none"
+                                    />
+                                    <FieldError>Report reason must be at least 15 characters long.</FieldError>
+                                </TextField>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button slot="close" variant="tertiary">
+                                Cancel
+                            </Button>
+                            <Button variant={"danger"} onPress={reportUser} isDisabled={reportReason.length<15}>
+                                Report
+                            </Button>
+                        </Modal.Footer>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </div>
     )
 }

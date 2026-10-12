@@ -5,9 +5,10 @@ import { PencilIcon, CheckIcon } from '@heroicons/react/24/outline'
 interface EditableSurfaceProps {
     value: string
     onSave?: (value: string) => void
+    canEdit?: boolean
 }
 
-export function EditableSurface({ value, onSave }: EditableSurfaceProps) {
+export function EditableSurface({ value, onSave, canEdit }: EditableSurfaceProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [text, setText] = useState(value)
 
@@ -52,6 +53,7 @@ export function EditableSurface({ value, onSave }: EditableSurfaceProps) {
             <div className="whitespace-pre-wrap pr-8">
                 {text}
             </div>
+            {canEdit&&
             <Button
                 isIconOnly
                 size="sm"
@@ -61,7 +63,7 @@ export function EditableSurface({ value, onSave }: EditableSurfaceProps) {
                 className="absolute bottom-2 right-2 text-accent hover:text-accent/80"
             >
                 <PencilIcon className="h-5 w-5" />
-            </Button>
+            </Button>}
         </Surface>
     )
 }

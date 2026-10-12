@@ -31,7 +31,7 @@ class UserService(
 
     fun getUserProfile(login:String,userLogin:String):UserProfileDto {
         val user:User=userRepository.findByLogin(login)?:throw IllegalArgumentException("User not found")
-        if(user.deleted==true) return UserProfileDto(
+        if(user.deleted==true) return UserProfileDto(1,
             "deleted","deleted",0,"none",0,"deleted"
         )
         val favoriteBandsRaw=userBandRepository.findByUser(user)
@@ -64,6 +64,7 @@ class UserService(
         val contributions=contributionService.getContributionsByRequestingUser(user.id)
 
         return UserProfileDto(
+            userId=user.id,
             user.login,
             user.username,
             user.rank.id,
@@ -88,14 +89,14 @@ class UserService(
         val months=diff%365/30
         val weeks=diff%365%30/7
         val days=diff%365%30%7
-        return if(years>1) "$years time_Yp"
-        else if(years>0) "$years time_Y"
-        else if(months>1) "$months time_Mp"
-        else if(months>0) "$months time_M"
-        else if(weeks>1) "$weeks time_Wp"
+        return if(years>1) "$years time_yp"
+        else if(years>0) "$years time_y"
+        else if(months>1) "$months time_mp"
+        else if(months>0) "$months time_m"
+        else if(weeks>1) "$weeks time_wp"
         else if(weeks>0) "$weeks time_W"
-        else if(days>1) "$days time_Dp"
-        else "$days time_D"
+        else if(days>1) "$days time_dp"
+        else "$days time_d"
     }
 
     fun timeSinceLogin(userId:Int):String {
