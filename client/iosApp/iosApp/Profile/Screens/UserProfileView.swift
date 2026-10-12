@@ -127,8 +127,11 @@ struct UserProfileView: View {
 		isReportDialogOpen = false
 		Task { @MainActor in
 			do {
+				if user?.userId == nil {
+					return
+				}
 				let reportRequest = ReportRequestDto(
-					reportedUserId: Int32(user?.userId ?? 0),
+					reportedUserId: Int32(user!.userId),
 					reason: reportReason
 				)
 				let token = KeychainService.retrieveToken()
@@ -330,7 +333,7 @@ struct UserProfileView: View {
 						ToolbarItem(placement: .confirmationAction) {
 							Button(localize(key: "report")) {
 								reportUser()
-							}
+							}.tint(.red)
 							.disabled(
 								reportReason.count > 0 && reportReason.count < 15
 							)

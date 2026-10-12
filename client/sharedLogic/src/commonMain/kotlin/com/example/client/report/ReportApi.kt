@@ -50,6 +50,9 @@ class ReportApi private constructor(
             if(e.response.status.value==404) "not_found"
             else e.response.bodyAsText()
         }
+        catch(e:Exception){
+            "${e.message}"
+        }
     }
 
     companion object {
