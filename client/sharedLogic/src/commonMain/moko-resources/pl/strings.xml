@@ -533,4 +533,7 @@
     <string name="band">Zespół</string>
     <string name="years_since">Lata od wydania</string>
     <string name="anniversary_in">rocznica za </string>
+    <string name="report">Zgłoś</string>
+    <string name="report_invalid">Powód zgłoszenia musi mieć co najmniej 15 znaków.</string>
+    <string name="report_reason">Powód zgłoszenia</string>
 </resources>

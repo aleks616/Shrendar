@@ -149,7 +149,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                 </div>
                 {!isOwnProfile&&
                     <Button variant={"danger-soft"} onPress={() => setIsOpen(true)} isDisabled={!canReport}>
-                        Report
+                        {translate("report")}
                     </Button>}
             </section>
             {calculateRankProgress()!= -1&&
@@ -169,7 +169,7 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
             <section className={"md:min-w-2xl"}>
                 <p>{translate("bio")}</p>
                 <EditableSurface
-                    value={user.bio??loremIpsum({count: 5,units: "sentences"})}
+                    value={user.bio??loremIpsum({count:5,units:"sentences"})}
                     onSave={updateBio}
                     canEdit={isOwnProfile}
                 />
@@ -432,12 +432,12 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                     <Modal.Dialog>
                         <Modal.CloseTrigger/>
                         <Modal.Header>
-                            <Modal.Heading>Report <span className={"italic"}>{user.username}</span>?</Modal.Heading>
+                            <Modal.Heading>{translate("report")} <span className={"italic"}>{user.username}</span>?</Modal.Heading>
                         </Modal.Header>
                         <Modal.Body>
                             <div>
                                 <TextField isInvalid={reportReason.length>0&&reportReason.length<15} isRequired>
-                                    <Label>Reason for reporting</Label>
+                                    <Label>{translate("report_reason")}</Label>
                                     <TextArea
                                         autoFocus
                                         fullWidth
@@ -445,16 +445,16 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
                                         onChange={(e) => setReportReason(e.target.value)}
                                         className="min-h-32 w-full resize-none p-2 rounded-xl border-accent focus:outline-none"
                                     />
-                                    <FieldError>Report reason must be at least 15 characters long.</FieldError>
+                                    <FieldError>{translate("report_invalid")}</FieldError>
                                 </TextField>
                             </div>
                         </Modal.Body>
                         <Modal.Footer>
                             <Button slot="close" variant="tertiary">
-                                Cancel
+                                {translate("cancel")}
                             </Button>
                             <Button variant={"danger"} onPress={reportUser} isDisabled={reportReason.length<15}>
-                                Report
+                                {translate("report")}
                             </Button>
                         </Modal.Footer>
                     </Modal.Dialog>

@@ -531,4 +531,7 @@
     <string name="band">Band</string>
     <string name="years_since">Years since</string>
     <string name="anniversary_in">anniversary in</string>
+    <string name="report">Report</string>
+    <string name="report_invalid">Report reason must be at least 15 characters long.</string>
+    <string name="report_reason">Reason for reporting</string>
 </resources>

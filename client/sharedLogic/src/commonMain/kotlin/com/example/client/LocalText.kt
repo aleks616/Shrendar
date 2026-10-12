@@ -543,6 +543,9 @@ class LocalText {
             "band"->MR.strings.band
             "years_since"->MR.strings.years_since
             "anniversary_in"->MR.strings.anniversary_in
+            "report"->MR.strings.report
+            "report_invalid"->MR.strings.report_invalid
+            "report_reason"->MR.strings.report_reason
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
