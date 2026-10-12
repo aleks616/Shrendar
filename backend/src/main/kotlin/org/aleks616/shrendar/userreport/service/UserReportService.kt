@@ -56,7 +56,7 @@ class UserReportService(
     }
     fun canReport(reportUserId:Int,requestingUserLogin:String):Boolean{
         val requestingUser=userRepository.findByLogin(requestingUserLogin)?.id?:return false
-        val since=Instant.now().minusSeconds(14*24*60*60)
+        val since=Instant.now().minusSeconds(14*24*60*60) //14 days
         val data=usersReportRepository.findRecentByUser(requestingUser,reportUserId,since)
         return !data.any()
     }

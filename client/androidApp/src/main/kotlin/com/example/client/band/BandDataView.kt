@@ -451,7 +451,7 @@ fun BandDataView(
                     if(showingGenreInformation) {
                         AlertDialog(
                             onDismissRequest={showingGenreInformation=false},
-                            containerColor=MaterialTheme.colorScheme.surface,
+                            containerColor=MaterialTheme.colorScheme.background,
                             titleContentColor=MaterialTheme.colorScheme.onSurface,
                             textContentColor=MaterialTheme.colorScheme.onSurface,
                             tonalElevation=0.dp,

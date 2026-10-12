@@ -7,12 +7,14 @@ struct UserProfileView: View {
 	@State var user: UserProfileDto?
 	@State var isLoading = true
 	@State var selectedTab: ProfileTab = .favoriteBands
-	@State var errorText: String?
 	@State var favoriteBandIDs = Set<String>()
 	@State var favoriteArtistIDs = Set<String>()
 	@State var favoriteGenreIDs = Set<String>()
 	@State var showLastOnline = false
 	@State var bio = ""
+	@State var isReportDialogOpen = false
+	@State var reportReason = ""
+	@State var canReport = true
 
 	let ranks = [
 		1, 15, 40, 120, 270, 520, 820, 1200, 1700,
@@ -27,16 +29,15 @@ struct UserProfileView: View {
 
 		var localizationKey: String {
 			switch self {
-				case .favoriteBands:
-					return "favorite_bands"
-				case .favoriteArtists:
-					return "favorite_artists"
-				case .favoriteGenres:
-					return "favorite_genres"
+			case .favoriteBands:
+				return "favorite_bands"
+			case .favoriteArtists:
+				return "favorite_artists"
+			case .favoriteGenres:
+				return "favorite_genres"
 			}
 		}
 	}
-
 
 	func toggleBandFavorite(_ band: FavoriteBandDto) {
 		guard let id = band.id else { return }
@@ -47,12 +48,12 @@ struct UserProfileView: View {
 					token: KeychainService.retrieveToken()
 				)
 				guard result == "band_toggled" else {
-					errorText = result ?? localize(key: "something_wrong")
+					print(result ?? "")
 					return
 				}
 				toggleFavorite(id, in: &favoriteBandIDs)
 			} catch {
-				errorText = error.localizedDescription
+				print(error.localizedDescription)
 			}
 		}
 	}
@@ -66,12 +67,12 @@ struct UserProfileView: View {
 					token: KeychainService.retrieveToken()
 				)
 				guard result == "artist_toggled" else {
-					errorText = result ?? localize(key: "something_wrong")
+					print(result ?? "")
 					return
 				}
 				toggleFavorite(id, in: &favoriteArtistIDs)
 			} catch {
-				errorText = error.localizedDescription
+				print(error.localizedDescription)
 			}
 		}
 	}
@@ -85,12 +86,12 @@ struct UserProfileView: View {
 					token: KeychainService.retrieveToken()
 				)
 				guard result == "genre_toggled" else {
-					errorText = result ?? localize(key: "something_wrong")
+					print(result ?? "")
 					return
 				}
 				toggleFavorite(id, in: &favoriteGenreIDs)
 			} catch {
-				errorText = error.localizedDescription
+				print(error.localizedDescription)
 			}
 		}
 	}
@@ -113,12 +114,36 @@ struct UserProfileView: View {
 					token: KeychainService.retrieveToken()
 				)
 				guard result == "bio_added" else {
-					errorText = result ?? localize(key: "something_wrong")
+					print(result)
 					return
 				}
 			} catch {
-				errorText = localize(key: "something_wrong")
+				print("updating bio error")
 			}
+		}
+	}
+
+	func reportUser() {
+		isReportDialogOpen = false
+		Task { @MainActor in
+			do {
+				let reportRequest = ReportRequestDto(
+					reportedUserId: Int32(user?.userId ?? 0),
+					reason: reportReason
+				)
+				let token = KeychainService.retrieveToken()
+				let result = try await ReportClient().reportUser(
+					report: reportRequest,
+					token: token
+				)
+				if result == "report_success" {
+					reportReason = ""
+					canReport = false
+				}
+			} catch {
+				print(error.localizedDescription)
+			}
+
 		}
 	}
 
@@ -132,49 +157,57 @@ struct UserProfileView: View {
 				} else if let user {
 					ScrollView {
 						VStack(alignment: .leading, spacing: 16) {
-							HStack(spacing: 14) {
-								ZStack(alignment: .bottomTrailing) {
-									Image(systemName: "person.fill")
-										.resizable()
-										.scaledToFit()
-										.padding(16)
-										.foregroundStyle(Color.accentColor)
-									.frame(width: 80, height: 80)
-									.background(Color.accentColor.opacity(0.15))
-									.clipShape(RoundedRectangle(cornerRadius: 16))
+							HStack {
+								HStack(spacing: 14) {
+									ZStack(alignment: .bottomTrailing) {
+										Image(systemName: "person.fill")
+											.resizable()
+											.scaledToFit()
+											.padding(16)
+											.foregroundStyle(Color.accentColor)
+											.frame(width: 80, height: 80)
+											.background(Color.accentColor.opacity(0.15))
+											.clipShape(RoundedRectangle(cornerRadius: 16))
 
-									Circle()
-										.fill(.gray)
-										.frame(width: 24, height: 24)
-										.overlay {
-											Circle()
-												.stroke(.background, lineWidth: 2)
-										}
-										.offset(x: 6, y: 6)
-										.onTapGesture {
-											showLastOnline = true
-										}
-										.popover(isPresented: $showLastOnline) {
-											Text(
-												"\(localize(key: "last_online")) \(translateDate(user.lastLogin))"
-											)
-											.padding()
-											.presentationCompactAdaptation(.popover)
-										}
-								}
+										Circle()
+											.fill(.gray)
+											.frame(width: 24, height: 24)
+											.overlay {
+												Circle()
+													.stroke(.background, lineWidth: 2)
+											}
+											.offset(x: 6, y: 6)
+											.onTapGesture {
+												showLastOnline = true
+											}
+											.popover(isPresented: $showLastOnline) {
+												Text(
+													"\(localize(key: "last_online")) \(translateDate(user.lastLogin))"
+												)
+												.padding()
+												.presentationCompactAdaptation(.popover)
+											}
+									}
 
-								VStack(alignment: .leading, spacing: 2) {
-									Text(user.username)
-										.font(.title2.bold())
-										.accessibilityIdentifier("profile.username")
-									Text("@\(user.login)")
-										.font(.title3)
-										.foregroundStyle(.secondary)
-									Text(
-										"\(localize(key: "member_since")) \(translateDate(user.accountAge))"
-									)
-									.font(.footnote)
+									VStack(alignment: .leading, spacing: 2) {
+										Text(user.username)
+											.font(.title2.bold())
+											.accessibilityIdentifier("profile.username")
+										Text("@\(user.login)")
+											.font(.title3)
+											.foregroundStyle(.secondary)
+										Text(
+											"\(localize(key: "member_since")) \(translateDate(user.accountAge))"
+										)
+										.font(.footnote)
+									}
 								}
+								Spacer()
+								Button(localize(key: "report")) {
+									isReportDialogOpen = true
+								}.buttonStyle(.glass)
+									.disabled(!canReport)
+									.tint(.red)
 							}
 
 							if let progress = calculateRankProgress(for: user) {
@@ -211,7 +244,10 @@ struct UserProfileView: View {
 								} else {
 									ScrollView {
 										Text(user.bio ?? "")
-											.frame(maxWidth: .infinity, alignment: .leading)
+											.frame(
+												maxWidth: .infinity,
+												alignment: .leading
+											)
 											.padding(10)
 									}
 									.frame(
@@ -226,12 +262,6 @@ struct UserProfileView: View {
 									)
 									.clipShape(RoundedRectangle(cornerRadius: 12))
 								}
-							}
-
-							if let errorText {
-								Text(errorText)
-									.font(.footnote)
-									.foregroundStyle(.red)
 							}
 
 							Picker("", selection: $selectedTab) {
@@ -277,6 +307,41 @@ struct UserProfileView: View {
 				}
 			}
 			.navigationBarTitleDisplayMode(.inline)
+			.sheet(isPresented: $isReportDialogOpen) {
+				NavigationStack {
+					Form {
+						TextField(
+							localize(key: "report_reason"),
+							text: $reportReason,
+							axis: .vertical
+						)
+						.accessibilityIdentifier("profile.reportuser.reason")
+						.lineLimit(3...8)
+					}
+					.navigationTitle(
+						"\(localize(key: "report")) \(user?.login ?? "error")?"
+					)
+					.toolbar {
+						ToolbarItem(placement: .cancellationAction) {
+							Button(localize(key: "cancel")) {
+								isReportDialogOpen = false
+							}
+						}
+						ToolbarItem(placement: .confirmationAction) {
+							Button(localize(key: "report")) {
+								reportUser()
+							}
+							.disabled(
+								reportReason.count > 0 && reportReason.count < 15
+							)
+						}
+					}
+					if reportReason.count > 0 && reportReason.count < 15 {
+						Text(localize(key: "report_invalid")).foregroundStyle(.red)
+							.font(.footnote)
+					}
+				}.presentationDetents([.large])
+			}
 		}
 		.task(id: login) {
 			await loadUser()
@@ -299,19 +364,18 @@ struct UserProfileView: View {
 
 	func loadUser() async {
 		isLoading = true
-		errorText = nil
 
 		guard !login.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 		else {
-			errorText = localize(key: "something_wrong")
 			isLoading = false
 			return
 		}
 
 		do {
+			let authToken = KeychainService.retrieveToken()
 			let profile = try await ProfileClient().getUserProfile(
 				login: login,
-				token: KeychainService.retrieveToken()
+				token: authToken
 			)
 			user = profile
 			bio = profile?.bio ?? ""
@@ -331,10 +395,16 @@ struct UserProfileView: View {
 				} ?? []
 			)
 			if profile == nil {
-				errorText = localize(key: "something_wrong")
+				print("no profile data")
+			}
+			if authToken != nil {
+				let result = try await ReportClient().canReport(
+					userId: Int32(user?.userId ?? 0),
+					token: authToken ?? ""
+				)
+				canReport = result as! Bool
 			}
 		} catch {
-			errorText = error.localizedDescription
 			user = nil
 		}
 		isLoading = false

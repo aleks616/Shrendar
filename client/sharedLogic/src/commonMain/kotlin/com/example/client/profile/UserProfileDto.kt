@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 @JsExport
 @Serializable
 data class UserProfileDto(
+    val userId:Int=0,
     val login:String="",
     val username:String="",
     val rankId:Int=1,

@@ -10,6 +10,7 @@ import java.io.Serializable
  * DTO for {@link org.aleks616.shrendar.user.model.User}
  */
 data class UserProfileDto(
+    val userId:Int?=null,
     val login:String?=null,
     val username:String?=null,
     val rankId:Int?=null,
