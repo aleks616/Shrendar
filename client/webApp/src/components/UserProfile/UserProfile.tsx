@@ -114,8 +114,12 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
         }
         const reportRequest=new ReportRequestDto(user.userId,reportReason)
         const result=await ReportClient.getInstance().reportUser(reportRequest,token)
-        if(result!="report_success") console.log(result)
+        if(result!="report_success"){
+            console.log(result)
+            return
+        }
         setReportReason("")
+        setCanReport(false)
         return
     }
 

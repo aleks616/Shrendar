@@ -40,7 +40,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.EventDataView>(),
+                startDestination=createRoutePattern<Destinations.Profile>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(

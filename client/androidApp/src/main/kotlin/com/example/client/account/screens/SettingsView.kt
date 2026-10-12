@@ -339,6 +339,7 @@ fun SettingsView(
 
         if(modalOpen) {
             AlertDialog(
+                containerColor=MaterialTheme.colorScheme.background,
                 onDismissRequest={modalOpen=false},
                 title={Text(text=stringResource(MR.strings.delete_account))},
                 text={

@@ -1,6 +1,8 @@
 package com.example.client.report
 
 import com.example.client.BASE_URL
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -23,11 +25,11 @@ class ReportApi private constructor(
 ) {
     constructor():this(BASE_URL,createHttpClient())
     internal constructor(testClient:HttpClient):this(BASE_URL,testClient)
-
     suspend fun canReport(userId:Int,token:String):Boolean{
         return try{
             client.post("$BASE_URL/report/check"){
                 header("Authorization","Bearer $token")
+                contentType(ContentType.Application.Json)
                 setBody(userId)
             }.body()
         }
