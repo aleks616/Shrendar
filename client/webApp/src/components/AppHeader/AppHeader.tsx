@@ -39,7 +39,7 @@ export function AppHeader(){
     }
 
     return (
-        <header className={"flex justify-between items-center w-svw my-4"}>
+        <header className={"flex justify-between items-center w-svw py-2 sticky top-0 bg-background z-20"}>
             <div className={"size-11 rounded-full bg-background-secondary flex items-center justify-center mx-3"}>
                 <Link to={"/"}>
                     <HomeIcon className={"size-7"}/>

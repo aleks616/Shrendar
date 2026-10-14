@@ -3,8 +3,11 @@ package org.aleks616.shrendar.homepage.controller
 import org.aleks616.shrendar.album.model.AlbumAnniversaryDto
 import org.aleks616.shrendar.artist.model.ArtistAnniversaryDto
 import org.aleks616.shrendar.band.model.ArtistBandsDto
-import org.aleks616.shrendar.homepage.model.HomePageMainDto
-import org.aleks616.shrendar.homepage.service.HomePageService
+import org.aleks616.shrendar.homepage.model.CommonBandsDto
+import org.aleks616.shrendar.homepage.model.HomepageMainDto
+import org.aleks616.shrendar.homepage.model.RecentlyAddedDto
+import org.aleks616.shrendar.homepage.model.UpcomingAnniversariesDto
+import org.aleks616.shrendar.homepage.service.HomepageService
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/main")
-class HomePageController(
-    private val homePageService:HomePageService
+class HomepageController(
+    private val homePageService:HomepageService
 ) {
 
     @GetMapping("/artist/upcomingBirthdays")
@@ -50,8 +53,19 @@ class HomePageController(
         return homePageService.getUpcomingFavoriteAlbumAnniversaries(userLogin)
     }
 
+    @GetMapping("/upcoming")
+    fun getUpcoming():UpcomingAnniversariesDto {
+        if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
+            return homePageService.getRandomUpcoming()
+        }
+        val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
+        val userLogin=user.name
+
+        return homePageService.getUpcoming(userLogin)
+    }
+
     @GetMapping("/")
-    fun getTodayAnniversaries():HomePageMainDto {
+    fun getTodayAnniversaries():HomepageMainDto {
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
             return homePageService.getTodayAnniversariesNoAuth()
         }
@@ -61,9 +75,9 @@ class HomePageController(
     }
 
     @GetMapping("/commonBands")
-    fun getCommonBands():List<ArtistBandsDto> {
+    fun getCommonBands():CommonBandsDto? {
         if(SecurityContextHolder.getContext().authentication is AnonymousAuthenticationToken) {
-            return emptyList()
+            return null
         }
         val user=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=user.name
@@ -71,7 +85,7 @@ class HomePageController(
     }
 
     @GetMapping("/recentlyAdded")
-    fun getRecentlyAdded():List<Any>{
+    fun getRecentlyAdded():List<RecentlyAddedDto>{
         return homePageService.getRecentlyAdded()
     }
 }

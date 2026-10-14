@@ -12,5 +12,6 @@ data class ArtistAnniversaryDto(
     val anniversaryDate:LocalDate?=null,
     val daysTillAnniversary:Int?=null,
     val yearsSince:Int?=null,
-    val country:String?=null
+    val country:String?=null,
+    val imageUrl:String?=null
 ):Serializable

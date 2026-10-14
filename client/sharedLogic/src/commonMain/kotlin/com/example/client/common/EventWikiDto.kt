@@ -1,9 +1,9 @@
-package com.example.client.event
+package com.example.client.common
 
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
-import kotlinx.serialization.Serializable
 
 @ExperimentalJsExport
 @JsExport

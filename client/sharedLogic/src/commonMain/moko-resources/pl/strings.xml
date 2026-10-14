@@ -536,4 +536,16 @@
     <string name="report">Zgłoś</string>
     <string name="report_invalid">Powód zgłoszenia musi mieć co najmniej 15 znaków.</string>
     <string name="report_reason">Powód zgłoszenia</string>
+
+    <string name="member_in_favorites">Muzyk którego masz w ulubionych</string>
+    <string name="upcoming_album_anniversaries">Nadchodzące rocznice wydania albumów</string>
+    <string name="upcoming_birthdays">Nadchodzące urodziny</string>
+    <string name="upcoming_death_anniversaries">Nadchodzące rocznice śmierci</string>
+    <string name="to">do</string>
+    <string name="anniversary">rocznicy</string>
+    <string name="bands_to_check_out">Zespoły do sprawdzenia</string>
+    <string name="album_anniversaries">Rocznice wydania albumów</string>
+    <string name="birthdays_today">Urodziny dzisiaj</string>
+    <string name="died_today">Rocznice śmierci</string>
+    <string name="events_today">Rocznice wydarzeń</string>
 </resources>

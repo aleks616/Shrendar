@@ -546,6 +546,17 @@ class LocalText {
             "report"->MR.strings.report
             "report_invalid"->MR.strings.report_invalid
             "report_reason"->MR.strings.report_reason
+            "member_in_favorites"->MR.strings.member_in_favorites
+            "upcoming_album_anniversaries"->MR.strings.upcoming_album_anniversaries
+            "upcoming_birthdays"->MR.strings.upcoming_birthdays
+            "upcoming_death_anniversaries"->MR.strings.upcoming_death_anniversaries
+            "to"->MR.strings.to
+            "anniversary"->MR.strings.anniversary
+            "bands_to_check_out"->MR.strings.bands_to_check_out
+            "album_anniversaries"->MR.strings.album_anniversaries
+            "birthdays_today"->MR.strings.birthdays_today
+            "died_today"->MR.strings.died_today
+            "events_today"->MR.strings.events_today
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

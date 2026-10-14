@@ -8,7 +8,7 @@ import java.io.Serializable
 /**
  * DTO for {@link org.aleks616.shrendar.band.model.Band}
  */
-data class HomePageMainDto(
+data class HomepageMainDto(
     val favoriteAlbums:List<AlbumByDateDto>?=null,
     val favoriteArtistsBirthdays:List<ArtistAnniversaryDto>?=null,
     val favoriteArtistsDeathAnniversaries:List<ArtistAnniversaryDto>?=null,
