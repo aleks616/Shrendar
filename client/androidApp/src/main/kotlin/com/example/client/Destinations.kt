@@ -36,4 +36,8 @@ sealed interface Destinations:Destination {
 
     @Serializable
     data object EventDataView:Destinations
+
+    @Serializable
+    data object HomepageDataView:Destinations
+
 }

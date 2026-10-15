@@ -12,7 +12,7 @@ data class AlbumAnniversaryDto(
     val bandName:String?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,
-    val type:AlbumType?=null,
+    val type:String?=null,
     val artworkUrl:String?=null,
     val age:Int?=null,
     val daysTillAnniversary:Int?=null,

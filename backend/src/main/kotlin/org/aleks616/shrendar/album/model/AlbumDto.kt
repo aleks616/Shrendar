@@ -12,7 +12,7 @@ data class AlbumByDateDto(
     val band:BandDto?=null,
     val title:String?=null,
     val releaseDate:LocalDate?=null,
-    val type:AlbumType?=null,
+    val type:String?=null,
     val importance:Byte?=null,
     val yearsSince:Int?=null,
     val genre:Genre?=null,

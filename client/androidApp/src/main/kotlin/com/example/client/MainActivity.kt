@@ -15,6 +15,8 @@ import com.example.client.account.screens.*
 import com.example.client.album.screens.AlbumDataView
 import com.example.client.artist.ArtistDataView
 import com.example.client.band.BandDataView
+import com.example.client.event.screens.EventDataView
+import com.example.client.home.screens.HomepageDataView
 import com.example.client.profile.screens.ProfilePageView
 import com.kiwi.navigationcompose.typed.composable
 import com.kiwi.navigationcompose.typed.createRoutePattern
@@ -40,7 +42,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.Profile>(),
+                startDestination=createRoutePattern<Destinations.HomepageDataView>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(
@@ -100,7 +102,10 @@ class MainActivity:ComponentActivity() {
                     AlbumDataView()
                 }
                 composable<Destinations.EventDataView> {
-                    com.example.client.event.screens.EventDataView()
+                    EventDataView()
+                }
+                composable<Destinations.HomepageDataView> {
+                    HomepageDataView()
                 }
             }
         }

@@ -17,15 +17,14 @@ import org.aleks616.shrendar.band.model.BandsMembers
 import org.aleks616.shrendar.band.repository.BandsMemberRepository
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.common.repository.CountryRepository
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.event.model.EventWikiDto
 import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
-import org.aleks616.shrendar.homepage.model.HomePageMainDto
-import org.aleks616.shrendar.homepage.model.RecentlyAddedDto
-import org.aleks616.shrendar.homepage.model.RecentlyAddedRow
+import org.aleks616.shrendar.homepage.model.*
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.repository.UserArtistRepository
 import org.aleks616.shrendar.user.repository.UserBandRepository
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class HomePageService(
+class HomepageService(
     private val albumService:AlbumService,
     private val artistService:ArtistService,
     private val bandsMemberRepository:BandsMemberRepository,
@@ -49,7 +48,7 @@ class HomePageService(
     private val bandService:BandService,
     private val artistRepository:ArtistRepository,
     private val contributionRepository:ContributionRepository,
-    private val eventRepository:EventRepository
+    private val eventRepository:EventRepository,
 ){
     //region upcoming
     fun getUpcomingFavoriteBirthdaysAndDeaths(login:String):List<ArtistBirthdayDeathDateDto>{
@@ -81,7 +80,8 @@ class HomePageService(
                     daysTillDeathAnn,
                     age,
                     ageAtDeath,
-                    country
+                    country,
+                    artist.artistImageUrl
                 )
             )
         }
@@ -91,7 +91,7 @@ class HomePageService(
     fun getUpcomingFavoriteArtistsBirthdays(login:String):List<ArtistAnniversaryDto>{
         val allBirthdays=getUpcomingFavoriteBirthdaysAndDeaths(login)
         val showBirthdays:List<ArtistBirthdayDeathDateDto> =allBirthdays.filter{it.daysTillBirthday!! <= 7&&it.daysTillBirthday!=0}.sortedBy{it.daysTillBirthday}.take(4)+
-            allBirthdays.filter{it.daysTillBirthday!! > 7&&it.daysTillBirthday < 60}.shuffled().take(4).sortedBy{it.daysTillBirthday}
+            allBirthdays.filter{it.daysTillBirthday!! > 7&&it.daysTillBirthday < 60}.shuffled().take(5).sortedBy{it.daysTillBirthday}
         return showBirthdays.map{
             ArtistAnniversaryDto(
                 id=it.id,
@@ -100,6 +100,7 @@ class HomePageService(
                 daysTillAnniversary=it.daysTillBirthday,
                 yearsSince=it.birthDate!!.until(LocalDate.now()).years+1,
                 country=it.country,
+                imageUrl=it.imageUrl
             )
         }
     }
@@ -116,6 +117,7 @@ class HomePageService(
                 daysTillAnniversary=it.daysTillDeathAnniversary,
                 yearsSince=it.deathDate!!.until(LocalDate.now()).years+1,
                 country=it.country,
+                imageUrl=it.imageUrl
             )
         }
     }
@@ -132,12 +134,13 @@ class HomePageService(
                     age=it.birthDate!!.until(LocalDate.now()).years,
                     ageAtDeath=it.birthDate!!.until(it.deathDate).years,
                     country=countryRepository.getCountryNameById(it.country),
+                    imageUrl=it.artistImageUrl
                 )
             }
 
         val showDeathAnniversaries:List<ArtistBirthdayDeathDateDto> =allDeathAnniversaries
             .filter{it.daysTillDeathAnniversary!! <= 7}.sortedBy{it.daysTillDeathAnniversary}.take(4)+
-            allDeathAnniversaries.filter{it.daysTillDeathAnniversary!! > 7}.shuffled().take(2).sortedBy{it.daysTillDeathAnniversary}
+            allDeathAnniversaries.filter{it.daysTillDeathAnniversary!! > 7}.shuffled().take(4).sortedBy{it.daysTillDeathAnniversary}
 
         return showDeathAnniversaries.map{
             ArtistAnniversaryDto(
@@ -147,6 +150,7 @@ class HomePageService(
                 daysTillAnniversary=it.daysTillDeathAnniversary,
                 yearsSince=it.deathDate!!.until(LocalDate.now()).years+1,
                 country=it.country,
+                imageUrl=it.imageUrl
             )
         }
     }
@@ -162,11 +166,12 @@ class HomePageService(
                 age=it.birthDate!!.until(LocalDate.now()).years,
                 ageAtDeath=null,
                 country=countryRepository.getCountryNameById(it.country),
+                imageUrl=it.artistImageUrl
             )
         }
 
         val showBirthdays:List<ArtistBirthdayDeathDateDto> =allBirthdays.filter{it.daysTillBirthday!! <= 7}.sortedBy{it.daysTillBirthday}.take(4)+
-            allBirthdays.filter{it.daysTillBirthday!! > 7}.shuffled().take(2).sortedBy{it.daysTillBirthday}
+            allBirthdays.filter{it.daysTillBirthday!! > 7}.shuffled().take(4).sortedBy{it.daysTillBirthday}
 
         return showBirthdays.map{
             ArtistAnniversaryDto(
@@ -176,6 +181,7 @@ class HomePageService(
                 daysTillAnniversary=it.daysTillBirthday,
                 yearsSince=it.birthDate!!.until(LocalDate.now()).years+1,
                 country=it.country,
+                imageUrl=it.imageUrl
             )
         }
     }
@@ -199,7 +205,7 @@ class HomePageService(
                     bandName=album.band.name,
                     title=album.title,
                     releaseDate=album.releaseDate,
-                    type=album.type,
+                    type=album.type.toString().titleCase(),
                     artworkUrl=album.artworkUrl,
                     age=albumAge,
                     daysTillAnniversary=daysTill,
@@ -208,10 +214,9 @@ class HomePageService(
         }
         return allAlbums.filter{it.daysTillAnniversary!=0&&it.daysTillAnniversary!! <= 7}
                    .sortedBy{it.daysTillAnniversary!!}.take(4)+
-               allAlbums.filter{it.daysTillAnniversary!! > 7&&it.daysTillAnniversary < 30}.shuffled().take(2)
+               allAlbums.filter{it.daysTillAnniversary!! > 7&&it.daysTillAnniversary < 30}.shuffled().take(5)
                    .sortedBy{it.daysTillAnniversary}
     }
-
     fun getUpcomingRandomAlbumAnniversaries():List<AlbumAnniversaryDto>{
         val albumsData:MutableList<Album> =albumRepository.findAlbumsByUpcomingAnniversaries()
         val allAlbums:MutableList<AlbumAnniversaryDto> =mutableListOf()
@@ -225,7 +230,7 @@ class HomePageService(
                     bandName=album.band.name,
                     title=album.title,
                     releaseDate=album.releaseDate,
-                    type=album.type,
+                    type=album.type.toString().titleCase(),
                     artworkUrl=album.artworkUrl,
                     age=albumAge,
                     daysTillAnniversary=daysTill,
@@ -236,9 +241,32 @@ class HomePageService(
         return allAlbums.filter{it.daysTillAnniversary!!<=7}.sortedBy{it.daysTillAnniversary!!}.take(6)+
                allAlbums.filter{it.daysTillAnniversary!!>7}.shuffled().take(2).sortedBy{it.daysTillAnniversary}
     }
+
+    fun getRandomUpcoming():UpcomingAnniversariesDto {
+        val albums=getUpcomingRandomAlbumAnniversaries()
+        val birthdays=getUpcomingRandomArtistsBirthdays()
+        val deathAnniversaries=getUpcomingRandomArtistsDeathAnniversaries()
+        return UpcomingAnniversariesDto(
+            birthdays,
+            deathAnniversaries,
+            albums
+        )
+    }
+
+    fun getUpcoming(login:String):UpcomingAnniversariesDto{
+        val albums=getUpcomingFavoriteAlbumAnniversaries(login)
+        val birthdays=getUpcomingFavoriteArtistsBirthdays(login)
+        val deathAnniversaries=getUpcomingFavoriteArtistsDeathAnniversaries(login)
+        return UpcomingAnniversariesDto(
+            birthdays,
+            deathAnniversaries,
+            albums
+        )
+    }
     //endregion
 
-    fun getTodayAnniversaries(login:String):HomePageMainDto{
+    //region today
+    fun getTodayAnniversaries(login:String):HomepageMainDto{
         val user=userAccountService.getUserByLogin(login)?:throw IllegalArgumentException("User not found")
         val month=LocalDate.now().monthValue
         val day=LocalDate.now().dayOfMonth
@@ -250,14 +278,15 @@ class HomePageService(
         }
         val favoriteAlbumsAnniversaries=albumService.getAlbumAnniversariesByDate(month,day)
             .filter{d->favoriteAlbums.map{it.id}.contains(d.id)}
+
         val favoriteArtistsBirthdays=artistService.getByBirthday(month,day)
             .filter{d->favoriteArtists.map{it.artist!!.id}.contains(d.id)}
         val favoriteArtistsDeathAnniversaries=artistService.getByDeathDate(month,day)
             .filter{d->favoriteArtists.map{it.artist!!.id}.contains(d.id)}
         val otherBandMembersBirthdays=getOtherBandMembersBirthdaysToday(login)
-            .filterNot{d->favoriteArtistsBirthdays.map{it.id}.contains(d.id)}
+            .filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
         val otherBandMembersDeathAnniversaries=getOtherBandMembersDeathAnniversariesToday(login)
-            .filter{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
+            .filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
 
 
         val recommendedAlbums:List<Album> =getRecommendedAlbums(user)
@@ -272,7 +301,7 @@ class HomePageService(
                 band=BandDto(it.band.id,it.band.name),
                 title=it.title,
                 releaseDate=it.releaseDate,
-                type=it.type,
+                type=it.type.toString().titleCase(),
                 importance=it.importance,
                 yearsSince=it.releaseDate.until(LocalDate.now()).years,
                 genre=it.genre,
@@ -308,6 +337,7 @@ class HomePageService(
                 daysTillAnniversary=0,
                 yearsSince=it.birthDate!!.until(LocalDate.now()).years,
                 country=countryRepository.getCountryNameById(it.country),
+                imageUrl=it.artistImageUrl
             )
         }.filterNot{d->favoriteArtistsBirthdays.map{it.id}.contains(d.id)}
             .filterNot{d->otherBandMembersBirthdays.map{it.id}.contains(d.id)}
@@ -320,14 +350,15 @@ class HomePageService(
                 daysTillAnniversary=0,
                 yearsSince=it.deathDate!!.until(LocalDate.now()).years,
                 country=countryRepository.getCountryNameById(it.country),
+                imageUrl=it.artistImageUrl
             )
         }.filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
             .filterNot{d->otherBandMembersDeathAnniversaries.map{it.id}.contains(d.id)}
 
-        val recommendedArtistBirthdaysResult=recommendedArtistBirthdays.ifEmpty {artistService.getByBirthday(month,day).shuffled().take(4)}
-        val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries.ifEmpty {artistService.getByDeathDate(month,day).shuffled().take(4)}
+        val recommendedArtistBirthdaysResult=recommendedArtistBirthdays//.ifEmpty {artistService.getByBirthday(month,day).shuffled().take(4)}
+        val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries//.ifEmpty {artistService.getByDeathDate(month,day).shuffled().take(4)}
 
-        return HomePageMainDto(
+        return HomepageMainDto(
             favoriteAlbumsAnniversaries,
             favoriteArtistsBirthdays,
             favoriteArtistsDeathAnniversaries,
@@ -341,7 +372,7 @@ class HomePageService(
 
     }
 
-    fun getTodayAnniversariesNoAuth():HomePageMainDto{
+    fun getTodayAnniversariesNoAuth():HomepageMainDto{
         val month=LocalDate.now().monthValue
         val day=LocalDate.now().dayOfMonth
 
@@ -352,7 +383,7 @@ class HomePageService(
                 band=BandDto(it.band.id,it.band.name),
                 title=it.title,
                 releaseDate=it.releaseDate,
-                type=it.type,
+                type=it.type.toString().titleCase(),
                 importance=it.importance,
                 yearsSince=it.releaseDate.until(LocalDate.now()).years,
                 genre=it.genre,
@@ -362,7 +393,7 @@ class HomePageService(
         val artistsBirthdays=artistService.getByBirthday(month,day).shuffled().take(6)
         val artistsDeathAnniversaries=artistService.getByDeathDate(month,day).shuffled().take(6)
 
-        return HomePageMainDto(
+        return HomepageMainDto(
             albums,
             artistsBirthdays,
             artistsDeathAnniversaries,
@@ -398,6 +429,7 @@ class HomePageService(
                     daysTillAnniversary=0,
                     yearsSince=it.artist!!.birthDate!!.until(LocalDate.now()).years,
                     country=countryRepository.getCountryNameById(it.artist!!.country),
+                    imageUrl=it.artist?.artistImageUrl
                 )
             }
             .distinctBy{it.id}
@@ -416,6 +448,7 @@ class HomePageService(
                     daysTillAnniversary=0,
                     yearsSince=it.artist!!.deathDate!!.until(LocalDate.now()).years,
                     country=countryRepository.getCountryNameById(it.artist!!.country),
+                    imageUrl=it.artist?.artistImageUrl
                 )
             }
     }
@@ -479,20 +512,23 @@ class HomePageService(
         }
         return artists
     }
+    //endregion
 
-    fun getCommonBands(login:String):List<ArtistBandsDto> {
+    /**
+     * bands in which any of user's favorite artists played but isn't a favorite band
+     * **/
+    fun getCommonBands(login:String):CommonBandsDto {
         val user=userAccountService.getUserByLogin(login)?:throw IllegalArgumentException("User not found")
         val favoriteBands=userBandRepository.findByUser(user)
         val favoriteArtists=userArtistRepository.findByUser(user)
-
         val bandsMembers:MutableList<ArtistBandsDto> =mutableListOf()
         favoriteArtists.map{it.artist}.forEach{artist->
             bandsMembers.addAll(bandsMemberRepository.findBandsByArtistId(artist!!.id!!))
         }
-        return bandsMembers.filterNot { it.bandId in favoriteBands.map {f-> f.band.id} }.distinctBy { it.bandId }
+        return CommonBandsDto(bandsMembers.filterNot { it.bandId in favoriteBands.map {f-> f.band.id} }.distinctBy { it.bandId })
     }
 
-    fun getRecentlyAdded():List<Any>{
+    fun getRecentlyAdded():List<RecentlyAddedDto>{
         val dataRaw=contributionRepository.getRecentAdditions(5)
         val result:MutableList<RecentlyAddedDto> =mutableListOf()
         dataRaw.groupBy { it.changeId }.forEach { d->

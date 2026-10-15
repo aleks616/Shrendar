@@ -1,7 +1,7 @@
 package org.aleks616.shrendar.homepage.controller
 
-import org.aleks616.shrendar.homepage.model.HomePageMainDto
-import org.aleks616.shrendar.homepage.service.HomePageService
+import org.aleks616.shrendar.homepage.model.HomepageMainDto
+import org.aleks616.shrendar.homepage.service.HomepageService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -13,9 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 
-class HomePageControllerTest {
-    private val service=mock(HomePageService::class.java)
-    private val controller=HomePageController(service)
+class HomepageControllerTest {
+    private val service=mock(HomepageService::class.java)
+    private val controller=HomepageController(service)
 
     @BeforeEach
     fun setup() {
@@ -56,12 +56,12 @@ class HomePageControllerTest {
 
     @Test
     fun `today anniversaries select authenticated and anonymous service variants`() {
-        val authenticated=HomePageMainDto()
+        val authenticated=HomepageMainDto()
         `when`(service.getTodayAnniversaries("tester")).thenReturn(authenticated)
         assertEquals(authenticated,controller.getTodayAnniversaries())
 
         anonymous()
-        val anonymous=HomePageMainDto()
+        val anonymous=HomepageMainDto()
         `when`(service.getTodayAnniversariesNoAuth()).thenReturn(anonymous)
         assertEquals(anonymous,controller.getTodayAnniversaries())
     }

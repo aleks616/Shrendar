@@ -7,7 +7,7 @@ class GeminiDTO {
 
         constructor()
         constructor(text:String?) {
-            this.contents=mutableListOf<Content?>(Content(Part(text)))
+            this.contents=mutableListOf(Content(Part(text)))
         }
     }
 
@@ -16,7 +16,7 @@ class GeminiDTO {
 
         constructor()
         constructor(part:Part) {
-            this.parts=mutableListOf<Part?>(part)
+            this.parts=mutableListOf(part)
         }
     }
 

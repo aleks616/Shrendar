@@ -415,7 +415,7 @@ struct BandDataView: View {
 		}
 	}
 
-	private func loadBand() async {
+	func loadBand() async {
 		isLoading = true
 
 		do {

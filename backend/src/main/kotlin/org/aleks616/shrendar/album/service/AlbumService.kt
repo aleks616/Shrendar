@@ -109,10 +109,11 @@ class AlbumService(
                 band=BandDto(a.band!!.id,a.band.name),
                 title=a.title,
                 releaseDate=a.releaseDate,
-                type=a.type,
+                type=a.type.toString().titleCase(),
                 importance=a.importance,
                 yearsSince=year-(a.releaseDate!!.year),
-                genre=a.genre
+                genre=a.genre,
+                artworkUrl=a.artworkUrl
             )
 
         }

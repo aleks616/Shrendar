@@ -15,5 +15,6 @@ data class ArtistBirthdayDeathDateDto(
     val daysTillDeathAnniversary:Int?=null,
     val age:Int?=null,
     val ageAtDeath:Int?=null,
-    val country:String?=null
+    val country:String?=null,
+    val imageUrl:String?=null
 ):Serializable

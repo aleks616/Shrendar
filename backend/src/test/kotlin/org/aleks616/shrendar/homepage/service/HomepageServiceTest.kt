@@ -38,7 +38,7 @@ import org.mockito.Mockito.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class HomePageServiceTest {
+class HomepageServiceTest {
     private val albumService=mock(AlbumService::class.java)
     private val artistService=mock(ArtistService::class.java)
     private val bandsMemberRepository=mock(BandsMemberRepository::class.java)
@@ -53,15 +53,15 @@ class HomePageServiceTest {
     private val artistRepository=mock(ArtistRepository::class.java)
     private val contributionRepository=mock(ContributionRepository::class.java)
     private val eventRepository=mock(EventRepository::class.java)
-    private lateinit var service:HomePageService
+    private lateinit var service:HomepageService
     private lateinit var user:User
 
     @BeforeEach
     fun setup() {
-        service=HomePageService(
+        service=HomepageService(
             albumService,artistService,bandsMemberRepository,userBandRepository,userAccountService,
             countryRepository,userArtistRepository,albumRepository,userGenreRepository,genreRepository,
-            bandService,artistRepository,contributionRepository,eventRepository
+            bandService,artistRepository,contributionRepository,eventRepository,artistWikiService
         )
         user=User().apply { id=1; login="tester" }
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(user)
@@ -262,7 +262,7 @@ class HomePageServiceTest {
         val genre=Genre().apply { id=2; properties="rock" }
         val matching=album(1,band,LocalDate.now(),genre)
         `when`(userBandRepository.findByUser(user)).thenReturn(mutableListOf(favoriteBand(band)))
-        `when`(userGenreRepository.findByUser(user)).thenReturn(mutableListOf(UsersGenres().apply {this.user=this@HomePageServiceTest.user; this.genre=genre}))
+        `when`(userGenreRepository.findByUser(user)).thenReturn(mutableListOf(UsersGenres().apply {this.user=this@HomepageServiceTest.user; this.genre=genre}))
         `when`(albumRepository.findByBandId(1)).thenReturn(listOf(matching))
         `when`(albumRepository.findByGenre(genre)).thenReturn(mutableListOf(matching))
         `when`(genreRepository.findAll()).thenReturn(listOf(genre))
@@ -450,8 +450,8 @@ class HomePageServiceTest {
     private fun Album.anniversary()=AlbumByDateDto(
         id=id,band=BandDto(band.id,band.name),title=title,releaseDate=releaseDate
     )
-    private fun favorite(artist:Artist)=UsersArtists().apply {this.artist=artist; user=this@HomePageServiceTest.user}
-    private fun favoriteBand(band:Band)=UsersBands().apply {this.band=band; user=this@HomePageServiceTest.user}
+    private fun favorite(artist:Artist)=UsersArtists().apply {this.artist=artist; user=this@HomepageServiceTest.user}
+    private fun favoriteBand(band:Band)=UsersBands().apply {this.band=band; user=this@HomepageServiceTest.user}
     private fun member(artist:Artist,band:Band)=BandsMembers().apply {this.artist=artist; this.band=band}
     private fun contribution(id:Long,changeId:Long,user:User,table:String,column:String,old:String,new:String)=Contribution().apply {
         this.id=id; this.changeId=changeId; this.user=user; changedTable=table; changedColumn=column

@@ -1,6 +1,7 @@
 package com.example.client.event
 
 import com.example.client.BASE_URL
+import com.example.client.common.EventWikiDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
