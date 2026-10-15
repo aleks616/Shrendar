@@ -14,6 +14,22 @@ struct AlbumDataView: View {
 	@State private var album: AlbumWikiDto?
 	@State private var isLoading = true
 
+	
+	func loadAlbum() {
+		Task{
+			isLoading = true
+			
+			do {
+				album = try await AlbumClient().getAlbumWikiPageData(
+					id: Int64(albumId)
+				)
+			} catch {
+				album = nil
+			}
+			isLoading = false
+		}
+	}
+
 	var body: some View {
 		NavigationStack {
 			Group {
@@ -105,18 +121,5 @@ struct AlbumDataView: View {
 				await loadAlbum()
 			}
 		}
-	}
-
-	private func loadAlbum() async {
-		isLoading = true
-
-		do {
-			album = try await AlbumClient().getAlbumWikiPageData(
-				id: Int64(albumId)
-			)
-		} catch {
-			album = nil
-		}
-		isLoading = false
 	}
 }

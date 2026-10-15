@@ -557,6 +557,7 @@ class LocalText {
             "birthdays_today"->MR.strings.birthdays_today
             "died_today"->MR.strings.died_today
             "events_today"->MR.strings.events_today
+            "death_date"->MR.strings.death_date
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

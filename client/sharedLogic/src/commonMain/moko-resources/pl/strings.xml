@@ -548,4 +548,5 @@
     <string name="birthdays_today">Urodziny dzisiaj</string>
     <string name="died_today">Rocznice śmierci</string>
     <string name="events_today">Rocznice wydarzeń</string>
+    <string name="death_date">Data śmierci</string>
 </resources>

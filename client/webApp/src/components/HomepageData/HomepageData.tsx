@@ -67,14 +67,14 @@ export function HomepageData({strings}: { strings: Record<string,string> }){
     const deathAnniversaryCount=favoriteArtistsDeathAnns?.length??0+otherBandMembersDeathAnns?.length??0+recommendedArtistDeathAnns?.length??0
 
     return (
-        <div className={"flex flex-col"}>
-            <div className={"flex justify-center items-center w-full"}>
+        <div className={"flex flex-col min-w-svw"}>
+            <div className={"flex min-w-svw"}>
                 {!mobile&&<>
-                    <aside className={"bg-background-secondary min-w-2/12 h-full rounded-lg"}>
+                    <aside className={"bg-background-secondary w-2/12 h-full rounded-lg"}>
                         <UpcomingAnniversaries strings={strings}/>
                     </aside>
                 </>}
-                <main className={"lg: max-w-8/12"}>
+                <main className={"lg: w-8/12"}>
                     {albumCount>0&&
                         <>
                             <Heading level={3} className={"text-center"}>
@@ -146,7 +146,7 @@ export function HomepageData({strings}: { strings: Record<string,string> }){
 
                 </main>
                 {!mobile&&<>
-                    <aside className={"bg-background-secondary min-w-2/12 h-full rounded-lg"}>
+                    <aside className={"bg-background-secondary w-2/12 h-full rounded-lg"}>
                         <CommonBands strings={strings}/>
                     </aside>
                 </>}

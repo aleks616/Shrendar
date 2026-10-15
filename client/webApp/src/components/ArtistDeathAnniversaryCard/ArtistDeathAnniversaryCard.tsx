@@ -13,7 +13,7 @@ export function ArtistDeathAnniversaryCard({strings,artist}:{strings:Record<stri
                     </Card.Description>
                 </Card.Header>
                 <Card.Content>
-                    <p>Death date: {artist.anniversaryDate.toString()}</p>
+                    <p>{translate("death_date")}: {artist.anniversaryDate.toString()}</p>
                     {artist.country&&<p>{translate("country")}: {translate(artist.country)}</p>}
                     <div className={"flex flex-col justify-center items-center"}>
                         <div className={"w-72 h-72"}>

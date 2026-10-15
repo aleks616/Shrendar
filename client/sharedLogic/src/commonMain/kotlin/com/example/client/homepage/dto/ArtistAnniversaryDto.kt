@@ -13,7 +13,7 @@ data class ArtistAnniversaryDto(
     val name:String?=null,
     val anniversaryDate:LocalDate?=null,
     val daysTillAnniversary:Int?=null,
-    val yearsSince:Int=0,
+    val yearsSince:Int?=null,
     val country:String?=null,
     val imageUrl:String?=null
 )
