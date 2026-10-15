@@ -47,105 +47,105 @@ fun AlbumDataView(
             modifier=Modifier.fillMaxSize(),
             color=MaterialTheme.colorScheme.background,
         ) {
-            when {
-                isLoading->Box(
+            if(isLoading) {
+                Box(
                     modifier=Modifier.fillMaxSize(),
                     contentAlignment=Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
+            }
 
-                album!=null-> {
-                    val albumData=album!!
+            if(album!=null) {
+                val albumData=album!!
 
-                    Column(
-                        modifier=Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(start=12.dp,end=12.dp,top=16.dp,bottom=8.dp),
-                        verticalArrangement=Arrangement.spacedBy(16.dp),
+                Column(
+                    modifier=Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(start=12.dp,end=12.dp,top=16.dp,bottom=8.dp),
+                    verticalArrangement=Arrangement.spacedBy(16.dp),
+                ) {
+                    Text(
+                        text=albumData.albumName.orEmpty(),
+                        style=MaterialTheme.typography.headlineLarge,
+                        fontWeight=FontWeight.Bold,
+                    )
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(16.dp),
+                        verticalAlignment=Alignment.Top,
                     ) {
-                        Text(
-                            text=albumData.albumName.orEmpty(),
-                            style=MaterialTheme.typography.headlineLarge,
-                            fontWeight=FontWeight.Bold,
-                        )
-                        Row(
+                        Column(
                             modifier=Modifier.fillMaxWidth(),
-                            horizontalArrangement=Arrangement.spacedBy(16.dp),
-                            verticalAlignment=Alignment.Top,
+                            verticalArrangement=Arrangement.spacedBy(8.dp),
                         ) {
-                            Column(
-                                modifier=Modifier.fillMaxWidth(),
-                                verticalArrangement=Arrangement.spacedBy(8.dp),
-                            ) {
-                                Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("band"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.band?.name?:"-",
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("release_date"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.releaseDate?.toString()?:"-",
-                                    )
-                                    Text(
-                                        text=" "+stringResource(
-                                            LocalText().getStringResource("anniversary_in")
-                                        ),
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.daysTillAnniversary?.toString()?:"-",
-                                    )
-                                    Text(
-                                        text=" "+stringResource(LocalText().getStringResource("days")),
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("years_since"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.albumAge?.toString()?:"-",
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("album_type"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.type?:"-",
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("genre"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.genre?.name?:"-",
-                                    )
-                                }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("band"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.band?.name?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("release_date"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.releaseDate?.toString()?:"-",
+                                )
+                                Text(
+                                    text=" "+stringResource(
+                                        LocalText().getStringResource("anniversary_in")
+                                    ),
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.daysTillAnniversary?.toString()?:"-",
+                                )
+                                Text(
+                                    text=" "+stringResource(LocalText().getStringResource("days")),
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("years_since"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.albumAge?.toString()?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("album_type"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.type?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("genre"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=albumData.genre?.name?:"-",
+                                )
                             }
                         }
-
-                        LoadImage(
-                            imageUrl=albumData.artworkUrl,
-                            contentDescription=albumData.albumName.orEmpty(),
-                        )
-
-                        TranslatedDescription(description=albumData.description.orEmpty())
                     }
+
+                    LoadImage(
+                        imageUrl=albumData.artworkUrl,
+                        contentDescription=albumData.albumName.orEmpty(),
+                    )
+
+                    TranslatedDescription(description=albumData.description.orEmpty())
                 }
             }
         }
