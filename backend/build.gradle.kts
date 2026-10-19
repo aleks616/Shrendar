@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.aallam.similarity:string-similarity-kotlin:0.1.0")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.springframework.boot:spring-boot-starter-mail")
@@ -37,6 +38,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.h2database:h2")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    runtimeOnly("com.mysql:mysql-connector-j")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(kotlin("stdlib-jdk8"))
 }

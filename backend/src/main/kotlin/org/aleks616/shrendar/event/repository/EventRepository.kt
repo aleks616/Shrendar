@@ -13,5 +13,6 @@ interface EventRepository:JpaRepository<Event,Int>{
         WHERE FUNCTION('MONTH',e.date)=:month AND FUNCTION('DAYOFMONTH',e.date)=:day
     """)
     fun findEventsByAnniversary(month:Int,day:Int):List<Event>
+    fun findEventsByNameContainsIgnoreCase(name:String):MutableList<Event>
 
 }

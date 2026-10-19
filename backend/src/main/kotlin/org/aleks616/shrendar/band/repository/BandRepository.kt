@@ -30,4 +30,5 @@ interface BandRepository :JpaRepository<Band,Int>{
 
     @Query("SELECT b.id FROM Band b WHERE b.name=:name ORDER BY b.id DESC LIMIT 1")
     fun findTopIdByName(name:String):Int?
+    fun findBandsByNameContainsIgnoreCase(name:String):MutableList<Band>
 }
