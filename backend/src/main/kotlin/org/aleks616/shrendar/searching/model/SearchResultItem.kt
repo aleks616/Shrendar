@@ -6,5 +6,6 @@ data class SearchResultItem(
     val name:String?=null,
     val description:String?=null,
     val link:String?=null,
-    val type:String?=null
+    val type:String?=null,
+    val imageUrl:String?=null
 ):Serializable

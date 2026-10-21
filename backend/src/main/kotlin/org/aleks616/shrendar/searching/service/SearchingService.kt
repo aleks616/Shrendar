@@ -27,9 +27,10 @@ class SearchingService(
         val bands=bandsData.map {
             SearchResultItem(
                 name=it.name,
-                description=it.description?.take(150)+"...",
+                description=it.description?.take(150)?.trimEnd()+"...",
                 link="/band/${it.id}",
-                type="band"
+                type="band",
+                imageUrl=it.imageUrl
             )
         }
         results.addAll(bands.sortedBy {levenshtein.distance(it.name?.lowercase()?:"",query.lowercase())})
@@ -38,9 +39,10 @@ class SearchingService(
         val artists=artistsData.map {
             SearchResultItem(
                 name=it.name,
-                description=it.description?.take(150)+"...",
+                description=it.description?.take(150)?.trimEnd()+"...",
                 link="/artist/${it.id}",
-                type="artist"
+                type="artist",
+                imageUrl=it.artistImageUrl
             )
         }
         results.addAll(artists.sortedBy {levenshtein.distance(it.name?.lowercase()?:"",query.lowercase())})
@@ -49,9 +51,10 @@ class SearchingService(
         val albums=albumsData.map {
             SearchResultItem(
                 name=it.title,
-                description=it.description?.take(150)+"...",
+                description=it.description?.take(150)?.trimEnd()+"...",
                 link="/album/${it.id}",
-                type="album"
+                type="album",
+                imageUrl=it.artworkUrl
             )
         }
         results.addAll(albums.sortedBy {levenshtein.distance(it.name?.lowercase()?:"",query.lowercase())})
@@ -60,9 +63,9 @@ class SearchingService(
         val users=usersData.map {
             SearchResultItem(
                 name=it.username,
-                description=it.bio?.take(150)+"...",
+                description=it.bio?.take(150)?.trimEnd()+"...",
                 link="/u/${it.login}",
-                type="user"
+                type="user",
             )
         }
         results.addAll(users.sortedBy {levenshtein.distance(it.name?.lowercase()?:"",query.lowercase())})
@@ -71,9 +74,9 @@ class SearchingService(
         val events=eventsData.map {
             SearchResultItem(
                 name=it.name,
-                description=it.description?.take(150)+"...",
+                description=it.description?.take(150)?.trimEnd()+"...",
                 link="/event/${it.id}",
-                type="event"
+                type="event",
             )
         }
         results.addAll(events.sortedBy {levenshtein.distance(it.name?.lowercase()?:"",query.lowercase())})
