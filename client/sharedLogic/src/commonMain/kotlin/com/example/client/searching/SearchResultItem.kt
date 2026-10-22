@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SearchResultItem(
     val name:String?=null,
+    val info:String?=null,
     val description:String?=null,
     val link:String?=null,
     val type:String?=null,

@@ -99,6 +99,7 @@ export function SearchResultsPage(){
                                         <Link href={item.link??""}>
                                             <p className={"font-semibold text-lg"}>{item.name}</p>
                                         </Link>
+                                        <p>{item.info}</p>
                                         {item.description!="null..."?
                                             <p className={"text-muted text-sm"}>{item.description}</p>
                                             :<p className={"invisible"}>none</p>}

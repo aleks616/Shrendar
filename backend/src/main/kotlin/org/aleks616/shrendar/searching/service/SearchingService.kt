@@ -27,6 +27,7 @@ class SearchingService(
         val bands=bandsData.map {
             SearchResultItem(
                 name=it.name,
+                info="${it.formedYear}-${it.disbandedYear?:""}",
                 description=it.description?.take(150)?.trimEnd()+"...",
                 link="/band/${it.id}",
                 type="band",
@@ -51,6 +52,7 @@ class SearchingService(
         val albums=albumsData.map {
             SearchResultItem(
                 name=it.title,
+                info="${it.band.name} | ${it.genre?.name?:""}",
                 description=it.description?.take(150)?.trimEnd()+"...",
                 link="/album/${it.id}",
                 type="album",
@@ -63,6 +65,7 @@ class SearchingService(
         val users=usersData.map {
             SearchResultItem(
                 name=it.username,
+                info=it.login,
                 description=it.bio?.take(150)?.trimEnd()+"...",
                 link="/u/${it.login}",
                 type="user",
@@ -74,6 +77,7 @@ class SearchingService(
         val events=eventsData.map {
             SearchResultItem(
                 name=it.name,
+                info=it.band.name,
                 description=it.description?.take(150)?.trimEnd()+"...",
                 link="/event/${it.id}",
                 type="event",
