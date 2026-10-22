@@ -8,10 +8,10 @@ import kotlinx.serialization.Serializable
 @JsExport
 @Serializable
 data class SearchResultItem(
-    val name:String?=null,
+    val name:String,
     val info:String?=null,
-    val description:String?=null,
+    val description:String,
     val link:String?=null,
-    val type:String?=null,
+    val type:String,
     val imageUrl:String?=null
 )

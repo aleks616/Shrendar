@@ -19,6 +19,7 @@ class SearchingService(
     private val userRepository:UserRepository
 ) {
 
+    val DESCRIPTION_LENGTH=100
     fun search(query:String):SearchResults {
         val levenshtein=Levenshtein()
         val results:MutableList<SearchResultItem> =mutableListOf()
@@ -28,7 +29,7 @@ class SearchingService(
             SearchResultItem(
                 name=it.name,
                 info="${it.formedYear}-${it.disbandedYear?:""}",
-                description=it.description?.take(150)?.trimEnd()+"...",
+                description=if(it.description!=null){it.description?.take(DESCRIPTION_LENGTH)?.trimEnd()+"..."} else "",
                 link="/band/${it.id}",
                 type="band",
                 imageUrl=it.imageUrl
@@ -40,7 +41,7 @@ class SearchingService(
         val artists=artistsData.map {
             SearchResultItem(
                 name=it.name,
-                description=it.description?.take(150)?.trimEnd()+"...",
+                description=if(it.description!=null){it.description?.take(DESCRIPTION_LENGTH)?.trimEnd()+"..."} else "",
                 link="/artist/${it.id}",
                 type="artist",
                 imageUrl=it.artistImageUrl
@@ -53,7 +54,7 @@ class SearchingService(
             SearchResultItem(
                 name=it.title,
                 info="${it.band.name} | ${it.genre?.name?:""}",
-                description=it.description?.take(150)?.trimEnd()+"...",
+                description=if(it.description!=null){it.description?.take(DESCRIPTION_LENGTH)?.trimEnd()+"..."} else "",
                 link="/album/${it.id}",
                 type="album",
                 imageUrl=it.artworkUrl
@@ -66,7 +67,7 @@ class SearchingService(
             SearchResultItem(
                 name=it.username,
                 info=it.login,
-                description=it.bio?.take(150)?.trimEnd()+"...",
+                description=if(it.bio!=null){it.bio?.take(DESCRIPTION_LENGTH)?.trimEnd()+"..."} else "",
                 link="/u/${it.login}",
                 type="user",
             )
@@ -78,7 +79,7 @@ class SearchingService(
             SearchResultItem(
                 name=it.name,
                 info=it.band.name,
-                description=it.description?.take(150)?.trimEnd()+"...",
+                description=if(it.description!=null){it.description?.take(DESCRIPTION_LENGTH)?.trimEnd()+"..."} else "",
                 link="/event/${it.id}",
                 type="event",
             )

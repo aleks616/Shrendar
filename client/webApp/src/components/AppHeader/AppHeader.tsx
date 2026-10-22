@@ -68,7 +68,7 @@ export function AppHeader(){
                 >
                     <SearchField.Group>
                         <SearchField.SearchIcon/>
-                        <SearchField.Input placeholder={"Search..."}/>
+                        <SearchField.Input placeholder={translate("searchbar")}/>
                         <SearchField.ClearButton/>
                     </SearchField.Group>
                 </SearchField>

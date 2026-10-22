@@ -19,7 +19,7 @@ export function ArtistBirthdayCard({strings,artist}:{strings:Record<string,strin
                         <div className={"w-72 h-72"}>
                             {artist.imageUrl
                                 ?<img src={artist.imageUrl} alt={"artist photo"} className={"w-full h-full"}/>
-                                :<img src={"no-image.jpg"} alt={"no image"} className={"w-full h-full"}/>
+                                :<img src={"/no-image.jpg"} alt={"no image"} className={"w-full h-full"}/>
                             }
                         </div>
                     </div>

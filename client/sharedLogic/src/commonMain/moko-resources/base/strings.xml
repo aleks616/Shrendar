@@ -556,4 +556,5 @@
     <string name="filter_user">Users</string>
     <string name="filter_event">Events</string>
     <string name="no_results">No results</string>
+    <string name="searchbar">Search...</string>
 </resources>

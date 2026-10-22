@@ -567,6 +567,7 @@ class LocalText {
             "filter_user"->MR.strings.filter_user
             "filter_event"->MR.strings.filter_event
             "no_results"->MR.strings.no_results
+            "searchbar"->MR.strings.searchbar
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

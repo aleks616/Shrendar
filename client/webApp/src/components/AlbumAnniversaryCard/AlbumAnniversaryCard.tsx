@@ -20,7 +20,7 @@ export function AlbumAnniversaryCard({strings,album}:{strings:Record<string,stri
                         <div className={"w-72 h-72"}>
                             {album.artworkUrl
                                 ?<img src={album.artworkUrl} alt={"album artwork"} className={"w-full h-full"}/>
-                                :<img src={"no-image.jpg"} alt={"no image"} className={"w-full h-full"}/>
+                                :<img src={"/no-image.jpg"} alt={"no image"} className={"w-full h-full"}/>
                             }
                         </div>
                     </div>

@@ -558,4 +558,5 @@
     <string name="filter_user">Użytkownicy</string>
     <string name="filter_event">Wydarzenia</string>
     <string name="no_results">Brak wyników</string>
+    <string name="searchbar">Wyszukaj...</string>
 </resources>
