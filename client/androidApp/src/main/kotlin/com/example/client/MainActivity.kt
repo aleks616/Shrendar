@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.client.account.screens.*
 import com.example.client.album.screens.AlbumDataView
@@ -18,7 +19,7 @@ import com.example.client.band.BandDataView
 import com.example.client.event.screens.EventDataView
 import com.example.client.home.screens.HomepageDataView
 import com.example.client.profile.screens.ProfilePageView
-import com.kiwi.navigationcompose.typed.composable
+import com.example.client.searchresults.screens.SearchResultsView
 import com.kiwi.navigationcompose.typed.createRoutePattern
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -42,7 +43,7 @@ class MainActivity:ComponentActivity() {
             }
             NavHost(
                 navController=navController,
-                startDestination=createRoutePattern<Destinations.HomepageDataView>(),
+                startDestination=createRoutePattern<Destinations.SearchResultsView>(),
             ) {
                 composable<Destinations.Welcome> {
                     WelcomeView(
@@ -106,6 +107,9 @@ class MainActivity:ComponentActivity() {
                 }
                 composable<Destinations.HomepageDataView> {
                     HomepageDataView()
+                }
+                composable<Destinations.SearchResultsView> {
+                    SearchResultsView(onBack={navController.popBackStack()})
                 }
             }
         }

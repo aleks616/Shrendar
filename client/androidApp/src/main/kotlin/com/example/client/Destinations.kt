@@ -40,4 +40,6 @@ sealed interface Destinations:Destination {
     @Serializable
     data object HomepageDataView:Destinations
 
+    @Serializable
+    data object SearchResultsView:Destinations
 }

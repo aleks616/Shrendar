@@ -6,10 +6,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -29,8 +31,9 @@ fun LoadImage(
     imageUrl:String?,
     contentDescription:String,
     width:Dp=300.dp,
+    round:Boolean=false
 ) {
-    if(imageUrl.isNullOrBlank()) return defaultIcon(width)
+    if(imageUrl.isNullOrBlank()) return DefaultIcon(width,round)
 
     var bitmap by remember(imageUrl) {mutableStateOf<Bitmap?>(null)}
     var isLoading by remember(imageUrl) {mutableStateOf(true)}
@@ -69,19 +72,20 @@ fun LoadImage(
                 contentScale=ContentScale.FillBounds,
                 modifier=Modifier
                     .fillMaxSize()
+                    .clip(RoundedCornerShape(if(round) 50 else 0))
             )
         }
         else {
-            defaultIcon(width)
+            DefaultIcon(width,round)
         }
     }
 }
 
 @Composable
-fun defaultIcon(width:Dp=300.dp) {
+fun DefaultIcon(width:Dp=300.dp,round:Boolean=false) {
     Icon(
         painter=painterResource(MR.images.no_image),
-        modifier=Modifier.size(width),
+        modifier=Modifier.size(width).clip(RoundedCornerShape(if(round) 50 else 0)),
         contentDescription="no image",
         tint=Color.Unspecified
     )
