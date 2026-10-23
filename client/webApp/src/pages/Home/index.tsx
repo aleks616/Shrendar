@@ -2,7 +2,7 @@ import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 import {getLanguage} from "../../components/getLanguage.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
-import {HomepageData} from "../../components/HomepageData/HomepageData.tsx";
+import {HomepageData} from "../../components/HomepageData/HomepageData.tsx"
 
 export function Home() {
     const lang=getLanguage().toUpperCase()

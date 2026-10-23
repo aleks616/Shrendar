@@ -534,7 +534,6 @@
     <string name="report">Report</string>
     <string name="report_invalid">Report reason must be at least 15 characters long.</string>
     <string name="report_reason">Reason for reporting</string>
-
     <string name="member_in_favorites">Member you have in favorites</string>
     <string name="upcoming_album_anniversaries">Upcoming album anniversaries</string>
     <string name="upcoming_birthdays">Upcoming birthdays</string>
@@ -547,4 +546,15 @@
     <string name="died_today">Died on this day</string>
     <string name="events_today">Events anniversaries</string>
     <string name="death_date">Death date</string>
+
+    <string name="search">Search...</string>
+    <string name="filters">Filter</string>
+    <string name="filter_all">All</string>
+    <string name="filter_band">Bands</string>
+    <string name="filter_album">Albums</string>
+    <string name="filter_artist">Artists</string>
+    <string name="filter_user">Users</string>
+    <string name="filter_event">Events</string>
+    <string name="no_results">No results</string>
+    <string name="searchbar">Search...</string>
 </resources>

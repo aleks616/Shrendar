@@ -98,4 +98,5 @@ interface ArtistRepository:JpaRepository<Artist,Int> {
         LIMIT 5
     """,nativeQuery=true)
     fun findUpcomingDeathAnniversaries(daysMax:Int=15):List<Artist>
+    fun findArtistsByNameContainsIgnoreCase(name:String):MutableList<Artist>
 }

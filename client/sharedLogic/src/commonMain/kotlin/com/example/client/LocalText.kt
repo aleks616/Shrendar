@@ -558,6 +558,16 @@ class LocalText {
             "died_today"->MR.strings.died_today
             "events_today"->MR.strings.events_today
             "death_date"->MR.strings.death_date
+            "search"->MR.strings.search
+            "filter"->MR.strings.filters
+            "filter_all"->MR.strings.filter_all
+            "filter_band"->MR.strings.filter_band
+            "filter_album"->MR.strings.filter_album
+            "filter_artist"->MR.strings.filter_artist
+            "filter_user"->MR.strings.filter_user
+            "filter_event"->MR.strings.filter_event
+            "no_results"->MR.strings.no_results
+            "searchbar"->MR.strings.searchbar
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

@@ -12,4 +12,5 @@ interface UserRepository:JpaRepository<User,Int> {
     fun findByLogin(login:String):User?
     @Query("SELECT u FROM User u WHERE u.id=:id")
     fun findUserById(id:Int):User?
+    fun findUsersByUsernameContainsIgnoreCaseOrLoginContainsIgnoreCase(username:String,login:String):MutableList<User>
 }

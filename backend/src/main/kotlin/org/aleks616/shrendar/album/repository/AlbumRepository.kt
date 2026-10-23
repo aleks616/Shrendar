@@ -77,4 +77,5 @@ interface AlbumRepository :JpaRepository<Album,Int>{
         LIMIT 5
     """,nativeQuery=true)
     fun findAlbumsByUpcomingAnniversaries(daysMax:Int=15):MutableList<Album>
+    fun findAlbumsByTitleContainsIgnoreCase(title:String):MutableList<Album>
 }

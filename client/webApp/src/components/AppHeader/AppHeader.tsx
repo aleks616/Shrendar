@@ -1,16 +1,21 @@
-import React from 'react'
-import {Badge,Button,Description,Dropdown,FieldError,Label,SearchField} from "@heroui/react"
+import React,{useState} from 'react'
+import {Badge,Button,Dropdown,SearchField} from "@heroui/react"
 import {ThemeSwitcher} from "../ThemeSwitcher/ThemeSwitcher.tsx"
 import {
-    BellIcon,UserIcon,HomeIcon,ArrowRightEndOnRectangleIcon as ExitIcon,Cog8ToothIcon as SettingsIcon,
-    UserCircleIcon
+    ArrowRightEndOnRectangleIcon as ExitIcon,
+    BellIcon,
+    Cog8ToothIcon as SettingsIcon,
+    HomeIcon,
+    UserCircleIcon,
+    UserIcon
 } from '@heroicons/react/24/solid'
 import {Link} from "react-router-dom"
 import {getLanguage} from "../getLanguage.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {logout} from "../Logout/Logout.tsx"
-import {AccountClient} from "sharedLogic";
+import {AccountClient} from "sharedLogic"
+import {useNavigate} from "react-router"
 
 export function AppHeader(){
     const lang=getLanguage().toUpperCase()
@@ -21,7 +26,8 @@ export function AppHeader(){
     //profile picture
     const token=localStorage.getItem("token")
     const isLoggedIn=token!==null&&token!==undefined&&token.length>0
-    const [login,setLogin]=React.useState<string|null>(localStorage.getItem("login"))
+    const [login,setLogin]=useState<string | null>(localStorage.getItem("login"))
+    const [searchQuery,setSearchQuery]=useState<string>("")
 
     const getUserData=async () => {
         const token=localStorage.getItem("token")
@@ -38,26 +44,35 @@ export function AppHeader(){
         getUserData()
     }
 
+    const navigate=useNavigate()
+
+    const submit=() => {
+        navigate("/search/"+searchQuery)
+    }
+
     return (
-        <header className={"flex justify-between items-center w-svw py-2 sticky top-0 bg-background z-20"}>
+        <header className={"flex justify-between min-w-svw py-2 sticky top-0 bg-surface z-20 shadow rounded-md"}>
             <div className={"size-11 rounded-full bg-background-secondary flex items-center justify-center mx-3"}>
                 <Link to={"/"}>
                     <HomeIcon className={"size-7"}/>
                 </Link>
             </div>
 
-            {/*<div>
-                <SearchField variant={"secondary"}>
-                    <Label/>
+            <div className={"w-lg"}>
+                <SearchField
+                    name={"search"}
+                    variant={"secondary"}
+                    onSubmit={submit}
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                >
                     <SearchField.Group>
                         <SearchField.SearchIcon/>
-                        <SearchField.Input placeholder={"Search..."}/>
+                        <SearchField.Input placeholder={translate("searchbar")}/>
                         <SearchField.ClearButton/>
                     </SearchField.Group>
-                    <Description/>
-                    <FieldError/>
                 </SearchField>
-            </div>*/}
+            </div>
 
             <div className={"flex items-center gap-3 mx-3"}>
                 <ThemeSwitcher/>

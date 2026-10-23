@@ -1,5 +1,5 @@
 {
-  "originHash" : "4edcce1cc5360b87dc42790942d781620d3da7f0e56b390bc56bba54530a04dc",
+  "originHash" : "aa6f8368a2e370c33641f4b10ab10ee4384d459bdc160d13c635e716c18dc22c",
   "pins" : [
     {
       "identity" : "app-check",
@@ -80,6 +80,15 @@
       "state" : {
         "revision" : "ad5657fb585884a58e3d68eba5647ba982fe27ad",
         "version" : "1.0.9"
+      }
+    },
+    {
+      "identity" : "wrappinghstack",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ksemianov/WrappingHStack",
+      "state" : {
+        "revision" : "3300f68b6bf5f8a75ee7ca8a40f136a558053d10",
+        "version" : "0.2.0"
       }
     }
   ],

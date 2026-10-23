@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		551273A6308A88F7000E12D3 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 551273A5308A88F7000E12D3 /* WrappingHStack */; };
 		555DA85530634E7400B0F481 /* SwiftUIOTPEntry in Frameworks */ = {isa = PBXBuildFile; productRef = 555DA85430634E7400B0F481 /* SwiftUIOTPEntry */; };
 		55F075E2305B472500800CC5 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 55F075E1305B472500800CC5 /* GoogleSignIn */; };
 		55F075E4305B472500800CC5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 55F075E3305B472500800CC5 /* GoogleSignInSwift */; };
@@ -95,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				551273A6308A88F7000E12D3 /* WrappingHStack in Frameworks */,
 				55F075E2305B472500800CC5 /* GoogleSignIn in Frameworks */,
 				555DA85530634E7400B0F481 /* SwiftUIOTPEntry in Frameworks */,
 				55F075E4305B472500800CC5 /* GoogleSignInSwift in Frameworks */,
@@ -159,6 +161,7 @@
 				55F075E1305B472500800CC5 /* GoogleSignIn */,
 				55F075E3305B472500800CC5 /* GoogleSignInSwift */,
 				555DA85430634E7400B0F481 /* SwiftUIOTPEntry */,
+				551273A5308A88F7000E12D3 /* WrappingHStack */,
 			);
 			productName = iosApp;
 			productReference = CB3ED6DC0D5293581CE97651 /* Shrendar.app */;
@@ -234,6 +237,7 @@
 			packageReferences = (
 				55F075E0305B472500800CC5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				555DA85330634E7400B0F481 /* XCRemoteSwiftPackageReference "SwiftUIOTPEntry" */,
+				551273A4308A88F7000E12D3 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4585E520A5E3DA1E399B701A /* Products */;
@@ -645,6 +649,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		551273A4308A88F7000E12D3 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ksemianov/WrappingHStack";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
 		555DA85330634E7400B0F481 /* XCRemoteSwiftPackageReference "SwiftUIOTPEntry" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/julioarregoitia/SwiftUIOTPEntry.git";
@@ -664,6 +676,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		551273A5308A88F7000E12D3 /* WrappingHStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 551273A4308A88F7000E12D3 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
+			productName = WrappingHStack;
+		};
 		555DA85430634E7400B0F481 /* SwiftUIOTPEntry */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 555DA85330634E7400B0F481 /* XCRemoteSwiftPackageReference "SwiftUIOTPEntry" */;
