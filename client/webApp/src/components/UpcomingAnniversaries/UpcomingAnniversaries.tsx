@@ -58,7 +58,7 @@ export function UpcomingAnniversaries({strings}: { strings: Record<string,string
                         <div key={index}>
                             <Link href={"/artist/"+artist.id}>{artist.name}</Link>
                             <p>{artist.daysTillAnniversary} {translate("time_dp")} {translate("to")} {translate("birthday")}</p>
-                            <p>{artist.yearsSince+1} {translate("time_yp")}</p>
+                            <p>{artist.yearsSince!!+1} {translate("time_yp")}</p>
                             <p>{artist.anniversaryDate.toString()}</p>
                         </div>
                     ))}
@@ -71,7 +71,7 @@ export function UpcomingAnniversaries({strings}: { strings: Record<string,string
                         <div key={index}>
                             <Link href={"/artist/"+artist.id}>{artist.name}</Link>
                             <p>{artist.daysTillAnniversary} {translate("time_dp")} {translate("to")} {translate("death_anniversary")}</p>
-                            <p>{artist.yearsSince+1} {translate("time_yp")}</p>
+                            <p>{artist.yearsSince!!+1} {translate("time_yp")}</p>
                             <p>{artist.anniversaryDate.toString()}</p>
                         </div>
                     ))}

@@ -81,7 +81,9 @@ class MainActivity:ComponentActivity() {
                     )
                 }
                 composable<Destinations.Profile> {
-                    ProfilePageView()
+                    ProfilePageView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.Settings> {
                     SettingsView(
@@ -94,19 +96,29 @@ class MainActivity:ComponentActivity() {
                     )
                 }
                 composable<Destinations.BandDataView> {
-                    BandDataView()
+                    BandDataView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.ArtistDataView> {
-                    ArtistDataView()
+                    ArtistDataView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.AlbumDataView> {
-                    AlbumDataView()
+                    AlbumDataView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.EventDataView> {
-                    EventDataView()
+                    EventDataView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.HomepageDataView> {
-                    HomepageDataView()
+                    HomepageDataView(
+                        onBack={navController.popBackStack()},
+                    )
                 }
                 composable<Destinations.SearchResultsView> {
                     SearchResultsView(onBack={navController.popBackStack()})
