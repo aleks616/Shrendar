@@ -7,6 +7,7 @@
 
 import SharedLogic
 import SwiftUI
+import WrappingHStack
 
 extension View {
 	@ViewBuilder
@@ -33,6 +34,7 @@ struct SearchResultsScreen: View {
 			do {
 				data = try await SearchClient().search(query: searchQuery)
 				showingItems = data
+				filter = "all"
 			} catch {
 				data = nil
 			}
@@ -62,50 +64,21 @@ struct SearchResultsScreen: View {
 							.frame(maxWidth: .infinity, maxHeight: .infinity)
 					} else if let data {
 						Text(localize(key: "filter"))
-						HStack {
-							Button(localize(key: "filter_all")) {
-								showingItems = data
-								filter = "all"
-							}.filterButtonStyle(filter == "all")
-								.frame(maxWidth: .infinity)
-							Button(localize(key: "filter_band")) {
-								showingItems = SearchResults(
-									items: data.items?.filter { $0.type == "band" }
-								)
-								filter = "band"
-							}.filterButtonStyle(filter == "band")
-								.frame(maxWidth: .infinity)
-							Button(localize(key: "filter_album")) {
-								showingItems = SearchResults(
-									items: data.items?.filter { $0.type == "album" }
-								)
-								filter = "album"
-							}.filterButtonStyle(filter == "album")
-								.frame(maxWidth: .infinity)
-						}.frame(maxWidth: .infinity)
 
-						HStack {
-							Button(localize(key: "filter_artist")) {
-								showingItems = SearchResults(
-									items: data.items?.filter { $0.type == "artist" }
-								)
-								filter = "artist"
-							}.filterButtonStyle(filter == "artist")
-								.frame(maxWidth: .infinity)
-							Button(localize(key: "filter_user")) {
-								showingItems = SearchResults(
-									items: data.items?.filter { $0.type == "user" }
-								)
-								filter = "user"
-							}.filterButtonStyle(filter == "user")
-								.frame(maxWidth: .infinity)
-							Button(localize(key: "filter_event")) {
-								showingItems = SearchResults(
-									items: data.items?.filter { $0.type == "event" }
-								)
-								filter = "event"
-							}.filterButtonStyle(filter == "event")
-								.frame(maxWidth: .infinity)
+						WrappingHStack(alignment: .leading) {
+							ForEach(filterOptions, id: \.self) { option in
+								Button(localize(key: "filter_\(option)")) {
+									if option != "all" {
+										showingItems = SearchResults(
+											items: data.items?.filter { $0.type == option }
+										)
+									}
+									else {
+										showingItems = data
+									}
+									filter = option
+								}.filterButtonStyle(filter == option)
+							}
 						}.frame(maxWidth: .infinity)
 
 						ScrollView {
@@ -163,8 +136,7 @@ struct SearchResultsScreen: View {
 								}
 							}
 						}
-					}
-					else {
+					} else {
 						Spacer()
 					}
 				}

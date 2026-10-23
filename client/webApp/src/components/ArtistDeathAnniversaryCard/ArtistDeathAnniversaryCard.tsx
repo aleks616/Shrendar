@@ -1,5 +1,5 @@
 import {Card,Link} from "@heroui/react"
-import {AlbumByDateDto,ArtistAnniversaryDto} from "sharedLogic"
+import {ArtistAnniversaryDto} from "sharedLogic"
 
 export function ArtistDeathAnniversaryCard({strings,artist}:{strings:Record<string,string>,artist:ArtistAnniversaryDto}){
     const translate=(key: string) => strings[key]??key

@@ -46,6 +46,7 @@ fun SearchResultsView(
         try {
             data=SearchClient.search(searchQuery)
             showingItems=data
+            filter="all"
         }
         catch(_:Exception) {
             data=null

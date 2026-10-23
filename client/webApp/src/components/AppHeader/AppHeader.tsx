@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import {Badge,Button,Description,Dropdown,FieldError,SearchField} from "@heroui/react"
+import {Badge,Button,Dropdown,SearchField} from "@heroui/react"
 import {ThemeSwitcher} from "../ThemeSwitcher/ThemeSwitcher.tsx"
 import {
     ArrowRightEndOnRectangleIcon as ExitIcon,
