@@ -1,5 +1,6 @@
 package com.example.client.band
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.*
@@ -49,17 +50,19 @@ private data class SimilarBandTableRow(
     val country:String?,
 )
 
-@OptIn(ExperimentalJsExport::class)
+@SuppressLint("LocalContextGetResourceValueCall")
+@OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
 fun BandDataView(
+    onBack:()->Unit={},
     bandId:Int=21,
 ) {
     val context=LocalContext.current
     var band by remember(bandId) {mutableStateOf<BandWikiDto?>(null)}
     var isLoading by remember(bandId) {mutableStateOf(true)}
-    var selectedTab by remember {mutableStateOf(0)}
-    var selectedMemberFilter by remember {mutableStateOf(0)}
-    var selectedAlbumFilter by remember {mutableStateOf(0)}
+    var selectedTab by remember {mutableIntStateOf(0)}
+    var selectedMemberFilter by remember {mutableIntStateOf(0)}
+    var selectedAlbumFilter by remember {mutableIntStateOf(0)}
     var showingGenreInformation by remember {mutableStateOf(false)}
     var isFavorite by remember {mutableStateOf(false)}
     val token=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
@@ -108,205 +111,292 @@ fun BandDataView(
             modifier=Modifier.fillMaxSize(),
             color=MaterialTheme.colorScheme.background,
         ) {
-            if(isLoading) {
-                Box(
-                    modifier=Modifier.fillMaxSize(),
-                    contentAlignment=Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            if(band!=null) {
-                val bandData=band!!
-                val members=bandData.bandMembers.orEmpty()
-                val currentMembers=members.filter {
-                    it.yearRole.orEmpty().any {role-> role.contains("-)")}
-                }
-                val pastMembers=members.filter {
-                    it.yearRole.orEmpty().none {role-> role.contains("-)")}
-                }
-                val showingMembers=when(selectedMemberFilter) {
-                    1->currentMembers
-                    2->pastMembers
-                    else->members
-                }.map {member->
-                    MemberTableRow(
-                        personName=member.artistName,
-                        yearRole=member.yearRole.orEmpty().joinToString("\n") {role->
-                            role.replace("guitar",context.getString(LocalText().getStringResource("guitar").resourceId))
-                                .replace("bass",context.getString(LocalText().getStringResource("bass").resourceId))
-                                .replace("drums",context.getString(LocalText().getStringResource("drums").resourceId))
-                                .replace(
-                                    "backing vocals",
-                                    context.getString(LocalText().getStringResource("backing_vocals").resourceId)
-                                )
-                                .replace("vocals",context.getString(LocalText().getStringResource("vocals").resourceId))
-                        },
-                    )
-                }
-                val albums=bandData.albums.orEmpty()
-                val showingAlbums=(if(selectedAlbumFilter==1) {
-                    albums.filter {it.type=="Studio"}
-                }
-                else {
-                    albums
-                }).map {album->
-                    AlbumTableRow(
-                        title=album.title,
-                        releaseDate=album.releaseDate?.toString(),
-                        albumType=album.type,
-                        mainGenre=album.genreName,
-                    )
-                }
-                val similarBands=bandData.similar.orEmpty().map {similarBand->
-                    SimilarBandTableRow(
-                        bandName=similarBand.name,
-                        formedYear=similarBand.formedYear,
-                        country=similarBand.country?.let {
-                            context.getString(LocalText().getStringResource(it).resourceId)
-                        },
-                    )
-                }
-                val statusColor=when(bandData.status) {
-                    "Active"->Color.Green
-                    "Disbanded"->MaterialTheme.colorScheme.error
-                    else->Color.Yellow
-                }
-                val isLoggedIn=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
-                    .getString("authToken",null)!=null
-
-                Column(
-                    modifier=Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal=12.dp,vertical=16.dp),
-                    verticalArrangement=Arrangement.spacedBy(16.dp),
-                ) {
-                    Row(
-                        modifier=Modifier.fillMaxWidth(),
-                        horizontalArrangement=Arrangement.spacedBy(4.dp),
-                        verticalAlignment=Alignment.CenterVertically,
+            Column(modifier=Modifier.fillMaxSize()) {
+                TopAppBar(
+                    title={},
+                    navigationIcon={
+                        BackButton {onBack()}
+                    },
+                )
+                if(isLoading) {
+                    Box(
+                        modifier=Modifier.fillMaxSize(),
+                        contentAlignment=Alignment.Center,
                     ) {
-                        Text(
-                            text=bandData.name.orEmpty(),
-                            style=MaterialTheme.typography.headlineLarge,
-                            fontWeight=FontWeight.Bold,
-                        )
-                        IconButton(
-                            enabled=isLoggedIn,
-                            onClick={toggleBand(bandId)}
-                        ) {
-                            Icon(
-                                painter=if(bandData.favorite==true) {
-                                    painterResource(MR.images.star_filled)
-                                }
-                                else {
-                                    painterResource(MR.images.star)
-                                },
-                                contentDescription="favorite",
-                                modifier=Modifier.size(28.dp),
-                                tint=MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        CircularProgressIndicator()
                     }
+                }
 
-                    Row(
-                        modifier=Modifier.fillMaxWidth(),
-                        horizontalArrangement=Arrangement.spacedBy(16.dp),
-                        verticalAlignment=Alignment.Top,
+                if(band!=null) {
+                    val bandData=band!!
+                    val members=bandData.bandMembers.orEmpty()
+                    val currentMembers=members.filter {
+                        it.yearRole.orEmpty().any {role-> role.contains("-)")}
+                    }
+                    val pastMembers=members.filter {
+                        it.yearRole.orEmpty().none {role-> role.contains("-)")}
+                    }
+                    val showingMembers=when(selectedMemberFilter) {
+                        1->currentMembers
+                        2->pastMembers
+                        else->members
+                    }.map {member->
+                        MemberTableRow(
+                            personName=member.artistName,
+                            yearRole=member.yearRole.orEmpty().joinToString("\n") {role->
+                                role.replace(
+                                    "guitar",
+                                    context.getString(LocalText().getStringResource("guitar").resourceId)
+                                )
+                                    .replace("bass",context.getString(LocalText().getStringResource("bass").resourceId))
+                                    .replace(
+                                        "drums",
+                                        context.getString(LocalText().getStringResource("drums").resourceId)
+                                    )
+                                    .replace(
+                                        "backing vocals",
+                                        context.getString(LocalText().getStringResource("backing_vocals").resourceId)
+                                    )
+                                    .replace(
+                                        "vocals",
+                                        context.getString(LocalText().getStringResource("vocals").resourceId)
+                                    )
+                            },
+                        )
+                    }
+                    val albums=bandData.albums.orEmpty()
+                    val showingAlbums=(if(selectedAlbumFilter==1) {
+                        albums.filter {it.type=="Studio"}
+                    }
+                    else {
+                        albums
+                    }).map {album->
+                        AlbumTableRow(
+                            title=album.title,
+                            releaseDate=album.releaseDate?.toString(),
+                            albumType=album.type,
+                            mainGenre=album.genreName,
+                        )
+                    }
+                    val similarBands=bandData.similar.orEmpty().map {similarBand->
+                        SimilarBandTableRow(
+                            bandName=similarBand.name,
+                            formedYear=similarBand.formedYear,
+                            country=similarBand.country?.let {
+                                context.getString(LocalText().getStringResource(it).resourceId)
+                            },
+                        )
+                    }
+                    val statusColor=when(bandData.status) {
+                        "Active"->Color.Green
+                        "Disbanded"->MaterialTheme.colorScheme.error
+                        else->Color.Yellow
+                    }
+                    val isLoggedIn=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
+                        .getString("authToken",null)!=null
+
+                    Column(
+                        modifier=Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal=12.dp,vertical=16.dp),
+                        verticalArrangement=Arrangement.spacedBy(16.dp),
                     ) {
-                        Column(
-                            modifier=Modifier.weight(1.1f),
-                            verticalArrangement=Arrangement.spacedBy(8.dp),
+                        Row(
+                            modifier=Modifier.fillMaxWidth(),
+                            horizontalArrangement=Arrangement.spacedBy(4.dp),
+                            verticalAlignment=Alignment.CenterVertically,
                         ) {
-                            Row {
-                                Text(
-                                    text="${stringResource(LocalText().getStringResource("country"))}: ",
-                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text=bandData.country?.let {
-                                        stringResource(LocalText().getStringResource(it))
-                                    }?:"-",
-                                )
-                            }
-                            Row {
-                                Text(
-                                    text="${stringResource(LocalText().getStringResource("status"))}: ",
-                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text=stringResource(
-                                        LocalText().getStringResource(
-                                            bandData.status?.lowercase()?:"-"
-                                        )
-                                    ),
-                                    color=statusColor,
-                                )
-                            }
-                            Row {
-                                Text(
-                                    text="${stringResource(LocalText().getStringResource("years_active"))}: ",
-                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text="${bandData.formedYear?:"-"} - ${
-                                        bandData.disbandedYear
-                                        ?:stringResource(LocalText().getStringResource("present"))
-                                    }",
+                            Text(
+                                text=bandData.name.orEmpty(),
+                                style=MaterialTheme.typography.headlineLarge,
+                                fontWeight=FontWeight.Bold,
+                            )
+                            IconButton(
+                                enabled=isLoggedIn,
+                                onClick={toggleBand(bandId)}
+                            ) {
+                                Icon(
+                                    painter=if(bandData.favorite==true) {
+                                        painterResource(MR.images.star_filled)
+                                    }
+                                    else {
+                                        painterResource(MR.images.star)
+                                    },
+                                    contentDescription="favorite",
+                                    modifier=Modifier.size(28.dp),
+                                    tint=MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
 
-                        Column(
-                            modifier=Modifier.weight(0.9f),
-                            verticalArrangement=Arrangement.spacedBy(8.dp),
+                        Row(
+                            modifier=Modifier.fillMaxWidth(),
+                            horizontalArrangement=Arrangement.spacedBy(16.dp),
+                            verticalAlignment=Alignment.Top,
                         ) {
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Text(
-                                    text="${stringResource(LocalText().getStringResource("top_genres"))}: ",
-                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                IconButton(
-                                    onClick={showingGenreInformation=true},
-                                    modifier=Modifier.size(28.dp),
-                                ) {
-                                    Icon(
-                                        imageVector=Icons.Outlined.Info,
-                                        contentDescription="More information",
-                                        tint=MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier=Modifier.size(18.dp),
+                            Column(
+                                modifier=Modifier.weight(1.1f),
+                                verticalArrangement=Arrangement.spacedBy(8.dp),
+                            ) {
+                                Row {
+                                    Text(
+                                        text="${stringResource(LocalText().getStringResource("country"))}: ",
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text=bandData.country?.let {
+                                            stringResource(LocalText().getStringResource(it))
+                                        }?:"-",
+                                    )
+                                }
+                                Row {
+                                    Text(
+                                        text="${stringResource(LocalText().getStringResource("status"))}: ",
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text=stringResource(
+                                            LocalText().getStringResource(
+                                                bandData.status?.lowercase()?:"-"
+                                            )
+                                        ),
+                                        color=statusColor,
+                                    )
+                                }
+                                Row {
+                                    Text(
+                                        text="${stringResource(LocalText().getStringResource("years_active"))}: ",
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text="${bandData.formedYear?:"-"} - ${
+                                            bandData.disbandedYear
+                                            ?:stringResource(LocalText().getStringResource("present"))
+                                        }",
                                     )
                                 }
                             }
-                            bandData.computedGenres.orEmpty().forEach {genre->
-                                Text("-${genre.name?:"-"}")
+
+                            Column(
+                                modifier=Modifier.weight(0.9f),
+                                verticalArrangement=Arrangement.spacedBy(8.dp),
+                            ) {
+                                Row(verticalAlignment=Alignment.CenterVertically) {
+                                    Text(
+                                        text="${stringResource(LocalText().getStringResource("top_genres"))}: ",
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    IconButton(
+                                        onClick={showingGenreInformation=true},
+                                        modifier=Modifier.size(28.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector=Icons.Outlined.Info,
+                                            contentDescription="More information",
+                                            tint=MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier=Modifier.size(18.dp),
+                                        )
+                                    }
+                                }
+                                bandData.computedGenres.orEmpty().forEach {genre->
+                                    Text("-${genre.name?:"-"}")
+                                }
                             }
                         }
-                    }
 
-                    LoadImage(
-                        imageUrl=bandData.imageUrl,
-                        contentDescription=bandData.name.orEmpty(),
-                    )
+                        LoadImage(
+                            imageUrl=bandData.imageUrl,
+                            contentDescription=bandData.name.orEmpty(),
+                        )
 
-                    TranslatedDescription(description=bandData.description.orEmpty())
+                        TranslatedDescription(description=bandData.description.orEmpty())
 
-                    Tabs(
-                        labels=listOf("members","albums","similar_bands").map {
-                            stringResource(LocalText().getStringResource(it))
-                        },
-                        selectedIndex=selectedTab,
-                        onSelected={selectedTab=it},
-                    ) {tab->
-                        when(tab) {
-                            0-> {
-                                Row(
-                                    modifier=Modifier.fillMaxWidth(),
-                                    horizontalArrangement=Arrangement.SpaceBetween,
-                                    verticalAlignment=Alignment.CenterVertically,
-                                ) {
+                        Tabs(
+                            labels=listOf("members","albums","similar_bands").map {
+                                stringResource(LocalText().getStringResource(it))
+                            },
+                            selectedIndex=selectedTab,
+                            onSelected={selectedTab=it},
+                        ) {tab->
+                            when(tab) {
+                                0-> {
+                                    Row(
+                                        modifier=Modifier.fillMaxWidth(),
+                                        horizontalArrangement=Arrangement.SpaceBetween,
+                                        verticalAlignment=Alignment.CenterVertically,
+                                    ) {
+                                        Row(
+                                            modifier=Modifier
+                                                .horizontalScroll(rememberScrollState())
+                                                .background(
+                                                    MaterialTheme.colorScheme.surfaceVariant,
+                                                    RoundedCornerShape(12.dp),
+                                                )
+                                                .padding(4.dp),
+                                        ) {
+                                            listOf("all_members","current_members","past_members")
+                                                .forEachIndexed {index,label->
+                                                    Box(
+                                                        modifier=Modifier
+                                                            .height(32.dp)
+                                                            .background(
+                                                                if(selectedMemberFilter==index) {
+                                                                    MaterialTheme.colorScheme.surface
+                                                                }
+                                                                else {
+                                                                    Color.Transparent
+                                                                },
+                                                                RoundedCornerShape(12.dp),
+                                                            )
+                                                            .clickable(
+                                                                interactionSource=remember {MutableInteractionSource()},
+                                                                indication=LocalIndication.current,
+                                                                onClick={selectedMemberFilter=index},
+                                                            )
+                                                            .semantics {
+                                                                role=Role.RadioButton
+                                                                selected=selectedMemberFilter==index
+                                                            },
+                                                        contentAlignment=Alignment.Center,
+                                                    ) {
+                                                        Text(
+                                                            text=stringResource(
+                                                                LocalText().getStringResource(label)
+                                                            ),
+                                                            color=MaterialTheme.colorScheme.onSurface,
+                                                            modifier=Modifier.padding(horizontal=12.dp),
+                                                        )
+                                                    }
+                                                }
+                                        }
+                                        Button(
+                                            onClick={toggleArtistFavoriteAll(bandId)},
+                                            enabled=isLoggedIn,
+                                        ) {
+                                            Text(
+                                                text=stringResource(
+                                                    LocalText().getStringResource("favorite_all")
+                                                ),modifier=Modifier.padding(0.dp)
+                                            )
+                                        }
+                                    }
+
+
+                                    Spacer(modifier=Modifier.size(4.dp))
+                                    Table(
+                                        columns=listOf(
+                                            Pair("person_name",MemberTableRow::personName),
+                                            Pair("role",MemberTableRow::yearRole),
+                                        ),
+                                        data=showingMembers,
+                                        emptyText=stringResource(
+                                            LocalText().getStringResource("no_band_members")
+                                        ),
+                                    )
+                                }
+
+                                1-> {
                                     Row(
                                         modifier=Modifier
                                             .horizontalScroll(rememberScrollState())
@@ -316,168 +406,98 @@ fun BandDataView(
                                             )
                                             .padding(4.dp),
                                     ) {
-                                        listOf("all_members","current_members","past_members")
-                                            .forEachIndexed {index,label->
-                                                Box(
-                                                    modifier=Modifier
-                                                        .height(32.dp)
-                                                        .background(
-                                                            if(selectedMemberFilter==index) {
-                                                                MaterialTheme.colorScheme.surface
-                                                            }
-                                                            else {
-                                                                Color.Transparent
-                                                            },
-                                                            RoundedCornerShape(12.dp),
-                                                        )
-                                                        .clickable(
-                                                            interactionSource=remember {MutableInteractionSource()},
-                                                            indication=LocalIndication.current,
-                                                            onClick={selectedMemberFilter=index},
-                                                        )
-                                                        .semantics {
-                                                            role=Role.RadioButton
-                                                            selected=selectedMemberFilter==index
+                                        listOf("all","studio").forEachIndexed {index,label->
+                                            Box(
+                                                modifier=Modifier
+                                                    .height(32.dp)
+                                                    .background(
+                                                        if(selectedAlbumFilter==index) {
+                                                            MaterialTheme.colorScheme.surface
+                                                        }
+                                                        else {
+                                                            Color.Transparent
                                                         },
-                                                    contentAlignment=Alignment.Center,
-                                                ) {
-                                                    Text(
-                                                        text=stringResource(
-                                                            LocalText().getStringResource(label)
-                                                        ),
-                                                        color=MaterialTheme.colorScheme.onSurface,
-                                                        modifier=Modifier.padding(horizontal=12.dp),
+                                                        RoundedCornerShape(12.dp),
                                                     )
-                                                }
-                                            }
-                                    }
-                                    Button(
-                                        onClick={toggleArtistFavoriteAll(bandId)},
-                                        enabled=isLoggedIn,
-                                    ) {
-                                        Text(
-                                            text=stringResource(
-                                                LocalText().getStringResource("favorite_all")
-                                            ),modifier=Modifier.padding(0.dp)
-                                        )
-                                    }
-                                }
-
-
-                                Spacer(modifier=Modifier.size(4.dp))
-                                Table(
-                                    columns=listOf(
-                                        Pair("person_name",MemberTableRow::personName),
-                                        Pair("role",MemberTableRow::yearRole),
-                                    ),
-                                    data=showingMembers,
-                                    emptyText=stringResource(
-                                        LocalText().getStringResource("no_band_members")
-                                    ),
-                                )
-                            }
-
-                            1-> {
-                                Row(
-                                    modifier=Modifier
-                                        .horizontalScroll(rememberScrollState())
-                                        .background(
-                                            MaterialTheme.colorScheme.surfaceVariant,
-                                            RoundedCornerShape(12.dp),
-                                        )
-                                        .padding(4.dp),
-                                ) {
-                                    listOf("all","studio").forEachIndexed {index,label->
-                                        Box(
-                                            modifier=Modifier
-                                                .height(32.dp)
-                                                .background(
-                                                    if(selectedAlbumFilter==index) {
-                                                        MaterialTheme.colorScheme.surface
-                                                    }
-                                                    else {
-                                                        Color.Transparent
+                                                    .clickable(
+                                                        interactionSource=remember {MutableInteractionSource()},
+                                                        indication=LocalIndication.current,
+                                                        onClick={selectedAlbumFilter=index},
+                                                    )
+                                                    .semantics {
+                                                        role=Role.RadioButton
+                                                        selected=selectedAlbumFilter==index
                                                     },
-                                                    RoundedCornerShape(12.dp),
+                                                contentAlignment=Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    text=stringResource(
+                                                        LocalText().getStringResource(label)
+                                                    ),
+                                                    color=MaterialTheme.colorScheme.onSurface,
+                                                    modifier=Modifier.padding(horizontal=12.dp),
                                                 )
-                                                .clickable(
-                                                    interactionSource=remember {MutableInteractionSource()},
-                                                    indication=LocalIndication.current,
-                                                    onClick={selectedAlbumFilter=index},
-                                                )
-                                                .semantics {
-                                                    role=Role.RadioButton
-                                                    selected=selectedAlbumFilter==index
-                                                },
-                                            contentAlignment=Alignment.Center,
-                                        ) {
-                                            Text(
-                                                text=stringResource(
-                                                    LocalText().getStringResource(label)
-                                                ),
-                                                color=MaterialTheme.colorScheme.onSurface,
-                                                modifier=Modifier.padding(horizontal=12.dp),
-                                            )
+                                            }
                                         }
                                     }
+
+                                    Spacer(modifier=Modifier.size(4.dp))
+                                    Table(
+                                        columns=listOf(
+                                            Pair("title",AlbumTableRow::title),
+                                            Pair("release_date",AlbumTableRow::releaseDate),
+                                            Pair("album_type",AlbumTableRow::albumType),
+                                            Pair("main_genre",AlbumTableRow::mainGenre),
+                                        ),
+                                        data=showingAlbums,
+                                        emptyText=stringResource(
+                                            LocalText().getStringResource("no_albums")
+                                        ),
+                                    )
                                 }
 
-                                Spacer(modifier=Modifier.size(4.dp))
-                                Table(
+                                else->Table(
                                     columns=listOf(
-                                        Pair("title",AlbumTableRow::title),
-                                        Pair("release_date",AlbumTableRow::releaseDate),
-                                        Pair("album_type",AlbumTableRow::albumType),
-                                        Pair("main_genre",AlbumTableRow::mainGenre),
+                                        Pair("thing_name",SimilarBandTableRow::bandName),
+                                        Pair("formed_year",SimilarBandTableRow::formedYear),
+                                        Pair("country",SimilarBandTableRow::country),
                                     ),
-                                    data=showingAlbums,
+                                    data=similarBands,
                                     emptyText=stringResource(
-                                        LocalText().getStringResource("no_albums")
+                                        LocalText().getStringResource("no_similar_bands")
                                     ),
                                 )
                             }
-
-                            else->Table(
-                                columns=listOf(
-                                    Pair("thing_name",SimilarBandTableRow::bandName),
-                                    Pair("formed_year",SimilarBandTableRow::formedYear),
-                                    Pair("country",SimilarBandTableRow::country),
-                                ),
-                                data=similarBands,
-                                emptyText=stringResource(
-                                    LocalText().getStringResource("no_similar_bands")
-                                ),
-                            )
                         }
                     }
-                }
 
-                if(showingGenreInformation) {
-                    AlertDialog(
-                        onDismissRequest={showingGenreInformation=false},
-                        containerColor=MaterialTheme.colorScheme.background,
-                        titleContentColor=MaterialTheme.colorScheme.onSurface,
-                        textContentColor=MaterialTheme.colorScheme.onSurface,
-                        tonalElevation=0.dp,
-                        title={
-                            Text(stringResource(LocalText().getStringResource("top_genres")))
-                        },
-                        text={
-                            Text(
-                                stringResource(LocalText().getStringResource("band_genre_info"))
-                            )
-                        },
-                        confirmButton={
-                            TextButton(
-                                onClick={showingGenreInformation=false},
-                                colors=ButtonDefaults.textButtonColors(
-                                    contentColor=MaterialTheme.colorScheme.onSurface,
-                                ),
-                            ) {
-                                Text(stringResource(LocalText().getStringResource("ok")))
-                            }
-                        },
-                    )
+                    if(showingGenreInformation) {
+                        AlertDialog(
+                            onDismissRequest={showingGenreInformation=false},
+                            containerColor=MaterialTheme.colorScheme.background,
+                            titleContentColor=MaterialTheme.colorScheme.onSurface,
+                            textContentColor=MaterialTheme.colorScheme.onSurface,
+                            tonalElevation=0.dp,
+                            title={
+                                Text(stringResource(LocalText().getStringResource("top_genres")))
+                            },
+                            text={
+                                Text(
+                                    stringResource(LocalText().getStringResource("band_genre_info"))
+                                )
+                            },
+                            confirmButton={
+                                TextButton(
+                                    onClick={showingGenreInformation=false},
+                                    colors=ButtonDefaults.textButtonColors(
+                                        contentColor=MaterialTheme.colorScheme.onSurface,
+                                    ),
+                                ) {
+                                    Text(stringResource(LocalText().getStringResource("ok")))
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.client.artist
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -20,7 +21,6 @@ import com.example.client.profile.ProfileClient
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
-import kotlin.collections.orEmpty
 import kotlin.js.ExperimentalJsExport
 
 private data class BandTableRow(
@@ -28,9 +28,11 @@ private data class BandTableRow(
     val yearRole:String
 )
 
-@OptIn(ExperimentalJsExport::class)
+@SuppressLint("LocalContextGetResourceValueCall")
+@OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistDataView(
+    onBack:()->Unit,
     artistId:Long=144
 ) {
     val context=LocalContext.current
@@ -72,200 +74,231 @@ fun ArtistDataView(
             modifier=Modifier.fillMaxSize(),
             color=MaterialTheme.colorScheme.background,
         ) {
-            if(isLoading) {
-                Box(
-                    modifier=Modifier.fillMaxSize(),
-                    contentAlignment=Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            val artistData=artist?:ArtistWikiDto()
-            val bands=artistData.bands.orEmpty()
-            val isDead=artistData.deathDate!=null
-            val isLoggedIn=
-                context.getSharedPreferences("authToken",Context.MODE_PRIVATE).getString("authToken",null)!=null
-
-            Column(
-                modifier=Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(start=12.dp,end=12.dp,top=16.dp,bottom=8.dp),
-                verticalArrangement=Arrangement.spacedBy(16.dp),
-            ) {
-                Row(
-                    modifier=Modifier.fillMaxWidth(),
-                    horizontalArrangement=Arrangement.spacedBy(4.dp),
-                    verticalAlignment=Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text=artistData.name.orEmpty(),
-                        style=MaterialTheme.typography.headlineLarge,
-                        fontWeight=FontWeight.Bold,
-                    )
-                    IconButton(
-                        enabled=isLoggedIn,
-                        onClick={toggleArtist(artistId)}
+            Column(modifier=Modifier.fillMaxSize()) {
+                TopAppBar(
+                    title={},
+                    navigationIcon={
+                        BackButton {onBack()}
+                    }
+                )
+                if(isLoading) {
+                    Box(
+                        modifier=Modifier.fillMaxSize(),
+                        contentAlignment=Alignment.Center,
                     ) {
-                        Icon(
-                            painter=if(artistData.favorite) {
-                                painterResource(MR.images.star_filled)
-                            }
-                            else {
-                                painterResource(MR.images.star)
-                            },
-                            contentDescription="favorite",
-                            modifier=Modifier.size(28.dp),
-                            tint=MaterialTheme.colorScheme.primary
-                        )
+                        CircularProgressIndicator()
                     }
                 }
-                Row(
-                    modifier=Modifier.fillMaxWidth(),
-                    horizontalArrangement=Arrangement.spacedBy(16.dp),
-                    verticalAlignment=Alignment.Top,
+                val artistData=artist?:ArtistWikiDto()
+                val bands=artistData.bands.orEmpty()
+                val isDead=artistData.deathDate!=null
+                val isLoggedIn=
+                    context.getSharedPreferences("authToken",Context.MODE_PRIVATE).getString("authToken",null)!=null
+
+                Column(
+                    modifier=Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(start=12.dp,end=12.dp,top=16.dp,bottom=8.dp),
+                    verticalArrangement=Arrangement.spacedBy(16.dp),
                 ) {
-                    Column(
-                        modifier=Modifier.weight(1.1f),
-                        verticalArrangement=Arrangement.spacedBy(8.dp),
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(4.dp),
+                        verticalAlignment=Alignment.CenterVertically,
                     ) {
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("country"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=artistData.country?.let {
-                                    stringResource(LocalText().getStringResource(it))
-                                }?:"-",
-                            )
-                        }
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("age"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=if(artistData.age!=null) artistData.age.toString() else "-",
-                            )
-                        }
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("birthday"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=if(artistData.birthDate!=null) artistData.birthDate.toString() else "-",
-                            )
-                            Text(
-                                text=" "+stringResource(LocalText().getStringResource("next_in")),
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=if(artistData.daysTillBirthday!=null) artistData.daysTillBirthday.toString() else "-",
-                            )
-                            Text(
-                                text=" "+stringResource(LocalText().getStringResource("days"))
+                        Text(
+                            text=artistData.name.orEmpty(),
+                            style=MaterialTheme.typography.headlineLarge,
+                            fontWeight=FontWeight.Bold,
+                        )
+                        IconButton(
+                            enabled=isLoggedIn,
+                            onClick={toggleArtist(artistId)}
+                        ) {
+                            Icon(
+                                painter=if(artistData.favorite) {
+                                    painterResource(MR.images.star_filled)
+                                }
+                                else {
+                                    painterResource(MR.images.star)
+                                },
+                                contentDescription="favorite",
+                                modifier=Modifier.size(28.dp),
+                                tint=MaterialTheme.colorScheme.primary
                             )
                         }
-                        if(isDead) {
+                    }
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(16.dp),
+                        verticalAlignment=Alignment.Top,
+                    ) {
+                        Column(
+                            modifier=Modifier.weight(1.1f),
+                            verticalArrangement=Arrangement.spacedBy(8.dp),
+                        ) {
                             Row {
                                 Text(
-                                    text="${stringResource(LocalText().getStringResource("death_anniversary"))}: ",
+                                    text="${stringResource(LocalText().getStringResource("country"))}: ",
                                     color=MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    text=artistData.deathDate.toString(),
+                                    text=artistData.country?.let {
+                                        stringResource(LocalText().getStringResource(it))
+                                    }?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("age"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=if(artistData.age!=null) artistData.age.toString() else "-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("birthday"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=if(artistData.birthDate!=null) artistData.birthDate.toString() else "-",
                                 )
                                 Text(
                                     text=" "+stringResource(LocalText().getStringResource("next_in")),
                                     color=MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    text=artistData.daysTillDeathAnniversary.toString(),
+                                    text=if(artistData.daysTillBirthday!=null) artistData.daysTillBirthday.toString() else "-",
                                 )
                                 Text(
                                     text=" "+stringResource(LocalText().getStringResource("days"))
                                 )
                             }
-                        }
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("gender"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=artistData.gender?.let {
-                                    stringResource(LocalText().getStringResource(it.lowercase()))
-                                }?:"-",
-                            )
-                        }
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("zodiac_sign"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=artistData.zodiacSign?.let {
-                                    stringResource(LocalText().getStringResource("zodiac_"+it.toString().lowercase()))
-                                }?:"-",
-                            )
-                        }
-                        Row {
-                            Text(
-                                text="${stringResource(LocalText().getStringResource("chinese_zodiac_sign"))}: ",
-                                color=MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text=artistData.chineseZodiacSign?.let {
-                                    stringResource(LocalText().getStringResource("chinese_zodiac_"+it.toString().lowercase()))
-                                }?:"-",
-                            )
+                            if(isDead) {
+                                Row {
+                                    Text(
+                                        text="${stringResource(LocalText().getStringResource("death_anniversary"))}: ",
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text=artistData.deathDate.toString(),
+                                    )
+                                    Text(
+                                        text=" "+stringResource(LocalText().getStringResource("next_in")),
+                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        text=artistData.daysTillDeathAnniversary.toString(),
+                                    )
+                                    Text(
+                                        text=" "+stringResource(LocalText().getStringResource("days"))
+                                    )
+                                }
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("gender"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=artistData.gender?.let {
+                                        stringResource(LocalText().getStringResource(it.lowercase()))
+                                    }?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("zodiac_sign"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=artistData.zodiacSign?.let {
+                                        stringResource(
+                                            LocalText().getStringResource(
+                                                "zodiac_"+it.toString().lowercase()
+                                            )
+                                        )
+                                    }?:"-",
+                                )
+                            }
+                            Row {
+                                Text(
+                                    text="${stringResource(LocalText().getStringResource("chinese_zodiac_sign"))}: ",
+                                    color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text=artistData.chineseZodiacSign?.let {
+                                        stringResource(
+                                            LocalText().getStringResource(
+                                                "chinese_zodiac_"+it.toString().lowercase()
+                                            )
+                                        )
+                                    }?:"-",
+                                )
+                            }
                         }
                     }
-                }
-                LoadImage(
-                    imageUrl=artistData.artistImageUrl,
-                    contentDescription=artistData.name.orEmpty(),
-                )
-
-                TranslatedDescription(description=artistData.description.orEmpty())
-
-                Row(
-                    modifier=Modifier.fillMaxWidth(),
-                    horizontalArrangement=Arrangement.Center,
-                ) {
-                    Text(
-                        text=stringResource(LocalText().getStringResource("bands")),
-                        style=MaterialTheme.typography.headlineSmall
+                    LoadImage(
+                        imageUrl=artistData.artistImageUrl,
+                        contentDescription=artistData.name.orEmpty(),
                     )
-                }
-                Row(
-                    modifier=Modifier.fillMaxWidth(),
-                    horizontalArrangement=Arrangement.spacedBy(8.dp),
-                ){
-                    val bandsTableData=bands.filter{it.bandName!=null}.map{record->
-                        BandTableRow(
-                            band=record.bandName!!,
-                            yearRole=record.yearRole.orEmpty().joinToString("\n") {role->
-                                role.replace("guitar",context.getString(LocalText().getStringResource("guitar").resourceId))
-                                    .replace("bass",context.getString(LocalText().getStringResource("bass").resourceId))
-                                    .replace("drums",context.getString(LocalText().getStringResource("drums").resourceId))
-                                    .replace("backing vocals",context.getString(LocalText().getStringResource("backing_vocals").resourceId))
-                                    .replace("vocals",context.getString(LocalText().getStringResource("vocals").resourceId))
-                            },
+
+                    TranslatedDescription(description=artistData.description.orEmpty())
+
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.Center,
+                    ) {
+                        Text(
+                            text=stringResource(LocalText().getStringResource("bands")),
+                            style=MaterialTheme.typography.headlineSmall
                         )
                     }
-                    Table(
-                        columns=listOf(
-                            Pair("bands",BandTableRow::band),
-                            Pair("role",BandTableRow::yearRole),
-                        ),
-                        data=bandsTableData,
-                        emptyText=stringResource(
-                            LocalText().getStringResource("no_bands")
-                        ),
-                    )
+                    Row(
+                        modifier=Modifier.fillMaxWidth(),
+                        horizontalArrangement=Arrangement.spacedBy(8.dp),
+                    ) {
+                        val bandsTableData=bands.filter {it.bandName!=null}.map {record->
+                            BandTableRow(
+                                band=record.bandName!!,
+                                yearRole=record.yearRole.orEmpty().joinToString("\n") {role->
+                                    role.replace(
+                                        "guitar",
+                                        context.getString(LocalText().getStringResource("guitar").resourceId)
+                                    )
+                                        .replace(
+                                            "bass",
+                                            context.getString(LocalText().getStringResource("bass").resourceId)
+                                        )
+                                        .replace(
+                                            "drums",
+                                            context.getString(LocalText().getStringResource("drums").resourceId)
+                                        )
+                                        .replace(
+                                            "backing vocals",
+                                            context.getString(LocalText().getStringResource("backing_vocals").resourceId)
+                                        )
+                                        .replace(
+                                            "vocals",
+                                            context.getString(LocalText().getStringResource("vocals").resourceId)
+                                        )
+                                },
+                            )
+                        }
+                        Table(
+                            columns=listOf(
+                                Pair("bands",BandTableRow::band),
+                                Pair("role",BandTableRow::yearRole),
+                            ),
+                            data=bandsTableData,
+                            emptyText=stringResource(
+                                LocalText().getStringResource("no_bands")
+                            ),
+                        )
+                    }
                 }
             }
 
