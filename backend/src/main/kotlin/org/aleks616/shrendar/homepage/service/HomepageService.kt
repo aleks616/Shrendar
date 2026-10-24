@@ -131,7 +131,7 @@ class HomepageService(
                     daysTillBirthday=Utils.getDaysTillNextAnniversary(it.birthDate!!),
                     deathDate=it.deathDate,
                     daysTillDeathAnniversary=Utils.getDaysTillNextAnniversary(it.deathDate),
-                    age=it.birthDate!!.until(LocalDate.now()).years,
+                    age=it.birthDate!!.until(LocalDate.now()).years+1,
                     ageAtDeath=it.birthDate!!.until(it.deathDate).years,
                     country=countryRepository.getCountryNameById(it.country),
                     imageUrl=it.artistImageUrl
@@ -146,7 +146,7 @@ class HomepageService(
             ArtistAnniversaryDto(
                 id=it.id,
                 name=it.name,
-                anniversaryDate=it.birthDate,
+                anniversaryDate=it.deathDate,
                 daysTillAnniversary=it.daysTillDeathAnniversary,
                 yearsSince=it.deathDate!!.until(LocalDate.now()).years+1,
                 country=it.country,
@@ -163,7 +163,7 @@ class HomepageService(
                 daysTillBirthday=Utils.getDaysTillNextAnniversary(it.birthDate!!),
                 deathDate=it.deathDate,
                 daysTillDeathAnniversary=Utils.getDaysTillNextAnniversary(it.deathDate),
-                age=it.birthDate!!.until(LocalDate.now()).years,
+                age=it.birthDate!!.until(LocalDate.now()).years+1,
                 ageAtDeath=null,
                 country=countryRepository.getCountryNameById(it.country),
                 imageUrl=it.artistImageUrl
@@ -207,7 +207,7 @@ class HomepageService(
                     releaseDate=album.releaseDate,
                     type=album.type.toString().titleCase(),
                     artworkUrl=album.artworkUrl,
-                    age=albumAge,
+                    age=albumAge+1,
                     daysTillAnniversary=daysTill,
                 )
             )
@@ -220,7 +220,7 @@ class HomepageService(
     fun getUpcomingRandomAlbumAnniversaries():List<AlbumAnniversaryDto>{
         val albumsData:MutableList<Album> =albumRepository.findAlbumsByUpcomingAnniversaries()
         val allAlbums:MutableList<AlbumAnniversaryDto> =mutableListOf()
-        albumsData.forEach {album->
+        albumsData.filter{it.releaseDate.year<LocalDate.now().year}.forEach {album->
             val daysTill=Utils.getDaysTillNextAnniversary(album.releaseDate)
             val albumAge=album.releaseDate.until(LocalDate.now()).years
             allAlbums.add(
@@ -232,7 +232,7 @@ class HomepageService(
                     releaseDate=album.releaseDate,
                     type=album.type.toString().titleCase(),
                     artworkUrl=album.artworkUrl,
-                    age=albumAge,
+                    age=albumAge+1,
                     daysTillAnniversary=daysTill,
                 )
             )

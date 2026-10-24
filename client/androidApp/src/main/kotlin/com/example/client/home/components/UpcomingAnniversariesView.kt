@@ -57,7 +57,7 @@ fun UpcomingAnniversariesView() {
                             text="${album.daysTillAnniversary} "+"${stringResource(MR.strings.time_dp)} "+
                                  "${stringResource(MR.strings.to)} "+stringResource(MR.strings.anniversary)
                         )
-                        Text(text="${album.age+1} ${stringResource(MR.strings.time_yp)}")
+                        Text(text="${album.age} ${stringResource(MR.strings.time_yp)}")
                         Text(text=album.releaseDate.toString())
                     }
                     Spacer(modifier=Modifier.padding(bottom=8.dp))

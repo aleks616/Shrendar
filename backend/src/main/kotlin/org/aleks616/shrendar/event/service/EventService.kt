@@ -40,7 +40,7 @@ class EventService(
             daysTillAnniversary=Utils.getDaysTillNextAnniversary(event.date),
             name=event.name,
             description=event.description,
-            yearsSince=event.date!!.until(LocalDate.now()).years+1,
+            yearsSince=event.date!!.until(LocalDate.now()).years,
         )
 
     }
