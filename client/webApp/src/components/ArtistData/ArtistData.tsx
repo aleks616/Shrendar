@@ -81,7 +81,9 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                                 {artist.country?translate(artist.country):"-"}
                             </p>
                             <p>
-                                <span className={"text-muted"}>{translate("age")}: </span>
+                                {artist.deathDate!=null?
+                                    <span className={"text-muted"}>{translate("age_at_death")}: </span>:
+                                    <span className={"text-muted"}>{translate("age")}: </span>}
                                 {artist.age?artist.age:"-"}
                             </p>
                             <p>

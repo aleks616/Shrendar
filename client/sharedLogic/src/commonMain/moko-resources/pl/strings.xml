@@ -496,6 +496,7 @@
     <string name="band_genre_info">Są one obliczane automatycznie na podstawie gatunków i wagi albumu, więc mogą być nieoczekiwane.</string>
 
     <string name="age">Wiek</string>
+    <string name="age_at_death">Wiek w chwili śmierci</string>
     <string name="birthday">Urodziny</string>
     <string name="death_anniversary">Rocznica śmierci</string>
     <string name="next_in">następne za: </string>
