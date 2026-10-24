@@ -355,8 +355,24 @@ class HomepageService(
         }.filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
             .filterNot{d->otherBandMembersDeathAnniversaries.map{it.id}.contains(d.id)}
 
-        val recommendedArtistBirthdaysResult=recommendedArtistBirthdays//.ifEmpty {artistService.getByBirthday(month,day).shuffled().take(4)}
-        val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries//.ifEmpty {artistService.getByDeathDate(month,day).shuffled().take(4)}
+        val birthdaysCount=favoriteArtistsBirthdays.count()+otherBandMembersBirthdays.count()+recommendedArtistBirthdays.count()
+        val randomArtistsBirthdays=artistService.getByBirthday(month,day)
+            .filterNot{r->favoriteArtistsBirthdays.map{it.id}.contains(r.id)}
+            .filterNot{r->otherBandMembersBirthdays.map{it.id}.contains(r.id)}
+            .filterNot{r->recommendedArtistBirthdays.map{it.id}.contains(r.id)}
+            .shuffled()
+            .take(10-birthdaysCount.coerceIn(0,10))
+        val recommendedArtistBirthdaysResult=recommendedArtistBirthdays+randomArtistsBirthdays
+
+        val deathAnniversariesCount=favoriteArtistsDeathAnniversaries.count()+otherBandMembersDeathAnniversaries.count()+recommendedArtistsDeathAnniversaries.count()
+        val randomArtistDeathAnniversaries=artistService.getByDeathDate(month,day)
+            .filterNot{r->favoriteArtistsDeathAnniversaries.map{it.id}.contains(r.id)}
+            .filterNot{r->otherBandMembersDeathAnniversaries.map{it.id}.contains(r.id)}
+            .filterNot{r->recommendedArtistsDeathAnniversaries.map{it.id}.contains(r.id)}
+            .shuffled()
+            .take(3-deathAnniversariesCount.coerceIn(0,3))
+
+        val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries+randomArtistDeathAnniversaries
 
         return HomepageMainDto(
             favoriteAlbumsAnniversaries,
