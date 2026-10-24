@@ -46,7 +46,7 @@ class HomepageControllerTest {
         assertEquals(emptyList<Any>(),controller.getUpcomingFavoriteArtistsBirthdays())
         assertEquals(emptyList<Any>(),controller.getUpcomingFavoriteArtistDeathAnniversaries())
         assertEquals(emptyList<Any>(),controller.getUpcomingFavoriteAlbumAnniversaries())
-        assertEquals(null,controller.getCommonBands())
+        assertEquals(emptyList<Any>(),controller.getCommonBands())
 
         verify(service).getUpcomingRandomArtistsBirthdays()
         verify(service).getUpcomingRandomArtistsDeathAnniversaries()
@@ -66,7 +66,7 @@ class HomepageControllerTest {
         assertEquals(anonymous,controller.getTodayAnniversaries())
     }
 
-    /*@Test
+    @Test
     fun `recent additions always delegates without requiring authentication`() {
         SecurityContextHolder.clearContext()
         val expected=listOf("addition")
@@ -74,7 +74,7 @@ class HomepageControllerTest {
 
         assertEquals(expected,controller.getRecentlyAdded())
         verify(service).getRecentlyAdded()
-    }*/
+    }
 
     @Test
     fun `protected endpoints reject a missing authentication`() {

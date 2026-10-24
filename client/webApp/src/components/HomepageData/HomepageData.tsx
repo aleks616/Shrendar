@@ -62,9 +62,9 @@ export function HomepageData({strings}: { strings: Record<string,string> }){
 
     const eventAnniversaries=data?.eventAnniversaries?.asJsReadonlyArrayView()??[]
 
-    const albumCount=(favoriteAlbums?.length??0)+(recommendedAlbums?.length??0)
-    const birthdayCount=(favoriteArtistsBirthdays?.length??0)+(otherBandMembersBirthdays?.length??0)+(recommendedArtistBirthdays?.length??0)
-    const deathAnniversaryCount=(favoriteArtistsDeathAnns?.length??0)+(otherBandMembersDeathAnns?.length??0)+(recommendedArtistDeathAnns?.length??0)
+    const albumCount=favoriteAlbums?.length??0+recommendedAlbums?.length??0
+    const birthdayCount=favoriteArtistsBirthdays?.length??0+otherBandMembersBirthdays?.length??0+recommendedArtistBirthdays?.length??0
+    const deathAnniversaryCount=favoriteArtistsDeathAnns?.length??0+otherBandMembersDeathAnns?.length??0+recommendedArtistDeathAnns?.length??0
 
     return (
         <div className={"flex flex-col min-w-svw"}>

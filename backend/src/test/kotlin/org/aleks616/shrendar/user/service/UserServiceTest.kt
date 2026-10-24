@@ -115,7 +115,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(400, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 time_y", userService.timeSinceAccountCreated(7))
+        assertEquals("1 time_Y", userService.timeSinceAccountCreated(7))
     }
 
 
@@ -125,7 +125,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(365, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 time_y", userService.timeSinceAccountCreated(2))
+        assertEquals("1 time_Y", userService.timeSinceAccountCreated(2))
     }
 
     @Test
@@ -134,7 +134,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(95, ChronoUnit.DAYS) }
         )
 
-        assertEquals("3 time_mp", userService.timeSinceAccountCreated(4))
+        assertEquals("3 time_Mp", userService.timeSinceAccountCreated(4))
     }
 
     @Test
@@ -143,7 +143,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(90, ChronoUnit.DAYS) }
         )
 
-        assertEquals("3 time_mp", userService.timeSinceAccountCreated(5))
+        assertEquals("3 time_Mp", userService.timeSinceAccountCreated(5))
     }
 
     @Test
@@ -152,7 +152,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(15, ChronoUnit.DAYS) }
         )
 
-        assertEquals("2 time_wp", userService.timeSinceAccountCreated(6))
+        assertEquals("2 time_Wp", userService.timeSinceAccountCreated(6))
     }
 
     @Test
@@ -161,7 +161,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(1, ChronoUnit.DAYS) }
         )
 
-        assertEquals("1 time_d", userService.timeSinceAccountCreated(8))
+        assertEquals("1 time_D", userService.timeSinceAccountCreated(8))
     }
 
     @Test
@@ -170,7 +170,7 @@ class UserServiceTest {
             UserLog().apply { accountCreatedTime=Instant.now().minus(0, ChronoUnit.DAYS) }
         )
 
-        assertEquals("0 time_d", userService.timeSinceAccountCreated(9))
+        assertEquals("0 time_D", userService.timeSinceAccountCreated(9))
     }
 
     @Test

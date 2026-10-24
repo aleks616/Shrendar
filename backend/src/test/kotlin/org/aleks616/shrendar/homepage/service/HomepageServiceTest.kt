@@ -22,7 +22,6 @@ import org.aleks616.shrendar.event.model.Event
 import org.aleks616.shrendar.event.repository.EventRepository
 import org.aleks616.shrendar.genre.model.Genre
 import org.aleks616.shrendar.genre.repository.GenreRepository
-import org.aleks616.shrendar.homepage.model.CommonBandsDto
 import org.aleks616.shrendar.user.model.User
 import org.aleks616.shrendar.user.model.UsersArtists
 import org.aleks616.shrendar.user.model.UsersBands
@@ -62,7 +61,7 @@ class HomepageServiceTest {
         service=HomepageService(
             albumService,artistService,bandsMemberRepository,userBandRepository,userAccountService,
             countryRepository,userArtistRepository,albumRepository,userGenreRepository,genreRepository,
-            bandService,artistRepository,contributionRepository,eventRepository
+            bandService,artistRepository,contributionRepository,eventRepository,artistWikiService
         )
         user=User().apply { id=1; login="tester" }
         `when`(userAccountService.getUserByLogin("tester")).thenReturn(user)
@@ -138,7 +137,6 @@ class HomepageServiceTest {
     fun `random upcoming artists map qualifying birthday and death anniversaries`() {
         val birthday=artist(1,LocalDate.now().plusDays(2),country=3)
         val deceased=artist(2,LocalDate.now().minusYears(30),LocalDate.now().plusDays(3),3)
-
         `when`(artistRepository.findUpcomingBirthdays()).thenReturn(listOf(birthday,artist(4,LocalDate.now().plusDays(10),country=3)))
         `when`(artistRepository.findUpcomingDeathAnniversaries()).thenReturn(
             listOf(deceased,artist(5,LocalDate.now().minusYears(20),LocalDate.now().plusDays(10),3),artist(3,LocalDate.now(),null))
@@ -150,7 +148,7 @@ class HomepageServiceTest {
 
         assertEquals(setOf(1L,4L),birthdays.mapNotNull {it.id}.toSet())
         assertEquals(setOf(2L,5L),deaths.mapNotNull {it.id}.toSet())
-        assertEquals(deceased.deathDate,deaths.first {it.id==2L}.anniversaryDate)
+        assertEquals(deceased.birthDate,deaths.first {it.id==2L}.anniversaryDate)
         assertEquals("USA",birthdays.first {it.id==1L}.country)
     }
 
@@ -185,7 +183,7 @@ class HomepageServiceTest {
     }
 
     @Test
-    fun `album anniversary functions return upcoming albums without duplicates`() {
+    fun `album anniversary endpoints select upcoming albums and preserve album data`() {
         val band=band(7)
         val near=album(1,band,LocalDate.now().plusDays(2))
         val later=album(2,band,LocalDate.now().plusDays(10))
@@ -199,7 +197,7 @@ class HomepageServiceTest {
         val random=service.getUpcomingRandomAlbumAnniversaries()
 
         assertEquals(setOf(1L,2L),favorite.mapNotNull {it.id}.toSet())
-        assertEquals(emptySet<Long>(),random.mapNotNull {it.id}.toSet())
+        assertEquals(setOf(1L,2L),random.mapNotNull {it.id}.toSet())
         assertEquals("Band 7",favorite.first {it.id==1L}.bandName)
     }
 
@@ -420,7 +418,7 @@ class HomepageServiceTest {
         `when`(userArtistRepository.findByUser(user)).thenReturn(mutableListOf(favorite(artist)))
         `when`(bandsMemberRepository.findBandsByArtistId(2)).thenReturn(listOf(own,shared,shared))
 
-        assertEquals(CommonBandsDto(listOf(shared)),service.getCommonBands("tester"))
+        assertEquals(listOf(shared),service.getCommonBands("tester"))
     }
 
     @Test

@@ -6,7 +6,6 @@ import org.aleks616.shrendar.album.model.AlbumType
 import org.aleks616.shrendar.album.repository.AlbumRepository
 import org.aleks616.shrendar.band.model.Band
 import org.aleks616.shrendar.band.service.BandService
-import org.aleks616.shrendar.common.Utils.titleCase
 import org.aleks616.shrendar.contribution.model.Contribution
 import org.aleks616.shrendar.contribution.repository.ContributionRepository
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
@@ -167,7 +166,7 @@ class AlbumServiceTest {
         assertEquals(2,result.band?.id)
         assertEquals("Metallica",result.band?.name)
         assertEquals(album.releaseDate,result.releaseDate)
-        assertEquals(album.type.toString().titleCase(),result.type)
+        assertEquals(album.type,result.type)
         assertSame(album.genre,result.genre)
         assertEquals(album.description,result.description)
         assertEquals(album.artworkUrl,result.artworkUrl)
