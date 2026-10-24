@@ -44,7 +44,7 @@ struct UpcomingAnniversaries: View {
 							Text(
 								"\(album.daysTillAnniversary.map { String(describing: $0) } ?? "unknown") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "anniversary"))"
 							)
-							Text("\(album.age + 1) \(localize(key: "time_yp"))")
+							Text("\(album.age) \(localize(key: "time_yp"))")
 							Text(
 								"\(album.releaseDate.map { String(describing: $0) } ?? "-")"
 							)
@@ -64,7 +64,7 @@ struct UpcomingAnniversaries: View {
 								"\(artist.daysTillAnniversary.map { String(describing: $0) } ?? "unknown") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "birthday"))"
 							)
 							Text(
-								"\(artist.yearsSince as! Int + 1) \(localize(key: "time_yp"))"
+								"\(artist.yearsSince) \(localize(key: "time_yp"))"
 							)
 							Text(
 								"\(artist.anniversaryDate.map { String(describing: $0) } ?? "-")"
@@ -85,7 +85,7 @@ struct UpcomingAnniversaries: View {
 								"\(artist.daysTillAnniversary.map { String(describing: $0) } ?? "-") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "death_anniversary"))"
 							)
 							Text(
-								"\(artist.yearsSince as! Int + 1) \(localize(key: "time_yp"))"
+								"\(artist.yearsSince) \(localize(key: "time_yp"))"
 							)
 							Text(
 								"\(artist.anniversaryDate.map { String(describing: $0) } ?? "-")"
