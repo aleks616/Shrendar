@@ -506,6 +506,7 @@ class LocalText {
             "favorite_all"->MR.strings.favorite_all
             "band_genre_info"->MR.strings.band_genre_info
             "age"->MR.strings.age
+            "age_at_death"->MR.strings.age_at_death
             "birthday"->MR.strings.birthday
             "death_anniversary"->MR.strings.death_anniversary
             "next_in"->MR.strings.next_in

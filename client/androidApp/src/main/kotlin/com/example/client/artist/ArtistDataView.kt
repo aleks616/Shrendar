@@ -151,7 +151,8 @@ fun ArtistDataView(
                             }
                             Row {
                                 Text(
-                                    text="${stringResource(LocalText().getStringResource("age"))}: ",
+                                    text=if(isDead) {"${stringResource(LocalText().getStringResource("age_at_death"))}: "}
+                                    else {"${stringResource(LocalText().getStringResource("age"))}: "},
                                     color=MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(

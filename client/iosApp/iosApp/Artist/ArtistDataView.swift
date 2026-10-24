@@ -117,9 +117,16 @@ struct ArtistDataView: View {
 										}
 										HStack(alignment: .firstTextBaseline, spacing: 4)
 										{
-											Text("\(localize(key: "age")):")
-												.foregroundStyle(.secondary)
-											Text("\(artist.age)")
+											if(isDead){
+												Text("\(localize(key: "age_at_death")):")
+													.foregroundStyle(.secondary)
+											}
+											else{
+												Text("\(localize(key: "age")):")
+													.foregroundStyle(.secondary)
+											}
+										
+											Text("\(artist.age.map { String(describing: $0) } ?? "-")")
 										}
 
 										HStack(alignment: .firstTextBaseline, spacing: 4)

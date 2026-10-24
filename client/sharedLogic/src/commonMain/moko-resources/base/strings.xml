@@ -494,6 +494,7 @@
     <string name="band_genre_info">These are computed automatically based on album's genres and importance, so they might be unexpected.</string>
 
     <string name="age">Age</string>
+    <string name="age_at_death">Age at death</string>
     <string name="birthday">Birthday</string>
     <string name="death_anniversary">Death anniversary</string>
     <string name="next_in">next in: </string>
