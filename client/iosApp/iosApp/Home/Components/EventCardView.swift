@@ -17,11 +17,13 @@ struct EventCardView: View {
 					"\(event.yearsSince.map { String(describing: $0) } ?? "unknown") 🎤"
 				)
 				.font(.system(size: 20).bold())
-				Text(
-					"\(event.name ?? "unknown")"
-				).font(
-					.system(size: 18).bold()
-				)
+				NavigationLink(destination: EventDataView(eventId: event.id as! Int)){
+					Text(
+						"\(event.name ?? "unknown")"
+					).font(
+						.system(size: 18).bold()
+					)
+				}
 			}
 			VStack(alignment: .leading, spacing: 8) {
 				Text(

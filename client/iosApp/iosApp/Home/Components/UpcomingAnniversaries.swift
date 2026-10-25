@@ -38,9 +38,19 @@ struct UpcomingAnniversaries: View {
 							Array((data.albums ?? []).enumerated()),
 							id: \.offset
 						) { _, album in
-							Text(
-								"\(album.bandName ?? "unknown") - \(album.title ?? "unknown")"
-							).fontWeight(.bold)
+							HStack{
+								NavigationLink(destination:BandDataView(bandId:album.bandId as! Int)){
+									Text(
+										"\(album.bandName ?? "unknown") -"
+									).fontWeight(.bold)
+								}
+								NavigationLink(destination: AlbumDataView(albumId:album.id as! Int)){
+									Text(
+										"\(album.title ?? "unknown")"
+									).fontWeight(.bold)
+								}
+							}
+							
 							Text(
 								"\(album.daysTillAnniversary.map { String(describing: $0) } ?? "unknown") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "anniversary"))"
 							)
@@ -59,7 +69,10 @@ struct UpcomingAnniversaries: View {
 							Array((data.artistBirthdays ?? []).enumerated()),
 							id: \.offset
 						) { _, artist in
-							Text("\(artist.name ?? "unknown")").fontWeight(.bold)
+							NavigationLink(destination:ArtistDataView(artistId: artist.id as! Int)){
+								Text("\(artist.name ?? "unknown")").fontWeight(.bold)
+							}
+
 							Text(
 								"\(artist.daysTillAnniversary.map { String(describing: $0) } ?? "unknown") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "birthday"))"
 							)
@@ -80,7 +93,10 @@ struct UpcomingAnniversaries: View {
 							Array((data.artistDeathAnns ?? []).enumerated()),
 							id: \.offset
 						) { _, artist in
-							Text("\(artist.name ?? "unknown")").fontWeight(.bold)
+							NavigationLink(destination:ArtistDataView(artistId: artist.id as! Int)){
+								Text("\(artist.name ?? "unknown")").fontWeight(.bold)
+							}
+
 							Text(
 								"\(artist.daysTillAnniversary.map { String(describing: $0) } ?? "-") \(localize(key: "time_dp")) \(localize(key: "to")) \(localize(key: "death_anniversary"))"
 							)

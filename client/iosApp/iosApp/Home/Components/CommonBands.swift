@@ -30,19 +30,29 @@ struct CommonBands: View {
 
 	var body: some View {
 		VStack {
-			if (!isLoading){
+			if !isLoading {
 				if let bands {
 					VStack(alignment: .leading) {
 						Text(localize(key: "bands_to_check_out")).font(
 							.system(size: 26.0).bold()
-						).padding(.bottom, 12).frame(maxWidth:.infinity,alignment: .leading)
+						).padding(.bottom, 12).frame(
+							maxWidth: .infinity,
+							alignment: .leading
+						)
 						ForEach(
 							Array((bands.bands ?? []).enumerated()),
 							id: \.offset
 						) { _, band in
-							Text("\(band.bandName ?? "unknown")").fontWeight(.bold)
+							
+							NavigationLink(destination: BandDataView(bandId: band.id as! Int)){
+								Text("\(band.bandName ?? "unknown")").fontWeight(.bold)
+							}
 							Text(localize(key: "member_in_favorites"))
-							Text("\(band.nickname ?? band.artistName ?? "unknown")")
+							NavigationLink(
+								destination: ArtistDataView(artistId: band.artistId as! Int)
+							) {
+								Text("\(band.nickname ?? band.artistName ?? "unknown")")
+							}
 							Spacer()
 						}
 					}.frame(maxWidth: .infinity)

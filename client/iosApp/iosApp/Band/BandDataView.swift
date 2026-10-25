@@ -350,7 +350,16 @@ struct BandDataView: View {
 									columns: memberColumns,
 									data: showingBandMembers,
 									emptyText: localize(key: "no_band_members")
-								)
+								){artist, index in
+									if index == 0 {
+										NavigationLink(destination:ArtistDataView(artistId: artist.artistId as! Int)){
+											Text(artist.artistName ?? "-")
+										}
+									}
+									else {
+										Text(memberColumns[index].value(artist) ?? "-")
+									}
+								}
 								.frame(minWidth: UIScreen.main.bounds.width - 24)
 								.frame(maxWidth: .infinity)
 
@@ -383,7 +392,16 @@ struct BandDataView: View {
 									columns: albumColumns,
 									data: showingAlbums,
 									emptyText: localize(key: "no_albums")
-								)
+								){album, index in
+									if index == 0 {
+										NavigationLink(destination:AlbumDataView(albumId: Int(album.id))){
+											Text(album.title)
+										}
+									}
+									else {
+										Text(albumColumns[index].value(album) ?? "-")
+									}
+								}
 								.frame(maxWidth: .infinity)
 
 							case .similar:
@@ -391,7 +409,16 @@ struct BandDataView: View {
 									columns: similarBandColumns,
 									data: band.similar ?? [],
 									emptyText: localize(key: "no_similar_bands")
-								)
+								){band, index in
+									if index == 0 {
+										NavigationLink(destination:BandDataView(bandId: band.id as! Int)){
+											Text(band.name ?? "-")
+										}
+									}
+									else {
+										Text(similarBandColumns[index].value(band) ?? "-")
+									}
+								}
 								.frame(maxWidth: .infinity)
 							}
 						}

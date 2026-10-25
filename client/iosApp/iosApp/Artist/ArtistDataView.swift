@@ -237,7 +237,16 @@ struct ArtistDataView: View {
 								columns: bandColumns,
 								data: bands,
 								emptyText: localize(key: "no_bands")
-							)
+							){band, index in
+								if index == 0 {
+									NavigationLink(destination:BandDataView(bandId: band.bandId as! Int)){
+										Text(band.bandName ?? "-")
+									}
+								}
+								else {
+									Text(bandColumns[index].value(band) ?? "-")
+								}
+							}
 							.frame(minWidth: UIScreen.main.bounds.width - 24)
 							.frame(maxWidth: .infinity)
 
