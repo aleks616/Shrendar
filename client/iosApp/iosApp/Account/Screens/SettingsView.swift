@@ -66,6 +66,7 @@ struct SettingsView: View {
 						.frame(maxWidth: .infinity, maxHeight: .infinity)
 				} else {
 					VStack {
+						LogOutButton()
 						Form {
 							TextField(localize(key: "username"), text: $username)
 								.textContentType(.username)

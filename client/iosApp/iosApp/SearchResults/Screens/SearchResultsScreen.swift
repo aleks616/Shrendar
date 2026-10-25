@@ -42,6 +42,26 @@ struct SearchResultsScreen: View {
 		}
 	}
 
+	@ViewBuilder
+	func getDestination(url: String, name: String) -> some View {
+		let itemType = url.split(separator: "/")[0]
+		let itemId = url.split(separator: "/")[1]
+
+		if itemType == "album" {
+			AlbumDataView(albumId: Int(itemId)!)
+		} else if itemType == "artist" {
+			ArtistDataView(artistId: Int(itemId)!)
+		} else if itemType == "band" {
+			BandDataView(bandId: Int(itemId)!)
+		} else if itemType == "event" {
+			EventDataView(eventId: Int(itemId)!)
+		} else if itemType == "u" {
+			UserProfileView(login: String(itemId))
+		} else {
+			EmptyView()
+		}
+	}
+
 	var body: some View {
 		NavigationStack {
 			VStack {
@@ -72,12 +92,11 @@ struct SearchResultsScreen: View {
 										showingItems = SearchResults(
 											items: data.items?.filter { $0.type == option }
 										)
-									}
-									else {
+									} else {
 										showingItems = data
 									}
 									filter = option
-								}.filterButtonStyle(filter == option)
+								}.filterButtonStyle(filter == option).foregroundStyle(.primary)
 							}
 						}.frame(maxWidth: .infinity)
 
@@ -93,31 +112,19 @@ struct SearchResultsScreen: View {
 									HStack {
 										HStack(spacing: 12) {
 											VStack {
-												if let imageURL = item.imageUrl,
-													let url = URL(string: imageURL)
-												{
-													AsyncImage(url: url) { image in
-														image
-															.resizable()
-															.aspectRatio(1, contentMode: .fill)
-															.clipShape(Circle())
-
-													} placeholder: {
-														ProgressView()
-													}
-													.frame(maxWidth: 48)
-													.accessibilityLabel("photo")
-												} else {
-													Image(systemName: "photo")
-														.resizable()
-														.aspectRatio(1, contentMode: .fill)
-														.clipShape(Circle())
-														.accessibilityLabel("no image")
-														.frame(maxWidth: 48)
-												}
+												SquareImageView(urlParam: item.imageUrl)
 											}.frame(maxWidth: 54).padding(8)
 											VStack(alignment: .leading, spacing: 4) {
-												Text(item.name).font(.system(size: 22.0))
+												NavigationLink(
+													destination: getDestination(
+														url: item.link ?? "",
+														name: item.name
+													)
+												) {
+													Text(item.name).font(
+														.system(size: 22.0)
+													)
+												}
 												Text(item.info ?? "-").font(
 													.system(size: 16.0)
 												)
@@ -131,7 +138,6 @@ struct SearchResultsScreen: View {
 										.background(.backgroundVariant)
 										.cornerRadius(8)
 										.shadow(radius: 2)
-
 									}
 								}
 							}

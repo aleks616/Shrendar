@@ -14,11 +14,24 @@ struct AlbumCardView: View {
 			VStack(alignment: .leading, spacing: 4) {
 				Text("\(album.yearsSince.map { String(describing: $0) } ?? "unknown") 🎂")
 					.font(.system(size: 20).bold())
-				Text(
-					"\(album.band?.name ?? "unknown") - \(album.title ?? "unknown")"
-				).font(
-					.system(size: 18).bold()
-				)
+				
+				HStack{
+					NavigationLink(destination:BandDataView(bandId:album.band?.id as! Int)) {
+						Text(
+							"\(album.band?.name ?? "unknown") -"
+						).font(
+							.system(size: 18).bold()
+						)
+					}
+					
+					NavigationLink(destination:AlbumDataView(albumId:album.id as! Int)) {
+						Text(
+							"\(album.title ?? "unknown")"
+						).font(
+							.system(size: 18).bold()
+						)
+					}
+				}
 			}
 			VStack(alignment: .leading, spacing: 8) {
 				Text("\(localize(key: "release_date")): \(album.releaseDate.map { String(describing: $0) } ?? "unknown")")

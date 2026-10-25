@@ -32,7 +32,9 @@ struct EventDataView: View {
 									HStack(alignment: .firstTextBaseline, spacing: 4) {
 										Text("\(localize(key: "band")):")
 											.foregroundStyle(.secondary)
-										Text(event.bandName ?? "-")
+										NavigationLink(destination: BandDataView(bandId:event.bandId as! Int)) {
+											Text(event.bandName ?? "-")
+										}
 									}
 
 									HStack(alignment: .firstTextBaseline, spacing: 4) {

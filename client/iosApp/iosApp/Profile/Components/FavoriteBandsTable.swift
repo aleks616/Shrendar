@@ -41,7 +41,9 @@ func FavoriteBandsTable(
 						)
 						.frame(maxWidth: .infinity, alignment: .center)
 					}
-					Text(item.name ?? "-")
+					NavigationLink(destination:BandDataView(bandId: item.id as! Int)){
+						Text(item.name ?? "-")
+					}
 					Text(item.country.map { localize(key: $0) } ?? "-")
 					Text(item.activeYears ?? "-")
 				}

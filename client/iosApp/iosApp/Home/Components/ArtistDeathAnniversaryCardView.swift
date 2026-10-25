@@ -16,11 +16,13 @@ struct ArtistDeathAnniversaryCardView: View {
 			VStack(alignment: .leading, spacing: 4) {
 				Text("\(artist.yearsSince.map { String(describing: $0) } ?? "unknown") 🕯")
 					.font(.system(size: 20).bold())
-				Text(
-					"\(artist.name ?? "unknown")"
-				).font(
-					.system(size: 18).bold()
-				)
+				NavigationLink(destination: ArtistDataView(artistId: artist.id as! Int)){
+					Text(
+						"\(artist.name ?? "unknown")"
+					).font(
+						.system(size: 18).bold()
+					)
+				}
 			}
 			VStack(alignment: .leading, spacing: 8) {
 				Text("\(localize(key: "death_date")): \(artist.anniversaryDate.map { String(describing: $0) } ?? "unknown")")
