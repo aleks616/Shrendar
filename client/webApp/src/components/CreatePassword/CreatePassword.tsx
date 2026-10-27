@@ -53,14 +53,14 @@ export function CreatePassword(){
         if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
             const params=new URLSearchParams(window.location.search)
             const code=params.get("code")
-            const email=params.get("account")
+            const email=params.get("email")
             if(!code||!email){
                 setErrorText(translate("something_wrong"))
                 return
             }
             const appUrl=new URL("shrendar://reset-password")
             appUrl.searchParams.set("code",code)
-            appUrl.searchParams.set("account",email)
+            appUrl.searchParams.set("email",email)
             window.location.assign(appUrl.toString())
         }
         else {

@@ -33,15 +33,19 @@ import com.example.client.profile.components.FavoriteBandsTable
 import com.example.client.profile.components.FavoriteGenresTable
 import com.example.client.report.ReportClient
 import com.example.client.report.ReportRequestDto
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import kotlin.js.ExperimentalJsExport
 
 @Composable
+@Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalJsExport::class)
 fun ProfilePageView(
-    onBack:()->Unit,
-    login:String="admin",
+    login:String,
+    navigator:DestinationsNavigator
 ) {
     var user by remember {mutableStateOf<UserProfileDto?>(null)}
     var isLoading by remember {mutableStateOf(login.isNotBlank())}
@@ -175,7 +179,7 @@ fun ProfilePageView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton {onBack()}
+                        BackButton {navigator.popBackStack()}
                     }
                 )
                 if(isLoading) {
@@ -338,21 +342,24 @@ fun ProfilePageView(
                                         favoriteBands=userData.favoriteBands,
                                         currentUser=userData.user,
                                         favoriteIds=favoriteBandIds,
-                                        onToggle=::toggleBand
+                                        onToggle=::toggleBand,
+                                        navigator=navigator
                                     )
 
                                     1->FavoriteArtistsTable(
                                         favoriteArtists=userData.favoriteArtists,
                                         currentUser=userData.user,
                                         favoriteIds=favoriteArtistIds,
-                                        onToggle=::toggleArtist
+                                        onToggle=::toggleArtist,
+                                        navigator=navigator
                                     )
 
                                     2->FavoriteGenresTable(
                                         favoriteGenres=userData.favoriteGenres,
                                         currentUser=userData.user,
                                         favoriteIds=favoriteGenreIds,
-                                        onToggle=::toggleGenre
+                                        onToggle=::toggleGenre,
+                                        navigator=navigator
                                     )
                                 }
                             }

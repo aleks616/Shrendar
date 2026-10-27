@@ -11,11 +11,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.client.*
 import com.example.client.account.AccountClient
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -23,10 +25,10 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-@Preview
+@Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class)
 fun RequestPasswordResetView(
-    onBack:()->Unit={},
+    navigator:DestinationsNavigator
 ) {
     var login by remember {mutableStateOf("")}
     var errorKey by remember {mutableStateOf<String?>(null)}
@@ -76,7 +78,7 @@ fun RequestPasswordResetView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton {onBack()}
+                        BackButton {navigator.popBackStack()}
                     },
                 )
                 Column(

@@ -16,6 +16,7 @@ import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson
 import {logout} from "../Logout/Logout.tsx"
 import {AccountClient} from "sharedLogic"
 import {useNavigate} from "react-router"
+import {isMobile} from "react-device-detect";
 
 export function AppHeader(){
     const lang=getLanguage().toUpperCase()
@@ -58,21 +59,22 @@ export function AppHeader(){
                 </Link>
             </div>
 
-            <div className={"w-lg"}>
-                <SearchField
-                    name={"search"}
-                    variant={"secondary"}
-                    onSubmit={submit}
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                >
-                    <SearchField.Group>
-                        <SearchField.SearchIcon/>
-                        <SearchField.Input placeholder={translate("searchbar")}/>
-                        <SearchField.ClearButton/>
-                    </SearchField.Group>
-                </SearchField>
-            </div>
+            {!isMobile&&
+                <div className={"w-lg"}>
+                    <SearchField
+                        name={"search"}
+                        variant={"secondary"}
+                        onSubmit={submit}
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                    >
+                        <SearchField.Group>
+                            <SearchField.SearchIcon/>
+                            <SearchField.Input placeholder={translate("searchbar")}/>
+                            <SearchField.ClearButton/>
+                        </SearchField.Group>
+                    </SearchField>
+                </div>}
 
             <div className={"flex items-center gap-3 mx-3"}>
                 <ThemeSwitcher/>

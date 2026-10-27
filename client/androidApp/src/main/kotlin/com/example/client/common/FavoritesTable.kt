@@ -21,6 +21,7 @@ import com.example.client.MR
 import com.example.client.star
 import com.example.client.star_filled
 import com.example.client.tray
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.painterResource
 
 @Composable
@@ -34,6 +35,9 @@ fun FavoritesTable(
     favoriteEnabled:Boolean=false,
     favoriteRows:Set<Int> =emptySet(),
     onFavoriteClick:(Int)->Unit={},
+    indexToId:Map<Int,String>,
+    destinationType:String?=null,
+    navigator:DestinationsNavigator
 ) {
     val textMeasurer=rememberTextMeasurer()
     val textStyle=LocalTextStyle.current
@@ -160,6 +164,22 @@ fun FavoritesTable(
                                                 modifier=Modifier.size(24.dp),
                                                 tint=MaterialTheme.colorScheme.onSurfaceVariant
                                             )
+                                        }
+                                    }
+                                    else if((favoriteEnabled&&columnIndex==1)||(!favoriteEnabled&&columnIndex==0)&&destinationType!=null){
+                                        val destination=getDirection(destinationType,indexToId[rowIndex])
+                                        if(destination!=null){
+                                            TextButton(
+                                                modifier=Modifier.padding(0.dp),
+                                                onClick={
+                                                    navigator.navigate(destination)
+                                                }
+                                            ){
+                                                Text(value,color=MaterialTheme.colorScheme.onSurface)
+                                            }
+                                        }
+                                        else{
+                                            Text(value,color=MaterialTheme.colorScheme.onSurface)
                                         }
                                     }
                                     else {

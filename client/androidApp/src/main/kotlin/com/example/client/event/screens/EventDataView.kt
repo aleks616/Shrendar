@@ -15,13 +15,18 @@ import com.example.client.LocalText
 import com.example.client.common.EventWikiDto
 import com.example.client.common.TranslatedDescription
 import com.example.client.event.EventClient
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
+@Destination<RootGraph>
 fun EventDataView(
-    onBack:()->Unit,
+    navigator:DestinationsNavigator,
     eventId:Int=2,
 ) {
     var event by remember(eventId) {mutableStateOf<EventWikiDto?>(null)}
@@ -49,7 +54,7 @@ fun EventDataView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton {onBack()}
+                        BackButton {navigator.popBackStack()}
                     }
                 )
                 if(isLoading) {
@@ -85,13 +90,18 @@ fun EventDataView(
                                 verticalArrangement=Arrangement.spacedBy(8.dp),
                             ) {
                                 Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("band"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=eventData.bandName?:"-",
-                                    )
+                                    TextButton(
+                                        modifier=Modifier.padding(0.dp),
+                                        onClick={navigator.navigate(BandDataViewDestination(eventData.bandId!!))},
+                                    ) {
+                                        Text(
+                                            text="${stringResource(LocalText().getStringResource("band"))}: ",
+                                            color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text=eventData.bandName?:"-",
+                                        )
+                                    }
                                 }
                                 Row {
                                     Text(

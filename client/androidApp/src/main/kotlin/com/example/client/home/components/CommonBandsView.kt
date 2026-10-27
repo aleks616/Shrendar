@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,12 +17,15 @@ import com.example.client.bands_to_check_out
 import com.example.client.homepage.HomepageClient
 import com.example.client.homepage.dto.CommonBandsDto
 import com.example.client.member_in_favorites
+import com.ramcosta.composedestinations.generated.destinations.ArtistDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class)
 @Composable
-fun CommonBandsView() {
+fun CommonBandsView(navigator:DestinationsNavigator) {
     var bands by remember {mutableStateOf<CommonBandsDto?>(null)}
     var isLoading by remember {mutableStateOf(true)}
     val context=LocalContext.current
@@ -58,9 +62,21 @@ fun CommonBandsView() {
                         modifier=Modifier.padding(bottom=12.dp)
                     )
                     bands?.bands?.forEach {band->
-                        band.bandName?.let {Text(text=it,fontWeight=FontWeight.Bold)}
+                        band.bandName?.let {
+                            TextButton(
+                                modifier=Modifier.padding(0.dp),
+                                onClick={navigator.navigate(BandDataViewDestination(band.bandId!!))}
+                            ) {
+                                Text(text=it,fontWeight=FontWeight.Bold)
+                            }
+                        }
                         Text(text=stringResource(MR.strings.member_in_favorites))
-                        Text(text=band.nickname?:band.artistName?:"unknown")
+                        TextButton(
+                            modifier=Modifier.padding(0.dp),
+                            onClick={navigator.navigate(ArtistDataViewDestination(band.artistId!!))}
+                        ) {
+                            Text(text=band.nickname?:band.artistName?:"unknown")
+                        }
                         Spacer(modifier=Modifier.size(8.dp))
                     }
                 }

@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,12 +17,15 @@ import com.example.client.MR
 import com.example.client.band
 import com.example.client.common.EventWikiDto
 import com.example.client.date
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.EventDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class)
 @Composable
-fun EventCard(event:EventWikiDto) {
+fun EventCard(event:EventWikiDto,navigator:DestinationsNavigator) {
     AppTheme {
         Surface(
             modifier=Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
@@ -38,11 +39,21 @@ fun EventCard(event:EventWikiDto) {
             ) {
                 Column(modifier=Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text(text="${event.yearsSince} 🎤",fontSize=20.sp,fontWeight=FontWeight.Bold)
-                    Text(text="${event.name}",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                    TextButton(
+                        modifier=Modifier.padding(0.dp),
+                        onClick={navigator.navigate(EventDataViewDestination(event.id!!))}
+                    ){
+                        Text(text="${event.name}",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                    }
                 }
                 Column(modifier=Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                     Text(text="${stringResource(MR.strings.date)}: ${event.date}")
-                    Text(text="${stringResource(MR.strings.band)}: ${event.bandName}")
+                    TextButton(
+                        modifier=Modifier.padding(0.dp),
+                        onClick={navigator.navigate(BandDataViewDestination(event.bandId!!))}
+                    ){
+                        Text(text="${stringResource(MR.strings.band)}: ${event.bandName}")
+                    }
                 }
 
             }

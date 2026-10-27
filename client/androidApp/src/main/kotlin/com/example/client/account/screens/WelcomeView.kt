@@ -9,17 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.client.*
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.RegisterViewDestination
+import com.ramcosta.composedestinations.generated.destinations.SignInViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 
 @Composable
-@Preview
+@Destination<RootGraph>
 fun WelcomeView(
-    registerScreen:()->Unit={},
-    signInScreen:()->Unit={},
+    navigator:DestinationsNavigator
 ) {
     AppTheme {
         Surface {
@@ -46,25 +49,33 @@ fun WelcomeView(
                     Column(
                         horizontalAlignment=Alignment.CenterHorizontally,
                         verticalArrangement=Arrangement.spacedBy(16.dp),
-                        modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)
+                        modifier=Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal=16.dp)
                     ) {
                         Text(text=stringResource(MR.strings.welcome),fontSize=28.sp,fontWeight=FontWeight.Bold)
                         Text(text=stringResource(MR.strings.sign_in_up),fontSize=20.sp,fontWeight=FontWeight.Bold)
                     }
                     Column(
                         horizontalAlignment=Alignment.CenterHorizontally,
-                        modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)
+                        modifier=Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal=16.dp)
                     ) {
-                        Button(onClick=registerScreen,modifier=Modifier.fillMaxWidth().padding(horizontal=20.dp)) {
+                        Button(
+                            onClick={navigator.navigate(RegisterViewDestination)},
+                            modifier=Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal=20.dp)
+                        ) {
                             Text(text=stringResource(MR.strings.create_account))
                         }
                         Button(
-                            onClick=signInScreen,
+                            onClick={navigator.navigate(SignInViewDestination)},
                             modifier=Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal=20.dp),
                             colors=ButtonDefaults.buttonColors(containerColor=Color(0xFF717171))
-
                         ) {
                             Text(text=stringResource(MR.strings.account_already))
                         }

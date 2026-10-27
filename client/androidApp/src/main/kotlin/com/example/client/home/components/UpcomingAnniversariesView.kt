@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -13,12 +14,16 @@ import androidx.compose.ui.unit.sp
 import com.example.client.*
 import com.example.client.homepage.HomepageClient
 import com.example.client.homepage.dto.UpcomingAnniversariesDto
+import com.ramcosta.composedestinations.generated.destinations.AlbumDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.ArtistDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class)
 @Composable
-fun UpcomingAnniversariesView() {
+fun UpcomingAnniversariesView(navigator:DestinationsNavigator) {
     var data by remember {mutableStateOf<UpcomingAnniversariesDto?>(null)}
     var isLoading by remember {mutableStateOf(true)}
     val context=LocalContext.current
@@ -52,7 +57,21 @@ fun UpcomingAnniversariesView() {
                         modifier=Modifier.padding(bottom=12.dp)
                     )
                     data?.albums?.forEach {album->
-                        Text(text="${album.bandName} - ${album.title}",fontWeight=FontWeight.Bold)
+                        Row(modifier=Modifier.fillMaxWidth()){
+                            TextButton(
+                                modifier=Modifier.padding(0.dp),
+                                onClick={navigator.navigate(BandDataViewDestination(album.bandId!!))}
+                            ){
+                                Text(text="${album.bandName} -",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                            }
+                            TextButton(
+                                modifier=Modifier.padding(0.dp),
+                                onClick={navigator.navigate(AlbumDataViewDestination(album.id!!))}
+                            ){
+                                Text(text="${album.title}",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                            }
+                        }
+
                         Text(
                             text="${album.daysTillAnniversary} "+"${stringResource(MR.strings.time_dp)} "+
                                  "${stringResource(MR.strings.to)} "+stringResource(MR.strings.anniversary)
@@ -69,7 +88,12 @@ fun UpcomingAnniversariesView() {
                         modifier=Modifier.padding(bottom=12.dp)
                     )
                     data?.artistBirthdays?.forEach {artist->
-                        Text(text=artist.name!!,fontWeight=FontWeight.Bold)
+                        TextButton(
+                            modifier=Modifier.padding(0.dp),
+                            onClick={navigator.navigate(ArtistDataViewDestination(artist.id!!))}
+                        ){
+                            Text(text=artist.name!!,fontWeight=FontWeight.Bold)
+                        }
                         Text(
                             text="${artist.daysTillAnniversary} "+"${stringResource(MR.strings.time_dp)} "+
                                  "${stringResource(MR.strings.to)} "+stringResource(MR.strings.birthday)
@@ -86,7 +110,12 @@ fun UpcomingAnniversariesView() {
                         modifier=Modifier.padding(bottom=12.dp)
                     )
                     data?.artistDeathAnns?.forEach {artist->
-                        Text(text=artist.name!!,fontWeight=FontWeight.Bold)
+                        TextButton(
+                            modifier=Modifier.padding(0.dp),
+                            onClick={navigator.navigate(ArtistDataViewDestination(artist.id!!))}
+                        ){
+                            Text(text=artist.name!!,fontWeight=FontWeight.Bold)
+                        }
                         Text(
                             text="${artist.daysTillAnniversary} "+"${stringResource(MR.strings.time_dp)} "+
                                  "${stringResource(MR.strings.to)} "+stringResource(MR.strings.death_anniversary)

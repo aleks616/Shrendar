@@ -27,17 +27,25 @@ import com.example.client.common.Table
 import com.example.client.common.Tabs
 import com.example.client.common.TranslatedDescription
 import com.example.client.profile.ProfileClient
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.AlbumDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.ArtistDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import kotlin.js.ExperimentalJsExport
 
 private data class MemberTableRow(
+    val artistId:Long,
     val personName:String?,
     val yearRole:String,
 )
 
 private data class AlbumTableRow(
+    val albumId:Long,
     val title:String,
     val releaseDate:String?,
     val albumType:String?,
@@ -45,16 +53,19 @@ private data class AlbumTableRow(
 )
 
 private data class SimilarBandTableRow(
+    val bandId:Int,
     val bandName:String?,
     val formedYear:Int?,
     val country:String?,
 )
 
 @SuppressLint("LocalContextGetResourceValueCall")
+@Destination<RootGraph>
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
+
 @Composable
 fun BandDataView(
-    onBack:()->Unit={},
+    navigator:DestinationsNavigator,
     bandId:Int=21,
 ) {
     val context=LocalContext.current
@@ -115,7 +126,7 @@ fun BandDataView(
                 TopAppBar(
                     title={},
                     navigationIcon={
-                        BackButton {onBack()}
+                        BackButton {navigator.popBackStack()}
                     },
                 )
                 if(isLoading) {
@@ -142,6 +153,7 @@ fun BandDataView(
                         else->members
                     }.map {member->
                         MemberTableRow(
+                            artistId=member.artistId!!,
                             personName=member.artistName,
                             yearRole=member.yearRole.orEmpty().joinToString("\n") {role->
                                 role.replace(
@@ -172,6 +184,7 @@ fun BandDataView(
                         albums
                     }).map {album->
                         AlbumTableRow(
+                            albumId=album.id,
                             title=album.title,
                             releaseDate=album.releaseDate?.toString(),
                             albumType=album.type,
@@ -180,6 +193,7 @@ fun BandDataView(
                     }
                     val similarBands=bandData.similar.orEmpty().map {similarBand->
                         SimilarBandTableRow(
+                            bandId=similarBand.id!!,
                             bandName=similarBand.name,
                             formedYear=similarBand.formedYear,
                             country=similarBand.country?.let {
@@ -393,6 +407,23 @@ fun BandDataView(
                                         emptyText=stringResource(
                                             LocalText().getStringResource("no_band_members")
                                         ),
+                                        cellContent={member,index->
+                                            if(index==0) {
+                                                TextButton(
+                                                    modifier=Modifier.padding(0.dp),
+                                                    onClick={
+                                                        navigator.navigate(
+                                                            ArtistDataViewDestination(member.artistId)
+                                                        )
+                                                    },
+                                                ) {
+                                                    Text(text=member.personName?:"-")
+                                                }
+                                            }
+                                            else {
+                                                Text(text=member.yearRole)
+                                            }
+                                        },
                                     )
                                 }
 
@@ -453,6 +484,27 @@ fun BandDataView(
                                         emptyText=stringResource(
                                             LocalText().getStringResource("no_albums")
                                         ),
+                                        cellContent={album,index->
+                                            if(index==0) {
+                                                TextButton(
+                                                    modifier=Modifier.padding(0.dp),
+                                                    onClick={
+                                                        navigator.navigate(
+                                                            AlbumDataViewDestination(album.albumId)
+                                                        )
+                                                    },
+                                                ) {
+                                                    Text(text=album.title)
+                                                }
+                                            }
+                                            else {
+                                                when(index) {
+                                                    1->Text(text=album.releaseDate?:"-")
+                                                    2->Text(text=album.albumType?:"-")
+                                                    else->Text(text=album.mainGenre)
+                                                }
+                                            }
+                                        },
                                     )
                                 }
 
@@ -466,6 +518,26 @@ fun BandDataView(
                                     emptyText=stringResource(
                                         LocalText().getStringResource("no_similar_bands")
                                     ),
+                                    cellContent={similarBand,index->
+                                        if(index==0) {
+                                            TextButton(
+                                                modifier=Modifier.padding(0.dp),
+                                                onClick={
+                                                    navigator.navigate(
+                                                        BandDataViewDestination(similarBand.bandId)
+                                                    )
+                                                },
+                                            ) {
+                                                Text(text=similarBand.bandName?:"-")
+                                            }
+                                        }
+                                        else {
+                                            when(index) {
+                                                1->Text(text=similarBand.formedYear?.toString()?:"-")
+                                                else->Text(text=similarBand.country?:"-")
+                                            }
+                                        }
+                                    },
                                 )
                             }
                         }
@@ -488,6 +560,7 @@ fun BandDataView(
                             },
                             confirmButton={
                                 TextButton(
+                                    modifier=Modifier.padding(0.dp),
                                     onClick={showingGenreInformation=false},
                                     colors=ButtonDefaults.textButtonColors(
                                         contentColor=MaterialTheme.colorScheme.onSurface,
@@ -503,4 +576,3 @@ fun BandDataView(
         }
     }
 }
-

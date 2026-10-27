@@ -14,13 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
 import com.example.client.common.UserDto
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
@@ -40,11 +42,10 @@ private fun Long.toLocalDate():LocalDate=
     Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
 @Composable
-@Preview
+@Destination<RootGraph>
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 fun SettingsView(
-    onBack:()->Unit={},
-    onChangePassword:()->Unit={},
+    navigator:DestinationsNavigator,
 ) {
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
@@ -157,7 +158,7 @@ fun SettingsView(
             if(result=="confirmed") {
                 context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                     .edit {remove("authToken")}
-                onBack()
+                //onBack()
             }
             else {
                 errorText=LocalText().getStringResource(result)
@@ -204,7 +205,7 @@ fun SettingsView(
             Column(modifier=Modifier.fillMaxSize()) {
                 TopAppBar(
                     title={Text(text=stringResource(MR.strings.settings))},
-                    navigationIcon={BackButton {onBack()}},
+                    navigationIcon={BackButton {navigator.popBackStack()}},
                 )
 
                 if(isLoading) {
@@ -286,7 +287,7 @@ fun SettingsView(
                         }
 
                         Button(
-                            onClick=onChangePassword,
+                            onClick={},//todo onChangePassword,
                             modifier=Modifier.fillMaxWidth(),
                             colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.onSurfaceVariant)
                         ) {
