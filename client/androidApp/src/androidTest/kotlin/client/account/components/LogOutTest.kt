@@ -12,7 +12,7 @@ class LogOutTest {
     @Test
     fun displaysLogoutButton()=runComposeUiTest {
         setContent {
-            LogOut()
+            LogOutButton()
         }
 
         onNodeWithText("Log out").assertIsDisplayed()

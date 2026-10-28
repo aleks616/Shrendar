@@ -58,7 +58,7 @@ fun SignInView(
                 preferenceToken.edit {putString("authToken",token)}
                 val loginPref=context.getSharedPreferences("login",Context.MODE_PRIVATE)
                 loginPref.edit {putString("login",login)}
-                LoginModel().setLoggedIn(true)
+                LoginModel.setLoggedIn(true)
                 errorKey=null
                 Log.i("sign in","success")
             }
@@ -135,7 +135,7 @@ fun SignInView(
                         }
                     }
                     LabelledDivider(text=stringResource(MR.strings.or))
-                    SignInWithGoogleView()
+                    SignInWithGoogleView(navigator)
                 }
             }
         }

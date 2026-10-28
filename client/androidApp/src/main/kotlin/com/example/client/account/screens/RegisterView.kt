@@ -267,7 +267,7 @@ fun RegisterView(
                         }
                     }
                     LabelledDivider(text=stringResource(MR.strings.or))
-                    SignInWithGoogleView()
+                    SignInWithGoogleView(navigator)
                 }
             }
         }

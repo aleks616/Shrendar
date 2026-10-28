@@ -19,10 +19,13 @@ import androidx.core.content.edit
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.account.components.LogOutButton
 import com.example.client.account.components.LoginModel
 import com.example.client.common.UserDto
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.HomepageDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.RequestPasswordResetViewDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
@@ -155,8 +158,8 @@ fun SettingsView(
             if(result=="confirmed") {
                 context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                     .edit {remove("authToken")}
-                LoginModel().setLoggedIn(false)
-                //onBack()
+                LoginModel.setLoggedIn(false)
+                navigator.navigate(HomepageDataViewDestination)
             }
             else {
                 errorText=LocalText().getStringResource(result)
@@ -216,6 +219,7 @@ fun SettingsView(
                             .padding(horizontal=20.dp,vertical=16.dp),
                         verticalArrangement=Arrangement.spacedBy(16.dp),
                     ) {
+                        LogOutButton()
                         Text(text=stringResource(MR.strings.username))
                         TextField(
                             value=username,
@@ -279,7 +283,7 @@ fun SettingsView(
                         }
 
                         Button(
-                            onClick={},//todo onChangePassword,
+                            onClick={navigator.navigate(RequestPasswordResetViewDestination)},
                             modifier=Modifier.fillMaxWidth(),
                             colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.onSurfaceVariant)
                         ) {

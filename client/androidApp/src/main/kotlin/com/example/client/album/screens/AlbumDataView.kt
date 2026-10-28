@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.client.AppTheme
-import com.example.client.BackButton
 import com.example.client.LocalText
 import com.example.client.album.AlbumClient
 import com.example.client.album.AlbumWikiDto

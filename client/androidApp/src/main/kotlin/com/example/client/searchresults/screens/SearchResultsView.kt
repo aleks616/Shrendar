@@ -15,6 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +66,11 @@ fun SearchResultsView(
         }
     }
 
+    fun submitSearch() {
+        scope.launch {loadData()}
+        focusManager.clearFocus()
+    }
+
     AppTheme {
         Surface(
             modifier=Modifier.fillMaxSize()
@@ -80,12 +90,16 @@ fun SearchResultsView(
                     },
                     keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),
                     keyboardActions=KeyboardActions(
-                        onDone={
-                            scope.launch {loadData()}
-                            focusManager.clearFocus()
-                        }
+                        onDone={submitSearch()}
                     ),
                     modifier=Modifier
+                        .onPreviewKeyEvent {event->
+                            if(event.type==KeyEventType.KeyDown && event.key==Key.Enter) {
+                                submitSearch()
+                                true
+                            }
+                            else false
+                        }
                         .fillMaxWidth()
                         .padding(12.dp)
                 )
@@ -161,6 +175,7 @@ fun SearchResultsView(
                                     val direction=getDirection(item.link)
                                     if(direction!=null) {
                                         TextButton(
+                                            modifier=Modifier.padding(0.dp),
                                             onClick={navigator.navigate(direction)}
                                         ) {
                                             Text(

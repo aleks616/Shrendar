@@ -5,8 +5,8 @@ import com.ramcosta.composedestinations.spec.Direction
 
 fun getDirection(url:String?):Direction? {
     if(url==null) return null
-    val itemType=url.split("/")[0]
-    val itemId=url.split("/")[1]
+    val itemType=url.split("/")[1]
+    val itemId=url.split("/")[2]
     return when(itemType) {
         "album"->AlbumDataViewDestination(itemId.toLong())
         "artist"->ArtistDataViewDestination(itemId.toLong())

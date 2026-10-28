@@ -6,7 +6,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import androidx.credentials.CredentialManager
@@ -18,15 +17,16 @@ import com.example.client.account.AccountClient
 import com.google.android.gms.common.SignInButton
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.ramcosta.composedestinations.generated.destinations.HomepageDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.js.ExperimentalJsExport
 
 
 @Composable
-@Preview
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalJsExport::class)
-fun SignInWithGoogleView(){
+fun SignInWithGoogleView(navigator:DestinationsNavigator){
     val scope=rememberCoroutineScope()
     val context=LocalContext.current
 
@@ -59,7 +59,8 @@ fun SignInWithGoogleView(){
             val loginPref=context.getSharedPreferences("login",Context.MODE_PRIVATE)
             val login=AccountClient.getUserData(token).login
             loginPref.edit {putString("login",login)}
-            LoginModel().setLoggedIn(true)
+            LoginModel.setLoggedIn(true)
+            navigator.navigate(HomepageDataViewDestination)
         }
     }
 
