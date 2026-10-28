@@ -19,6 +19,7 @@ import androidx.core.content.edit
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.account.components.LoginModel
 import com.example.client.common.UserDto
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -69,12 +70,11 @@ fun SettingsView(
             birthdate!!<minDate||birthdate!!>maxDate
                                           )
 
-    fun token():String?=
+    val authToken:String?=
         context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
             .getString("authToken",null)
 
     suspend fun updateUsername() {
-        val authToken=token()
         if(!authToken.isNullOrBlank()) {
             val result=AccountClient.updateUsername(authToken,username)
             if(result!="username_changed") {
@@ -87,7 +87,6 @@ fun SettingsView(
     }
 
     suspend fun updateEmail() {
-        val authToken=token()
         if(!authToken.isNullOrBlank()) {
             val result=AccountClient.updateEmail(authToken,email)
             if(result!="email_changed") {
@@ -100,7 +99,6 @@ fun SettingsView(
     }
 
     suspend fun updateBirthdate() {
-        val authToken=token()
         val birthdateAsKotlinDate=birthdate?.let {
             KotlinDate(it.year,it.monthValue,it.dayOfMonth)
         }
@@ -135,7 +133,6 @@ fun SettingsView(
     }
 
     suspend fun deleteAccount() {
-        val authToken=token()
         if(authToken.isNullOrBlank()) {
             errorText=MR.strings.something_wrong
             modalOpen=false
@@ -158,6 +155,7 @@ fun SettingsView(
             if(result=="confirmed") {
                 context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                     .edit {remove("authToken")}
+                LoginModel().setLoggedIn(false)
                 //onBack()
             }
             else {
@@ -171,7 +169,6 @@ fun SettingsView(
     }
 
     LaunchedEffect(Unit) {
-        val authToken=token()
         if(authToken.isNullOrBlank()) {
             errorText=MR.strings.something_wrong
             isLoading=false
@@ -203,11 +200,6 @@ fun SettingsView(
     AppTheme {
         Surface(modifier=Modifier.fillMaxSize()) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={Text(text=stringResource(MR.strings.settings))},
-                    navigationIcon={BackButton {navigator.popBackStack()}},
-                )
-
                 if(isLoading) {
                     Box(
                         contentAlignment=Alignment.Center,

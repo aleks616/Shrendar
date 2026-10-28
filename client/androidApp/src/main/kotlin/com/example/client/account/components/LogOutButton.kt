@@ -28,6 +28,7 @@ fun LogOut() {
                 val result=AccountClient.logout(token)
                 if(result=="logged_out"){
                     preferenceToken.edit {clear()}
+                    LoginModel().setLoggedIn(false)
                     return null
                 }
             }

@@ -116,12 +116,7 @@ fun RegisterView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    },
-                )
+
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),

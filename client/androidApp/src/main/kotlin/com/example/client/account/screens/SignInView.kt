@@ -21,6 +21,7 @@ import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
 import com.example.client.account.components.LabelledDivider
+import com.example.client.account.components.LoginModel
 import com.example.client.account.components.SignInWithGoogleView
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -55,6 +56,9 @@ fun SignInView(
                 val token=JSONObject(result).getString("token")
                 val preferenceToken=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                 preferenceToken.edit {putString("authToken",token)}
+                val loginPref=context.getSharedPreferences("login",Context.MODE_PRIVATE)
+                loginPref.edit {putString("login",login)}
+                LoginModel().setLoggedIn(true)
                 errorKey=null
                 Log.i("sign in","success")
             }
@@ -72,12 +76,6 @@ fun SignInView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    },
-                )
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),

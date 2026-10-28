@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +27,13 @@ import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
-@Destination<RootGraph>(start=true)
+@Destination<RootGraph>
 fun HomepageDataView(
     navigator:DestinationsNavigator
 ) {
+    val context=LocalContext.current
     var data by remember {mutableStateOf<HomepageMainDto?>(null)}
     var isLoading by remember {mutableStateOf(true)}
-    val context=LocalContext.current
 
     LaunchedEffect(Unit) {
         isLoading=true
@@ -57,12 +60,7 @@ fun HomepageDataView(
             modifier=Modifier.fillMaxSize(),
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    },
-                )
+
                 Column(
                     modifier=Modifier
                         .fillMaxSize()

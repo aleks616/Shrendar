@@ -81,12 +81,7 @@ fun ArtistDataView(
             color=MaterialTheme.colorScheme.background,
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    }
-                )
+
                 if(isLoading) {
                     Box(
                         modifier=Modifier.fillMaxSize(),

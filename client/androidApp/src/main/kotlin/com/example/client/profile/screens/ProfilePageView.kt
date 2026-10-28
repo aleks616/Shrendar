@@ -35,6 +35,7 @@ import com.example.client.report.ReportClient
 import com.example.client.report.ReportRequestDto
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.SignInViewDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
@@ -44,383 +45,386 @@ import kotlin.js.ExperimentalJsExport
 @Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalJsExport::class)
 fun ProfilePageView(
-    login:String,
+    login:String?=null,
     navigator:DestinationsNavigator
 ) {
-    var user by remember {mutableStateOf<UserProfileDto?>(null)}
-    var isLoading by remember {mutableStateOf(login.isNotBlank())}
-
-    val scope=rememberCoroutineScope()
-    val context=LocalContext.current
-    var selectedTab by remember {mutableIntStateOf(0)}
-    var showLastOnline by remember {mutableStateOf(false)}
-    var isReportDialogOpen by remember {mutableStateOf(false)}
-    var reportReason by remember {mutableStateOf("")}
-    var canReport by remember {mutableStateOf(true)}
-    val isOnline=false
-    val popupOffset=with(LocalDensity.current) {8.dp.roundToPx()}
-    val popupPositionProvider=remember(popupOffset) {
-        CenteredBelowPopupPositionProvider(popupOffset)
-    }
-    var favoriteBandIds by remember(user) {
-        mutableStateOf(user?.favoriteBands.orEmpty().mapNotNull {it.id}.toSet())
-    }
-    var favoriteArtistIds by remember(user) {
-        mutableStateOf(user?.favoriteArtists.orEmpty().mapNotNull {it.id}.toSet())
-    }
-    var favoriteGenreIds by remember(user) {
-        mutableStateOf(user?.favoriteGenres.orEmpty().mapNotNull {it.id}.toSet())
-    }
-
-    val ranks=listOf(1,15,40,120,270,520,820,1200,1700,2400,3500,5500,8000,11000,16000,21000,182500,400000)
-    val rankProgress=if(user?.rankId in 1..17) {
-        val currentMinXp=ranks[user?.rankId?.minus(1)?:0]
-        val nextMinXp=ranks[user?.rankId?:1]
-        ((user?.xp?.minus(currentMinXp))?.toFloat()?.div((nextMinXp-currentMinXp)))?.coerceIn(0f,1f)
+    val token=LocalContext.current.getSharedPreferences("authToken",Context.MODE_PRIVATE)
+        .getString("authToken",null)
+    val prefLogin=LocalContext.current.getSharedPreferences("login",Context.MODE_PRIVATE)
+        .getString("login",null)
+    val userLogin=login?:prefLogin
+    if(userLogin.isNullOrEmpty()) {
+        LaunchedEffect(userLogin) {
+            navigator.navigate(SignInViewDestination)
+        }
     }
     else {
-        null
-    }
+        var user by remember {mutableStateOf<UserProfileDto?>(null)}
+        var isLoading by remember {mutableStateOf(userLogin.isNotBlank())}
 
-    val token=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
-        .getString("authToken",null)
+        val scope=rememberCoroutineScope()
+        var selectedTab by remember {mutableIntStateOf(0)}
+        var showLastOnline by remember {mutableStateOf(false)}
+        var isReportDialogOpen by remember {mutableStateOf(false)}
+        var reportReason by remember {mutableStateOf("")}
+        var canReport by remember {mutableStateOf(true)}
+        val isOnline=false
+        val popupOffset=with(LocalDensity.current) {8.dp.roundToPx()}
+        val popupPositionProvider=remember(popupOffset) {
+            CenteredBelowPopupPositionProvider(popupOffset)
+        }
+        var favoriteBandIds by remember(user) {
+            mutableStateOf(user?.favoriteBands.orEmpty().mapNotNull {it.id}.toSet())
+        }
+        var favoriteArtistIds by remember(user) {
+            mutableStateOf(user?.favoriteArtists.orEmpty().mapNotNull {it.id}.toSet())
+        }
+        var favoriteGenreIds by remember(user) {
+            mutableStateOf(user?.favoriteGenres.orEmpty().mapNotNull {it.id}.toSet())
+        }
 
-    fun toggleBand(id:Int) {
-        scope.launch {
-            try {
-                if(ProfileClient.toggleFavoriteBand(id,token)=="band_toggled") {
-                    favoriteBandIds=if(id in favoriteBandIds) favoriteBandIds-id else favoriteBandIds+id
+        val ranks=listOf(1,15,40,120,270,520,820,1200,1700,2400,3500,5500,8000,11000,16000,21000,182500,400000)
+        val rankProgress=
+            if(user?.rankId in 1..17) {
+                val currentMinXp=ranks[user?.rankId?.minus(1)?:0]
+                val nextMinXp=ranks[user?.rankId?:1]
+                ((user?.xp?.minus(currentMinXp))?.toFloat()?.div((nextMinXp-currentMinXp)))?.coerceIn(0f,1f)
+            }
+            else null
+
+
+        fun toggleBand(id:Int) {
+            scope.launch {
+                try {
+                    if(ProfileClient.toggleFavoriteBand(id,token)=="band_toggled") {
+                        favoriteBandIds=if(id in favoriteBandIds) favoriteBandIds-id else favoriteBandIds+id
+                    }
+                }
+                catch(e:Exception) {
+                    Log.e("profile favorite band",e.localizedMessage?:"")
                 }
             }
-            catch(e:Exception) {
-                Log.e("profile favorite band",e.localizedMessage?:"")
-            }
         }
-    }
 
-    fun toggleArtist(id:Long) {
-        scope.launch {
-            try {
-                if(ProfileClient.toggleFavoriteArtist(id,token)=="artist_toggled") {
-                    favoriteArtistIds=
-                        if(id in favoriteArtistIds) favoriteArtistIds-id else favoriteArtistIds+id
+        fun toggleArtist(id:Long) {
+            scope.launch {
+                try {
+                    if(ProfileClient.toggleFavoriteArtist(id,token)=="artist_toggled") {
+                        favoriteArtistIds=
+                            if(id in favoriteArtistIds) favoriteArtistIds-id else favoriteArtistIds+id
+                    }
+                }
+                catch(e:Exception) {
+                    Log.e("profile favorite artist",e.localizedMessage?:"")
                 }
             }
-            catch(e:Exception) {
-                Log.e("profile favorite artist",e.localizedMessage?:"")
-            }
         }
-    }
 
-    fun toggleGenre(id:Int) {
-        scope.launch {
-            try {
-                if(ProfileClient.toggleFavoriteGenre(id,token)=="genre_toggled") {
-                    favoriteGenreIds=if(id in favoriteGenreIds) favoriteGenreIds-id else favoriteGenreIds+id
+        fun toggleGenre(id:Int) {
+            scope.launch {
+                try {
+                    if(ProfileClient.toggleFavoriteGenre(id,token)=="genre_toggled") {
+                        favoriteGenreIds=if(id in favoriteGenreIds) favoriteGenreIds-id else favoriteGenreIds+id
+                    }
+                }
+                catch(e:Exception) {
+                    Log.e("profile favorite genre",e.localizedMessage?:"")
                 }
             }
-            catch(e:Exception) {
-                Log.e("profile favorite genre",e.localizedMessage?:"")
-            }
         }
-    }
 
-    fun updateBio(newBio:String) {
-        scope.launch {
-            try {
-                val result=ProfileClient.updateBio(newBio,token)
-                if(result!="bio_added") {
-                    Log.e("profile bio",result?:"")
+        fun updateBio(newBio:String) {
+            scope.launch {
+                try {
+                    val result=ProfileClient.updateBio(newBio,token)
+                    if(result!="bio_added") {
+                        Log.e("profile bio",result?:"")
+                    }
+                }
+                catch(e:Exception) {
+                    Log.e("profile bio",e.localizedMessage?:"")
                 }
             }
-            catch(e:Exception) {
-                Log.e("profile bio",e.localizedMessage?:"")
-            }
         }
-    }
 
-    fun reportUser() {
-        isReportDialogOpen=false
-        scope.launch {
-            val reportRequest=ReportRequestDto(reportedUserId=user?.userId!!,reason=reportReason)
-            try {
-                val result=ReportClient.reportUser(reportRequest,token)
-                if(result=="report_success") {
-                    reportReason=""
-                    canReport=false
+        fun reportUser() {
+            isReportDialogOpen=false
+            scope.launch {
+                val reportRequest=ReportRequestDto(reportedUserId=user?.userId!!,reason=reportReason)
+                try {
+                    val result=ReportClient.reportUser(reportRequest,token)
+                    if(result=="report_success") {
+                        reportReason=""
+                        canReport=false
+                    }
+                }
+                catch(_:Exception) {
+
                 }
             }
-            catch(_:Exception) {
-
-            }
         }
-    }
 
-    LaunchedEffect(login) {
-        isLoading=true
-        user=null
-        try {
-            user=ProfileClient.getUserProfile(login,token)
-            if(token!=null) {
-                val result=ReportClient.canReport(user?.userId!!,token)
-                canReport=result
-            }
-        }
-        catch(e:Exception) {
-            Log.e("profile",e.localizedMessage?:"")
+        LaunchedEffect(userLogin) {
+            isLoading=true
             user=null
-        }
-        isLoading=false
-    }
-
-    AppTheme {
-        Surface(modifier=Modifier.fillMaxSize()) {
-            Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    }
-                )
-                if(isLoading) {
-                    Box(
-                        contentAlignment=Alignment.Center,
-                        modifier=Modifier.fillMaxSize()
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            try {
+                user=ProfileClient.getUserProfile(userLogin,token)
+                if(token!=null) {
+                    val result=ReportClient.canReport(user?.userId!!,userLogin)
+                    canReport=result
                 }
-                else {
-                    user?.let {userData->
-                        Column(
-                            modifier=Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                                .padding(horizontal=12.dp,vertical=16.dp),
-                            verticalArrangement=Arrangement.spacedBy(16.dp)
+            }
+            catch(e:Exception) {
+                Log.e("profile",e.localizedMessage?:"")
+                user=null
+            }
+            isLoading=false
+        }
+
+        AppTheme {
+            Surface(modifier=Modifier.fillMaxSize()) {
+                Column(modifier=Modifier.fillMaxSize()) {
+
+                    if(isLoading) {
+                        Box(
+                            contentAlignment=Alignment.Center,
+                            modifier=Modifier.fillMaxSize()
                         ) {
-                            Row(
-                                verticalAlignment=Alignment.CenterVertically,
-                                horizontalArrangement=Arrangement.SpaceBetween,
-                                modifier=Modifier.fillMaxWidth()
+                            CircularProgressIndicator()
+                        }
+                    }
+                    else {
+                        user?.let {userData->
+                            Column(
+                                modifier=Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(horizontal=12.dp,vertical=16.dp),
+                                verticalArrangement=Arrangement.spacedBy(16.dp)
                             ) {
-                                Row(horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-                                    Box(modifier=Modifier.size(80.dp)) {
-                                        Surface(
-                                            color=MaterialTheme.colorScheme.primaryContainer,
-                                            shape=MaterialTheme.shapes.large,
-                                            modifier=Modifier.fillMaxSize()
-                                        ) {
-                                            Box(contentAlignment=Alignment.Center) {
-                                                Icon(
-                                                    imageVector=Icons.Default.Person,
-                                                    contentDescription="profile",
-                                                    modifier=Modifier.size(52.dp),
-                                                    tint=MaterialTheme.colorScheme.onPrimaryContainer
-                                                )
-                                            }
-                                        }
-                                        Box(
-                                            modifier=Modifier
-                                                .align(Alignment.BottomEnd)
-                                                .size(26.dp)
-                                                .offset(x=6.dp,y=6.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    if(isOnline) Color.Green
-                                                    else MaterialTheme.colorScheme.outline
-                                                )
-                                                .clickable(
-                                                    interactionSource=remember {MutableInteractionSource()},
-                                                    indication=LocalIndication.current,
-                                                    onClick={showLastOnline=!showLastOnline}
-                                                )
-                                        ) {
-                                            if(showLastOnline) Popup(
-                                                popupPositionProvider=popupPositionProvider,
-                                                onDismissRequest={showLastOnline=false}
+                                Row(
+                                    verticalAlignment=Alignment.CenterVertically,
+                                    horizontalArrangement=Arrangement.SpaceBetween,
+                                    modifier=Modifier.fillMaxWidth()
+                                ) {
+                                    Row(horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                                        Box(modifier=Modifier.size(80.dp)) {
+                                            Surface(
+                                                color=MaterialTheme.colorScheme.primaryContainer,
+                                                shape=MaterialTheme.shapes.large,
+                                                modifier=Modifier.fillMaxSize()
                                             ) {
-                                                Surface(
-                                                    color=MaterialTheme.colorScheme.surface,
-                                                    shape=MaterialTheme.shapes.small,
-                                                    tonalElevation=0.dp,
-                                                    shadowElevation=4.dp
-                                                ) {
-                                                    Text(
-                                                        "${stringResource(LocalText().getStringResource("last_online"))} "
-                                                        +translatedDate(userData.lastLogin),
-                                                        color=MaterialTheme.colorScheme.onSurface,
-                                                        modifier=Modifier.padding(8.dp)
+                                                Box(contentAlignment=Alignment.Center) {
+                                                    Icon(
+                                                        imageVector=Icons.Default.Person,
+                                                        contentDescription="profile",
+                                                        modifier=Modifier.size(52.dp),
+                                                        tint=MaterialTheme.colorScheme.onPrimaryContainer
                                                     )
                                                 }
                                             }
+                                            Box(
+                                                modifier=Modifier
+                                                    .align(Alignment.BottomEnd)
+                                                    .size(26.dp)
+                                                    .offset(x=6.dp,y=6.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        if(isOnline) Color.Green
+                                                        else MaterialTheme.colorScheme.outline
+                                                    )
+                                                    .clickable(
+                                                        interactionSource=remember {MutableInteractionSource()},
+                                                        indication=LocalIndication.current,
+                                                        onClick={showLastOnline=!showLastOnline}
+                                                    )
+                                            ) {
+                                                if(showLastOnline) Popup(
+                                                    popupPositionProvider=popupPositionProvider,
+                                                    onDismissRequest={showLastOnline=false}
+                                                ) {
+                                                    Surface(
+                                                        color=MaterialTheme.colorScheme.surface,
+                                                        shape=MaterialTheme.shapes.small,
+                                                        tonalElevation=0.dp,
+                                                        shadowElevation=4.dp
+                                                    ) {
+                                                        Text(
+                                                            "${stringResource(LocalText().getStringResource("last_online"))} "
+                                                            +translatedDate(userData.lastLogin),
+                                                            color=MaterialTheme.colorScheme.onSurface,
+                                                            modifier=Modifier.padding(8.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Column {
+                                            Text(userData.username,fontSize=24.sp,fontWeight=FontWeight.Bold)
+                                            Text(
+                                                "@${userData.login}",
+                                                fontSize=18.sp,
+                                                color=MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                "${stringResource(LocalText().getStringResource("member_since"))} "
+                                                +translatedDate(userData.accountAge),
+                                                fontSize=14.sp
+                                            )
                                         }
                                     }
-                                    Column {
-                                        Text(userData.username,fontSize=24.sp,fontWeight=FontWeight.Bold)
-                                        Text(
-                                            "@${userData.login}",
-                                            fontSize=18.sp,
-                                            color=MaterialTheme.colorScheme.onSurfaceVariant
+                                    Button(
+                                        modifier=Modifier.padding(0.dp),
+                                        onClick={isReportDialogOpen=true},
+                                        enabled=canReport,
+                                        colors=ButtonDefaults.buttonColors(
+                                            containerColor=MaterialTheme.colorScheme.error,
                                         )
-                                        Text(
-                                            "${stringResource(LocalText().getStringResource("member_since"))} "
-                                            +translatedDate(userData.accountAge),
-                                            fontSize=14.sp
+                                    ) {
+                                        Text(text=stringResource(LocalText().getStringResource("report")))
+                                    }
+                                }
+
+                                rankProgress?.let {progress->
+                                    ProgressBar(
+                                        progress=progress,
+                                        startText="${stringResource(LocalText().getStringResource("level"))} ${userData.rankId}: "
+                                                  +stringResource(LocalText().getStringResource("rank${userData.rankId}")),
+                                        endText="${stringResource(LocalText().getStringResource("level"))} ${userData.rankId+1}: "
+                                                +stringResource(LocalText().getStringResource("rank${userData.rankId+1}"))
+                                    )
+                                }
+
+                                Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        stringResource(LocalText().getStringResource("bio")),
+                                        fontWeight=FontWeight.Bold
+                                    )
+                                    if(userData.user) {
+                                        EditableSurface(
+                                            value=userData.bio.orEmpty(),
+                                            onSave=::updateBio
+                                        )
+                                    }
+                                    else {
+                                        Surface(
+                                            modifier=Modifier
+                                                .fillMaxWidth()
+                                                .height(80.dp),
+                                            shape=MaterialTheme.shapes.medium,
+                                            border=BorderStroke(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.outlineVariant
+                                            ),
+                                            color=MaterialTheme.colorScheme.surfaceVariant
+                                        ) {
+                                            Text(
+                                                text=userData.bio?.takeIf {it.isNotBlank()}?:"",
+                                                modifier=Modifier
+                                                    .fillMaxSize()
+                                                    .verticalScroll(rememberScrollState())
+                                                    .padding(10.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Tabs(
+                                    labels=listOf(
+                                        "favorite_bands",
+                                        "favorite_artists",
+                                        "favorite_genres"
+                                    ).map {title->
+                                        stringResource(LocalText().getStringResource(title))
+                                    },
+                                    selectedIndex=selectedTab,
+                                    onSelected={selectedTab=it}
+                                ) {index->
+                                    when(index) {
+                                        0->FavoriteBandsTable(
+                                            favoriteBands=userData.favoriteBands,
+                                            currentUser=userData.user,
+                                            favoriteIds=favoriteBandIds,
+                                            onToggle=::toggleBand,
+                                            navigator=navigator
+                                        )
+
+                                        1->FavoriteArtistsTable(
+                                            favoriteArtists=userData.favoriteArtists,
+                                            currentUser=userData.user,
+                                            favoriteIds=favoriteArtistIds,
+                                            onToggle=::toggleArtist,
+                                            navigator=navigator
+                                        )
+
+                                        2->FavoriteGenresTable(
+                                            favoriteGenres=userData.favoriteGenres,
+                                            currentUser=userData.user,
+                                            favoriteIds=favoriteGenreIds,
+                                            onToggle=::toggleGenre,
+                                            navigator=navigator
                                         )
                                     }
                                 }
-                                Button(
-                                    modifier=Modifier.padding(0.dp),
-                                    onClick={isReportDialogOpen=true},
-                                    enabled=canReport,
-                                    colors=ButtonDefaults.buttonColors(
-                                        containerColor=MaterialTheme.colorScheme.error,
-                                    )
-                                ) {
-                                    Text(text=stringResource(LocalText().getStringResource("report")))
-                                }
-                            }
 
-                            rankProgress?.let {progress->
-                                ProgressBar(
-                                    progress=progress,
-                                    startText="${stringResource(LocalText().getStringResource("level"))} ${userData.rankId}: "
-                                              +stringResource(LocalText().getStringResource("rank${userData.rankId}")),
-                                    endText="${stringResource(LocalText().getStringResource("level"))} ${userData.rankId+1}: "
-                                            +stringResource(LocalText().getStringResource("rank${userData.rankId+1}"))
-                                )
-                            }
-
-                            Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                                Spacer(modifier=Modifier.height(16.dp))
                                 Text(
-                                    stringResource(LocalText().getStringResource("bio")),
+                                    stringResource(LocalText().getStringResource("contributions")),
                                     fontWeight=FontWeight.Bold
                                 )
-                                if(userData.user) {
-                                    EditableSurface(
-                                        value=userData.bio.orEmpty(),
-                                        onSave=::updateBio
-                                    )
-                                }
-                                else {
-                                    Surface(
-                                        modifier=Modifier
-                                            .fillMaxWidth()
-                                            .height(80.dp),
-                                        shape=MaterialTheme.shapes.medium,
-                                        border=BorderStroke(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outlineVariant
-                                        ),
-                                        color=MaterialTheme.colorScheme.surfaceVariant
-                                    ) {
-                                        Text(
-                                            text=userData.bio?.takeIf {it.isNotBlank()}?:"",
-                                            modifier=Modifier
-                                                .fillMaxSize()
-                                                .verticalScroll(rememberScrollState())
-                                                .padding(10.dp)
-                                        )
-                                    }
-                                }
+                                ContributionsTable(userData.contributions)
+                                Spacer(modifier=Modifier.height(4.dp))
                             }
-
-                            Tabs(
-                                labels=listOf(
-                                    "favorite_bands",
-                                    "favorite_artists",
-                                    "favorite_genres"
-                                ).map {title->
-                                    stringResource(LocalText().getStringResource(title))
-                                },
-                                selectedIndex=selectedTab,
-                                onSelected={selectedTab=it}
-                            ) {index->
-                                when(index) {
-                                    0->FavoriteBandsTable(
-                                        favoriteBands=userData.favoriteBands,
-                                        currentUser=userData.user,
-                                        favoriteIds=favoriteBandIds,
-                                        onToggle=::toggleBand,
-                                        navigator=navigator
-                                    )
-
-                                    1->FavoriteArtistsTable(
-                                        favoriteArtists=userData.favoriteArtists,
-                                        currentUser=userData.user,
-                                        favoriteIds=favoriteArtistIds,
-                                        onToggle=::toggleArtist,
-                                        navigator=navigator
-                                    )
-
-                                    2->FavoriteGenresTable(
-                                        favoriteGenres=userData.favoriteGenres,
-                                        currentUser=userData.user,
-                                        favoriteIds=favoriteGenreIds,
-                                        onToggle=::toggleGenre,
-                                        navigator=navigator
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier=Modifier.height(16.dp))
-                            Text(
-                                stringResource(LocalText().getStringResource("contributions")),
-                                fontWeight=FontWeight.Bold
-                            )
-                            ContributionsTable(userData.contributions)
-                            Spacer(modifier=Modifier.height(4.dp))
                         }
                     }
                 }
+
+
             }
-
-
         }
-    }
-    AppTheme {
-        if(isReportDialogOpen) {
-            AlertDialog(
-                modifier=Modifier.fillMaxWidth(),
-                onDismissRequest={isReportDialogOpen=false},
-                title={Text(text="${stringResource(MR.strings.report)} ${user?.username}?")},
-                text={
-                    Column {
-                        TextField(
-                            value=reportReason,
-                            onValueChange={reportReason=it},
-                            singleLine=false,
-                            minLines=3,
-                            textStyle=MaterialTheme.typography.bodyLarge,
-                            placeholder={Text(text=stringResource(MR.strings.report_reason))},
-                        )
-                        if(reportReason.length in 1..<15) {
-                            Text(
-                                text=stringResource(MR.strings.report_invalid),
-                                color=MaterialTheme.colorScheme.error
+        AppTheme {
+            if(isReportDialogOpen) {
+                AlertDialog(
+                    modifier=Modifier.fillMaxWidth(),
+                    onDismissRequest={isReportDialogOpen=false},
+                    title={Text(text="${stringResource(MR.strings.report)} ${user?.username}?")},
+                    text={
+                        Column {
+                            TextField(
+                                value=reportReason,
+                                onValueChange={reportReason=it},
+                                singleLine=false,
+                                minLines=3,
+                                textStyle=MaterialTheme.typography.bodyLarge,
+                                placeholder={Text(text=stringResource(MR.strings.report_reason))},
                             )
+                            if(reportReason.length in 1..<15) {
+                                Text(
+                                    text=stringResource(MR.strings.report_invalid),
+                                    color=MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
-                    }
-                },
-                dismissButton={
-                    TextButton(onClick={isReportDialogOpen=false}) {
-                        Text(text=stringResource(MR.strings.cancel))
-                    }
-                },
-                confirmButton={
-                    Button(
-                        onClick={reportUser()},
-                        enabled=true,
-                        colors=ButtonDefaults.buttonColors(
-                            containerColor=MaterialTheme.colorScheme.error,
-                        )
-                    ) {
-                        Text(text=stringResource(MR.strings.report))
-                    }
-                },
-                containerColor=MaterialTheme.colorScheme.background,
-            )
+                    },
+                    dismissButton={
+                        TextButton(onClick={isReportDialogOpen=false}) {
+                            Text(text=stringResource(MR.strings.cancel))
+                        }
+                    },
+                    confirmButton={
+                        Button(
+                            onClick={reportUser()},
+                            enabled=true,
+                            colors=ButtonDefaults.buttonColors(
+                                containerColor=MaterialTheme.colorScheme.error,
+                            )
+                        ) {
+                            Text(text=stringResource(MR.strings.report))
+                        }
+                    },
+                    containerColor=MaterialTheme.colorScheme.background,
+                )
+            }
         }
     }
 }

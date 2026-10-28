@@ -1,5 +1,6 @@
 package com.example.client.account.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,22 +9,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import com.example.client.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.HomepageDataViewDestination
 import com.ramcosta.composedestinations.generated.destinations.RegisterViewDestination
 import com.ramcosta.composedestinations.generated.destinations.SignInViewDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 
+fun endSetup(context:Context){
+    val configuration=context.getSharedPreferences("isSetup",Context.MODE_PRIVATE)
+    val hasConfigured=configuration.getBoolean("isSetup",false)
+    if(!hasConfigured){
+        configuration.edit {putBoolean("isSetup",true)}
+    }
+}
 @Composable
-@Destination<RootGraph>
+@Destination<RootGraph>(start=true)
 fun WelcomeView(
     navigator:DestinationsNavigator
 ) {
+    val context=LocalContext.current
+    val configuration=context.getSharedPreferences("isSetup",Context.MODE_PRIVATE)
+    val hasConfigured=configuration.getBoolean("isSetup",false)
+    if(hasConfigured){
+        navigator.navigate(HomepageDataViewDestination)
+    }
     AppTheme {
         Surface {
             Box(modifier=Modifier.fillMaxSize()) {
@@ -81,7 +98,9 @@ fun WelcomeView(
                         }
                         Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
                             Text(text=stringResource(MR.strings.continue_as))
-                            TextButton(onClick={},modifier=Modifier.padding(0.dp)) {
+                            TextButton(onClick={
+                                endSetup(context)
+                            },modifier=Modifier.padding(0.dp)) {
                                 Text(text=stringResource(MR.strings.guest_question),modifier=Modifier.padding(0.dp))
                             }
                         }

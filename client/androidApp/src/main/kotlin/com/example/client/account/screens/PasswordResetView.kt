@@ -85,12 +85,7 @@ fun PasswordResetView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    },
-                )
+
                 Column(
                 modifier=Modifier
                     .fillMaxSize()

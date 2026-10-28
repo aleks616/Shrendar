@@ -5,8 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.generated.NavGraphs
+import com.example.client.navigation.AppScaffold
 
 class MainActivity:ComponentActivity() {
     private val resetUrl=mutableStateOf<String?>(null)
@@ -16,7 +15,7 @@ class MainActivity:ComponentActivity() {
 
         setContent {
             AppTheme {
-                DestinationsNavHost(navGraph=NavGraphs.root)
+                AppScaffold()
             }
         }
     }

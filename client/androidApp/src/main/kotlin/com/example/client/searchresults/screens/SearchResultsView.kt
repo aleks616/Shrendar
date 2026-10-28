@@ -66,12 +66,7 @@ fun SearchResultsView(
             modifier=Modifier.fillMaxSize()
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {navigator.popBackStack()}
-                    }
-                )
+
                 TextField(
                     value=searchQuery,
                     placeholder={Text(text=stringResource(MR.strings.searchbar))},
