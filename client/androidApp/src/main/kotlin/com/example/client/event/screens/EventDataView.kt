@@ -10,18 +10,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.client.AppTheme
-import com.example.client.BackButton
 import com.example.client.LocalText
 import com.example.client.common.EventWikiDto
 import com.example.client.common.TranslatedDescription
 import com.example.client.event.EventClient
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
+@Destination<RootGraph>
 fun EventDataView(
-    onBack:()->Unit,
+    navigator:DestinationsNavigator,
     eventId:Int=2,
 ) {
     var event by remember(eventId) {mutableStateOf<EventWikiDto?>(null)}
@@ -46,12 +50,7 @@ fun EventDataView(
             color=MaterialTheme.colorScheme.background,
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    }
-                )
+
                 if(isLoading) {
                     Box(
                         modifier=Modifier.fillMaxSize(),
@@ -85,13 +84,18 @@ fun EventDataView(
                                 verticalArrangement=Arrangement.spacedBy(8.dp),
                             ) {
                                 Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("band"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=eventData.bandName?:"-",
-                                    )
+                                    TextButton(
+                                        modifier=Modifier.padding(0.dp),
+                                        onClick={navigator.navigate(BandDataViewDestination(eventData.bandId!!))},
+                                    ) {
+                                        Text(
+                                            text="${stringResource(LocalText().getStringResource("band"))}: ",
+                                            color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text=eventData.bandName?:"-",
+                                        )
+                                    }
                                 }
                                 Row {
                                     Text(

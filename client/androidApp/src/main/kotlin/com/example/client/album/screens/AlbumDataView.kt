@@ -10,19 +10,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.client.AppTheme
-import com.example.client.BackButton
 import com.example.client.LocalText
 import com.example.client.album.AlbumClient
 import com.example.client.album.AlbumWikiDto
 import com.example.client.common.LoadImage
 import com.example.client.common.TranslatedDescription
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
+@Destination<RootGraph>
 @Composable
 fun AlbumDataView(
-    onBack:()->Unit,
+    navigator:DestinationsNavigator,
     albumId:Long=255,
 ) {
     var album by remember(albumId) {mutableStateOf<AlbumWikiDto?>(null)}
@@ -47,12 +51,7 @@ fun AlbumDataView(
             color=MaterialTheme.colorScheme.background,
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    }
-                )
+
 
                 if(isLoading) {
                     Box(
@@ -88,13 +87,18 @@ fun AlbumDataView(
                                 verticalArrangement=Arrangement.spacedBy(8.dp),
                             ) {
                                 Row {
-                                    Text(
-                                        text="${stringResource(LocalText().getStringResource("band"))}: ",
-                                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        text=albumData.band?.name?:"-",
-                                    )
+                                    TextButton(
+                                        modifier=Modifier.padding(0.dp),
+                                        onClick={navigator.navigate(BandDataViewDestination(album?.band?.id!!))},
+                                    ) {
+                                        Text(
+                                            text="${stringResource(LocalText().getStringResource("band"))}: ",
+                                            color=MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text=albumData.band?.name?:"-",
+                                        )
+                                    }
                                 }
                                 Row {
                                     Text(

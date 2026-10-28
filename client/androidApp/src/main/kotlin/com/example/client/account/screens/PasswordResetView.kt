@@ -12,24 +12,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.ResetPasswordDto
 import com.example.client.register.RegisterValidator
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.annotation.parameters.DeepLink
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.js.ExperimentalJsExport
 
 @Composable
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>(
+    deepLinks=[
+        DeepLink(
+            uriPattern="shrendar://reset-password?code={code}&email={email}"
+        )
+    ]
+)
+@OptIn(ExperimentalMaterial3Api::class,ExperimentalJsExport::class)
 fun PasswordResetView(
-    resetUrl:String="https://shrendarclient.shares.zrok.io/reset-password?code=123456&account=user@example.com",
-    onBack:()->Unit={},
+    code:String,
+    email:String,
+    navigator:DestinationsNavigator,
 ) {
     var password by remember {mutableStateOf("")}
     var confirmPassword by remember {mutableStateOf("")}
@@ -38,11 +48,7 @@ fun PasswordResetView(
     val language=Locale.getDefault().language.takeIf {it.isNotBlank()}?.uppercase()?:"EN"
 
     suspend fun createPassword() {
-        val uri=resetUrl.toUri()
-        val code=uri.getQueryParameter("code")
-        val email=uri.getQueryParameter("account")
-
-        if(code.isNullOrBlank()||email.isNullOrBlank()) {
+        if(code.isBlank()||email.isBlank()) {
             errorKey="something_wrong"
             return
         }
@@ -79,12 +85,7 @@ fun PasswordResetView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    },
-                )
+
                 Column(
                 modifier=Modifier
                     .fillMaxSize()

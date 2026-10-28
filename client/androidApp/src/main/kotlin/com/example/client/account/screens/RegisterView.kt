@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.client.*
@@ -25,6 +24,10 @@ import com.example.client.account.components.pxToDp
 import com.example.client.register.RegisterClient
 import com.example.client.register.RegisterRequestDto
 import com.example.client.register.RegisterValidator
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.SignInViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,11 +35,10 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-@Preview
+@Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class)
 fun RegisterView(
-    onBack:()->Unit={},
-    signInScreen:()->Unit={},
+    navigator:DestinationsNavigator
 ) {
     var email by remember {mutableStateOf("")}
     var login by remember {mutableStateOf("")}
@@ -114,12 +116,7 @@ fun RegisterView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    },
-                )
+
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),
@@ -265,12 +262,12 @@ fun RegisterView(
 
                     Row(horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
                         Text(text=stringResource(MR.strings.already_have_an_account))
-                        TextButton(onClick=signInScreen,modifier=Modifier.padding(0.dp)) {
+                        TextButton(onClick={navigator.navigate(SignInViewDestination)},modifier=Modifier.padding(0.dp)) {
                             Text(text=stringResource(MR.strings.sign_in),modifier=Modifier.padding(0.dp))
                         }
                     }
                     LabelledDivider(text=stringResource(MR.strings.or))
-                    SignInWithGoogleView()
+                    SignInWithGoogleView(navigator)
                 }
             }
         }

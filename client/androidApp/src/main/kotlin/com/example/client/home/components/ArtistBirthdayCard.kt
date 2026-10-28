@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,12 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.example.client.*
 import com.example.client.common.LoadImage
 import com.example.client.homepage.dto.ArtistAnniversaryDto
+import com.ramcosta.composedestinations.generated.destinations.ArtistDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class)
 @Composable
-fun ArtistBirthdayCard(artist:ArtistAnniversaryDto) {
+fun ArtistBirthdayCard(artist:ArtistAnniversaryDto,navigator:DestinationsNavigator) {
     AppTheme {
         Surface(
             modifier=Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
@@ -36,7 +39,12 @@ fun ArtistBirthdayCard(artist:ArtistAnniversaryDto) {
             ) {
                 Column(modifier=Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text(text="${artist.yearsSince} 🎂",fontSize=20.sp,fontWeight=FontWeight.Bold)
-                    Text(text="${artist.name}",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                    TextButton(
+                        modifier=Modifier.padding(0.dp),
+                        onClick={navigator.navigate(ArtistDataViewDestination(artist.id!!))}
+                    ){
+                        Text(text="${artist.name}",fontSize=18.sp,fontWeight=FontWeight.Bold)
+                    }
                 }
                 Column(modifier=Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                     Text(text="${stringResource(MR.strings.birthday)}: ${artist.anniversaryDate}")

@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import com.example.client.LocalText
 import com.example.client.common.FavoritesTable
 import com.example.client.common.FavoriteArtistDto
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.collections.contains
 import kotlin.collections.filter
@@ -21,6 +22,7 @@ fun FavoriteArtistsTable(
     currentUser:Boolean,
     favoriteIds:Set<Long>,
     onToggle:(Long)->Unit,
+    navigator:DestinationsNavigator
 ) {
     val rows=favoriteArtists.orEmpty()
     val headers=buildList {
@@ -56,6 +58,11 @@ fun FavoriteArtistsTable(
         favoriteRows=rows.mapIndexedNotNull {index,item->
             if(item.id in favoriteIds) index else null
         }.toSet(),
-        onFavoriteClick={index-> rows[index].id?.let(onToggle)}
+        onFavoriteClick={index-> rows[index].id?.let(onToggle)},
+        indexToId=rows.mapIndexedNotNull {index,item->
+            item.id?.let {index to it.toString()}
+        }.toMap(),
+        navigator=navigator,
+        destinationType="artist"
     )
 }

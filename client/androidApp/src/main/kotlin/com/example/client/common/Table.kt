@@ -35,6 +35,7 @@ fun <T> Table(
     columns:List<Pair<String,KProperty1<T,*>>>,
     data:List<T>,
     emptyText:String,
+    cellContent:(@Composable (T,Int)->Unit)?=null,
 ) {
     val textMeasurer=rememberTextMeasurer()
     val bodyTextStyle=LocalTextStyle.current
@@ -172,14 +173,18 @@ fun <T> Table(
                                         .width(tableWidths[index])
                                         .padding(horizontal=8.dp,vertical=12.dp),
                                 ) {
-                                    Text(
-                                        text=column.second.get(item).tableText(),
-                                        color=MaterialTheme.colorScheme.onSurface,
-                                    )
+                                    if(cellContent==null) {
+                                        Text(
+                                            text=column.second.get(item).tableText(),
+                                            color=MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+                                    else {
+                                        cellContent(item,index)
+                                    }
                                 }
                             }
                         }
-
                         Divider()
                     }
                 }

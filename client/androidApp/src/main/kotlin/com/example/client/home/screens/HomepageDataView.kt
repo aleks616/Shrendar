@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,17 +19,21 @@ import com.example.client.*
 import com.example.client.home.components.*
 import com.example.client.homepage.HomepageClient
 import com.example.client.homepage.dto.HomepageMainDto
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.js.ExperimentalJsExport
 
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
+@Destination<RootGraph>
 fun HomepageDataView(
-    onBack:()->Unit={}
+    navigator:DestinationsNavigator
 ) {
+    val context=LocalContext.current
     var data by remember {mutableStateOf<HomepageMainDto?>(null)}
     var isLoading by remember {mutableStateOf(true)}
-    val context=LocalContext.current
 
     LaunchedEffect(Unit) {
         isLoading=true
@@ -53,12 +60,7 @@ fun HomepageDataView(
             modifier=Modifier.fillMaxSize(),
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    },
-                )
+
                 Column(
                     modifier=Modifier
                         .fillMaxSize()
@@ -78,11 +80,11 @@ fun HomepageDataView(
                         if(albumCount>0){
                             Text(text=stringResource(MR.strings.album_anniversaries),fontSize=26.sp,fontWeight=FontWeight.Bold)
                             data!!.favoriteAlbums?.forEach{album->
-                                AlbumCard(album)
+                                AlbumCard(album,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                             data!!.recommendedAlbumsAnniversaries?.forEach{album->
-                                AlbumCard(album)
+                                AlbumCard(album,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                         }
@@ -91,15 +93,15 @@ fun HomepageDataView(
                         if(birthdayCount>0){
                             Text(text=stringResource(MR.strings.birthdays_today),fontSize=26.sp,fontWeight=FontWeight.Bold)
                             data!!.favoriteArtistsBirthdays?.forEach {artist->
-                                ArtistBirthdayCard(artist)
+                                ArtistBirthdayCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                             data!!.otherBandMembersBirthdays?.forEach {artist->
-                                ArtistBirthdayCard(artist)
+                                ArtistBirthdayCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                             data!!.recommendedArtistBirthdays?.forEach {artist->
-                                ArtistBirthdayCard(artist)
+                                ArtistBirthdayCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                         }
@@ -107,15 +109,15 @@ fun HomepageDataView(
                         if(deathAnnCount>0){
                             Text(text=stringResource(MR.strings.died_today),fontSize=26.sp,fontWeight=FontWeight.Bold)
                             data!!.favoriteArtistsDeathAnniversaries?.forEach { artist->
-                                ArtistDeathAnniversaryCard(artist)
+                                ArtistDeathAnniversaryCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                             data!!.otherBandMembersDeathAnniversaries?.forEach { artist->
-                                ArtistDeathAnniversaryCard(artist)
+                                ArtistDeathAnniversaryCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                             data!!.recommendedArtistDeathAnniversaries?.forEach { artist->
-                                ArtistDeathAnniversaryCard(artist)
+                                ArtistDeathAnniversaryCard(artist,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                         }
@@ -123,13 +125,13 @@ fun HomepageDataView(
                         if(eventCount>0){
                             Text(text=stringResource(MR.strings.events_today),fontSize=26.sp,fontWeight=FontWeight.Bold)
                             data!!.eventAnniversaries?.forEach { event->
-                                EventCard(event)
+                                EventCard(event,navigator)
                                 Spacer(modifier=Modifier.height(8.dp))
                             }
                         }
                     }
-                    UpcomingAnniversariesView()
-                    CommonBandsView()
+                    UpcomingAnniversariesView(navigator)
+                    CommonBandsView(navigator)
                 }
             }
         }

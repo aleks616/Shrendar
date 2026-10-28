@@ -18,22 +18,28 @@ import com.example.client.common.LoadImage
 import com.example.client.common.Table
 import com.example.client.common.TranslatedDescription
 import com.example.client.profile.ProfileClient
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.BandDataViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import kotlin.js.ExperimentalJsExport
 
 private data class BandTableRow(
+    val bandId:Int,
     val band:String,
     val yearRole:String
 )
 
 @SuppressLint("LocalContextGetResourceValueCall")
+@Destination<RootGraph>
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistDataView(
-    onBack:()->Unit,
-    artistId:Long=144
+    navigator:DestinationsNavigator,
+    artistId:Long
 ) {
     val context=LocalContext.current
     var artist by remember(artistId) {mutableStateOf<ArtistWikiDto?>(null)}
@@ -75,12 +81,7 @@ fun ArtistDataView(
             color=MaterialTheme.colorScheme.background,
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    }
-                )
+
                 if(isLoading) {
                     Box(
                         modifier=Modifier.fillMaxSize(),
@@ -264,6 +265,7 @@ fun ArtistDataView(
                     ) {
                         val bandsTableData=bands.filter {it.bandName!=null}.map {record->
                             BandTableRow(
+                                bandId=record.bandId!!,
                                 band=record.bandName!!,
                                 yearRole=record.yearRole.orEmpty().joinToString("\n") {role->
                                     role.replace(
@@ -298,6 +300,21 @@ fun ArtistDataView(
                             emptyText=stringResource(
                                 LocalText().getStringResource("no_bands")
                             ),
+                            cellContent={band,index->
+                                if(index==0) {
+                                    TextButton(
+                                        modifier=Modifier.padding(0.dp),
+                                        onClick={
+                                            navigator.navigate(BandDataViewDestination(band.bandId))
+                                        },
+                                    ) {
+                                        Text(text=band.band)
+                                    }
+                                }
+                                else {
+                                    Text(text=band.yearRole)
+                                }
+                            },
                         )
                     }
                 }

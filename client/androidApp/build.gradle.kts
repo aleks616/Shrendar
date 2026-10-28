@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.composeCompiler)
+    id("com.google.devtools.ksp") version "2.3.10"
 }
 
 kotlin {
@@ -17,6 +18,9 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha03")
     implementation("com.google.android.gms:play-services-auth:22.0.0")
     implementation("dev.icerock.moko:resources-compose:0.27.1")
+    implementation("io.github.raamcosta.compose-destinations:core:2.3.0")
+    ksp("io.github.raamcosta.compose-destinations:ksp:2.3.0")
+    implementation("io.github.raamcosta.compose-destinations:bottom-sheet:2.3.0")
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)

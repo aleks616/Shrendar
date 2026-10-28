@@ -14,13 +14,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
+import com.example.client.account.components.LogOutButton
+import com.example.client.account.components.LoginModel
 import com.example.client.common.UserDto
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.HomepageDataViewDestination
+import com.ramcosta.composedestinations.generated.destinations.RequestPasswordResetViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.StringResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
@@ -40,11 +46,10 @@ private fun Long.toLocalDate():LocalDate=
     Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 
 @Composable
-@Preview
+@Destination<RootGraph>
 @OptIn(ExperimentalJsExport::class,ExperimentalMaterial3Api::class)
 fun SettingsView(
-    onBack:()->Unit={},
-    onChangePassword:()->Unit={},
+    navigator:DestinationsNavigator,
 ) {
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
@@ -68,12 +73,11 @@ fun SettingsView(
             birthdate!!<minDate||birthdate!!>maxDate
                                           )
 
-    fun token():String?=
+    val authToken:String?=
         context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
             .getString("authToken",null)
 
     suspend fun updateUsername() {
-        val authToken=token()
         if(!authToken.isNullOrBlank()) {
             val result=AccountClient.updateUsername(authToken,username)
             if(result!="username_changed") {
@@ -86,7 +90,6 @@ fun SettingsView(
     }
 
     suspend fun updateEmail() {
-        val authToken=token()
         if(!authToken.isNullOrBlank()) {
             val result=AccountClient.updateEmail(authToken,email)
             if(result!="email_changed") {
@@ -99,7 +102,6 @@ fun SettingsView(
     }
 
     suspend fun updateBirthdate() {
-        val authToken=token()
         val birthdateAsKotlinDate=birthdate?.let {
             KotlinDate(it.year,it.monthValue,it.dayOfMonth)
         }
@@ -134,7 +136,6 @@ fun SettingsView(
     }
 
     suspend fun deleteAccount() {
-        val authToken=token()
         if(authToken.isNullOrBlank()) {
             errorText=MR.strings.something_wrong
             modalOpen=false
@@ -157,7 +158,8 @@ fun SettingsView(
             if(result=="confirmed") {
                 context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                     .edit {remove("authToken")}
-                onBack()
+                LoginModel.setLoggedIn(false)
+                navigator.navigate(HomepageDataViewDestination)
             }
             else {
                 errorText=LocalText().getStringResource(result)
@@ -170,7 +172,6 @@ fun SettingsView(
     }
 
     LaunchedEffect(Unit) {
-        val authToken=token()
         if(authToken.isNullOrBlank()) {
             errorText=MR.strings.something_wrong
             isLoading=false
@@ -202,11 +203,6 @@ fun SettingsView(
     AppTheme {
         Surface(modifier=Modifier.fillMaxSize()) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={Text(text=stringResource(MR.strings.settings))},
-                    navigationIcon={BackButton {onBack()}},
-                )
-
                 if(isLoading) {
                     Box(
                         contentAlignment=Alignment.Center,
@@ -223,6 +219,7 @@ fun SettingsView(
                             .padding(horizontal=20.dp,vertical=16.dp),
                         verticalArrangement=Arrangement.spacedBy(16.dp),
                     ) {
+                        LogOutButton()
                         Text(text=stringResource(MR.strings.username))
                         TextField(
                             value=username,
@@ -286,7 +283,7 @@ fun SettingsView(
                         }
 
                         Button(
-                            onClick=onChangePassword,
+                            onClick={navigator.navigate(RequestPasswordResetViewDestination)},
                             modifier=Modifier.fillMaxWidth(),
                             colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.onSurfaceVariant)
                         ) {

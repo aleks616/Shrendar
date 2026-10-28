@@ -15,22 +15,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.client.*
 import com.example.client.common.LoadImage
+import com.example.client.common.getDirection
 import com.example.client.searching.SearchClient
 import com.example.client.searching.SearchResults
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import kotlin.js.ExperimentalJsExport
 
 
 @Composable
+@Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalJsExport::class)
 fun SearchResultsView(
-    onBack:()->Unit
+    navigator:DestinationsNavigator
 ) {
     var data by remember {mutableStateOf<SearchResults?>(null)}
     var isLoading by remember {mutableStateOf(false)}
@@ -56,17 +66,17 @@ fun SearchResultsView(
         }
     }
 
+    fun submitSearch() {
+        scope.launch {loadData()}
+        focusManager.clearFocus()
+    }
+
     AppTheme {
         Surface(
             modifier=Modifier.fillMaxSize()
         ) {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    }
-                )
+
                 TextField(
                     value=searchQuery,
                     placeholder={Text(text=stringResource(MR.strings.searchbar))},
@@ -80,14 +90,20 @@ fun SearchResultsView(
                     },
                     keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),
                     keyboardActions=KeyboardActions(
-                        onDone={
-                            scope.launch {loadData()}
-                            focusManager.clearFocus()
-                        }
+                        onDone={submitSearch()}
                     ),
-                    modifier=Modifier.fillMaxWidth().padding(12.dp)
+                    modifier=Modifier
+                        .onPreviewKeyEvent {event->
+                            if(event.type==KeyEventType.KeyDown && event.key==Key.Enter) {
+                                submitSearch()
+                                true
+                            }
+                            else false
+                        }
+                        .fillMaxWidth()
+                        .padding(12.dp)
                 )
-                if(data!=null){
+                if(data!=null) {
                     FlowRow(
                         modifier=Modifier
                             .fillMaxWidth()
@@ -130,11 +146,10 @@ fun SearchResultsView(
                         }
                     }
                     else if(data!=null) {
-
                         if(showingItems?.items?.size==0) {
-                           Row(modifier=Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.Center){
-                               Text(text=stringResource(MR.strings.no_results),fontSize=28.sp)
-                           }
+                            Row(modifier=Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.Center) {
+                                Text(text=stringResource(MR.strings.no_results),fontSize=28.sp)
+                            }
                         }
                         showingItems?.items?.forEach {item->
                             Row(
@@ -157,7 +172,22 @@ fun SearchResultsView(
                                     )
                                 }
                                 Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                    Text(text=item.name,fontSize=22.sp,color=MaterialTheme.colorScheme.onSurface)
+                                    val direction=getDirection(item.link)
+                                    if(direction!=null) {
+                                        TextButton(
+                                            modifier=Modifier.padding(0.dp),
+                                            onClick={navigator.navigate(direction)}
+                                        ) {
+                                            Text(
+                                                text=item.name,
+                                                fontSize=22.sp,
+                                                color=MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                    else {
+                                        Text(text=item.name,fontSize=22.sp,color=MaterialTheme.colorScheme.onSurface)
+                                    }
                                     Text(text=item.info?:"-",fontSize=16.sp)
                                     Text(
                                         text=item.description,fontSize=12.sp,
@@ -171,5 +201,4 @@ fun SearchResultsView(
             }
         }
     }
-
 }

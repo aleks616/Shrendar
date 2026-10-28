@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
@@ -22,17 +21,21 @@ import com.example.client.*
 import com.example.client.account.AccountClient
 import com.example.client.account.LoginRequestDto
 import com.example.client.account.components.LabelledDivider
+import com.example.client.account.components.LoginModel
 import com.example.client.account.components.SignInWithGoogleView
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.RequestPasswordResetViewDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 @Composable
-@Preview
+@Destination<RootGraph>
 @OptIn(ExperimentalMaterial3Api::class)
 fun SignInView(
-    onBack:()->Unit={},
-    onForgotPassword:()->Unit={},
+    navigator:DestinationsNavigator
 ) {
     var login by remember {mutableStateOf("")}
     var password by remember {mutableStateOf("")}
@@ -53,6 +56,9 @@ fun SignInView(
                 val token=JSONObject(result).getString("token")
                 val preferenceToken=context.getSharedPreferences("authToken",Context.MODE_PRIVATE)
                 preferenceToken.edit {putString("authToken",token)}
+                val loginPref=context.getSharedPreferences("login",Context.MODE_PRIVATE)
+                loginPref.edit {putString("login",login)}
+                LoginModel.setLoggedIn(true)
                 errorKey=null
                 Log.i("sign in","success")
             }
@@ -70,12 +76,6 @@ fun SignInView(
     AppTheme {
         Surface {
             Column(modifier=Modifier.fillMaxSize()) {
-                TopAppBar(
-                    title={},
-                    navigationIcon={
-                        BackButton {onBack()}
-                    },
-                )
                 Column(
                     horizontalAlignment=Alignment.CenterHorizontally,
                     modifier=Modifier.fillMaxWidth(),
@@ -127,12 +127,15 @@ fun SignInView(
                         verticalAlignment=Alignment.CenterVertically,
                     ) {
                         Text(stringResource(MR.strings.forgot_password_question))
-                        TextButton(onClick=onForgotPassword) {
+                        TextButton(
+                            modifier=Modifier.padding(0.dp),
+                            onClick={navigator.navigate(RequestPasswordResetViewDestination)}
+                        ) {
                             Text(stringResource(MR.strings.reset_password))
                         }
                     }
                     LabelledDivider(text=stringResource(MR.strings.or))
-                    SignInWithGoogleView()
+                    SignInWithGoogleView(navigator)
                 }
             }
         }

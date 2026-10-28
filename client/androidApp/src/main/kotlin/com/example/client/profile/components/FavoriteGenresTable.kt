@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import com.example.client.LocalText
 import com.example.client.common.FavoritesTable
 import com.example.client.common.FavoriteGenreDto
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dev.icerock.moko.resources.compose.stringResource
 import kotlin.collections.contains
 import kotlin.collections.map
@@ -19,6 +20,7 @@ fun FavoriteGenresTable(
     currentUser:Boolean=false,
     favoriteIds:Set<Int>,
     onToggle:(Int)->Unit,
+    navigator:DestinationsNavigator
 ) {
     val rows=favoriteGenres.orEmpty()
     val headers=buildList {
@@ -40,6 +42,10 @@ fun FavoriteGenresTable(
         favoriteRows=rows.mapIndexedNotNull {index,item->
             if(item.id in favoriteIds) index else null
         }.toSet(),
-        onFavoriteClick={index-> rows[index].id?.let(onToggle)}
+        onFavoriteClick={index-> rows[index].id?.let(onToggle)},
+        navigator=navigator,
+        indexToId=rows.mapIndexedNotNull { index, item ->
+            item.id?.let { index to it.toString() }
+        }.toMap(),
     )
 }
