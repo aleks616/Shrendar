@@ -13,6 +13,7 @@ import SwiftUI
 import SwiftUIOTPEntry
 
 struct RegisterView: View {
+	@Environment(AuthenticationModel.self) private var authModel
 	let lang = Locale.current.language.languageCode ?? "EN"
 	private enum Field: Int, CaseIterable {
 		case email, login, password, confirmPassword
@@ -155,7 +156,7 @@ struct RegisterView: View {
 				GoogleSignInButton(
 					scheme: .light,
 					state: .normal,
-					action: { handleGoogleSignInButton() }
+					action: { handleGoogleSignInButton(authModel: authModel) }
 				)
 				.frame(width: 280, height: 45)
 

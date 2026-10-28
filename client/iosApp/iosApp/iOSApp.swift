@@ -2,9 +2,15 @@ import GoogleSignIn
 import SharedLogic
 import SwiftUI
 
+@Observable
+class AuthenticationModel {
+	var isAuthenticated: Bool = UserDefaults.standard.string(forKey: "login") != nil
+}
+
 @main
 struct iOSApp: App {
 	@State private var resetURL: URL?
+	@State private var authModel = AuthenticationModel()
 
 	private var testView: String? {
 		ProcessInfo.processInfo.arguments
@@ -48,10 +54,42 @@ struct iOSApp: App {
 						WelcomeView()
 					}
 				}
-				else {
-					WelcomeView()
+				else{
+					TabView{
+						HomepageView()
+							.tabItem{
+								Label(localize(key:"home"), systemImage: "house.fill")
+							}
+						SearchResultsScreen()
+							.tabItem{
+								Label(localize(key:"search"), systemImage: "magnifyingglass")
+							}
+						if authModel.isAuthenticated {
+							let login=UserDefaults.standard.string(forKey: "login")
+							UserProfileView(login:login!)
+								.tabItem{
+									Label(localize(key:"profile"), systemImage: "person.crop.circle")
+								}
+//							NotificationsView()
+//								.tabItem{
+//									Label("Inbox", systemImage: "bell.fill")
+//								}
+							SettingsView()
+								.tabItem{
+									Label(localize(key:"settings"), systemImage: "gearshape.fill")
+								}
+						}
+						else {
+							WelcomeView()
+								.tabItem{
+									Label(localize(key:"sign_in"), systemImage: "person.crop.circle")
+								}
+						}
+								
+					}.tint(.accentColor)
 				}
 			}
+			.environment(authModel)
 			.onOpenURL { url in
 				if url.scheme == "shrendar",
 					url.host == "reset-password" {
@@ -66,15 +104,6 @@ struct iOSApp: App {
 					// Check if `user` exists; otherwise, do something with `error`
 				}
 			}
-			/* .task {
-			     GenreApi().getAll { genres, error in
-			         if let error {
-			             print("Unable to fetch genres: \(error)")
-			         } else {
-			             print(genres ?? [])
-			         }
-			     }
-			 }*/
 		}
 	}
 }

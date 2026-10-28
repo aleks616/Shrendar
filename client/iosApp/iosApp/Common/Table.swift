@@ -14,6 +14,7 @@ struct Table<Row>: View {
 	let columns: [Column]
 	let data: [Row]
 	let emptyText: String
+	let cellContent: ((Row, Int) -> AnyView)?
 
 	init(
 		columns: [Column],
@@ -23,6 +24,21 @@ struct Table<Row>: View {
 		self.columns = columns
 		self.data = data
 		self.emptyText = emptyText
+		self.cellContent = nil
+	}
+
+	init<Content: View>(
+		columns: [Column],
+		data: [Row],
+		emptyText: String,
+		@ViewBuilder cellContent: @escaping (Row, Int) -> Content
+	) {
+		self.columns = columns
+		self.data = data
+		self.emptyText = emptyText
+		self.cellContent = { item, index in
+			AnyView(cellContent(item, index))
+		}
 	}
 
 	var body: some View {
@@ -71,13 +87,22 @@ struct Table<Row>: View {
 						ForEach(Array(data.enumerated()), id: \.offset) { _, item in
 							GridRow {
 								ForEach(columns.indices, id: \.self) { index in
-									Text(columns[index].value(item) ?? "-")
-										.lineLimit(nil)
-										.fixedSize(horizontal: true, vertical: false)
-										.padding(.horizontal, 8)
-										.padding(.vertical, 10)
+									if let cellContent {
+										cellContent(item, index)
+											.lineLimit(nil)
+											.fixedSize(horizontal: true, vertical: false)
+											.padding(.horizontal, 8)
+											.padding(.vertical, 10)
+									} else {
+										Text(columns[index].value(item) ?? "-")
+											.lineLimit(nil)
+											.fixedSize(horizontal: true, vertical: false)
+											.padding(.horizontal, 8)
+											.padding(.vertical, 10)
+									}
 								}
 							}
+
 							GridRow {
 								Divider()
 									.gridCellColumns(columnCount)

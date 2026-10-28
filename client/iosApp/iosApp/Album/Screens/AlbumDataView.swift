@@ -48,7 +48,10 @@ struct AlbumDataView: View {
 									HStack(alignment: .firstTextBaseline, spacing: 4) {
 										Text("\(localize(key: "band")):")
 											.foregroundStyle(.secondary)
-										Text(album.band?.name ?? "-")
+										NavigationLink(destination: BandDataView(bandId:album.band?.id as! Int)) {
+											Text(album.band?.name ?? "-")
+										}
+									
 									}
 
 									HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -118,7 +121,7 @@ struct AlbumDataView: View {
 				}
 			}
 			.task(id: albumId) {
-				await loadAlbum()
+				loadAlbum()
 			}
 		}
 	}

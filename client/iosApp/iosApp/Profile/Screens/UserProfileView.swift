@@ -114,7 +114,7 @@ struct UserProfileView: View {
 					token: KeychainService.retrieveToken()
 				)
 				guard result == "bio_added" else {
-					print(result)
+					print(result ?? "-")
 					return
 				}
 			} catch {

@@ -13,7 +13,7 @@ import GoogleSignIn
 import GoogleSignInSwift
 
 
-func handleGoogleSignInButton() {
+func handleGoogleSignInButton(authModel: AuthenticationModel) {
 		guard let rootViewController = UIApplication.shared.rootViewController
 		else {
 			// Handle error
@@ -41,7 +41,9 @@ func handleGoogleSignInButton() {
 						(try JSONSerialization.jsonObject(with: Data(result.utf8))
 						 as! [String: Any])["token"] as! String
 						KeychainService.saveToken(authToken)
-						print("logged in with google")
+						let userData = try await AccountApi().getUserData(token: authToken)
+						UserDefaults.standard.set(userData.login, forKey: "login")
+						authModel.isAuthenticated = true
 					}
 					catch let error{
 						print(error)

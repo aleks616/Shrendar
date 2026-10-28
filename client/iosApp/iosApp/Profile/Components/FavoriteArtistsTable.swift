@@ -47,7 +47,10 @@ func FavoriteArtistsTable(
 						)
 						.frame(maxWidth: .infinity, alignment: .center)
 					}
-					Text(item.name ?? "-")
+					NavigationLink(destination: ArtistDataView(artistId: item.id as! Int)){
+						Text(item.name ?? "-")
+					}
+						
 					VStack(alignment: .leading, spacing: 2) {
 						if !currentBands.isEmpty {
 							Text(currentBands.joined(separator: ", "))

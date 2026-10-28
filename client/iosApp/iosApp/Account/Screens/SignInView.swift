@@ -10,6 +10,7 @@ import SwiftUI
 import GoogleSignInSwift
 
 struct SignInView: View {
+	@Environment(AuthenticationModel.self) private var authModel
 	let lang = Locale.current.language.languageCode ?? "EN"
 	@State private var login: String = ""
 	@State private var password: String = ""
@@ -67,7 +68,7 @@ struct SignInView: View {
 			GoogleSignInButton(
 				scheme: .light,
 				state: .normal,
-				action: { handleGoogleSignInButton() }
+				action: { handleGoogleSignInButton(authModel:authModel) }
 			)
 			.frame(width: 280, height: 45)
 			
@@ -94,7 +95,9 @@ struct SignInView: View {
 						as! [String: Any])["token"] as! String
 					KeychainService.saveToken(authToken)
 					errorText = ""
-					print("success")
+					let userData = try await AccountApi().getUserData(token: authToken)
+					UserDefaults.standard.set(userData.login, forKey: "login")
+					authModel.isAuthenticated = true
 					return
 				} catch _ {
 					errorText = localize(key: result)
