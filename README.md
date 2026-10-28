@@ -7,7 +7,7 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 
 **Backend**: Spring Boot, kotlin  
 **Frontend/Web** - react.js  
-**Mobile** - jetpack compose multiplatform with swift ui for ios
+**Mobile** - kotlin multiplatform with native ui
 
 ## Test Coverage (backend)
 - 100% class
