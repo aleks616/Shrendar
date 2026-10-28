@@ -284,7 +284,7 @@ class HomepageService(
         val favoriteArtistsDeathAnniversaries=artistService.getByDeathDate(month,day)
             .filter{d->favoriteArtists.map{it.artist!!.id}.contains(d.id)}
         val otherBandMembersBirthdays=getOtherBandMembersBirthdaysToday(login)
-            .filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
+            .filterNot{d->favoriteArtistsBirthdays.map{it.id}.contains(d.id)}
         val otherBandMembersDeathAnniversaries=getOtherBandMembersDeathAnniversariesToday(login)
             .filterNot{d->favoriteArtistsDeathAnniversaries.map{it.id}.contains(d.id)}
 
