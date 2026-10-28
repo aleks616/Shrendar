@@ -1,5 +1,5 @@
 import React,{useState} from "react"
-import {Button,ErrorMessage,Form,Heading,Input,Label,TextField} from "@heroui/react"
+import {Button,ErrorMessage,Form,Heading,Input,Label,Link,TextField} from "@heroui/react"
 import {AccountClient,LoginRequestDto} from "sharedLogic"
 import {Navigate} from "react-router-dom";
 import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx";
@@ -37,7 +37,7 @@ export function SignInForm({strings}: { strings: Record<string,string> }){
     }
 
     return (
-        <div>
+        <div className={"flex flex-col gap-2"}>
             <Heading level={2}>{translate("sign_in")}</Heading>
             <Form className={"flex w-96 flex-col gap-4"}>
                 <TextField isRequired name="login" value={login} onChange={setLogin}>
@@ -58,6 +58,11 @@ export function SignInForm({strings}: { strings: Record<string,string> }){
             <LabelledDivider text={translate("or")}/>
             <div className={"flex justify-center"}>
                 <SignInWithGoogle/>
+            </div>
+            <div className={"flex justify-center"}>
+                <Link href={"../forgot-password"} className={"text-center"}>
+                    {translate("forgot_password_question")}
+                </Link>
             </div>
         </div>
     )
