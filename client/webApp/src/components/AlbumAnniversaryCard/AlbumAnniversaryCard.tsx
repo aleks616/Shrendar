@@ -1,5 +1,6 @@
-import {Card,Link} from "@heroui/react";
-import {AlbumByDateDto} from "sharedLogic";
+import {Card,Link} from "@heroui/react"
+import {AlbumByDateDto} from "sharedLogic"
+import {ImageWithFallback} from "../ImageWithFallback/ImageWithFallback.tsx"
 
 export function AlbumAnniversaryCard({strings,album}:{strings:Record<string,string>,album:AlbumByDateDto}){
     const translate=(key: string) => strings[key]??key
@@ -18,10 +19,7 @@ export function AlbumAnniversaryCard({strings,album}:{strings:Record<string,stri
                     {album.genre&&<p>{translate("main_genre")}: {album.genre?.name}</p>}
                     <div className={"flex flex-col justify-center items-center"}>
                         <div className={"w-72 h-72"}>
-                            {album.artworkUrl
-                                ?<img src={album.artworkUrl} alt={"album artwork"} className={"w-full h-full"}/>
-                                :<img src={"/no-image.jpg"} alt={"no image"} className={"w-full h-full"}/>
-                            }
+                            <ImageWithFallback src={album.artworkUrl} alt={album.title!} className={"w-full h-full"}/>
                         </div>
                     </div>
                 </Card.Content>

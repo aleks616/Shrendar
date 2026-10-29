@@ -8,6 +8,7 @@ import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescript
 import {DataTable} from "../DataTable/DataTable.tsx"
 import {StarIcon} from "@heroicons/react/24/solid"
 import {toggleArtistFavoriteAll,toggleBandFavorite} from "../../helpers/toggleFavorite.tsx"
+import {ImageWithFallback} from "../ImageWithFallback/ImageWithFallback.tsx"
 
 export function BandData({strings}: { strings: Record<string,string> }){
     const [band,setBand]=useState<BandWikiDto | null>(new BandWikiDto())
@@ -178,7 +179,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                     </section>
 
                     {isMobile&&<div className={"max-w-xl flex justify-center my-6"}> {/*mobile image*/}
-                        <img src={band.imageUrl!} alt={band.name!} className={"rounded-md"}/>
+                        <ImageWithFallback src={band.imageUrl} alt={band.name!} className={"w-full h-full rounded-md"}/>
                     </div>}
 
                     <TranslatedDescription
@@ -189,7 +190,7 @@ export function BandData({strings}: { strings: Record<string,string> }){
                 </div>
                 {!isMobile&&
                     <div className={"size-72"}>
-                        <img src={band.imageUrl!} alt={band.name!} className={"rounded-md"}/>
+                        <ImageWithFallback src={band.imageUrl} alt={band.name!} className={"w-full h-full rounded-md"}/>
                     </div>
                 }
             </main>
