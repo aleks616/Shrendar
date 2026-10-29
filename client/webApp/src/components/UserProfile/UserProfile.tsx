@@ -11,7 +11,7 @@ import {
     Link as HerouiLink,
     Modal,
     ProgressBar,
-    Spinner,
+    Skeleton,
     Table,
     Tabs,
     TextArea,
@@ -59,8 +59,43 @@ export function UserProfile({strings}: { strings: Record<string,string> }){
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
+            <div className={"flex flex-col gap-4 w-3xl mx-3"}>
+                <section className={"w-full flex content-around"}>
+                    <div className={"flex gap-3 flex-1"}>
+                        <Skeleton animationType="none" className={"size-20 rounded-full shrink-0"} />
+                        <div className={"flex flex-col gap-2 w-full max-w-xs skeleton--pulse"}>
+                            <Skeleton animationType="none" className={"h-6 w-3/4 rounded-md"} />
+                            <Skeleton animationType="none" className={"h-4 w-1/2 rounded-md"} />
+                            <Skeleton animationType="none" className={"h-4 w-2/3 rounded-md"} />
+                        </div>
+                    </div>
+                </section>
+                <div className={"flex flex-col gap-1 w-full"}>
+                    <div className={"flex justify-between skeleton--pulse "}>
+                        <Skeleton animationType="none" className={"h-4 w-24 rounded-md"} />
+                        <Skeleton animationType="none" className={"h-4 w-24 rounded-md"} />
+                    </div>
+                    <Skeleton animationType="pulse" className={"h-4 w-full rounded-full"} />
+                </div>
+                <section className={"md:min-w-2xl flex flex-col gap-2 skeleton--pulse "}>
+                    <Skeleton animationType="none" className={"h-4 w-16 rounded-md"} />
+                    <Skeleton animationType="none" className={"h-52 w-full rounded-lg"} />
+                </section>
+                <section className={"w-full flex flex-col gap-4"}>
+                    <div className={"flex gap-4 border-b border-divider pb-2 skeleton--pulse "}>
+                        <Skeleton animationType="none" className={"h-6 w-1/4 rounded-md"} />
+                        <Skeleton animationType="none" className={"h-6 w-1/4 rounded-md"} />
+                        <Skeleton animationType="none" className={"h-6 w-1/4 rounded-md"} />
+                        <Skeleton animationType="none" className={"h-6 w-1/4 rounded-md"} />
+                    </div>
+
+                    <div className={"flex flex-col gap-2 skeleton--pulse "}>
+                        <Skeleton animationType="none" className={"h-10 w-full rounded-md"} />
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <Skeleton key={i} animationType="none" className={"h-10 w-full rounded-md"} />
+                        ))}
+                    </div>
+                </section>
             </div>
         )
     }

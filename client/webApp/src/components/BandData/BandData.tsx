@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react'
 import {AlbumDto,BandClient,BandsMembersWikiDto,BandWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Button,Heading,Link,Spinner,Tabs,ToggleButton,Tooltip} from "@heroui/react"
+import {Button,Heading,Link,Skeleton,Tabs,ToggleButton,Tooltip} from "@heroui/react"
 import {InformationCircleIcon,StarIcon as StarIconOutline} from "@heroicons/react/24/outline"
 import {isMobile} from "react-device-detect"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
@@ -42,8 +42,62 @@ export function BandData({strings}: { strings: Record<string,string> }){
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
+            <div className={"flex flex-col gap-4 w-5xl mx-3 skeleton--shimmer"}>
+                <header className={"flex items-center gap-2"}>
+                    <Skeleton animationType={"none"} className={"h-10 w-64 rounded-lg"}/>
+                </header>
+                <main className={"flex w-full min-h-32 gap-6"}>
+                    <div className={"flex flex-col gap-6"+(!isMobile?" w-9/12":" w-full")}>
+                        <section className={"flex min-h-28 gap-4"}>
+                            <div className={"w-5/9 flex flex-col gap-2"}>
+                                <Skeleton animationType={"none"} className={"h-4 w-3/4 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/2 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-2/3 rounded-md"}/>
+                            </div>
+                            <div className={"w-4/9 flex flex-col gap-2"}>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/2 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/3 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-2/5 rounded-md"}/>
+                            </div>
+                        </section>
+                        {isMobile&&(
+                            <div className={"max-w-xl flex justify-center my-6"}>
+                                <Skeleton animationType={"none"} className={"w-full aspect-video rounded-md"}/>
+                            </div>
+                        )}
+                        <div className={"flex flex-col gap-2"}>
+                            <Skeleton animationType={"none"} className={"h-44 w-full rounded-lg"}/>
+                        </div>
+                    </div>
+                    {!isMobile&&(
+                        <div className={"size-72 shrink-0"}>
+                            <Skeleton animationType={"none"} className={"size-72 rounded-md"}/>
+                        </div>
+                    )}
+                </main>
+                <div className={isMobile?"w-96":"w-full"}>
+                    <div className={"flex flex-col gap-4"}>
+                        <div className={"flex gap-4 border-b border-divider pb-2"}>
+                            <Skeleton animationType={"none"} className={"h-8 w-24 rounded-md"}/>
+                            <Skeleton animationType={"none"} className={"h-8 w-24 rounded-md"}/>
+                            <Skeleton animationType={"none"} className={"h-8 w-28 rounded-md"}/>
+                        </div>
+                        <div className={"flex items-center justify-between"}>
+                            <div className={"inline-flex gap-1 p-1 rounded-full border border-divider"}>
+                                <Skeleton animationType={"none"} className={"h-8 w-16 rounded-full"}/>
+                                <Skeleton animationType={"none"} className={"h-8 w-20 rounded-full"}/>
+                                <Skeleton animationType={"none"} className={"h-8 w-16 rounded-full"}/>
+                            </div>
+                            <Skeleton animationType={"none"} className={"h-8 w-24 rounded-md"}/>
+                        </div>
+                        <div className={"flex flex-col gap-2"}>
+                            <Skeleton animationType={"none"} className={"h-10 w-full rounded-md"}/>
+                            {Array.from({length: 5}).map((_,i) => (
+                                <Skeleton key={i} animationType={"none"} className={"h-12 w-full rounded-md"}/>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }

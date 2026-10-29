@@ -1,6 +1,6 @@
 import {HomepageClient,UpcomingAnniversariesDto} from "sharedLogic"
 import React,{useEffect,useState} from "react"
-import {Heading,Link,Spinner} from "@heroui/react";
+import {Heading,Link,Skeleton} from "@heroui/react";
 
 export function UpcomingAnniversaries({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
@@ -20,8 +20,20 @@ export function UpcomingAnniversaries({strings}: { strings: Record<string,string
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
+            <div className={"mx-3 my-2 flex flex-col gap-6 skeleton--shimmer"}>
+                {Array.from({length:3}).map((_,sectionIndex) => (
+                    <section key={sectionIndex} className={"flex flex-col gap-4"}>
+                        <Skeleton animationType={"none"} className={"h-8 w-64 rounded-md"}/>
+                        {Array.from({length:4}).map((_,itemIndex) => (
+                            <div key={itemIndex} className={"flex flex-col gap-2"}>
+                                <Skeleton animationType={"none"} className={"h-6 w-1/3 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/4 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/6 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/5 rounded-md"}/>
+                            </div>
+                        ))}
+                    </section>
+                ))}
             </div>
         )
     }

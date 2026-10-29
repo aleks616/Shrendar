@@ -4,7 +4,7 @@ import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson
 import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 import React,{useEffect,useState} from "react"
 import {SearchClient,SearchResultItem,SearchResults} from "sharedLogic"
-import {Heading,Link,Spinner} from "@heroui/react"
+import {Heading,Link,Skeleton} from "@heroui/react"
 import {useParams} from "react-router-dom"
 
 export function SearchResultsPage(){
@@ -35,9 +35,35 @@ export function SearchResultsPage(){
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
-            </div>
+            <>
+                <AppHeader/>
+                <div className="w-svw flex justify-between">
+                    <aside className={"p-4 w-1/7 flex flex-col gap-4 text-lg bg-surface"}>
+                        <Skeleton className={"w-full h-10 rounded-sm"} />
+                        {Array.from({length: 6}).map((_,index) => (
+                            <Skeleton className={"w-full h-10 rounded-sm"} />
+                        ))}
+                    </aside>
+                    <div className={"w-1/5"}/>
+                    <main className={"w-3/7 flex flex-col gap-5 min-h-svh mt-4"}>
+                        {Array.from({length: 5}).map((_,index) => (
+                            <div key={index} className={"flex bg-surface p-2 rounded-lg shadow max-w-3xl"}>
+                                <div className={"flex items-center gap-3 w-full"}>
+                                    <section className={"max-w-16 max-h-16 shrink-0 skeleton--pulse"}>
+                                        <Skeleton animationType="none" className={"w-16 h-16 rounded-full aspect-square"}/>
+                                    </section>
+                                    <section className={"flex flex-col gap-2 w-full skeleton--pulse"}>
+                                        <Skeleton animationType="none" className={"h-6 w-1/3 rounded-lg"}/>
+                                        <Skeleton animationType="none" className={"h-4 w-1/2 rounded-lg"}/>
+                                        <Skeleton animationType="none" className={"h-3.5 w-2/3 rounded-lg"}/>
+                                    </section>
+                                </div>
+                            </div>
+                        ))}
+                    </main>
+                    <aside className={"w-2/7"}></aside>
+                </div>
+            </>
         )
     }
 
