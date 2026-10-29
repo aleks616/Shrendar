@@ -50,7 +50,7 @@ export function CreatePassword(){
 
     const openMobileApp=() => {
         const ua=navigator.userAgent
-        if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){
+        if(/android/i.test(ua)||(/iPad|iPhone|iPod/.test(ua))||navigator.platform==='MacIntel'||navigator.maxTouchPoints>1){
             const params=new URLSearchParams(window.location.search)
             const code=params.get("code")
             const email=params.get("email")
@@ -69,7 +69,7 @@ export function CreatePassword(){
     }
 
     useEffect(()=>{
-        if(isMobile) openMobileApp()
+        if(isMobile||navigator.maxTouchPoints>1) openMobileApp()
     }, [])
 
     return (
