@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from "react"
 import {AlbumClient,AlbumWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Heading,Link,Spinner} from "@heroui/react"
+import {Heading,Link,Skeleton} from "@heroui/react"
 import {isMobile} from "react-device-detect"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
 
@@ -31,8 +31,38 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
+            <div className={"flex flex-col gap-4 w-5xl mx-3 skeleton--shimmer"}>
+                <header className={"flex items-center gap-2"}>
+                    <Skeleton animationType={"none"} className={"h-10 w-64 rounded-lg"}/>
+                </header>
+                <main className={"flex w-full min-h-32 gap-6"}>
+                    <div className={"flex flex-col gap-6"+(!isMobile?" w-9/12":"")}>
+                        <section className={"flex min-h-28 gap-4"}>
+                            <div className={"w-5/9 flex flex-col gap-2"}>
+                                <Skeleton animationType={"none"} className={"h-4 w-3/4 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-2/3 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/2 rounded-md"}/>
+                            </div>
+                            <div className={"w-4/9 flex flex-col gap-2"}>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/2 rounded-md"}/>
+                                <Skeleton animationType={"none"} className={"h-4 w-1/3 rounded-md"}/>
+                            </div>
+                        </section>
+                        {isMobile&&
+                            <div className={"size-72 shrink-0 my-4"}>
+                                <Skeleton animationType={"none"} className={"size-72 rounded-md"}/>
+                            </div>
+                        }
+                        <div className={"flex flex-col gap-2"}>
+                            <Skeleton animationType={"none"} className={"h-44 w-full rounded-lg"}/>
+                        </div>
+                    </div>
+                    {!isMobile&&
+                        <div className={"size-72 shrink-0"}>
+                            <Skeleton animationType={"none"} className={"size-72 rounded-md"}/>
+                        </div>
+                    }
+                </main>
             </div>
         )
     }

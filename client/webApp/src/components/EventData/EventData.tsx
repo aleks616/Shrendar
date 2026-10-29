@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from "react"
 import {EventClient,EventWikiDto} from "sharedLogic"
 import {Navigate,useParams} from "react-router-dom"
-import {Heading,Link,Spinner} from "@heroui/react"
+import {Heading,Link,Skeleton} from "@heroui/react"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
 
 export function EventData({strings}: { strings: Record<string,string> }){
@@ -30,8 +30,20 @@ export function EventData({strings}: { strings: Record<string,string> }){
 
     if(isLoading){
         return (
-            <div className="flex justify-center items-center p-8">
-                <Spinner size="lg" color="accent"/>
+            <div className={"flex flex-col gap-4 w-5xl mx-3 skeleton--shimmer"}>
+                <header className={"flex items-center gap-2"}>
+                    <Skeleton animationType={"none"} className={"h-10 w-64 rounded-lg"}/>
+                </header>
+                <main className={"w-full min-h-32 flex flex-col gap-4"}>
+                    <section className={"min-h-24 flex flex-col gap-2"}>
+                        <Skeleton animationType={"none"} className={"h-4 w-1/3 rounded-md"}/>
+                        <Skeleton animationType={"none"} className={"h-4 w-1/2 rounded-md"}/>
+                        <Skeleton animationType={"none"} className={"h-4 w-1/4 rounded-md"}/>
+                    </section>
+                    <div className={"flex flex-col gap-2"}>
+                        <Skeleton animationType={"none"} className={"h-72 w-full rounded-lg"}/>
+                    </div>
+                </main>
             </div>
         )
     }
