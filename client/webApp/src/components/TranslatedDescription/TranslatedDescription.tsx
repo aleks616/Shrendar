@@ -1,7 +1,7 @@
 import {Button} from "@heroui/react"
 import {LanguageIcon} from "@heroicons/react/24/solid"
 import React,{useState} from "react"
-import {getLanguage} from "../getLanguage.ts"
+import {getLanguage} from "../Language.ts"
 import {LlmClient,TranslationRequestDto} from "sharedLogic"
 
 export function TranslatedDescription({description,translateDescription}: {

@@ -1,4 +1,4 @@
-import {getLanguage} from "../../components/getLanguage.ts"
+import {getLanguage} from "../../components/Language.ts"
 import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 import {EventData} from "../../components/EventData/EventData.tsx"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'

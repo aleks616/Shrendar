@@ -570,6 +570,8 @@ class LocalText {
             "no_results"->MR.strings.no_results
             "searchbar"->MR.strings.searchbar
             "home"->MR.strings.home
+            "language_en"->MR.strings.language_en
+            "language_pl"->MR.strings.language_pl
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

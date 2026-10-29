@@ -2,7 +2,7 @@ import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 import {Settings} from "../../components/Settings/Settings.tsx"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
-import {getLanguage} from "../../components/getLanguage.ts";
+import {getLanguage} from "../../components/Language.ts";
 export function UserSettings(){
     const lang=getLanguage().toUpperCase()
     const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
