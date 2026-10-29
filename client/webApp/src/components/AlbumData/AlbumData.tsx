@@ -4,6 +4,7 @@ import {Navigate,useParams} from "react-router-dom"
 import {Heading,Link,Skeleton} from "@heroui/react"
 import {isMobile} from "react-device-detect"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
+import {ImageWithFallback} from "../ImageWithFallback/ImageWithFallback.tsx"
 
 export function AlbumData({strings}: { strings: Record<string,string> }){
     const [album,setAlbum]=useState<AlbumWikiDto | null>(new AlbumWikiDto())
@@ -110,7 +111,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                     </section>
                     {isMobile&&
                         <div className={"size-72"}>
-                            <img src={album.artworkUrl!} alt={album.albumName!} className={"rounded-md"}/>
+                            <ImageWithFallback src={album.artworkUrl} alt={album.albumName!} className={"w-full h-full rounded-md"}/>
                         </div>
                     }
                     <TranslatedDescription
@@ -121,7 +122,7 @@ export function AlbumData({strings}: { strings: Record<string,string> }){
                 </div>
                 {!isMobile&&
                     <div className={"size-72"}>
-                        <img src={album.artworkUrl!} alt={album.albumName!} className={"rounded-md"}/>
+                        <ImageWithFallback src={album.artworkUrl} alt={album.albumName!} className={"w-full h-full rounded-md"}/>
                     </div>
                 }
             </main>

@@ -8,6 +8,7 @@ import {StarIcon as StarIconOutline} from "@heroicons/react/24/outline"
 import {isMobile} from "react-device-detect"
 import {TranslatedDescription} from "../TranslatedDescription/TranslatedDescription.tsx"
 import {DataTable} from "../DataTable/DataTable.tsx"
+import {ImageWithFallback} from "../ImageWithFallback/ImageWithFallback.tsx"
 
 export function ArtistData({strings}: { strings: Record<string,string> }){
     const [artist,setArtist]=useState<ArtistWikiDto | null>(new ArtistWikiDto())
@@ -158,7 +159,7 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                     </section>
                     {isMobile&&
                         <div className={"size-72"}>
-                            <img src={artist.artistImageUrl!} alt={artist.name!} className={"rounded-md"}/>
+                            <ImageWithFallback src={artist.artistImageUrl} alt={artist.name!} className={"w-full h-full rounded-md"}/>
                         </div>
                     }
                     <TranslatedDescription
@@ -169,7 +170,7 @@ export function ArtistData({strings}: { strings: Record<string,string> }){
                 </div>
                 {!isMobile&&
                     <div className={"size-72"}>
-                        <img src={artist.artistImageUrl!} alt={artist.name!} className={"rounded-md"}/>
+                        <ImageWithFallback src={artist.artistImageUrl} alt={artist.name!} className={"w-full h-full rounded-md"}/>
                     </div>
                 }
             </main>

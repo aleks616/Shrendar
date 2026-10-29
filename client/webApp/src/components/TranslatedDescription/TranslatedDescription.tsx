@@ -19,10 +19,15 @@ export function TranslatedDescription({description,translateDescription}: {
 
     return (
         <div className={"border p-4 border-gray-500 rounded-md mt-3 relative"}>
-            <div className={"whitespace-pre-wrap pr-8"}>
+            <div className={"whitespace-pre-wrap pr-8 min-h-32"}>
                 {translatedDescription}
             </div>
-            <Button className={"absolute bottom-2 right-2"} onPress={translate} variant={"secondary"}>
+            <Button
+                className={"absolute bottom-2 right-2"}
+                onPress={translate}
+                variant={"secondary"}
+                isDisabled={description.length===0||language=="en"}
+            >
                 <LanguageIcon className={"size-6"}/>
             </Button>
         </div>

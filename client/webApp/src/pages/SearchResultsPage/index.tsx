@@ -6,6 +6,7 @@ import React,{useEffect,useState} from "react"
 import {SearchClient,SearchResultItem,SearchResults} from "sharedLogic"
 import {Heading,Link,Skeleton} from "@heroui/react"
 import {useParams} from "react-router-dom"
+import {ImageWithFallback} from "../../components/ImageWithFallback/ImageWithFallback.tsx"
 
 export function SearchResultsPage(){
     const query=useParams().query!!
@@ -31,7 +32,6 @@ export function SearchResultsPage(){
         fetchData()
     },[query])
 
-    console.log(data)
 
     if(isLoading){
         return (
@@ -40,7 +40,7 @@ export function SearchResultsPage(){
                 <div className="w-svw flex justify-between">
                     <aside className={"p-4 w-1/7 flex flex-col gap-4 text-lg bg-surface"}>
                         <Skeleton className={"w-full h-10 rounded-sm"} />
-                        {Array.from({length: 6}).map((_,index) => (
+                        {Array.from({length: 6}).map((_) => (
                             <Skeleton className={"w-full h-10 rounded-sm"} />
                         ))}
                     </aside>
@@ -113,12 +113,7 @@ export function SearchResultsPage(){
                                 <div className={"flex items-center gap-3"}>
                                     <section className={"max-w-16 max-h-16"}>
                                         <Link href={item.link??""}>
-                                            {item.imageUrl
-                                                ?<img src={item.imageUrl} alt={item.name!!}
-                                                      className={"aspect-square rounded-full"}/>
-                                                :<img src={"/no-image.jpg"} alt={"no image"}
-                                                      className={"aspect-square rounded-full"}/>
-                                            }
+                                            <ImageWithFallback src={item.imageUrl} alt={item.name!} className={"aspect-square rounded-full"}/>
                                         </Link>
                                     </section>
                                     <section>
