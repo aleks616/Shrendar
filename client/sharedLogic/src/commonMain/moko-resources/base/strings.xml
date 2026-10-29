@@ -547,7 +547,6 @@
     <string name="died_today">Died on this day</string>
     <string name="events_today">Events anniversaries</string>
     <string name="death_date">Death date</string>
-
     <string name="search">Search</string>
     <string name="filters">Filter</string>
     <string name="filter_all">All</string>
@@ -559,4 +558,6 @@
     <string name="no_results">No results</string>
     <string name="searchbar">Search...</string>
     <string name="home">Home</string>
+    <string name="language_en">English</string>
+    <string name="language_pl">Polish</string>
 </resources>

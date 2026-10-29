@@ -10,13 +10,14 @@ import {
     UserIcon
 } from '@heroicons/react/24/solid'
 import {Link} from "react-router-dom"
-import {getLanguage} from "../getLanguage.ts"
+import {getLanguage} from "../Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 import {logout} from "../Logout/Logout.tsx"
 import {AccountClient} from "sharedLogic"
 import {useNavigate} from "react-router"
-import {isMobile} from "react-device-detect";
+import {isMobile} from "react-device-detect"
+import {LanguageSwitcher} from "../LanguageSwitcher/LanguageSwitcher.tsx"
 
 export function AppHeader(){
     const lang=getLanguage().toUpperCase()
@@ -74,18 +75,19 @@ export function AppHeader(){
                             <SearchField.ClearButton/>
                         </SearchField.Group>
                     </SearchField>
-                </div>}
+                </div>}{/*searchbar*/}
 
             <div className={"flex items-center gap-3 mx-3"}>
                 <ThemeSwitcher/>
+                <LanguageSwitcher/>
                 {isLoggedIn?(
-                    <>
+                    <section>
                         <Badge.Anchor>
                             <div className={"size-11 rounded-full bg-background-secondary flex items-center justify-center"}>
                                 <BellIcon className={"size-7"}/>
                                 <Badge color="danger" size={"md"}>{notifications}</Badge>
                             </div>
-                        </Badge.Anchor>
+                        </Badge.Anchor> {/*notifications bell*/}
                         <Dropdown>
                             <Dropdown.Trigger>
                                 <div className={"size-11 rounded-full bg-background-secondary flex items-center justify-center"}>
@@ -112,17 +114,17 @@ export function AppHeader(){
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown.Popover>
-                        </Dropdown>
-                    </>
+                        </Dropdown> {/*profile dropdown*/}
+                    </section>
                 ):(
-                    <>
+                    <section>
                         <Link to={"/register"}>
                             <Button>{translate("sign_up")}</Button>
                         </Link>
                         <Link to={"/login"}>
                             <Button variant={"secondary"}>{translate("sign_in")}</Button>
                         </Link>
-                    </>
+                    </section>
                 )}
             </div>
         </header>

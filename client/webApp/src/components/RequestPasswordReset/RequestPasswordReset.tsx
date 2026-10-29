@@ -1,4 +1,4 @@
-import {getLanguage} from "../getLanguage.ts"
+import {getLanguage} from "../Language.ts"
 import {useEffect,useState} from "react"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link} from '@heroui/react'
 import {AccountClient} from "sharedLogic";

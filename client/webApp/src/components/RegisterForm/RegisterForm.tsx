@@ -1,4 +1,4 @@
-import {getLanguage} from "../getLanguage.ts"
+import {getLanguage} from "../Language.ts"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REGEXP_ONLY_DIGITS} from '@heroui/react'
 import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
 import React,{useEffect,useState} from "react"
