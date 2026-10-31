@@ -25,7 +25,7 @@ import {isMobile} from "react-device-detect"
 import {EditableSurface} from "../EditableSurface/EditableSurface.tsx"
 import {DataTable} from "../DataTable/DataTable.tsx"
 import {toggleArtistFavorite,toggleBandFavorite,toggleGenreFavorite} from "../../helpers/toggleFavorite.tsx"
-import {loremIpsum} from "lorem-ipsum";
+import {loremIpsum} from "lorem-ipsum"
 
 const BLUE_AVATAR_URL="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/bluwefwefe.jpg"
 

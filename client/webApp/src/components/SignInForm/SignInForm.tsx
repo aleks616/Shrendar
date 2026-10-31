@@ -1,9 +1,9 @@
 import React,{useState} from "react"
 import {Button,ErrorMessage,Form,Heading,Input,Label,Link,TextField} from "@heroui/react"
 import {AccountClient,LoginRequestDto} from "sharedLogic"
-import {Navigate} from "react-router-dom";
-import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx";
-import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx";
+import {Navigate} from "react-router-dom"
+import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx"
+import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx"
 export function SignInForm({strings}: { strings: Record<string,string> }){
     const translate=(key:string)=>strings[key]??key
     const [login,setLogin]=useState("")

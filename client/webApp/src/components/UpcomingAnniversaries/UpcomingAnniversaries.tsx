@@ -1,6 +1,6 @@
 import {HomepageClient,UpcomingAnniversariesDto} from "sharedLogic"
 import React,{useEffect,useState} from "react"
-import {Heading,Link,Skeleton} from "@heroui/react";
+import {Heading,Link,Skeleton} from "@heroui/react"
 
 export function UpcomingAnniversaries({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key

@@ -549,7 +549,6 @@
     <string name="died_today">Rocznice śmierci</string>
     <string name="events_today">Rocznice wydarzeń</string>
     <string name="death_date">Data śmierci</string>
-
     <string name="search">Szukaj...</string>
     <string name="filters">Filtry</string>
     <string name="filter_all">Wszystko</string>
@@ -563,4 +562,30 @@
     <string name="home">Główna</string>
     <string name="language_en">angielski</string>
     <string name="language_pl">polski</string>
+
+    <string name="album_type_studio">studyjny</string>
+    <string name="album_type_ep">EPka</string>
+    <string name="album_type_compilation">kompilacja</string>
+    <string name="album_type_concert">koncertowy</string>
+    <string name="album_type_demo">demówka</string>
+    <string name="album_type_single">singiel</string>
+    <string name="album_type_other">inny</string>
+    <string name="enter_album_data">Wpisz dane albumu</string>
+    <string name="search_band_dots">Wyszukaj zespół...</string>
+    <string name="enter_2_plus_characters">Wpisz co najmniej 2 znaki</string>
+    <string name="album_title">Tytuł albumu</string>
+    <string name="invalid_release_date">Data wydania nie może być wcześniejsza niż rok założenia zespołu ani późniejsza niż 1 rok od teraz</string>
+    <string name="choose_band_first">Najpierw wybierz zespół</string>
+    <string name="enter_album_description">Opis albumu</string>
+    <string name="main_subgenre">Główny podgatunek</string>
+    <string name="select_main_subgenre">Wybierz jeden główny podgatunek</string>
+    <string name="search_genre_dots">Wyszukaj gatunek...</string>
+    <string name="album_importance">Znaczenie</string>
+    <string name="album_importance_info">Czym wyższa liczba tym bardziej ważny, popularny, wpływowy album.</string>
+    <string name="image_url">Url zdjęcia</string>
+    <string name="album_artwork_url_info">Wklej url do okładki. Musisz mieć co najmniej 4 poziom, żeby to zrobić.</string>
+    <string name="add">Dodaj</string>
+    <string name="choose_album_type">Wybierz rodzaj albumu</string>
+    <string name="description">Opis</string>
+    <string name="album_addition_recieved">Prośba o dodanie albumu wysłana</string>
 </resources>

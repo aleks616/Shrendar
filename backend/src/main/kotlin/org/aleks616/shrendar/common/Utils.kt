@@ -33,7 +33,7 @@ object Utils{
     }
 
     fun isValidUrl(url:String?):Boolean {
-        if(url==null) return true
+        if(url.isNullOrEmpty()) return true
         if(url.length>255) return false
         try {
             URL(url)

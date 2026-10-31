@@ -1,4 +1,4 @@
-import {Separator} from "@heroui/react";
+import {Separator} from "@heroui/react"
 
 export default function LabelledDivider({text}:{text:string}){
     return (

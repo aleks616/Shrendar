@@ -5,7 +5,7 @@ import {AlbumAnniversaryCard} from "../AlbumAnniversaryCard/AlbumAnniversaryCard
 import {Navigate} from "react-router-dom"
 import {ArtistBirthdayCard} from "../ArtistBirthdayCard/ArtistBirthdayCard.tsx"
 import {ArtistDeathAnniversaryCard} from "../ArtistDeathAnniversaryCard/ArtistDeathAnniversaryCard.tsx"
-import {EventAnniversaryCard} from "../EventAnniversaryCard/EventAnniversaryCard.tsx";
+import {EventAnniversaryCard} from "../EventAnniversaryCard/EventAnniversaryCard.tsx"
 
 export function HomepageData({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key

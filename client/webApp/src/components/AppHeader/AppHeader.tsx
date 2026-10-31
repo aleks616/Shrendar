@@ -61,7 +61,7 @@ export function AppHeader(){
             </div>
 
             {!isMobile&&
-                <div className={"w-lg"}>
+                <div>
                     <SearchField
                         name={"search"}
                         variant={"secondary"}

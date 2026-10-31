@@ -560,4 +560,30 @@
     <string name="home">Home</string>
     <string name="language_en">English</string>
     <string name="language_pl">Polish</string>
+
+    <string name="album_type_studio">studio</string>
+    <string name="album_type_ep">EP</string>
+    <string name="album_type_compilation">compilation</string>
+    <string name="album_type_concert">concert</string>
+    <string name="album_type_demo">demo</string>
+    <string name="album_type_single">single</string>
+    <string name="album_type_other">other</string>
+    <string name="enter_album_data">Enter album data</string>
+    <string name="search_band_dots">Search band...</string>
+    <string name="enter_2_plus_characters">Enter at least 2 characters</string>
+    <string name="album_title">Album title</string>
+    <string name="invalid_release_date">Release date can't be before band's formed year or further in the future than 1 year</string>
+    <string name="choose_band_first">Choose band first</string>
+    <string name="enter_album_description">Enter album description</string>
+    <string name="main_subgenre">Main subgenre</string>
+    <string name="select_main_subgenre">Select the main subgenre, there can be only one</string>
+    <string name="search_genre_dots">Search genre...</string>
+    <string name="album_importance">Importance</string>
+    <string name="album_importance_info">The higher the number the more important, popular, influential it is</string>
+    <string name="image_url">Image url</string>
+    <string name="album_artwork_url_info">Paste url of the album artwork. You must be at least level 4 to do this.</string>
+    <string name="add">Add</string>
+    <string name="choose_album_type">Choose album type</string>
+    <string name="description">Description</string>
+    <string name="album_addition_recieved">Album addition request received</string>
 </resources>

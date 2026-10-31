@@ -8,10 +8,11 @@ import {ProfilePage} from "./pages/ProfilePage"
 import {SetPassword} from "./pages/SetPassword"
 import {UserSettings} from "./pages/UserSettings"
 import {BandWikiPage} from "./pages/BandWikiPage"
-import {ArtistWikiPage} from "./pages/ArtistWikiPage";
-import {AlbumWikiPage} from "./pages/AlbumWikiPage";
-import {EventWikiPage} from "./pages/EventWikiPage";
-import {SearchResultsPage} from "./pages/SearchResultsPage";
+import {ArtistWikiPage} from "./pages/ArtistWikiPage"
+import {AlbumWikiPage} from "./pages/AlbumWikiPage"
+import {EventWikiPage} from "./pages/EventWikiPage"
+import {SearchResultsPage} from "./pages/SearchResultsPage"
+import {AddAlbum} from "./pages/AddAlbum"
 
 const routes=[
     {path:'/',element:<Home/>},
@@ -23,6 +24,7 @@ const routes=[
     {path:'/band/:band',element:<BandWikiPage/>},
     {path:'/artist/:artist',element:<ArtistWikiPage/>},
     {path:'/album/:album',element:<AlbumWikiPage/>},
+    {path:'/album-add',element:<AddAlbum/>},
     {path:'/event/:event',element:<EventWikiPage/>},
     {path:'/search/:query',element:<SearchResultsPage/>},
     {path:'/settings',element:<UserSettings/>},

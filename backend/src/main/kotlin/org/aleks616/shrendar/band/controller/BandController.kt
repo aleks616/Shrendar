@@ -43,6 +43,11 @@ class BandController (
         return bandService.getBandDataById(id)
     }
 
+    @GetMapping("/album-add/name/{name}")
+    fun getBandDataForAlbumAdding(@PathVariable name:String):List<BandAlbumAddDto>{
+        return bandService.getBandDataForAlbumAdding(name)
+    }
+
     @GetMapping("/wiki/{id}")
     fun getBandByIdWiki(@PathVariable id:Int):BandWikiDto {
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
