@@ -119,7 +119,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
 
     return (
         <div className={"w-9/12 flex flex-col gap-4"}>
-            <Heading level={1} className={"text-center"}>Enter album data</Heading>
+            <Heading level={1} className={"text-center"}>{translate("enter_album_data")}</Heading>
             <Form>
                 <div className={"w-full flex flex-col lg:flex-row justify-around"}>
                     <section className={"flex flex-col gap-4"}>
@@ -132,18 +132,18 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                             onInputChange={bandList.setFilterText}
                             onChange={e => handleBandChange(e)}
                         >
-                            <Label>Band</Label>
+                            <Label>{translate("band")}</Label>
                             <ComboBox.InputGroup>
-                                <Input placeholder={"Search band..."}/>
+                                <Input placeholder={translate("search_band_dots")}/>
                                 <ComboBox.Trigger/>
                             </ComboBox.InputGroup>
                             <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&<p>No results</p>}>
+                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&<p>{translate("no_results")}</p>}>
                                     <Collection items={bandList.items}>
                                         {(band) => {
-                                            const label=band.name+" ("+band.country+")"
+                                            const label=band.country!=null ? band.name+" ("+translate(band.country)+")" : band.name
                                             return (
-                                                <ListBox.Item id={band.id.toString()} textValue={label}>
+                                                <ListBox.Item id={band.id.toString()} textValue={label??""}>
                                                     <Link href={"../band/"+band.id} target={"_blank"}>{label}</Link>
                                                     <ListBox.ItemIndicator/>
                                                 </ListBox.Item>
@@ -152,10 +152,10 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                     </Collection>
                                 </ListBox>
                             </ComboBox.Popover>
-                            <Description>Enter at least 2 characters</Description>
+                            <Description>{translate("enter_2_plus_characters")}</Description>
                         </ComboBox>
                         <TextField isRequired name={"title"} type={"text"} value={title} onChange={setTitle}>
-                            <Label>Album title</Label>
+                            <Label>{translate("album_title")}</Label>
                             <Input/>
                         </TextField>
                         <I18nProvider locale="en-GB">
@@ -169,7 +169,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 value={releaseDate}
                                 onChange={setReleaseDate}
                             >
-                                <Label>Release date</Label>
+                                <Label>{translate("release_date")}</Label>
                                 <DateField.Group fullWidth>
                                     <DateField.Input>{(segment) => <DateField.Segment
                                         segment={segment}/>}</DateField.Input>
@@ -179,7 +179,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                         </DatePicker.Trigger>
                                     </DateField.Suffix>
                                 </DateField.Group>
-                                <FieldError>Release date can't be before band formed year or further in the future than 1 year</FieldError>
+                                <FieldError>{translate("invalid_date")}</FieldError>
                                 <DatePicker.Popover>
                                     <Calendar aria-label="Event date">
                                         <Calendar.Header>
@@ -204,12 +204,12 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                         </Calendar.YearPickerGrid>
                                     </Calendar>
                                 </DatePicker.Popover>
-                                {bandId==null&&<FieldError>Choose band first</FieldError>}
+                                {bandId==null&&<FieldError>{translate("choose_band_first")}</FieldError>}
                             </DatePicker>
                         </I18nProvider>
-                        <Select isRequired name={"albumType"} value={albumType}
+                        <Select isRequired name={"albumType"} value={albumType} placeholder={translate("choose_album_type")}
                                 onChange={(e) => handleAlbumTypeChange(e)}>
-                            <Label>Album type</Label>
+                            <Label>{translate("album_type")}</Label>
                             <Select.Trigger>
                                 <Select.Value>{albumType}</Select.Value>
                                 <Select.Indicator/>
@@ -218,7 +218,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 <ListBox>
                                     {albumTypes.map((type) => (
                                         <ListBox.Item id={type} textValue={type}>
-                                            {type}
+                                            {translate("album_type_"+type)}
                                             <ListBox.ItemIndicator/>
                                         </ListBox.Item>
                                     ))}
@@ -226,11 +226,11 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                             </Select.Popover>
                         </Select>
                         <div className={"flex flex-col gap-1"}>
-                            <Label>Description</Label>
+                            <Label>{translate("description")}</Label>
                             <TextArea
                                 className={"min-w-md min-h-32"}
                                 value={description}
-                                placeholder={"Enter album description"}
+                                placeholder={translate("enter_album_description")}
                                 onChange={e => setDescription(e.target.value)}
                                 aria-label="album description"
                             />
@@ -245,23 +245,23 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                         >
                             <Label>
                                 <div className={"flex flex-row gap-1 items-center"}>
-                                    Main subgenre
+                                    {translate("main_subgenre")}
                                     <Tooltip delay={0}>
                                         <Button variant={"ghost"} className={"p-0"}>
                                             <InfoIcon className={"size-4"}/>
                                         </Button>
                                         <Tooltip.Content>
-                                            <p>Select the main subgenre, there can be only one</p>
+                                            <p>{translate("select_main_subgenre")}</p>
                                         </Tooltip.Content>
                                     </Tooltip>
                                 </div>
                             </Label>
                             <ComboBox.InputGroup>
-                                <Input placeholder={"Search genre..."}/>
+                                <Input placeholder={translate("search_genre_dots")}/>
                                 <ComboBox.Trigger/>
                             </ComboBox.InputGroup>
                             <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => <p>No results</p>}>
+                                <ListBox renderEmptyState={() => <p>{translate("no_results")}</p>}>
                                     {genreList?.map((genre) => (
                                         <ListBox.Item id={genre.id} textValue={genre.name}>
                                             {genre.name}
@@ -279,14 +279,13 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                         >
                             <Label>
                                 <div className={"flex flex-row gap-1 items-center max-w-md"}>
-                                    Importance
+                                    {translate("album_importance")}
                                     <Tooltip delay={0}>
                                         <Button variant={"ghost"} className={"p-0"}>
                                             <InfoIcon className={"size-4"}/>
                                         </Button>
                                         <Tooltip.Content>
-                                            <p className={"wrap-normal"}>The higher the number the more important,
-                                                popular, influential it is</p>
+                                            <p className={"wrap-normal"}>{translate("album_importance_info")}</p>
                                         </Tooltip.Content>
                                     </Tooltip>
                                 </div>
@@ -315,19 +314,19 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                         >
                             <Label>
                                 <div className={"flex flex-row gap-1 items-center"}>
-                                    Image url
+                                    {translate("image_url")}
                                     <Tooltip delay={0}>
                                         <Button variant={"ghost"} className={"p-0"}>
                                             <InfoIcon className={"size-4"}/>
                                         </Button>
                                         <Tooltip.Content>
-                                            <p>Paste url of the album artwork. You must be at least level 4 to do this.</p>
+                                            <p>{translate("album_artwork_url_info")}</p>
                                         </Tooltip.Content>
                                     </Tooltip>
                                 </div>
                             </Label>
                             <Input placeholder={"Enter image url"}/>
-                            <FieldError>Url can't be longer than 255 characters and must be valid.</FieldError>
+                            <FieldError>{translate("url_too_long")}</FieldError>
                         </TextField>
                         {imageUrl.length>0?
                         <div className={"max-w-72"}>
@@ -339,7 +338,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                     </section>
                 </div>
                 <div className={"my-4 lg:flex items-center justify-center"}>
-                    <Button className={"min-w-48"} onPress={submit}>Add</Button>
+                    <Button className={"min-w-48"} onPress={submit}>{translate("add")}</Button>
                 </div>
                 <p>{translate(resultText)}</p>
             </Form>

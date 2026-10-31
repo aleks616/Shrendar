@@ -36,16 +36,15 @@ class AlbumApi private constructor(
     }
 
     suspend fun addAlbum(album:AlbumAddDto,token:String):String {
-        try {
-            val response:HttpResponse=client.post("$BASE_URL/album/add") {
+        return try {
+            client.post("$BASE_URL/album/add") {
                 contentType(ContentType.Application.Json)
                 header("Authorization","Bearer $token")
                 setBody(album)
             }.body()
-            return response.bodyAsText()
         }
-        catch(e:Exception) {
-            return e.message?:"something_wrong"
+        catch(e:ClientRequestException) {
+            e.response.bodyAsText()
         }
     }
 

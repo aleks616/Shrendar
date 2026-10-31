@@ -572,6 +572,31 @@ class LocalText {
             "home"->MR.strings.home
             "language_en"->MR.strings.language_en
             "language_pl"->MR.strings.language_pl
+            "album_type_studio"->MR.strings.album_type_studio
+            "album_type_ep"->MR.strings.album_type_ep
+            "album_type_compilation"->MR.strings.album_type_compilation
+            "album_type_concert"->MR.strings.album_type_concert
+            "album_type_demo"->MR.strings.album_type_demo
+            "album_type_single"->MR.strings.album_type_single
+            "album_type_other"->MR.strings.album_type_other
+            "enter_album_data"->MR.strings.enter_album_data
+            "search_band_dots"->MR.strings.search_band_dots
+            "enter_2_plus_characters"->MR.strings.enter_2_plus_characters
+            "album_title"->MR.strings.album_title
+            "invalid_release_date"->MR.strings.invalid_release_date
+            "choose_band_first"->MR.strings.choose_band_first
+            "enter_album_description"->MR.strings.enter_album_description
+            "main_subgenre"->MR.strings.main_subgenre
+            "select_main_subgenre"->MR.strings.select_main_subgenre
+            "search_genre_dots"->MR.strings.search_genre_dots
+            "album_importance"->MR.strings.album_importance
+            "album_importance_info"->MR.strings.album_importance_info
+            "image_url"->MR.strings.image_url
+            "album_artwork_url_info"->MR.strings.album_artwork_url_info
+            "add"->MR.strings.add
+            "choose_album_type"->MR.strings.choose_album_type
+            "description"->MR.strings.description
+            "album_addition_recieved"->MR.strings.album_addition_received
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
