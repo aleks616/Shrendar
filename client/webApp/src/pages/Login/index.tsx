@@ -1,6 +1,6 @@
-import {AppHeader} from "../../components/AppHeader/AppHeader.tsx";
-import {SignInForm} from "../../components/SignInForm/SignInForm.tsx";
-import {getLanguage} from "../../components/Language.ts";
+import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
+import {SignInForm} from "../../components/SignInForm/SignInForm.tsx"
+import {getLanguage} from "../../components/Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
 

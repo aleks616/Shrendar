@@ -26,7 +26,7 @@ export function TranslatedDescription({description,translateDescription}: {
                 className={"absolute bottom-2 right-2"}
                 onPress={translate}
                 variant={"secondary"}
-                isDisabled={description.length===0||language=="en"}
+                isDisabled={description.length===0||language=="EN"}
             >
                 <LanguageIcon className={"size-6"}/>
             </Button>

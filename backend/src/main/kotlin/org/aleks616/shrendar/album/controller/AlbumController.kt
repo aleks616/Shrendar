@@ -126,7 +126,7 @@ class AlbumController (
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
         if(album.type==null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_album_edit_data")
-        if(!albumService.doesAlbumExist(album.id))
+        if(!albumService.doesAlbumExist(album.id!!))
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body("album_id_not_exist")
         if(albumService.doesAlbumWithNameExistForAlbumId(album)) //todo review this (after changing patch to put)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("album_title_exists")

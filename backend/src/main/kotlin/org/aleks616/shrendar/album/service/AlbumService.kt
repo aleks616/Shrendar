@@ -130,7 +130,7 @@ class AlbumService(
      * for editing, the only thing required in albumAddDto is record id and title
      * **/
     fun doesAlbumWithNameExistForAlbumId(albumAddDto:AlbumAddDto):Boolean{
-        val album=albumRepository.findById(albumAddDto.id)
+        val album=albumRepository.findById(albumAddDto.id!!)
         val albums=getAlbumsByBandId(album.band.id)
         return albums.any{it.title==albumAddDto.title}
     }
@@ -210,7 +210,7 @@ class AlbumService(
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
 
-        val album=albumRepository.findAlbumById(albumAddDto.id)
+        val album=albumRepository.findAlbumById(albumAddDto.id!!)
         val changes=mutableListOf<Triple<String,String?,String?>>()
 
         if(albumAddDto.importance!=null&&albumAddDto.importance>3&&album.type!=AlbumType.STUDIO&&albumAddDto.type!=AlbumType.STUDIO)

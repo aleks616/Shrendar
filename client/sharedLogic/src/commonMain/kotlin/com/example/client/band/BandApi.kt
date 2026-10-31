@@ -38,6 +38,17 @@ class BandApi private constructor(
         }
     }
 
+    suspend fun getBandDataForAlbumAdding(name:String):List<BandAlbumAddDto>{
+        try{
+            val response:List<BandAlbumAddDto> =client.get("$BASE_URL/band/album-add/name/$name").body()
+            return response
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) throw Exception("not_found")
+            else throw Exception(e.response.bodyAsText())
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -57,4 +68,5 @@ class BandApi private constructor(
 @JsExport
 object BandClient {
     suspend fun getBandWikiPageDataById(id:Int,token:String?):BandWikiDto=BandApi().getBandWikiPageDataById(id,token)
+    suspend fun getBandDataForAlbumAdding(name:String):List<BandAlbumAddDto> =BandApi().getBandDataForAlbumAdding(name)
 }

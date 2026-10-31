@@ -1,7 +1,7 @@
 import {getLanguage} from "../Language.ts"
 import {useEffect,useState} from "react"
 import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link} from '@heroui/react'
-import {AccountClient} from "sharedLogic";
+import {AccountClient} from "sharedLogic"
 
 export function RequestPasswordReset({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key

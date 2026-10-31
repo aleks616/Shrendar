@@ -3,7 +3,7 @@ import {Button,Form,Input,Label,TextField,Heading,ErrorMessage,Link,InputOTP,REG
 import {RegisterClient,RegisterRequestDto,RegisterValidator} from "sharedLogic"
 import React,{useEffect,useState} from "react"
 import LabelledDivider from "../LabelledDivider/LabelledDivider.tsx"
-import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx";
+import {SignInWithGoogle} from "../SignInWIthGoogle/SignInWithGoogle.tsx"
 
 export function RegisterForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key

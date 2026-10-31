@@ -6,7 +6,7 @@ import {CommonBands} from "../../components/CommonBands/CommonBands.tsx"
 import {UpcomingAnniversaries} from "../../components/UpcomingAnniversaries/UpcomingAnniversaries.tsx"
 import React,{useEffect,useState} from "react"
 import {isMobile} from "react-device-detect"
-import {HomepageData} from "../../components/HomepageData/HomepageData.tsx";
+import {HomepageData} from "../../components/HomepageData/HomepageData.tsx"
 
 export function Home() {
     const lang=getLanguage().toUpperCase()

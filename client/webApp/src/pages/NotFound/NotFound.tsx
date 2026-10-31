@@ -1,5 +1,5 @@
-import {AppHeader} from "../../components/AppHeader/AppHeader.tsx";
-import {Heading} from "@heroui/react";
+import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
+import {Heading} from "@heroui/react"
 
 export function NotFound() {
     return (

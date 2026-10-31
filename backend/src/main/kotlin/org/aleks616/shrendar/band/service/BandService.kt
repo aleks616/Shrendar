@@ -55,6 +55,19 @@ class BandService(
 
         }
     }
+
+    fun getBandDataForAlbumAdding(bandName:String):List<BandAlbumAddDto>{
+       val bands=bandRepository.findByNameContainingIgnoreCase(bandName)
+        return bands.map{band->
+            BandAlbumAddDto(
+                id=band.id,
+                name=band.name,
+                formedYear=band.formedYear,
+                disbandedYear=band.disbandedYear,
+                country=getBandsCountry(band.id)?.name
+            )
+        }
+    }
     //endregion
     //region query
 

@@ -7,6 +7,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -33,6 +35,20 @@ class AlbumApi private constructor(
         }
     }
 
+    suspend fun addAlbum(album:AlbumAddDto,token:String):String {
+        try {
+            val response:HttpResponse=client.post("$BASE_URL/album/add") {
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+                setBody(album)
+            }.body()
+            return response.bodyAsText()
+        }
+        catch(e:Exception) {
+            return e.message?:"something_wrong"
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -52,4 +68,5 @@ class AlbumApi private constructor(
 @JsExport
 object AlbumClient {
     suspend fun getAlbumWikiPageData(id:Long):AlbumWikiDto=AlbumApi().getAlbumWikiPageData(id)
+    suspend fun addAlbum(album:AlbumAddDto,token:String):String=AlbumApi().addAlbum(album,token)
 }
