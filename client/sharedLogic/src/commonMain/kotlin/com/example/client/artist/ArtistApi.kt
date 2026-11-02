@@ -1,12 +1,15 @@
 package com.example.client.artist
 
 import com.example.client.BASE_URL
+import com.example.client.common.CountryDto
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -32,6 +35,31 @@ class ArtistApi private constructor(
             else throw Exception(e.response.bodyAsText())
         }
     }
+
+    suspend fun getCountries():List<CountryDto>{
+        try{
+            val response:List<CountryDto> =client.get("$BASE_URL/artist/countries").body()
+            return response
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) throw Exception("not_found")
+            else throw Exception(e.response.bodyAsText())
+        }
+    }
+
+    suspend fun addArtist(artist:ArtistAddDto,token:String):String{
+        return try{
+            client.post("$BASE_URL/artist/add"){
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+                setBody(artist)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -51,4 +79,6 @@ class ArtistApi private constructor(
 @JsExport
 object ArtistClient {
     suspend fun getArtistWikiPageDataById(id:Long,token:String?):ArtistWikiDto=ArtistApi().getArtistWikiPageDataById(id,token)
+    suspend fun getCountries():Array<CountryDto> =ArtistApi().getCountries().toTypedArray()
+    suspend fun addArtist(artist:ArtistAddDto,token:String):String=ArtistApi().addArtist(artist,token)
 }
