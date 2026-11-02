@@ -8,6 +8,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -34,6 +36,19 @@ class EventApi private constructor(
         }
     }
 
+    suspend fun addEvent(event:EventAddDto,token:String):String{
+        return try{
+            client.post("$BASE_URL/event/add"){
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+                setBody(event)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -53,4 +68,5 @@ class EventApi private constructor(
 @JsExport
 object EventClient {
     suspend fun getEventData(id:Int):EventWikiDto=EventApi().getEventData(id)
+    suspend fun addEvent(event:EventAddDto,token:String):String=EventApi().addEvent(event,token)
 }

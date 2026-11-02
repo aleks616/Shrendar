@@ -587,7 +587,6 @@
     <string name="choose_album_type">Wybierz rodzaj albumu</string>
     <string name="description">Opis</string>
     <string name="album_addition_recieved">Prośba o dodanie albumu wysłana</string>
-
     <string name="enter_artist_data">Wpisz dane artysty</string>
     <string name="is_dead">Czy artysta nie żyje?</string>
     <string name="invalid_death_date">Jeśli artysta nie żyje, data śmierci jest wymagana. Artysta musi mieć co najmniej 10 lat, a data śmierci nie może być w przyszłości</string>
@@ -599,4 +598,10 @@
     <string name="enter_image_url">Wpisz url zdjęcia</string>
     <string name="enter_photo_url">Wpisz url zdjęcia</string>
     <string name="artist_photo_url">Wklej url do zdjęcia artysty. Musisz mieć co najmniej 4 poziom, żeby to zrobić.</string>
+
+    <string name="enter_event_data">Wpisz dane wydarzenia</string>
+    <string name="event_date">Data wydarzenia</string>
+    <string name="event_name">Nazwa wydarzenia</string>
+    <string name="enter_event_description">Opisz wydarzenie</string>
+    <string name="event_add_info">Wydarzenia powinny być ważnymi wydarzeniami, takimi jak koncerty rocznicowe, otrzymanie nagrody itp.</string>
 </resources>

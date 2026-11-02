@@ -202,7 +202,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 </DateField.Group>
                                 <FieldError>{translate("invalid_date")}</FieldError>
                                 <DatePicker.Popover>
-                                    <Calendar aria-label="Event date">
+                                    <Calendar aria-label="Release date">
                                         <Calendar.Header>
                                             <Calendar.YearPickerTrigger>
                                                 <Calendar.YearPickerTriggerHeading/>

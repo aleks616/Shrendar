@@ -245,6 +245,18 @@ export function AddArtistForm({strings}: { strings: Record<string,string> }){
                                 </ListBox>
                             </Select.Popover>
                         </Select>
+
+                        <div className={"flex flex-col gap-1"}>
+                            <Label>{translate("description")}</Label>
+                            <TextArea
+                                className={"min-w-md min-h-32"}
+                                value={description}
+                                placeholder={translate("artist_description")}
+                                onChange={e => setDescription(e.target.value)}
+                                aria-label={translate("artist_description")}
+                            />
+                        </div>
+
                     </section>
                     <section className={"flex flex-col gap-4 min-w-md"}>
 
@@ -272,17 +284,6 @@ export function AddArtistForm({strings}: { strings: Record<string,string> }){
                             </ComboBox.Popover>
                             <Description>{translate("select_country")}</Description>
                         </ComboBox>
-
-                        <div className={"flex flex-col gap-1"}>
-                            <Label>{translate("description")}</Label>
-                            <TextArea
-                                className={"min-w-md min-h-32"}
-                                value={description}
-                                placeholder={translate("artist_description")}
-                                onChange={e => setDescription(e.target.value)}
-                                aria-label={translate("artist_description")}
-                            />
-                        </div>
 
                         <TextField
                             name={"imageUrl"}

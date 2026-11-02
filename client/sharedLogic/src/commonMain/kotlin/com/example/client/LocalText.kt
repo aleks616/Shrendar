@@ -607,7 +607,11 @@ class LocalText {
             "enter_image_url"->MR.strings.enter_image_url
             "enter_photo_url"->MR.strings.enter_photo_url
             "artist_photo_url"->MR.strings.artist_photo_url
-
+            "enter_event_data"->MR.strings.enter_event_data
+            "event_date"->MR.strings.event_date
+            "event_name"->MR.strings.event_name
+            "enter_event_description"->MR.strings.enter_event_description
+            "event_add_info"->MR.strings.event_add_info
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
