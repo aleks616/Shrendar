@@ -55,7 +55,6 @@
     <string name="artist_toggled">Pomyślnie przełączono artystę w ulubionych</string>
     <string name="invalid_artist_birthdate">Artysta musi mieć co najmniej 10 lat, a data śmierci nie może być wcześniejsza niż data urodzenia</string>
     <string name="artist_too_young">Artysta musi mieć co najmniej 10 lat</string>
-    <string name="invalid_death_date">Data śmierci artysty nie może być w przyszłości</string>
     <string name="invalid_gender">Płeć artysty musi być jedną z: M, F, X lub null</string>
     <string name="country_not_exist">Kraj o podanym id nie istnieje</string>
     <string name="start_end_not_null">Rok uformowania i rok rozwiązania nie mogą być jednocześnie puste</string>
@@ -588,4 +587,16 @@
     <string name="choose_album_type">Wybierz rodzaj albumu</string>
     <string name="description">Opis</string>
     <string name="album_addition_recieved">Prośba o dodanie albumu wysłana</string>
+
+    <string name="enter_artist_data">Wpisz dane artysty</string>
+    <string name="is_dead">Czy artysta nie żyje?</string>
+    <string name="invalid_death_date">Jeśli artysta nie żyje, data śmierci jest wymagana. Artysta musi mieć co najmniej 10 lat, a data śmierci nie może być w przyszłości</string>
+    <string name="select_gender">wybierz płeć</string>
+    <string name="gender_x">inna/nieznana</string>
+    <string name="search_country">Wyszukaj kraj...</string>
+    <string name="select_country">Wybierz kraj</string>
+    <string name="artist_description">opis artysty</string>
+    <string name="enter_image_url">Wpisz url zdjęcia</string>
+    <string name="enter_photo_url">Wpisz url zdjęcia</string>
+    <string name="artist_photo_url">Wklej url do zdjęcia artysty. Musisz mieć co najmniej 4 poziom, żeby to zrobić.</string>
 </resources>

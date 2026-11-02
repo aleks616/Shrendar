@@ -597,6 +597,17 @@ class LocalText {
             "choose_album_type"->MR.strings.choose_album_type
             "description"->MR.strings.description
             "album_addition_recieved"->MR.strings.album_addition_received
+            "enter_artist_data"->MR.strings.enter_artist_data
+            "is_dead"->MR.strings.is_dead
+            "select_gender"->MR.strings.select_gender
+            "gender_x"->MR.strings.gender_x
+            "search_country"->MR.strings.search_country
+            "select_country"->MR.strings.select_country
+            "artist_description"->MR.strings.artist_description
+            "enter_image_url"->MR.strings.enter_image_url
+            "enter_photo_url"->MR.strings.enter_photo_url
+            "artist_photo_url"->MR.strings.artist_photo_url
+
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }

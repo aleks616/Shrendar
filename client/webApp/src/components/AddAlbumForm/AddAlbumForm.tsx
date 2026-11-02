@@ -1,6 +1,24 @@
-import {Button,Calendar,Collection,ComboBox,DateField,DatePicker,DateValue,
-    Description,FieldError,Form,Heading,I18nProvider,InfoIcon,Input,Label,
-    Link,ListBox,Select,TextArea,TextField,Tooltip} from "@heroui/react"
+import {
+    Button,
+    Calendar,
+    Collection,
+    ComboBox,
+    DateField,
+    DatePicker,
+    DateValue,
+    Description,
+    FieldError,
+    Form,
+    Heading,
+    I18nProvider,
+    Input,
+    Label,
+    Link,
+    ListBox,
+    Select,
+    TextArea,
+    TextField
+} from "@heroui/react"
 import {useAsyncList} from "@react-stately/data"
 import React,{useEffect,useState} from "react"
 import {AlbumAddDto,AlbumClient,BandAlbumAddDto,BandClient,Genre,GenreClient} from "sharedLogic"
@@ -10,7 +28,7 @@ import {Navigate} from "react-router-dom"
 export function AddAlbumForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
     const [genreList,setGenreList]=useState<Genre[] | null>(null)
-    let [title,setTitle]=useState("")
+    const [title,setTitle]=useState("")
     const [releaseDate,setReleaseDate]=useState<DateValue | null>(null)
     const [albumType,setAlbumType]=useState<string | null>(null)
     const [description,setDescription]=useState("")
@@ -31,7 +49,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
     const [importance,setImportance]=useState<number>(0)
     const [imageUrl,setImageUrl]=useState("")
     const [isImageValid,setIsImageValid]=useState(true)
-    const [resultText,setResultText]=useState<string>("")
+    const [resultText,setResultText]=useState("")
 
     useEffect(() => {
         const fetchGenreData=async () => {
@@ -45,7 +63,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
 
     const token=localStorage.getItem("token")
     if(token==null){
-       return <Navigate to={"/404"}/>
+        return <Navigate to={"/404"}/>
     }
 
     const albumTypes=["studio","ep","compilation","concert","demo","single","other"]
@@ -98,7 +116,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
         }
     }
 
-    const submit=async() => {
+    const submit=async () => {
         if(title!=null&&bandId!=null&&releaseDate!=null&&albumType!=null&&token!=null&&genre!=null){
             const date=releaseDate as CalendarDate
             const album=new AlbumAddDto(
@@ -122,7 +140,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
             <Heading level={1} className={"text-center"}>{translate("enter_album_data")}</Heading>
             <Form>
                 <div className={"w-full flex flex-col lg:flex-row justify-around"}>
-                    <section className={"flex flex-col gap-4"}>
+                    <section className={"flex flex-col gap-4 min-w-md"}>
                         <ComboBox
                             menuTrigger="input"
                             allowsEmptyCollection
@@ -138,10 +156,11 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 <ComboBox.Trigger/>
                             </ComboBox.InputGroup>
                             <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&<p>{translate("no_results")}</p>}>
+                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&
+                                    <p>{translate("no_results")}</p>}>
                                     <Collection items={bandList.items}>
                                         {(band) => {
-                                            const label=band.country!=null ? band.name+" ("+translate(band.country)+")" : band.name
+                                            const label=band.country!=null?band.name+" ("+translate(band.country)+")":band.name
                                             return (
                                                 <ListBox.Item id={band.id.toString()} textValue={label??""}>
                                                     <Link href={"../band/"+band.id} target={"_blank"}>{label}</Link>
@@ -154,10 +173,12 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                             </ComboBox.Popover>
                             <Description>{translate("enter_2_plus_characters")}</Description>
                         </ComboBox>
+
                         <TextField isRequired name={"title"} type={"text"} value={title} onChange={setTitle}>
                             <Label>{translate("album_title")}</Label>
                             <Input/>
                         </TextField>
+
                         <I18nProvider locale="en-GB">
                             <DatePicker
                                 isDisabled={bandId==null}
@@ -207,7 +228,9 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 {bandId==null&&<FieldError>{translate("choose_band_first")}</FieldError>}
                             </DatePicker>
                         </I18nProvider>
-                        <Select isRequired name={"albumType"} value={albumType} placeholder={translate("choose_album_type")}
+
+                        <Select isRequired name={"albumType"} value={albumType}
+                                placeholder={translate("choose_album_type")}
                                 onChange={(e) => handleAlbumTypeChange(e)}>
                             <Label>{translate("album_type")}</Label>
                             <Select.Trigger>
@@ -225,6 +248,35 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                 </ListBox>
                             </Select.Popover>
                         </Select>
+
+                        <Select
+                            isDisabled={albumType!="studio"&&albumType!="ep"}
+                            name={"importance"}
+                            value={importance.toString()}
+                            onChange={(e) => setImportance(parseInt(e as string))}
+                        >
+                            <Label>
+                                <div className={"flex flex-row gap-1 items-center max-w-md"}>
+                                    {translate("album_importance")}
+                                </div>
+                            </Label>
+                            <Select.Trigger>
+                                <Select.Value>{importance}</Select.Value>
+                                <Select.Indicator/>
+                            </Select.Trigger>
+                            <Select.Popover>
+                                <ListBox>
+                                    {importanceRange().map((value) => (
+                                        <ListBox.Item key={value} id={value} textValue={value.toString()}>
+                                            {value}
+                                            <ListBox.ItemIndicator/>
+                                        </ListBox.Item>
+                                    ))}
+                                </ListBox>
+                            </Select.Popover>
+                            <Description>{translate("album_importance_info")}</Description>
+                        </Select>
+
                         <div className={"flex flex-col gap-1"}>
                             <Label>{translate("description")}</Label>
                             <TextArea
@@ -244,17 +296,7 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                             onChange={e => setGenre(e as string)}
                         >
                             <Label>
-                                <div className={"flex flex-row gap-1 items-center"}>
-                                    {translate("main_subgenre")}
-                                    <Tooltip delay={0}>
-                                        <Button variant={"ghost"} className={"p-0"}>
-                                            <InfoIcon className={"size-4"}/>
-                                        </Button>
-                                        <Tooltip.Content>
-                                            <p>{translate("select_main_subgenre")}</p>
-                                        </Tooltip.Content>
-                                    </Tooltip>
-                                </div>
+                                {translate("main_subgenre")}
                             </Label>
                             <ComboBox.InputGroup>
                                 <Input placeholder={translate("search_genre_dots")}/>
@@ -270,68 +312,28 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                                     ))}
                                 </ListBox>
                             </ComboBox.Popover>
+                            <Description>{translate("select_main_subgenre")}</Description>
                         </ComboBox>
-                        <Select
-                            isDisabled={albumType!="studio"&&albumType!="ep"}
-                            name={"importance"}
-                            value={importance.toString()}
-                            onChange={(e) => setImportance(parseInt(e as string))}
-                        >
-                            <Label>
-                                <div className={"flex flex-row gap-1 items-center max-w-md"}>
-                                    {translate("album_importance")}
-                                    <Tooltip delay={0}>
-                                        <Button variant={"ghost"} className={"p-0"}>
-                                            <InfoIcon className={"size-4"}/>
-                                        </Button>
-                                        <Tooltip.Content>
-                                            <p className={"wrap-normal"}>{translate("album_importance_info")}</p>
-                                        </Tooltip.Content>
-                                    </Tooltip>
-                                </div>
-                            </Label>
-                            <Select.Trigger>
-                                <Select.Value>{importance}</Select.Value>
-                                <Select.Indicator/>
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {importanceRange().map((value) => (
-                                        <ListBox.Item key={value} id={value} textValue={value.toString()}>
-                                            {value}
-                                            <ListBox.ItemIndicator/>
-                                        </ListBox.Item>
-                                    ))}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+
                         <TextField
                             name={"imageUrl"}
                             type={"text"}
                             value={imageUrl}
-                            onChange={(e)=>handleUrlChange(e)}
-                            isInvalid={imageUrl.length>255||!isImageValid}
+                            onChange={(e) => handleUrlChange(e)}
+                            isInvalid={imageUrl.length>255|| !isImageValid}
                         >
                             <Label>
-                                <div className={"flex flex-row gap-1 items-center"}>
-                                    {translate("image_url")}
-                                    <Tooltip delay={0}>
-                                        <Button variant={"ghost"} className={"p-0"}>
-                                            <InfoIcon className={"size-4"}/>
-                                        </Button>
-                                        <Tooltip.Content>
-                                            <p>{translate("album_artwork_url_info")}</p>
-                                        </Tooltip.Content>
-                                    </Tooltip>
-                                </div>
+                                {translate("image_url")}
                             </Label>
-                            <Input placeholder={"Enter image url"}/>
+                            <Input placeholder={translate("enter_image_url")}/>
                             <FieldError>{translate("url_too_long")}</FieldError>
+                            <Description>{translate("album_artwork_url_info")}</Description>
                         </TextField>
+
                         {imageUrl.length>0?
-                        <div className={"max-w-72"}>
-                            <img src={imageUrl} alt={"preview"} onError={invalidateImage}/>
-                        </div>
+                            <div className={"max-w-72"}>
+                                <img src={imageUrl} alt={"preview"} onError={invalidateImage}/>
+                            </div>
                             :
                             <div className={"w-72 h-72 bg-background-secondary border-2"}/>
                         }

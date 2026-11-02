@@ -55,7 +55,6 @@
     <string name="artist_toggled">Artist favorite toggled successfully</string>
     <string name="invalid_artist_birthdate">Artist has to be at least 10 years old, and death date cannot be before birth date</string>
     <string name="artist_too_young">Artist has to be at least 10 years old</string>
-    <string name="invalid_death_date">Artist death date cannot be in the future</string>
     <string name="invalid_gender">Artist gender must be one of: M, F, X or null</string>
     <string name="country_not_exist">Country with provided id does not exist</string>
     <string name="start_end_not_null">Start year and end year cannot both be null</string>
@@ -586,4 +585,16 @@
     <string name="choose_album_type">Choose album type</string>
     <string name="description">Description</string>
     <string name="album_addition_recieved">Album addition request received</string>
+
+    <string name="enter_artist_data">Enter artist data</string>
+    <string name="is_dead">Has the artist passed away?</string>
+    <string name="invalid_death_date">Death date is required if artist is dead, artist must be at least 10 years old and death date cannot be in the future</string>
+    <string name="select_gender">select gender</string>
+    <string name="gender_x">other/unknown</string>
+    <string name="search_country">Search country</string>
+    <string name="select_country">Select country</string>
+    <string name="artist_description">artist description</string>
+    <string name="enter_image_url">Enter image url</string>
+    <string name="enter_photo_url">Enter photo url</string>
+    <string name="artist_photo_url">Paste url of the artist photo. You must be at least level 4 to do this.</string>
 </resources>

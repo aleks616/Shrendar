@@ -8,6 +8,7 @@ import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
+import org.aleks616.shrendar.common.model.CountryDto
 import org.aleks616.shrendar.common.service.CountryService
 import org.aleks616.shrendar.exception.ContributionLimitExceededException
 import org.aleks616.shrendar.security.RateLimiter
@@ -253,6 +254,11 @@ class ArtistController(
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
         return ResponseEntity.ok("artist_toggled")
+    }
+
+    @GetMapping("/countries")
+    fun getCountryList():List<CountryDto>{
+        return countryService.getAll()
     }
 
 

@@ -375,14 +375,14 @@ class HomepageService(
         val recommendedArtistDeathdaysResult=recommendedArtistsDeathAnniversaries+randomArtistDeathAnniversaries
 
         return HomepageMainDto(
-            favoriteAlbumsAnniversaries,
+            favoriteAlbumsAnniversaries.filter{it.yearsSince!!>0},
             favoriteArtistsBirthdays,
             favoriteArtistsDeathAnniversaries,
             otherBandMembersBirthdays,
             otherBandMembersDeathAnniversaries,
             recommendedArtistBirthdaysResult,
             recommendedArtistDeathdaysResult,
-            recommendedAlbumsAnniversaries,
+            recommendedAlbumsAnniversaries.filterNot{d->favoriteAlbumsAnniversaries.map{it.id}.contains(d.id)}.filter{it.yearsSince!!>0},
             getEventAnniversariesToday()
         )
 

@@ -13,6 +13,7 @@ import {AlbumWikiPage} from "./pages/AlbumWikiPage"
 import {EventWikiPage} from "./pages/EventWikiPage"
 import {SearchResultsPage} from "./pages/SearchResultsPage"
 import {AddAlbum} from "./pages/AddAlbum"
+import {AddArtist} from "./pages/AddArtist"
 
 const routes=[
     {path:'/',element:<Home/>},
@@ -23,6 +24,7 @@ const routes=[
     {path:'/u/:user',element:<ProfilePage/>},
     {path:'/band/:band',element:<BandWikiPage/>},
     {path:'/artist/:artist',element:<ArtistWikiPage/>},
+    {path:'/artist-add',element:<AddArtist/>},
     {path:'/album/:album',element:<AlbumWikiPage/>},
     {path:'/album-add',element:<AddAlbum/>},
     {path:'/event/:event',element:<EventWikiPage/>},
