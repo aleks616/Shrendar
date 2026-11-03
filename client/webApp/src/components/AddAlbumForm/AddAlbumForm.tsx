@@ -1,16 +1,12 @@
 import {
     Button,
-    Calendar,
     Collection,
     ComboBox,
-    DateField,
-    DatePicker,
     DateValue,
     Description,
     FieldError,
     Form,
     Heading,
-    I18nProvider,
     Input,
     Label,
     Link,
@@ -24,6 +20,7 @@ import React,{useEffect,useState} from "react"
 import {AlbumAddDto,AlbumClient,BandAlbumAddDto,BandClient,Genre,GenreClient} from "sharedLogic"
 import {CalendarDate} from "@internationalized/date"
 import {Navigate} from "react-router-dom"
+import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx"
 
 export function AddAlbumForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
@@ -179,55 +176,16 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                             <Input/>
                         </TextField>
 
-                        <I18nProvider locale="en-GB">
-                            <DatePicker
-                                isDisabled={bandId==null}
-                                isRequired
-                                minValue={bandId!=null?minReleaseDate():null}
-                                maxValue={maxReleaseDate}
-                                className="w-72"
-                                name="date"
-                                value={releaseDate}
-                                onChange={setReleaseDate}
-                            >
-                                <Label>{translate("release_date")}</Label>
-                                <DateField.Group fullWidth>
-                                    <DateField.Input>{(segment) => <DateField.Segment
-                                        segment={segment}/>}</DateField.Input>
-                                    <DateField.Suffix>
-                                        <DatePicker.Trigger>
-                                            <DatePicker.TriggerIndicator/>
-                                        </DatePicker.Trigger>
-                                    </DateField.Suffix>
-                                </DateField.Group>
-                                <FieldError>{translate("invalid_date")}</FieldError>
-                                <DatePicker.Popover>
-                                    <Calendar aria-label="Release date">
-                                        <Calendar.Header>
-                                            <Calendar.YearPickerTrigger>
-                                                <Calendar.YearPickerTriggerHeading/>
-                                                <Calendar.YearPickerTriggerIndicator/>
-                                            </Calendar.YearPickerTrigger>
-                                            <Calendar.NavButton slot="previous"/>
-                                            <Calendar.NavButton slot="next"/>
-                                        </Calendar.Header>
-                                        <Calendar.Grid>
-                                            <Calendar.GridHeader>
-                                                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                                            </Calendar.GridHeader>
-                                            <Calendar.GridBody>{(date) => <Calendar.Cell
-                                                date={date}/>}</Calendar.GridBody>
-                                        </Calendar.Grid>
-                                        <Calendar.YearPickerGrid>
-                                            <Calendar.YearPickerGridBody>
-                                                {({year}) => <Calendar.YearPickerCell year={year}/>}
-                                            </Calendar.YearPickerGridBody>
-                                        </Calendar.YearPickerGrid>
-                                    </Calendar>
-                                </DatePicker.Popover>
-                                {bandId==null&&<FieldError>{translate("choose_band_first")}</FieldError>}
-                            </DatePicker>
-                        </I18nProvider>
+                        <CalendarDateField
+                            isDisabled={bandId==null}
+                        minValue={minReleaseDate()??null}
+                        maxValue={maxReleaseDate}
+                        value={releaseDate}
+                        onChange={setReleaseDate}
+                        label={translate("release_date")}
+                        fieldError={translate("invalid_date")}
+                        description={translate("choose_band_first")}
+                        />
 
                         <Select isRequired name={"albumType"} value={albumType}
                                 placeholder={translate("choose_album_type")}

@@ -22,6 +22,7 @@ import React,{useEffect,useState} from "react"
 import {ArtistAddDto,ArtistClient,CountryDto} from "sharedLogic"
 import {Navigate} from "react-router-dom"
 import {CalendarDate} from "@internationalized/date"
+import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx";
 
 export function AddArtistForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
@@ -116,53 +117,16 @@ export function AddArtistForm({strings}: { strings: Record<string,string> }){
                             <Input/>
                         </TextField>
 
-                        <I18nProvider locale={"en-GB"}>
-                            <DatePicker
-                                isRequired
-                                maxValue={maxBirthDate}
-                                className={"w-72"}
-                                name={"birthdate"}
-                                value={birthdate}
-                                onChange={setBirthdate}
-                            >
-                                <Label>{translate("birthdate")}</Label>
-                                <DateField.Group fullWidth>
-                                    <DateField.Input>{(segment) => <DateField.Segment
-                                        segment={segment}/>}</DateField.Input>
-                                    <DateField.Suffix>
-                                        <DatePicker.Trigger>
-                                            <DatePicker.TriggerIndicator/>
-                                        </DatePicker.Trigger>
-                                    </DateField.Suffix>
-                                </DateField.Group>
-                                <FieldError>{translate("invalid_artist_birthdate")}</FieldError>
-                                <DatePicker.Popover>
-                                    <Calendar aria-label={translate("birthdate")}>
-                                        <Calendar.Header>
-                                            <Calendar.YearPickerTrigger>
-                                                <Calendar.YearPickerTriggerHeading/>
-                                                <Calendar.YearPickerTriggerIndicator/>
-                                            </Calendar.YearPickerTrigger>
-                                            <Calendar.NavButton slot={"previous"}/>
-                                            <Calendar.NavButton slot={"next"}/>
-                                        </Calendar.Header>
-                                        <Calendar.Grid>
-                                            <Calendar.GridHeader>
-                                                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                                            </Calendar.GridHeader>
-                                            <Calendar.GridBody>
-                                                {(date) => <Calendar.Cell date={date}/>}
-                                            </Calendar.GridBody>
-                                        </Calendar.Grid>
-                                        <Calendar.YearPickerGrid>
-                                            <Calendar.YearPickerGridBody>
-                                                {({year}) => <Calendar.YearPickerCell year={year}/>}
-                                            </Calendar.YearPickerGridBody>
-                                        </Calendar.YearPickerGrid>
-                                    </Calendar>
-                                </DatePicker.Popover>
-                            </DatePicker>
-                        </I18nProvider>
+                        <CalendarDateField
+                            isDisabled={false}
+                            minValue={null}
+                            maxValue={maxBirthDate}
+                            value={birthdate}
+                            onChange={setBirthdate}
+                            label={translate("birthdate")}
+                            fieldError={translate("invalid_artist_birthdate")}
+                            description={null}
+                        />
 
                         <Checkbox id={"is-dead"} isSelected={isDead} onChange={setIsDead}>
                             <Checkbox.Content>
@@ -174,56 +138,19 @@ export function AddArtistForm({strings}: { strings: Record<string,string> }){
                         </Checkbox>
 
                         {isDead&&(
-                            <I18nProvider locale={"en-GB"}>
-                                <DatePicker
-                                    isInvalid={(deathdate==null&&isDead)||(deathdate!=null&&birthdate!=null&&deathdate<birthdate)||(deathdate!=null&&deathdate>maxDeathDate)}
-                                    isRequired
-                                    minValue={minDeathDate}
-                                    maxValue={maxDeathDate}
-                                    className={"w-72"}
-                                    name={"deathdate"}
-                                    value={deathdate}
-                                    onChange={setDeathdate}
-                                >
-                                    <Label>{translate("death_date")}</Label>
-                                    <DateField.Group fullWidth>
-                                        <DateField.Input>{(segment) => <DateField.Segment
-                                            segment={segment}/>}</DateField.Input>
-                                        <DateField.Suffix>
-                                            <DatePicker.Trigger>
-                                                <DatePicker.TriggerIndicator/>
-                                            </DatePicker.Trigger>
-                                        </DateField.Suffix>
-                                    </DateField.Group>
-                                    <FieldError>{translate("invalid_death_date")}</FieldError>
-                                    <DatePicker.Popover>
-                                        <Calendar aria-label={translate("death_date")}>
-                                            <Calendar.Header>
-                                                <Calendar.YearPickerTrigger>
-                                                    <Calendar.YearPickerTriggerHeading/>
-                                                    <Calendar.YearPickerTriggerIndicator/>
-                                                </Calendar.YearPickerTrigger>
-                                                <Calendar.NavButton slot={"previous"}/>
-                                                <Calendar.NavButton slot={"next"}/>
-                                            </Calendar.Header>
-                                            <Calendar.Grid>
-                                                <Calendar.GridHeader>
-                                                    {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                                                </Calendar.GridHeader>
-                                                <Calendar.GridBody>
-                                                    {(date) => <Calendar.Cell date={date}/>}
-                                                </Calendar.GridBody>
-                                            </Calendar.Grid>
-                                            <Calendar.YearPickerGrid>
-                                                <Calendar.YearPickerGridBody>
-                                                    {({year}) => <Calendar.YearPickerCell year={year}/>}
-                                                </Calendar.YearPickerGridBody>
-                                            </Calendar.YearPickerGrid>
-                                        </Calendar>
-                                    </DatePicker.Popover>
-                                </DatePicker>
-                            </I18nProvider>
-                        )}
+                            <CalendarDateField
+                            isInvalid={(deathdate==null&&isDead)||(deathdate!=null&&birthdate!=null&&deathdate<birthdate)||(deathdate!=null&&deathdate>maxDeathDate)}
+                        isDisabled={false}
+                        minValue={minDeathDate}
+                        maxValue={maxDeathDate}
+                        value={deathdate}
+                        onChange={setDeathdate}
+                        label={translate("death_date")}
+                        fieldError={translate("invalid_death_date")}
+                        description={null}
+                    />
+
+                    )}
 
                         <Select isRequired name={"gender"} value={gender}
                                 placeholder={translate("select_gender")}
