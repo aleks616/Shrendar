@@ -1,10 +1,7 @@
-import {AccountClient,Date as KotlinDate,LoginRequestDto,UserDto} from "sharedLogic"
+import {AccountClient,LoginRequestDto,UserDto} from "sharedLogic"
 import React,{useEffect,useState} from "react"
 import {
     Button,
-    Calendar,
-    DateField,
-    DatePicker,
     DateValue,
     ErrorMessage,
     FieldError,
@@ -18,6 +15,7 @@ import {
 import {Link} from "react-router-dom"
 import {CalendarDate,getLocalTimeZone,today} from "@internationalized/date"
 import {getLanguage} from "../Language.ts"
+import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx"
 
 export function Settings({strings}: { strings: Record<string,string> }){
     const translate=(key: string): string => {
@@ -31,10 +29,6 @@ export function Settings({strings}: { strings: Record<string,string> }){
         if(!dateObj) return null
         return new CalendarDate(dateObj.year,dateObj.month,dateObj.day)
     }
-    const toKotlinDate=(calendarDate: DateValue | null): KotlinDate | null => {
-        if(!calendarDate) return null
-        return new KotlinDate(calendarDate.year,calendarDate.month,calendarDate.day)
-    }
 
     //todo reset password no code
     const [userData,setUserData]=useState(new UserDto())
@@ -46,9 +40,8 @@ export function Settings({strings}: { strings: Record<string,string> }){
     const isEmailInvalid=email.length>0&& !email.includes("@")
     const minDate=today(getLocalTimeZone()).subtract({years: 120})
     const maxDate=today(getLocalTimeZone()).subtract({years: 13})
-    const [birthdate,setBirthdate]=useState<DateValue | null>(toCalendarDate(userData.birthDate))
+    const [birthdate,setBirthdate]=useState<DateValue | null>(null)
     const isBirthdateInvalid=birthdate!==null&&(birthdate<minDate||birthdate>maxDate)
-    const birthdateAsKotlinDate=toKotlinDate(birthdate)
     const [errorText,setErrorText]=useState("")
 
     const [modalEmail,setModalEmail]=useState("")
@@ -84,11 +77,15 @@ export function Settings({strings}: { strings: Record<string,string> }){
 
     const updateBirthdate=async () => {
         const token=localStorage.getItem("token")
-        if(token!==null&&token!==undefined&&birthdateAsKotlinDate!==null){
-            const result=await AccountClient.getInstance().addBirthday(token,birthdateAsKotlinDate)
+        if(token!==null&&token!==undefined&&birthdate!==null){
+            const date=birthdate as CalendarDate
+            const result=await AccountClient.getInstance().addBirthday(token,date.toString())
             console.log(result)
             if(result!="birthday_added"){
                 setErrorText(translate(result))
+            }
+            else{
+                setErrorText("")
             }
         }
     }
@@ -175,57 +172,18 @@ export function Settings({strings}: { strings: Record<string,string> }){
                 <FieldError>{translate("invalid_email")}</FieldError>
             </TextField>
 
-            <DatePicker
-                className="w-64"
-                name="date"
-                value={birthdate}
-                onChange={handleBirthdateChange}
+            <CalendarDateField
+                className={"w-64!"}
+                name={"date"}
+                isDisabled={false}
                 minValue={minDate}
                 maxValue={maxDate}
-                shouldForceLeadingZeros
-                isInvalid={isBirthdateInvalid}
-            >
-                <Label>{translate("birthdate")}</Label>
-                <DateField.Group fullWidth>
-                    <DateField.Input>
-                        {(segment) => <DateField.Segment segment={segment}/>}
-                    </DateField.Input>
-                    <DateField.Suffix>
-                        <DatePicker.Trigger>
-                            <DatePicker.TriggerIndicator/>
-                        </DatePicker.Trigger>
-                    </DateField.Suffix>
-                </DateField.Group>
-                <FieldError>{translate("invalid_user_birthdate")}</FieldError>
-
-                <DatePicker.Popover>
-                    <Calendar aria-label="birthdate">
-                        <Calendar.Header>
-                            <Calendar.YearPickerTrigger>
-                                <Calendar.YearPickerTriggerHeading/>
-                                <Calendar.YearPickerTriggerIndicator/>
-                            </Calendar.YearPickerTrigger>
-                            <Calendar.NavButton slot="previous"/>
-                            <Calendar.NavButton slot="next"/>
-                        </Calendar.Header>
-
-                        <Calendar.Grid>
-                            <Calendar.GridHeader>
-                                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                            </Calendar.GridHeader>
-                            <Calendar.GridBody>
-                                {(date) => <Calendar.Cell date={date}/>}
-                            </Calendar.GridBody>
-                        </Calendar.Grid>
-
-                        <Calendar.YearPickerGrid>
-                            <Calendar.YearPickerGridBody>
-                                {({year}) => <Calendar.YearPickerCell year={year}/>}
-                            </Calendar.YearPickerGridBody>
-                        </Calendar.YearPickerGrid>
-                    </Calendar>
-                </DatePicker.Popover>
-            </DatePicker>
+                value={birthdate}
+                onChange={handleBirthdateChange}
+                label={translate("birthdate")}
+                fieldError={translate("invalid_user_birthdate")}
+                description={null}
+            />
 
             <ErrorMessage>{errorText}</ErrorMessage>
 

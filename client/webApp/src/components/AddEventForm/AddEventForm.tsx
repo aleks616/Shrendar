@@ -17,7 +17,8 @@ import React,{useState} from "react"
 import {useAsyncList} from "@react-stately/data"
 import {BandAlbumAddDto,BandClient,EventAddDto,EventClient} from "sharedLogic"
 import {CalendarDate} from "@internationalized/date"
-import {Navigate} from "react-router-dom";
+import {Navigate} from "react-router-dom"
+import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx"
 
 export function AddEventForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
@@ -115,55 +116,17 @@ export function AddEventForm({strings}: { strings: Record<string,string> }){
                             <Description>{translate("enter_2_plus_characters")}</Description>
                         </ComboBox>
 
-                        <I18nProvider locale="en-GB">
-                            <DatePicker
-                                isDisabled={bandId==null}
-                                isRequired
-                                minValue={bandId!=null?minDate():null}
-                                maxValue={maxDate}
-                                className="w-72"
-                                name="date"
-                                value={date}
-                                onChange={setDate}
-                            >
-                                <Label>{translate("date")}</Label>
-                                <DateField.Group fullWidth>
-                                    <DateField.Input>{(segment) => <DateField.Segment
-                                        segment={segment}/>}</DateField.Input>
-                                    <DateField.Suffix>
-                                        <DatePicker.Trigger>
-                                            <DatePicker.TriggerIndicator/>
-                                        </DatePicker.Trigger>
-                                    </DateField.Suffix>
-                                </DateField.Group>
-                                <FieldError>{translate("invalid_date")}</FieldError>
-                                <DatePicker.Popover>
-                                    <Calendar aria-label={translate("event_date")}>
-                                        <Calendar.Header>
-                                            <Calendar.YearPickerTrigger>
-                                                <Calendar.YearPickerTriggerHeading/>
-                                                <Calendar.YearPickerTriggerIndicator/>
-                                            </Calendar.YearPickerTrigger>
-                                            <Calendar.NavButton slot="previous"/>
-                                            <Calendar.NavButton slot="next"/>
-                                        </Calendar.Header>
-                                        <Calendar.Grid>
-                                            <Calendar.GridHeader>
-                                                {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-                                            </Calendar.GridHeader>
-                                            <Calendar.GridBody>{(date) => <Calendar.Cell
-                                                date={date}/>}</Calendar.GridBody>
-                                        </Calendar.Grid>
-                                        <Calendar.YearPickerGrid>
-                                            <Calendar.YearPickerGridBody>
-                                                {({year}) => <Calendar.YearPickerCell year={year}/>}
-                                            </Calendar.YearPickerGridBody>
-                                        </Calendar.YearPickerGrid>
-                                    </Calendar>
-                                </DatePicker.Popover>
-                                {bandId==null&&<Description>{translate("choose_band_first")}</Description>}
-                            </DatePicker>
-                        </I18nProvider>
+
+                        <CalendarDateField
+                            isDisabled={bandId==null}
+                            minValue={bandId!=null?minDate():null}
+                            maxValue={maxDate}
+                            value={date}
+                            onChange={setDate}
+                            label={translate("date")}
+                            fieldError={translate("invalid_date")}
+                            description={translate("choose_band_first")}
+                        />
 
                         <TextField isRequired name={"name"} type={"text"} value={name} onChange={setName}>
                             <Label>{translate("event_name")}</Label>

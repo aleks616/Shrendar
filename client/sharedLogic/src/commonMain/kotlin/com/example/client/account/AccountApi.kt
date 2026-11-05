@@ -129,12 +129,11 @@ class AccountApi private constructor(
     }
 
     @OptIn(ExperimentalJsExport::class)
-    suspend fun addBirthday(token:String,birthday:Date):String {
-        val birthdayString="${birthday.year}-${if(birthday.month<10) "0${birthday.month}" else birthday.month}-${if(birthday.day<10) "0${birthday.day}" else birthday.day}"
+    suspend fun addBirthday(token:String,birthday:String):String {
         return try {
             client.post("$BASE_URL/user-account/addBirthday") {
                 header("Authorization","Bearer $token")
-                parameter("stringDate",birthdayString)
+                parameter("stringDate",birthday)
             }.body()
         }
         catch(e:ClientRequestException) {
@@ -182,6 +181,6 @@ object AccountClient {
     suspend fun authWithGoogle(googleToken:String):String=AccountApi().authWithGoogle(googleToken)
     suspend fun updateUsername(token:String,newUsername:String):String=AccountApi().updateUsername(token,newUsername)
     suspend fun updateEmail(token:String,newEmail:String):String=AccountApi().updateEmail(token,newEmail)
-    suspend fun addBirthday(token:String,birthday:Date):String=AccountApi().addBirthday(token,birthday)
+    suspend fun addBirthday(token:String,birthday:String):String=AccountApi().addBirthday(token,birthday)
     suspend fun deleteAccount(token:String,request:LoginRequestDto,lang:String):String=AccountApi().deleteAccount(token,request,lang)
 }
