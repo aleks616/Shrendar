@@ -23,6 +23,6 @@ This will be a metal archives clone but focused on birthday/other anniversaries,
 
 - Frontend - in progress
 
-Prototype expected in **Late November**
+Prototype expected in **December**
 
 
