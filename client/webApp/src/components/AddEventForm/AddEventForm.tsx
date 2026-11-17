@@ -1,40 +1,15 @@
-import {
-    Button,
-    Calendar,
-    Collection,
-    ComboBox,
-    DateField,
-    DatePicker,DateValue,
-    Description,
-    FieldError,Form,
-    Heading,I18nProvider,
-    Input,
-    Label,
-    Link,
-    ListBox,TextArea,TextField
-} from "@heroui/react"
+import {Button,DateValue,Form,Heading,Input,Label,TextArea,TextField} from "@heroui/react"
 import React,{useState} from "react"
-import {useAsyncList} from "@react-stately/data"
-import {BandAlbumAddDto,BandClient,EventAddDto,EventClient} from "sharedLogic"
+import {EventAddDto,EventClient,Nullable} from "sharedLogic"
 import {CalendarDate} from "@internationalized/date"
 import {Navigate} from "react-router-dom"
+import {BandPicker} from "../BandPicker/BandPicker.tsx"
 import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx"
 
 export function AddEventForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
     const [bandId,setBandId]=useState<number | null>(null)
-    const bandList=useAsyncList<BandAlbumAddDto>({
-        async load({filterText}){
-            if(filterText!=null){
-                if(filterText.length<2){
-                    return {items: []}
-                }
-                const bands=await BandClient.getInstance().getBandDataForAlbumAdding(filterText)
-                return {items: bands.asJsReadonlyArrayView()}
-            }
-            return {items: []}
-        }
-    })
+    const [bandFormedYear,setBandFormedYear]=useState<Nullable<number>>(null)
     const [date,setDate]=useState<DateValue | null>(null)
     const [name,setName]=useState<string>("")
     const [description,setDescription]=useState<string>("")
@@ -45,19 +20,12 @@ export function AddEventForm({strings}: { strings: Record<string,string> }){
         return <Navigate to={"/404"}/>
     }
 
-    function handleBandChange(e: any){
-        const value=parseInt(e.toString())
-        setBandId(value)
-        const band=bandList.items.find(b => b.id==value)
-        if(band!=null&&band.name!=null){
-            bandList.setFilterText(band.name)
-        }
+    const minDate=() => {
+        if(bandFormedYear!=null)
+            return new CalendarDate(bandFormedYear,1,1)
+        else return null
     }
 
-    const minDate=() => {
-        const bandFormedYear=bandList.items.find(b => b.id==bandId)?.formedYear
-        return new CalendarDate(bandFormedYear!,1,1)
-    }
     const today=new Date()
     const maxDate=new CalendarDate(today.getFullYear()+1,today.getMonth()+1,today.getDate())
 
@@ -76,45 +44,21 @@ export function AddEventForm({strings}: { strings: Record<string,string> }){
         }
     }
 
-    return(
+    return (
         <div className={"w-9/12 flex flex-col gap-4"}>
             <Form>
                 <Heading level={1} className={"text-center"}>{translate("enter_event_data")}</Heading>
                 <div className={"w-full flex justify-center"}>
                     <section className={"flex flex-col gap-4 min-w-md max-w-2xl"}>
                         <p className={"wrap-normal text-muted my-2"}>{translate("event_add_info")}</p>
-                        <ComboBox
-                            menuTrigger="input"
-                            allowsEmptyCollection
-                            isRequired
-                            value={bandId?.toString()??null}
-                            inputValue={bandList.filterText??""}
-                            onInputChange={bandList.setFilterText}
-                            onChange={e => handleBandChange(e)}
-                        >
-                            <Label>{translate("band")}</Label>
-                            <ComboBox.InputGroup>
-                                <Input placeholder={translate("search_band_dots")}/>
-                                <ComboBox.Trigger/>
-                            </ComboBox.InputGroup>
-                            <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&
-                                    <p>{translate("no_results")}</p>}>
-                                    <Collection items={bandList.items}>
-                                        {(band) => {
-                                            const label=band.country!=null?band.name+" ("+translate(band.country)+")":band.name
-                                            return (
-                                                <ListBox.Item id={band.id.toString()} textValue={label??""}>
-                                                    <Link href={"../band/"+band.id} target={"_blank"}>{label}</Link>
-                                                    <ListBox.ItemIndicator/>
-                                                </ListBox.Item>
-                                            )
-                                        }}
-                                    </Collection>
-                                </ListBox>
-                            </ComboBox.Popover>
-                            <Description>{translate("enter_2_plus_characters")}</Description>
-                        </ComboBox>
+                        <BandPicker
+                            bandId={bandId}
+                            onChange={band => {
+                                setBandId(band.id)
+                                setBandFormedYear(band.formedYear)
+                            }}
+                            strings={strings}
+                        />
 
 
                         <CalendarDateField

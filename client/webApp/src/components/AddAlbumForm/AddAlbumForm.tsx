@@ -1,117 +1,40 @@
-import {
-    Button,
-    Collection,
-    ComboBox,
-    DateValue,
-    Description,
-    FieldError,
-    Form,
-    Heading,
-    Input,
-    Label,
-    Link,
-    ListBox,
-    Select,
-    TextArea,
-    TextField
-} from "@heroui/react"
-import {useAsyncList} from "@react-stately/data"
-import React,{useEffect,useState} from "react"
-import {AlbumAddDto,AlbumClient,BandAlbumAddDto,BandClient,Genre,GenreClient} from "sharedLogic"
+import {Button,DateValue,Form,Heading,Input,Label,TextArea,TextField} from "@heroui/react"
+import React,{useState} from "react"
+import {AlbumAddDto,AlbumClient,Nullable} from "sharedLogic"
 import {CalendarDate} from "@internationalized/date"
 import {Navigate} from "react-router-dom"
+import {AlbumImportancePicker} from "../AlbumImportancePicker/AlbumImportancePicker.tsx"
+import {AlbumTypePicker} from "../AlbumTypePicker/AlbumTypePicker.tsx"
 import {CalendarDateField} from "../CalendarDateField/CalendarDateField.tsx"
+import {BandPicker} from "../BandPicker/BandPicker.tsx"
+import {GenrePicker} from "../GenrePicker/GenrePicker.tsx"
+import {ImageField} from "../ImageField/ImageField.tsx"
 
 export function AddAlbumForm({strings}: { strings: Record<string,string> }){
     const translate=(key: string) => strings[key]??key
-    const [genreList,setGenreList]=useState<Genre[] | null>(null)
     const [title,setTitle]=useState("")
     const [releaseDate,setReleaseDate]=useState<DateValue | null>(null)
     const [albumType,setAlbumType]=useState<string | null>(null)
     const [description,setDescription]=useState("")
     const [bandId,setBandId]=useState<number | null>(null)
-    const bandList=useAsyncList<BandAlbumAddDto>({
-        async load({filterText}){
-            if(filterText!=null){
-                if(filterText.length<2){
-                    return {items: []}
-                }
-                const bands=await BandClient.getInstance().getBandDataForAlbumAdding(filterText)
-                return {items: bands.asJsReadonlyArrayView()}
-            }
-            return {items: []}
-        }
-    })
+    const [bandFormedYear,setBandFormedYear]=useState<Nullable<number>>(null)
     const [genre,setGenre]=useState<string | null>(null)
     const [importance,setImportance]=useState<number>(0)
     const [imageUrl,setImageUrl]=useState("")
-    const [isImageValid,setIsImageValid]=useState(true)
     const [resultText,setResultText]=useState("")
-
-    useEffect(() => {
-        const fetchGenreData=async () => {
-            const genres=await GenreClient.getInstance().getAll()
-            if(genres!=null){
-                setGenreList(genres)
-            }
-        }
-        fetchGenreData()
-    },[])
 
     const token=localStorage.getItem("token")
     if(token==null){
         return <Navigate to={"/404"}/>
     }
 
-    const albumTypes=["studio","ep","compilation","concert","demo","single","other"]
-
-    function handleBandChange(e: any){
-        const value=parseInt(e.toString())
-        setBandId(value)
-        const band=bandList.items.find(b => b.id==value)
-        if(band!=null&&band.name!=null){
-            bandList.setFilterText(band.name)
-        }
-    }
-
-    function handleAlbumTypeChange(e: any){
-        const value=e.toString()
-        setAlbumType(value)
-        if(value!="studio"&&value!="ep"){
-            setImportance(0)
-        }
-        if(value=="ep"&&importance>3){
-            setImportance(3)
-        }
-    }
-
     const minReleaseDate=() => {
-        const bandFormedYear=bandList.items.find(b => b.id==bandId)?.formedYear
-        return new CalendarDate(bandFormedYear!,1,1)
+        if(bandFormedYear!=null)
+            return new CalendarDate(bandFormedYear,1,1)
+        else return null
     }
     const today=new Date()
     const maxReleaseDate=new CalendarDate(today.getFullYear()+1,today.getMonth()+1,today.getDate())
-
-    function invalidateImage(){
-        setIsImageValid(false)
-    }
-
-    function handleUrlChange(e: any){
-        setImageUrl(e)
-        setIsImageValid(true)
-    }
-
-    const importanceRange=() => {
-        if(albumType=="studio"){
-            return [1,2,3,4,5]
-        }
-        else if(albumType=="ep"){
-            return [1,2,3]
-        }
-        else{
-            return [0]
-        }
-    }
 
     const submit=async () => {
         if(title!=null&&bandId!=null&&releaseDate!=null&&albumType!=null&&token!=null&&genre!=null){
@@ -138,38 +61,14 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
             <Form>
                 <div className={"w-full flex flex-col lg:flex-row justify-around"}>
                     <section className={"flex flex-col gap-4 min-w-md"}>
-                        <ComboBox
-                            menuTrigger="input"
-                            allowsEmptyCollection
-                            isRequired
-                            value={bandId?.toString()??null}
-                            inputValue={bandList.filterText??""}
-                            onInputChange={bandList.setFilterText}
-                            onChange={e => handleBandChange(e)}
-                        >
-                            <Label>{translate("band")}</Label>
-                            <ComboBox.InputGroup>
-                                <Input placeholder={translate("search_band_dots")}/>
-                                <ComboBox.Trigger/>
-                            </ComboBox.InputGroup>
-                            <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => bandList.filterText.length>3&&
-                                    <p>{translate("no_results")}</p>}>
-                                    <Collection items={bandList.items}>
-                                        {(band) => {
-                                            const label=band.country!=null?band.name+" ("+translate(band.country)+")":band.name
-                                            return (
-                                                <ListBox.Item id={band.id.toString()} textValue={label??""}>
-                                                    <Link href={"../band/"+band.id} target={"_blank"}>{label}</Link>
-                                                    <ListBox.ItemIndicator/>
-                                                </ListBox.Item>
-                                            )
-                                        }}
-                                    </Collection>
-                                </ListBox>
-                            </ComboBox.Popover>
-                            <Description>{translate("enter_2_plus_characters")}</Description>
-                        </ComboBox>
+                        <BandPicker
+                            bandId={bandId}
+                            onChange={band => {
+                                setBandId(band.id)
+                                setBandFormedYear(band.formedYear)
+                            }}
+                            strings={strings}
+                        />
 
                         <TextField isRequired name={"title"} type={"text"} value={title} onChange={setTitle}>
                             <Label>{translate("album_title")}</Label>
@@ -178,62 +77,29 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
 
                         <CalendarDateField
                             isDisabled={bandId==null}
-                        minValue={minReleaseDate()??null}
-                        maxValue={maxReleaseDate}
-                        value={releaseDate}
-                        onChange={setReleaseDate}
-                        label={translate("release_date")}
-                        fieldError={translate("invalid_date")}
-                        description={translate("choose_band_first")}
+                            minValue={minReleaseDate()}
+                            maxValue={maxReleaseDate}
+                            value={releaseDate}
+                            onChange={setReleaseDate}
+                            label={translate("release_date")}
+                            fieldError={translate("invalid_date")}
+                            description={translate("choose_band_first")}
                         />
 
-                        <Select isRequired name={"albumType"} value={albumType}
-                                placeholder={translate("choose_album_type")}
-                                onChange={(e) => handleAlbumTypeChange(e)}>
-                            <Label>{translate("album_type")}</Label>
-                            <Select.Trigger>
-                                <Select.Value>{albumType}</Select.Value>
-                                <Select.Indicator/>
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {albumTypes.map((type) => (
-                                        <ListBox.Item id={type} textValue={type}>
-                                            {translate("album_type_"+type)}
-                                            <ListBox.ItemIndicator/>
-                                        </ListBox.Item>
-                                    ))}
-                                </ListBox>
-                            </Select.Popover>
-                        </Select>
+                        <AlbumTypePicker
+                            albumType={albumType}
+                            importance={importance}
+                            onAlbumTypeChange={setAlbumType}
+                            onImportanceChange={setImportance}
+                            strings={strings}
+                        />
 
-                        <Select
-                            isDisabled={albumType!="studio"&&albumType!="ep"}
-                            name={"importance"}
-                            value={importance.toString()}
-                            onChange={(e) => setImportance(parseInt(e as string))}
-                        >
-                            <Label>
-                                <div className={"flex flex-row gap-1 items-center max-w-md"}>
-                                    {translate("album_importance")}
-                                </div>
-                            </Label>
-                            <Select.Trigger>
-                                <Select.Value>{importance}</Select.Value>
-                                <Select.Indicator/>
-                            </Select.Trigger>
-                            <Select.Popover>
-                                <ListBox>
-                                    {importanceRange().map((value) => (
-                                        <ListBox.Item key={value} id={value} textValue={value.toString()}>
-                                            {value}
-                                            <ListBox.ItemIndicator/>
-                                        </ListBox.Item>
-                                    ))}
-                                </ListBox>
-                            </Select.Popover>
-                            <Description>{translate("album_importance_info")}</Description>
-                        </Select>
+                        <AlbumImportancePicker
+                            albumType={albumType}
+                            importance={importance}
+                            onChange={setImportance}
+                            strings={strings}
+                        />
 
                         <div className={"flex flex-col gap-1"}>
                             <Label>{translate("description")}</Label>
@@ -247,54 +113,15 @@ export function AddAlbumForm({strings}: { strings: Record<string,string> }){
                         </div>
                     </section>
                     <section className={"flex flex-col gap-4 min-w-md"}>
-                        <ComboBox
-                            isRequired
-                            allowsEmptyCollection
-                            value={genre}
-                            onChange={e => setGenre(e as string)}
-                        >
-                            <Label>
-                                {translate("main_subgenre")}
-                            </Label>
-                            <ComboBox.InputGroup>
-                                <Input placeholder={translate("search_genre_dots")}/>
-                                <ComboBox.Trigger/>
-                            </ComboBox.InputGroup>
-                            <ComboBox.Popover>
-                                <ListBox renderEmptyState={() => <p>{translate("no_results")}</p>}>
-                                    {genreList?.map((genre) => (
-                                        <ListBox.Item id={genre.id} textValue={genre.name}>
-                                            {genre.name}
-                                            <ListBox.ItemIndicator/>
-                                        </ListBox.Item>
-                                    ))}
-                                </ListBox>
-                            </ComboBox.Popover>
-                            <Description>{translate("select_main_subgenre")}</Description>
-                        </ComboBox>
+                        <GenrePicker genre={genre} onChange={setGenre} strings={strings}/>
 
-                        <TextField
-                            name={"imageUrl"}
-                            type={"text"}
-                            value={imageUrl}
-                            onChange={(e) => handleUrlChange(e)}
-                            isInvalid={imageUrl.length>255|| !isImageValid}
-                        >
-                            <Label>
-                                {translate("image_url")}
-                            </Label>
-                            <Input placeholder={translate("enter_image_url")}/>
-                            <FieldError>{translate("url_too_long")}</FieldError>
-                            <Description>{translate("album_artwork_url_info")}</Description>
-                        </TextField>
-
-                        {imageUrl.length>0?
-                            <div className={"max-w-72"}>
-                                <img src={imageUrl} alt={"preview"} onError={invalidateImage}/>
-                            </div>
-                            :
-                            <div className={"w-72 h-72 bg-background-secondary border-2"}/>
-                        }
+                        <ImageField
+                            imageUrl={imageUrl}
+                            onChange={setImageUrl}
+                            placeholder={translate("enter_image_url")}
+                            description={translate("album_artwork_url_info")}
+                            strings={strings}
+                        />
                     </section>
                 </div>
                 <div className={"my-4 lg:flex items-center justify-center"}>
