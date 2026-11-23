@@ -47,6 +47,17 @@ class ArtistApi private constructor(
         }
     }
 
+    suspend fun getArtistDataForMemberAdd(name:String):List<ArtistMemberAddDto>{
+        try{
+            val response:List<ArtistMemberAddDto> =client.get("$BASE_URL/artist/member-add/name/$name").body()
+            return response
+        }
+        catch(e:ClientRequestException){
+            if(e.response.status.value==404) throw Exception("not_found")
+            else throw Exception(e.response.bodyAsText())
+        }
+    }
+
     suspend fun addArtist(artist:ArtistAddDto,token:String):String{
         return try{
             client.post("$BASE_URL/artist/add"){
@@ -80,5 +91,6 @@ class ArtistApi private constructor(
 object ArtistClient {
     suspend fun getArtistWikiPageDataById(id:Long,token:String?):ArtistWikiDto=ArtistApi().getArtistWikiPageDataById(id,token)
     suspend fun getCountries():Array<CountryDto> =ArtistApi().getCountries().toTypedArray()
+    suspend fun getArtistDataForMemberAdd(name:String):List<ArtistMemberAddDto> =ArtistApi().getArtistDataForMemberAdd(name)
     suspend fun addArtist(artist:ArtistAddDto,token:String):String=ArtistApi().addArtist(artist,token)
 }

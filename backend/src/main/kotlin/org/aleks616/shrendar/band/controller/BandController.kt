@@ -156,7 +156,8 @@ class BandController (
             return bandValidate(band)!!
 
         try{
-            bandService.addBand(band,userLogin)
+            val id=bandService.addBand(band,userLogin)
+            return ResponseEntity.ok(id?.toString()?: "something_wrong")
         }
         catch (e:ContributionLimitExceededException){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
@@ -164,8 +165,6 @@ class BandController (
         catch(e:Exception){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
         }
-
-        return ResponseEntity.ok("band_addition_received")
     }
 
     @PutMapping("/edit")
@@ -233,7 +232,7 @@ class BandController (
     }
 
     @PostMapping("/member-add")
-    fun addBandMember(@RequestBody member:ArtistBandAddDto,servletRequest:HttpServletRequest):ResponseEntity<String>{
+    fun addBandMember(@RequestBody members:List<ArtistBandAddDto>,servletRequest:HttpServletRequest):ResponseEntity<String>{
         val user=SecurityContextHolder.getContext().authentication?:return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("something_wrong")
         val userLogin=user.name
 
@@ -245,23 +244,24 @@ class BandController (
 
         if(userBanService.isBanned(userLogin))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you_are_banned")
-        if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_add_data")
-        if(memberValidate(member)!=null)
-            return memberValidate(member)!!
-        if(bandService.doesSameMemberExist(member))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_exists")
+        members.forEach{member->
+            if(member.artistId==null||member.bandId==null||member.role==null||member.joinedYear==null)
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("missing_member_add_data")
+            if(memberValidate(member)!=null)
+                return memberValidate(member)!!
+            if(bandService.doesSameMemberExist(member))
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("member_exists")
 
-        try{
-            bandsMemberService.addBandMember(member,userLogin)
+            try{
+                bandsMemberService.addBandMember(member,userLogin)
+            }
+            catch (e:ContributionLimitExceededException){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
+            }
+            catch(e:Exception){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
+            }
         }
-        catch (e:ContributionLimitExceededException){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("${e::class.simpleName} ${e.message}")
-        }
-        catch(e:Exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("unexpected_error: ${e.message}")
-        }
-
         return ResponseEntity.ok("member_addition_received")
     }
 

@@ -489,7 +489,7 @@
     <string name="backing_vocals">chórki</string>
     <string name="present">obecnie</string>
     <string name="disbanded">Rozwiązany</string>
-    <string name="on_hold">Wstrzymany</string>
+    <string name="on_hold">Zawieszony</string>
     <string name="unknown">Nieznany</string>
     <string name="favorite_all">Dodaj wszystkich\nzespołu do ulubionych</string>
     <string name="band_genre_info">Są one obliczane automatycznie na podstawie gatunków i wagi albumu, więc mogą być nieoczekiwane.</string>
@@ -572,6 +572,7 @@
     <string name="enter_album_data">Wpisz dane albumu</string>
     <string name="search_band_dots">Wyszukaj zespół...</string>
     <string name="enter_2_plus_characters">Wpisz co najmniej 2 znaki</string>
+    <string name="enter_3_plus_characters">Wpisz co najmniej 3 znaki</string>
     <string name="album_title">Tytuł albumu</string>
     <string name="invalid_release_date">Data wydania nie może być wcześniejsza niż rok założenia zespołu ani późniejsza niż 1 rok od teraz</string>
     <string name="choose_band_first">Najpierw wybierz zespół</string>
@@ -598,10 +599,24 @@
     <string name="enter_image_url">Wpisz url zdjęcia</string>
     <string name="enter_photo_url">Wpisz url zdjęcia</string>
     <string name="artist_photo_url">Wklej url do zdjęcia artysty. Musisz mieć co najmniej 4 poziom, żeby to zrobić.</string>
-
     <string name="enter_event_data">Wpisz dane wydarzenia</string>
     <string name="event_date">Data wydarzenia</string>
     <string name="event_name">Nazwa wydarzenia</string>
     <string name="enter_event_description">Opisz wydarzenie</string>
     <string name="event_add_info">Wydarzenia powinny być ważnymi wydarzeniami, takimi jak koncerty rocznicowe, otrzymanie nagrody itp.</string>
+    <string name="band_description">opis zespołu</string>
+    <string name="band_photo_url">Wklej url do zdjęcia zespołu. Musisz mieć co najmniej 4 poziom, żeby to zrobić.</string>
+    <string name="enter_band_data">Wpisz dane zespołu</string>
+    <string name="add_band_members">Dodaj członków zespołu</string>
+    <string name="disbanded_year">Rok rozwiązania</string>
+    <string name="search_artist_dots">Wyszukaj artystę...</string>
+    <string name="nickname">Ksywka</string>
+    <string name="missing_artist">Brakuje artysty, którego chcesz dodać?</string>
+    <string name="joined_year">Rok dołączenia</string>
+    <string name="left_year">Rok opuszczenia</string>
+    <string name="add_to_preview">Dodaj do podglądu</string>
+    <string name="add_all">Dodaj wszystkich</string>
+
+    <string name="add_members">Dodaj członków zespołu</string>
+    <string name="adding_to">Dodajesz członków zespołu do: </string>
 </resources>

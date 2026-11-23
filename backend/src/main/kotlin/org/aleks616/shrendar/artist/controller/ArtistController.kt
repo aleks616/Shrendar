@@ -5,6 +5,7 @@ import org.aleks616.shrendar.artist.model.*
 import org.aleks616.shrendar.artist.service.ArtistService
 import org.aleks616.shrendar.artist.service.ArtistWikiService
 import org.aleks616.shrendar.band.model.ArtistBandsStatusDto
+import org.aleks616.shrendar.band.model.BandAlbumAddDto
 import org.aleks616.shrendar.band.service.BandService
 import org.aleks616.shrendar.band.service.BandsMemberService
 import org.aleks616.shrendar.common.Utils
@@ -46,6 +47,11 @@ class ArtistController(
         val userAuth=SecurityContextHolder.getContext().authentication?:throw IllegalStateException("something_wrong")
         val userLogin=userAuth.name
         return artistWikiService.getByIdWiki(id,userLogin)
+    }
+
+    @GetMapping("/member-add/name/{name}")
+    fun getArtistDataForAlbumAdding(@PathVariable name:String):List<ArtistMemberAddDto>{
+        return artistService.getArtistDataForAlbumAdding(name)
     }
 
     @GetMapping("/name")

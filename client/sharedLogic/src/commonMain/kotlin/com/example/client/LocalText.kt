@@ -582,6 +582,7 @@ class LocalText {
             "enter_album_data"->MR.strings.enter_album_data
             "search_band_dots"->MR.strings.search_band_dots
             "enter_2_plus_characters"->MR.strings.enter_2_plus_characters
+            "enter_3_plus_characters"->MR.strings.enter_3_plus_characters
             "album_title"->MR.strings.album_title
             "invalid_release_date"->MR.strings.invalid_release_date
             "choose_band_first"->MR.strings.choose_band_first
@@ -612,6 +613,20 @@ class LocalText {
             "event_name"->MR.strings.event_name
             "enter_event_description"->MR.strings.enter_event_description
             "event_add_info"->MR.strings.event_add_info
+            "band_description"->MR.strings.band_description
+            "band_photo_url"->MR.strings.band_photo_url
+            "enter_band_data"->MR.strings.enter_band_data
+            "add_band_members"->MR.strings.add_band_members
+            "disbanded_year"->MR.strings.disbanded_year
+            "search_artist_dots"->MR.strings.search_artist_dots
+            "nickname"->MR.strings.nickname
+            "missing_artist"->MR.strings.missing_artist
+            "joined_year"->MR.strings.joined_year
+            "left_year"->MR.strings.left_year
+            "add_to_preview"->MR.strings.add_to_preview
+            "add_all"->MR.strings.add_all
+            "add_members"->MR.strings.add_members
+            "adding_to"->MR.strings.adding_to
             else->throw IllegalArgumentException("Unknown string resource: $resourceKey")
         }
     }
