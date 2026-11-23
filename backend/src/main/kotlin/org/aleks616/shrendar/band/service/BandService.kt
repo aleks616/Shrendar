@@ -190,7 +190,7 @@ class BandService(
     }
 
     @Transactional
-    fun addBand(bandAddDto:BandAddDto,userLogin:String) {
+    fun addBand(bandAddDto:BandAddDto,userLogin:String):Int? {
         val requestingUser:User=userAccountService.getUserByLogin(userLogin)!!
         val exception:ContributionLimitExceededException?=rankService.checkRank(requestingUser)
         if(exception!=null) throw exception
@@ -242,7 +242,7 @@ class BandService(
                 confirmedBy=confirmedByUser
             })
         }
-
+        return bandId
     }
 
     @Transactional

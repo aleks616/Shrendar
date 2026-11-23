@@ -15,6 +15,8 @@ import {SearchResultsPage} from "./pages/SearchResultsPage"
 import {AddAlbum} from "./pages/AddAlbum"
 import {AddArtist} from "./pages/AddArtist"
 import {AddEvent} from "./pages/AddEvent"
+import {AddBand} from "./pages/AddBand"
+import {AddBandMembers} from "./pages/AddBandMembers"
 
 const routes=[
     {path:'/',element:<Home/>},
@@ -24,6 +26,8 @@ const routes=[
     {path:'/reset-password',element:<SetPassword/>},
     {path:'/u/:user',element:<ProfilePage/>},
     {path:'/band/:band',element:<BandWikiPage/>},
+    {path:'/band-add',element:<AddBand/>},
+    {path:'/band-add/:band/members',element:<AddBandMembers/>},
     {path:'/artist/:artist',element:<ArtistWikiPage/>},
     {path:'/artist-add',element:<AddArtist/>},
     {path:'/album/:album',element:<AlbumWikiPage/>},

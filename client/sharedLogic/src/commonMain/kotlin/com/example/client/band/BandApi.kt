@@ -1,6 +1,7 @@
 package com.example.client.band
 
 import com.example.client.BASE_URL
+import com.example.client.artist.ArtistAddDto
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import io.ktor.client.*
@@ -9,6 +10,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -49,6 +52,32 @@ class BandApi private constructor(
         }
     }
 
+    suspend fun addBand(band:BandAddDto,token:String):String{
+        return try{
+            client.post("$BASE_URL/band/add"){
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+                setBody(band)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            e.response.bodyAsText()
+        }
+    }
+
+    suspend fun addBandMembers(members:List<ArtistBandAddDto>,token:String):String{
+        return try{
+            client.post("$BASE_URL/band/member-add"){
+                contentType(ContentType.Application.Json)
+                header("Authorization","Bearer $token")
+                setBody(members)
+            }.body()
+        }
+        catch(e:ClientRequestException){
+            e.response.bodyAsText()
+        }
+    }
+
     companion object {
         private fun createHttpClient()=HttpClient {
             expectSuccess=true
@@ -69,4 +98,6 @@ class BandApi private constructor(
 object BandClient {
     suspend fun getBandWikiPageDataById(id:Int,token:String?):BandWikiDto=BandApi().getBandWikiPageDataById(id,token)
     suspend fun getBandDataForAlbumAdding(name:String):List<BandAlbumAddDto> =BandApi().getBandDataForAlbumAdding(name)
+    suspend fun addBand(band:BandAddDto,token:String):String=BandApi().addBand(band,token)
+    suspend fun addBandMembers(members:List<ArtistBandAddDto>,token:String):String=BandApi().addBandMembers(members,token)
 }

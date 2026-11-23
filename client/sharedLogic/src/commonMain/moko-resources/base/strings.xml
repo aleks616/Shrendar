@@ -570,6 +570,7 @@
     <string name="enter_album_data">Enter album data</string>
     <string name="search_band_dots">Search band...</string>
     <string name="enter_2_plus_characters">Enter at least 2 characters</string>
+    <string name="enter_3_plus_characters">Enter at least 3 characters</string>
     <string name="album_title">Album title</string>
     <string name="invalid_release_date">Release date can't be before band's formed year or further in the future than 1 year</string>
     <string name="choose_band_first">Choose band first</string>
@@ -596,10 +597,24 @@
     <string name="enter_image_url">Enter image url</string>
     <string name="enter_photo_url">Enter photo url</string>
     <string name="artist_photo_url">Paste url of the artist photo. You must have at least level 4 to do this.</string>
-
     <string name="enter_event_data">Enter event data</string>
     <string name="event_date">Event date</string>
     <string name="event_name">Event name</string>
     <string name="enter_event_description">Describe the event</string>
     <string name="event_add_info">Events are supposed to be important events, like anniversary concerts, getting awards, etc.</string>
+    <string name="band_description">Band Description</string>
+    <string name="band_photo_url">Paste url of the artist photo. You must have at least level 4 to do this.</string>
+    <string name="enter_band_data">Enter band data</string>
+    <string name="add_band_members">Add band members</string>
+    <string name="disbanded_year">Disbanded year</string>
+    <string name="search_artist_dots">Search artist...</string>
+    <string name="nickname">Nickname</string>
+    <string name="missing_artist">Artist you want to add is missing?</string>
+    <string name="joined_year">Joined year</string>
+    <string name="left_year">Left year</string>
+    <string name="add_to_preview">Add to preview</string>
+    <string name="add_all">Add all</string>
+
+    <string name="add_members">Add members</string>
+    <string name="adding_to">You're adding members to:</string>
 </resources>

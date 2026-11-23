@@ -52,6 +52,19 @@ class ArtistService(
         return artistRepository.findArtistByNameEndsWithIgnoreCase(name)
     }
 
+    fun getArtistDataForAlbumAdding(name:String):List<ArtistMemberAddDto>{
+        val artists=artistRepository.findArtistByNameContains(name)
+        return artists.map{
+            ArtistMemberAddDto(
+                id=it.id!!,
+                name=it.name,
+                birthYear=it.birthDate?.year,
+                deathYear=it.deathDate?.year,
+                country=countryRepository.getCountryNameById(it.country),
+            )
+        }
+    }
+
     fun getByBirthday(month:Int,day:Int):List<ArtistAnniversaryDto> {
         val data=artistRepository.findArtistByBirthDate(month,day)
         val result:MutableList<ArtistAnniversaryDto> = mutableListOf()
