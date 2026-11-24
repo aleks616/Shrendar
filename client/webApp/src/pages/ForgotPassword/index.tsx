@@ -3,10 +3,12 @@ import {RequestPasswordReset} from "../../components/RequestPasswordReset/Reques
 import {getLanguage} from "../../components/Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
+import spanishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_es.json'
+import portugueseStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pt.json'
 
 export function ForgotPassword(){
     const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const strings: Record<string,string>=lang==="PL"?polishStrings:lang==="ES"?spanishStrings:lang==="PT"?portugueseStrings:englishStrings
     return (
         <>
             <AppHeader/>

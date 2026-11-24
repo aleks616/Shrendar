@@ -8,6 +8,8 @@
 	<array>
 		<string>en</string>
 		<string>pl</string>
+		<string>es</string>
+		<string>pt</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

@@ -1,7 +1,7 @@
 import Cookies from "universal-cookie"
 
 export const supportedLanguages=[
-    "EN","PL"
+    "EN","PL","ES","PT"
 ]
 
 export const cookies=new Cookies()

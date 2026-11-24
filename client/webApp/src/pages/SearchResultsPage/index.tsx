@@ -1,6 +1,8 @@
 import {getLanguage} from "../../components/Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
+import spanishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_es.json'
+import portugueseStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pt.json'
 import {AppHeader} from "../../components/AppHeader/AppHeader.tsx"
 import React,{useEffect,useState} from "react"
 import {SearchClient,SearchResultItem,SearchResults} from "sharedLogic"
@@ -11,7 +13,7 @@ import {ImageWithFallback} from "../../components/ImageWithFallback/ImageWithFal
 export function SearchResultsPage(){
     const query=useParams().query!!
     const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const strings: Record<string,string>=lang==="PL"?polishStrings:lang==="ES"?spanishStrings:lang==="PT"?portugueseStrings:englishStrings
     const translate=(key: string) => strings[key]??key
     const [data,setData]=useState<SearchResults | null>(null)
     const [isLoading,setIsLoading]=useState(true)
