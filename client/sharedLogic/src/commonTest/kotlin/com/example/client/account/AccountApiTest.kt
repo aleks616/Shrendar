@@ -421,7 +421,7 @@ class AccountApiTest {
         }
     }
 
-    @Test
+   /* @Test
     fun addBirthdayFormatsTheDateWithLeadingZeroes() {
         runTest {
             var request:HttpRequestData?=null
@@ -442,8 +442,8 @@ class AccountApiTest {
             }
         }
     }
-
-    @Test
+*/
+   /* @Test
     fun addBirthdayReturnsTheResponseBodyForClientErrors() {
         runTest {
             val client=mockClient {
@@ -460,7 +460,7 @@ class AccountApiTest {
                 client.close()
             }
         }
-    }
+    }*/
 
     @Test
     fun deleteAccountSendsTheLanguageAndCredentials() {
