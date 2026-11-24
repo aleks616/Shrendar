@@ -13,6 +13,8 @@ import {Link} from "react-router-dom"
 import {getLanguage} from "../Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
+import spanishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_es.json'
+import portugueseStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pt.json'
 import {logout} from "../Logout/Logout.tsx"
 import {AccountClient} from "sharedLogic"
 import {useNavigate} from "react-router"
@@ -21,7 +23,7 @@ import {LanguageSwitcher} from "../LanguageSwitcher/LanguageSwitcher.tsx"
 
 export function AppHeader(){
     const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const strings: Record<string,string>=lang==="PL"?polishStrings:lang==="ES"?spanishStrings:lang==="PT"?portugueseStrings:englishStrings
     const translate=(key: string) => strings[key]??key
     //todo get notifications, hide the icon in 1.0
     const notifications=Math.floor(Math.random()*10)

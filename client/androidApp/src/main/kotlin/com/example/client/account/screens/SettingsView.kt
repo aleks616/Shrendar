@@ -102,16 +102,14 @@ fun SettingsView(
     }
 
     suspend fun updateBirthdate() {
-        val birthdateAsKotlinDate=birthdate?.let {
-            KotlinDate(it.year,it.monthValue,it.dayOfMonth)
-        }
-        if(!authToken.isNullOrBlank()&&birthdateAsKotlinDate!=null) {
-            val result=AccountClient.addBirthday(authToken,birthdateAsKotlinDate)
+        val selectedBirthdate=birthdate
+        if(!authToken.isNullOrBlank()&&selectedBirthdate!=null) {
+            val result=AccountClient.addBirthday(authToken,selectedBirthdate.toString())
             if(result!="birthday_added") {
                 errorText=LocalText().getStringResource(result)
             }
             else {
-                userData=userData?.copy(birthDate=birthdateAsKotlinDate)
+                userData=userData?.copy(birthDate=KotlinDate(selectedBirthdate.year,selectedBirthdate.monthValue,selectedBirthdate.dayOfMonth))
             }
         }
     }

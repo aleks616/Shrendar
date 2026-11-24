@@ -248,7 +248,10 @@ struct SettingsView: View {
 	func updateBirthdate(token: String, birthdate: Foundation.Date) async throws {
 		let result = try await AccountClient().addBirthday(
 			token: token,
-			birthday: kotlinDate(from: birthdate)
+			birthday: birthdate.formatted(
+				Foundation.Date.ISO8601FormatStyle(timeZone: calendar.timeZone)
+					.year().month().day()
+			)
 		)
 		if result != "birthday_added" {
 			errorText = localize(key: result)
@@ -321,8 +324,7 @@ struct SettingsView: View {
 		}
 	}
 
-	func foundationDate(from date: SharedLogic.Date?) -> Foundation.Date?
-	{
+	func foundationDate(from date: SharedLogic.Date?) -> Foundation.Date? {
 		guard let date else { return nil }
 		return calendar.date(
 			from: DateComponents(
@@ -330,18 +332,6 @@ struct SettingsView: View {
 				month: Int(date.month),
 				day: Int(date.day)
 			)
-		)
-	}
-
-	func kotlinDate(from date: Foundation.Date) -> SharedLogic.Date {
-		let components = calendar.dateComponents(
-			[.year, .month, .day],
-			from: date
-		)
-		return SharedLogic.Date(
-			year: Int32(components.year!),
-			month: Int32(components.month!),
-			day: Int32(components.day!)
 		)
 	}
 }

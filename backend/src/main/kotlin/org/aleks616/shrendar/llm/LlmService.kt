@@ -23,7 +23,7 @@ class LlmService{
     private val restTemplate=RestTemplate()
 
     fun translate(request:TranslationRequestDto):String {
-        val prompt="Translate this description into ${request.targetLanguage}. Return only the translation. Preserve the original meaning, facts, tone, formatting, names, and line breaks. Do not summarize, rewrite, explain, add, or remove information.\n\n${request.text}"
+        val prompt="Translate this description into ${request.targetLanguage} (ISO 639-1 code). Return only the translation. Preserve the original meaning, facts, tone, formatting, names, and line breaks. Do not summarize, rewrite, explain, add, or remove information.\n\n${request.text}"
         val requestBody=GeminiDTO.Request(prompt)
 
         try {

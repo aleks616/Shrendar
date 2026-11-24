@@ -1,6 +1,8 @@
 import {getLanguage} from "../Language.ts"
 import englishStrings from 'sharedLogic/localization/comexampleclient_stringsJson.json'
 import polishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pl.json'
+import spanishStrings from 'sharedLogic/localization/comexampleclient_stringsJson_es.json'
+import portugueseStrings from 'sharedLogic/localization/comexampleclient_stringsJson_pt.json'
 import {useEffect,useState} from "react"
 import {Button,ErrorMessage,Form,Heading,Input,Label,TextField} from "@heroui/react"
 import {AccountClient,RegisterValidator,ResetPasswordDto} from "sharedLogic"
@@ -8,7 +10,7 @@ import {isMobile} from 'react-device-detect'
 
 export function CreatePassword(){
     const lang=getLanguage().toUpperCase()
-    const strings: Record<string,string>=lang==="PL"?polishStrings:englishStrings
+    const strings: Record<string,string>=lang==="PL"?polishStrings:lang==="ES"?spanishStrings:lang==="PT"?portugueseStrings:englishStrings
     const translate=(key:string)=>strings[key]??key
     const [password,setPassword]=useState("")
     const [repeatPassword,setRepeatPassword]=useState("")

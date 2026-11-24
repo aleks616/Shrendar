@@ -12,6 +12,7 @@ struct PasswordResetView: View {
 	private enum Field: Int, CaseIterable {
 		case password, confirmPassword
 	}
+	let lang = Locale.current.language.languageCode ?? "EN"
 	var resetURL:URL?
 	@State private var password: String = ""
 	@State private var confirmPassword: String = ""
@@ -91,11 +92,12 @@ struct PasswordResetView: View {
 					errorText = localize(key: "invalid_password")
 					return
 				}
+				let langCode: String = lang.identifier.uppercased()
 				let resetPasswordRequest = ResetPasswordDto(
 					email: email!,
 					newPassword: password,
 					code: code!,
-					language: "EN"
+					language: langCode
 				)
 				
 				let result = try await AccountClient().resetPassword(request: resetPasswordRequest)

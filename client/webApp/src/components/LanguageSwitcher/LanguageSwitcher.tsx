@@ -1,11 +1,12 @@
-import {getLanguage,setLanguage} from "../Language.ts"
-import {useState} from "react"
-import {Button,Dropdown,Label} from "@heroui/react"
+import {setLanguage} from "../Language.ts"
+import {Button,Dropdown} from "@heroui/react"
 import {LanguageIcon} from "@heroicons/react/24/solid"
 
 const languages:{code:string,selfname:string}[]=[
     {code:"EN",selfname:"English"},
     {code:"PL",selfname:"Polski"},
+    {code:"ES",selfname:"Español"},
+    {code:"PT",selfname:"Português"},
 ]
 
 export function LanguageSwitcher(){
