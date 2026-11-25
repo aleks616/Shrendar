@@ -40,8 +40,15 @@ struct AlbumDataView: View {
 				} else if let album {
 					ScrollView {
 						VStack(alignment: .leading, spacing: 16) {
-							Text(album.albumName ?? "")
-								.font(.largeTitle.bold())
+							HStack{
+								Text(album.albumName ?? "")
+									.font(.largeTitle.bold())
+								
+								//todo: this is a temporal solution, will lead to edit screen later on
+								NavigationLink(destination: AlbumAddView()){
+									Image(systemName: "pencil")
+								}
+							}
 
 							HStack(alignment: .top, spacing: 20) {
 								VStack(alignment: .leading, spacing: 8) {

@@ -489,7 +489,7 @@
     <string name="disbanded">Disuelta</string>
     <string name="on_hold">En pausa</string>
     <string name="unknown">Desconocido</string>
-    <string name="favorite_all">Añadir a todos los miembros\na favoritos</string>
+    <string name="favorite_all">Añadir a todos</string>
     <string name="band_genre_info">Se calculan automáticamente a partir de los géneros y la importancia de los álbumes, por lo que pueden resultar inesperados.</string>
 
     <string name="age">Edad</string>
