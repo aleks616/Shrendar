@@ -28,38 +28,44 @@ struct ArtistAddView: View {
 		return Calendar.current.date(byAdding: .year, value: 10, to: birthdate) ?? .distantPast
 	}
 
+	var isValid: Bool {
+		!name.isEmpty && birthdate != nil && (!isDead || deathdate != nil)
+	}
+
 	var body: some View {
 		NavigationStack {
-			Group {
+			VStack(spacing: 4) {
+				Text(localize(key: "enter_artist_data"))
+					.font(.system(size: 28.0, weight: .bold))
+
 				Form {
-					Section {
-						Text(localize(key: "enter_artist_data"))
-							.font(.system(size: 24.0, weight: .bold))
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "artist_name"))
+						TextField(localize(key: "artist_name"), text: $name)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
 					}
 
-					TextField(localize(key: "artist_name"), text: $name)
-
-					DatePicker(
-						localize(key: "birthdate"),
-						selection: Binding(
-							get: { birthdate ?? maxBirthDate },
-							set: { birthdate = $0 }
-						),
-						in: .distantPast...maxBirthDate,
-						displayedComponents: .date
+					CalendarDateField(
+						label: localize(key: "birthdate"),
+						minDate: .distantPast,
+						maxDate: maxBirthDate,
+						isDisabled: false,
+						fieldError: nil,
+						date: $birthdate
 					)
 
 					Toggle(localize(key: "is_dead"), isOn: $isDead)
 
 					if isDead {
-						DatePicker(
-							localize(key: "death_date"),
-							selection: Binding(
-								get: { deathdate ?? Foundation.Date() },
-								set: { deathdate = $0 }
-							),
-							in: minDeathDate...Foundation.Date(),
-							displayedComponents: .date
+						CalendarDateField(
+							label: localize(key: "death_date"),
+							minDate: minDeathDate,
+							maxDate: Foundation.Date(),
+							isDisabled: false,
+							fieldError: nil,
+							date: $deathdate
 						)
 					}
 
@@ -67,23 +73,44 @@ struct ArtistAddView: View {
 
 					CountryPicker(label: localize(key: "country"), countryId: $countryId)
 
-					TextField(localize(key: "description"), text: $description, axis: .vertical)
-						.lineLimit(4...)
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "description"))
+						TextField(localize(key: "artist_description"), text: $description, axis: .vertical)
+							.lineLimit(4...)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
+					}
 
 					ImageField(
 						placeholder: localize(key: "enter_photo_url"),
 						description: localize(key: "artist_photo_url"),
 						imageUrl: $imageUrl
 					)
+					Section {
+						VStack {
+							if !resultText.isEmpty {
+								Text(localize(key: resultText))
+							}
 
-					Button(localize(key: "add")) {
-						submit()
+							Button(action: submit) {
+								Text(localize(key: "add")).frame(width: 140)
+							}
+							.buttonStyle(.plain)
+							.disabled(!isValid)
+							.padding()
+							.background(Color.accentColor)
+							.foregroundColor(.white)
+							.glassEffect()
+							.cornerRadius(25)
+						}
+						.frame(maxWidth: .infinity)
+						.padding(.bottom, 8)
 					}
-					.disabled(name.isEmpty || birthdate == nil || (isDead && deathdate == nil))
-
-					if !resultText.isEmpty {
-						Text(localize(key: resultText))
-					}
+					.listRowBackground(Color.clear)
+				}
+				.onTapGesture {
+					UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 				}
 			}
 		}

@@ -24,41 +24,68 @@ struct EventAddView: View {
 		Calendar.current.date(byAdding: .year, value: 1, to: Foundation.Date()) ?? .distantFuture
 	}
 
+	var isValid: Bool {
+		selectedBand != nil && date != nil && !name.isEmpty && !description.isEmpty
+	}
+
 	var body: some View {
 		NavigationStack {
-			Group {
-				Form {
-					Section {
-						Text(localize(key: "enter_event_data"))
-							.font(.system(size: 24.0, weight: .bold))
-					}
+			VStack(spacing: 4) {
+				Text(localize(key: "enter_event_data"))
+					.font(.system(size: 28.0, weight: .bold))
 
+				Form {
 					BandPicker(selectedBand: $selectedBand)
 
-					DatePicker(
-						localize(key: "date"),
-						selection: Binding(
-							get: { date ?? maxDate },
-							set: { date = $0 }
-						),
-						in: minDate...maxDate,
-						displayedComponents: .date
+					CalendarDateField(
+						label: localize(key: "date"),
+						minDate: minDate,
+						maxDate: maxDate,
+						isDisabled: selectedBand == nil,
+						fieldError: selectedBand == nil ? localize(key: "choose_band_first") : nil,
+						date: $date
 					)
-					.disabled(selectedBand == nil)
 
-					TextField(localize(key: "event_name"), text: $name)
-
-					TextField(localize(key: "description"), text: $description, axis: .vertical)
-						.lineLimit(4...)
-
-					Button(localize(key: "add")) {
-						submit()
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "event_name"))
+						TextField(localize(key: "event_name"), text: $name)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
 					}
-					.disabled(selectedBand == nil || date == nil || name.isEmpty || description.isEmpty)
 
-					if !resultText.isEmpty {
-						Text(localize(key: resultText))
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "description"))
+						TextField(localize(key: "enter_event_description"), text: $description, axis: .vertical)
+							.lineLimit(4...)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
 					}
+					Section {
+						VStack {
+							if !resultText.isEmpty {
+								Text(localize(key: resultText))
+							}
+
+							Button(action: submit) {
+								Text(localize(key: "add")).frame(width: 140)
+							}
+							.buttonStyle(.plain)
+							.disabled(!isValid)
+							.padding()
+							.background(Color.accentColor)
+							.foregroundColor(.white)
+							.glassEffect()
+							.cornerRadius(25)
+						}
+						.frame(maxWidth: .infinity)
+						.padding(.bottom, 8)
+					}
+					.listRowBackground(Color.clear)
+				}
+				.onTapGesture {
+					UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 				}
 			}
 		}

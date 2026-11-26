@@ -26,14 +26,14 @@ struct GenrePicker: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
 			Text(localize(key: "main_subgenre"))
-			VStack(alignment: .leading, spacing: 0) {
+			VStack(alignment: .leading) {
 				TextField(localize(key: "search_genre_dots"), text: $searchText)
 					.autocorrectionDisabled()
 					.focused($focused)
 					.padding(12)
 				if focused {
 					ScrollView {
-						VStack(alignment: .leading, spacing: 0) {
+						VStack(alignment: .leading) {
 							ForEach(filteredGenres, id: \.id) { genre in
 								Divider()
 								Button {

@@ -17,7 +17,7 @@ struct BandPicker: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
 			Text(localize(key: "band"))
-			VStack(alignment: .leading, spacing: 0) {
+			VStack(alignment: .leading) {
 				TextField(localize(key: "search_band_dots"), text: $searchText)
 					.autocorrectionDisabled()
 					.padding(12)

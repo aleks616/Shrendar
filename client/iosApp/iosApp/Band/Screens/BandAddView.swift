@@ -17,20 +17,44 @@ struct BandAddView: View {
 	@State private var description: String = ""
 	@State private var imageUrl: String = ""
 	@State private var resultText: String = ""
+	@State private var linkedBandId: Int? = nil
+
+	var formedYearPlaceholder: String {
+		"1920"
+	}
+
+	var disbandedYearPlaceholder: String {
+		guard let formedYear else { return "" }
+		return "\(formedYear)"
+	}
+
+	var isValid: Bool {
+		!name.isEmpty && formedYear != nil && countryId != nil && (status != "disbanded" || disbandedYear != nil)
+	}
 
 	var body: some View {
 		NavigationStack {
-			Group {
+			VStack(spacing: 4) {
+				Text(localize(key: "enter_band_data"))
+					.font(.system(size: 28.0, weight: .bold))
+
 				Form {
-					Section {
-						Text(localize(key: "enter_band_data"))
-							.font(.system(size: 24.0, weight: .bold))
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "band_name"))
+						TextField(localize(key: "band_name"), text: $name)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
 					}
 
-					TextField(localize(key: "band_name"), text: $name)
-
-					TextField(localize(key: "formed_year"), value: $formedYear, format: .number.grouping(.never))
-						.keyboardType(.numberPad)
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "formed_year"))
+						TextField(formedYearPlaceholder, value: $formedYear, format: .number.grouping(.never))
+							.keyboardType(.numberPad)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
+					}
 
 					BandStatusPicker(status: $status)
 						.onChange(of: status) { _, newValue in
@@ -40,34 +64,71 @@ struct BandAddView: View {
 						}
 
 					if status == "disbanded" {
-						TextField(localize(key: "disbanded_year"), value: $disbandedYear, format: .number.grouping(.never))
-							.keyboardType(.numberPad)
+						VStack(alignment: .leading, spacing: 6) {
+							Text(localize(key: "disbanded_year"))
+							TextField(disbandedYearPlaceholder, value: $disbandedYear, format: .number.grouping(.never))
+								.keyboardType(.numberPad)
+								.padding(12)
+								.background(Color.secondary.opacity(0.15))
+								.cornerRadius(10)
+						}
 					}
 
 					CountryPicker(label: localize(key: "country"), countryId: $countryId)
 
-					TextField(localize(key: "description"), text: $description, axis: .vertical)
-						.lineLimit(4...)
+					VStack(alignment: .leading, spacing: 6) {
+						Text(localize(key: "description"))
+						TextField(localize(key: "band_description"), text: $description, axis: .vertical)
+							.lineLimit(4...)
+							.padding(12)
+							.background(Color.secondary.opacity(0.15))
+							.cornerRadius(10)
+					}
 
 					ImageField(
 						placeholder: localize(key: "enter_photo_url"),
 						description: localize(key: "band_photo_url"),
 						imageUrl: $imageUrl
 					)
+					Section {
+						VStack(spacing: 8) {
+							if !resultText.isEmpty, Int(resultText) == nil {
+								Text(localize(key: resultText))
+							}
 
-					Button(localize(key: "add")) {
-						submit()
-					}
-					.disabled(
-						name.isEmpty ||
-						formedYear == nil ||
-						countryId == nil ||
-						(status == "disbanded" && disbandedYear == nil)
-					)
+							Button(action: submit) {
+								Text(localize(key: "add")).frame(width: 140)
+							}
+							.buttonStyle(.plain)
+							.disabled(!isValid)
+							.padding()
+							.background(Color.accentColor)
+							.foregroundColor(.white)
+							.cornerRadius(25)
 
-					if !resultText.isEmpty, Int(resultText) == nil {
-						Text(localize(key: resultText))
+							if let bandId = Int(resultText) {
+								Button {
+									linkedBandId = bandId
+								} label: {
+									Text(localize(key: "add_band_members")).frame(width: 140)
+								}
+								.buttonStyle(.plain)
+								.padding()
+								.background(Color.accentColor)
+								.foregroundColor(.white)
+								.cornerRadius(25)
+							}
+						}
+						.frame(maxWidth: .infinity)
+						.padding(.bottom, 8)
+						.navigationDestination(item: $linkedBandId) { bandId in
+							BandMembersAddView(bandId: bandId)
+						}
 					}
+					.listRowBackground(Color.clear)
+				}
+				.onTapGesture {
+					UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
 				}
 			}
 		}

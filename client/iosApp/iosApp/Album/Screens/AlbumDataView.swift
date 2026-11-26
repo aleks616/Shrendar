@@ -44,10 +44,21 @@ struct AlbumDataView: View {
 								Text(album.albumName ?? "")
 									.font(.largeTitle.bold())
 								
-								//todo: this is a temporal solution, will lead to edit screen later on
-								NavigationLink(destination: AlbumAddView()){
-									Image(systemName: "pencil")
-								}
+//								NavigationLink(destination: AlbumAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: ArtistAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: BandAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: EventAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: BandMembersAddView(bandId: 1032)){
+//									Image(systemName: "pencil")
+//								}
 							}
 
 							HStack(alignment: .top, spacing: 20) {
