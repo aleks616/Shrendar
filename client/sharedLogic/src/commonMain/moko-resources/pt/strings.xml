@@ -489,7 +489,7 @@
     <string name="disbanded">Encerrada</string>
     <string name="on_hold">Em hiato</string>
     <string name="unknown">Desconhecido</string>
-    <string name="favorite_all">Adicionar todos os membros\naos favoritos</string>
+    <string name="favorite_all">Adicionar todos</string>
     <string name="band_genre_info">Eles são calculados automaticamente com base nos gêneros e na importância dos álbuns, então podem ser inesperados.</string>
 
     <string name="age">Idade</string>

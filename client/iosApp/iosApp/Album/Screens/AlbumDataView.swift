@@ -40,8 +40,26 @@ struct AlbumDataView: View {
 				} else if let album {
 					ScrollView {
 						VStack(alignment: .leading, spacing: 16) {
-							Text(album.albumName ?? "")
-								.font(.largeTitle.bold())
+							HStack{
+								Text(album.albumName ?? "")
+									.font(.largeTitle.bold())
+								//todo: remove
+//								NavigationLink(destination: AlbumAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: ArtistAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: BandAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: EventAddView()){
+//									Image(systemName: "pencil")
+//								}
+//								NavigationLink(destination: BandMembersAddView(bandId: 1032)){
+//									Image(systemName: "pencil")
+//								}
+							}
 
 							HStack(alignment: .top, spacing: 20) {
 								VStack(alignment: .leading, spacing: 8) {
