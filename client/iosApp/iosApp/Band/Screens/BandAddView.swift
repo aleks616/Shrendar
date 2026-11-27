@@ -106,10 +106,10 @@ struct BandAddView: View {
 							.foregroundColor(.white)
 							.cornerRadius(25)
 
-							if let bandId = Int(resultText) {
-								Button {
-									linkedBandId = bandId
-								} label: {
+							if Int(resultText) != nil {
+								Button(action: {
+									linkedBandId = Int(resultText)
+								}) {
 									Text(localize(key: "add_band_members")).frame(width: 140)
 								}
 								.buttonStyle(.plain)

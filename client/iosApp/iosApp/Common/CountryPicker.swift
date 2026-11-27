@@ -37,11 +37,11 @@ struct CountryPicker: View {
 						VStack(alignment: .leading) {
 							ForEach(filteredCountries, id: \.id) { country in
 								Divider()
-								Button {
+								Button(action: {
 									countryId = country.id
 									searchText = localize(key: country.name)
 									focused = false
-								} label: {
+								}) {
 									Text(localize(key: country.name))
 										.frame(maxWidth: .infinity, alignment: .leading)
 										.padding(12)

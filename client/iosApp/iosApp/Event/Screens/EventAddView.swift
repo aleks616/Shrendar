@@ -84,9 +84,9 @@ struct EventAddView: View {
 					}
 					.listRowBackground(Color.clear)
 				}
-				.onTapGesture {
+				.simultaneousGesture(TapGesture().onEnded {
 					UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-				}
+				})
 			}
 		}
 	}

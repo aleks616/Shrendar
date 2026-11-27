@@ -20,10 +20,10 @@ struct CalendarDateField: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
 			Text(label)
-			Button {
-				pickedDate = date ?? min(max(Foundation.Date(), minDate), maxDate)
-				modalOpen = true
-			} label: {
+				Button(action: {
+					pickedDate = date ?? min(max(Foundation.Date(), minDate), maxDate)
+					modalOpen = true
+				}) {
 				Text(
 					date?.formatted(
 						Foundation.Date.ISO8601FormatStyle(timeZone: Calendar.current.timeZone)

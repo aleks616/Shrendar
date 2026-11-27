@@ -109,8 +109,7 @@ struct BandDataView: View {
 	}
 
 	var body: some View {
-		NavigationStack {
-			Group {
+		Group {
 				if isLoading {
 					ProgressView()
 						.controlSize(.large)
@@ -439,7 +438,6 @@ struct BandDataView: View {
 			} message: {
 				Text(localize(key:"band_genre_info"))
 			}
-		}
 	}
 
 	func loadBand() async {

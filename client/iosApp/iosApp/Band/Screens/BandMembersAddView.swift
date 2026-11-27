@@ -189,9 +189,7 @@ struct BandMembersAddView: View {
 					if !members.isEmpty {
 						Table(columns: memberColumns, data: members, emptyText: localize(key: "no_results")) { member, index in
 							if index == memberColumns.count - 1 {
-								Button {
-									removeMember(member)
-								} label: {
+								Button(action: { removeMember(member) }) {
 									Image(systemName: "trash")
 										.font(.system(size: 18.0))
 								}

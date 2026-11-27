@@ -36,11 +36,11 @@ struct GenrePicker: View {
 						VStack(alignment: .leading) {
 							ForEach(filteredGenres, id: \.id) { genre in
 								Divider()
-								Button {
+								Button(action: {
 									genreId = genre.id
 									searchText = genre.name
 									focused = false
-								} label: {
+								}) {
 									Text(genre.name)
 										.frame(maxWidth: .infinity, alignment: .leading)
 										.padding(12)
