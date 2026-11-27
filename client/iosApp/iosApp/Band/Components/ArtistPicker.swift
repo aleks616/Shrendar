@@ -12,6 +12,7 @@ struct ArtistPicker: View {
 	@Binding var selectedArtist: ArtistMemberAddDto?
 	@State private var searchText: String = ""
 	@State private var results: [ArtistMemberAddDto] = []
+	@State private var linkedArtistId: Int?
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
@@ -36,23 +37,43 @@ struct ArtistPicker: View {
 					}
 				ForEach(results, id: \.id) { artist in
 					Divider()
-					Button {
-						selectedArtist = artist
-						searchText = artist.name ?? ""
-						results = []
-					} label: {
-						HStack {
-							Text(artist.country.map { "\(artist.name ?? "") (\(localize(key: $0)))" } ?? artist.name ?? "")
-							Spacer()
+					HStack {
+						Button(action: {
+							selectedArtist = artist
+							searchText = artist.name ?? ""
+							results = []
+						}) {
+							HStack {
+								Text(artist.country.map { "\(artist.name ?? "") (\(localize(key: $0)))" } ?? artist.name ?? "")
+								Spacer()
+							}
+							.contentShape(Rectangle())
 						}
-						.padding(12)
-						.contentShape(Rectangle())
-					}
-					.buttonStyle(.plain)
+						.buttonStyle(.plain)
+
+						Button(action: {
+							linkedArtistId = Int(artist.id)
+						}) {
+							Image(systemName: "arrow.up.right.square")
+						}
+						.buttonStyle(.glassProminent)
+					}.padding(8)
 				}
 			}
 			.background(Color.secondary.opacity(0.15))
 			.cornerRadius(10)
+			.background(
+				NavigationLink(
+					destination: ArtistDataView(artistId: linkedArtistId ?? 0),
+					isActive: Binding(
+						get: { linkedArtistId != nil },
+						set: { if !$0 { linkedArtistId = nil } }
+					)
+				) {
+					EmptyView()
+				}
+					.hidden()
+			)
 			Text(localize(key: "enter_3_plus_characters"))
 				.font(.system(size: 16.0))
 				.foregroundStyle(.secondary)
