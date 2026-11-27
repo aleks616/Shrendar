@@ -12,8 +12,8 @@ struct BandPicker: View {
 	@Binding var selectedBand: BandAlbumAddDto?
 	@State private var searchText: String = ""
 	@State private var results: [BandAlbumAddDto] = []
-	@State private var linkedBandId: Int? = nil
-
+	@State private var linkedBandId: Int?
+	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
 			Text(localize(key: "band"))
@@ -38,11 +38,11 @@ struct BandPicker: View {
 				ForEach(results, id: \.id) { band in
 					Divider()
 					HStack {
-						Button {
+						Button(action: {
 							selectedBand = band
 							searchText = band.name ?? ""
 							results = []
-						} label: {
+						}) {
 							HStack {
 								Text(band.country.map { "\(band.name ?? "") (\(localize(key: $0)))" } ?? band.name ?? "")
 								Spacer()
@@ -50,25 +50,34 @@ struct BandPicker: View {
 							.contentShape(Rectangle())
 						}
 						.buttonStyle(.plain)
-						Button {
+						
+						Button(action:{
 							linkedBandId = Int(band.id)
-						} label: {
+						}){
 							Image(systemName: "arrow.up.right.square")
-								.contentShape(Rectangle())
 						}
-						.buttonStyle(.plain)
-					}
-					.padding(12)
+						.buttonStyle(.glassProminent)
+					}.padding(8)
 				}
+				
 			}
+			
 			.background(Color.secondary.opacity(0.15))
 			.cornerRadius(10)
+			.background(
+				NavigationLink(
+					destination: BandDataView(bandId: linkedBandId ?? 0),
+					isActive: Binding(
+						get: { linkedBandId != nil },
+						set: { if !$0 { linkedBandId = nil } }
+					)
+				) {
+					EmptyView()
+				}
+					.hidden()
+			)
 			Text(localize(key: "enter_2_plus_characters"))
 				.font(.system(size: 16.0))
 				.foregroundStyle(.secondary)
-		}
-		.navigationDestination(item: $linkedBandId) { bandId in
-			BandDataView(bandId: bandId)
-		}
-	}
+		}}
 }
